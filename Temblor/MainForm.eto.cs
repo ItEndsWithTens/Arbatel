@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Reflection;
 using Eto.Forms;
 using Eto.Drawing;
 
@@ -15,7 +16,19 @@ namespace Temblor
 			quitCommand.Executed += (sender, e) => Application.Instance.Quit();
 
 			var aboutCommand = new Command { MenuText = "About" };
-			aboutCommand.Executed += (sender, e) => MessageBox.Show(this, "Temblor version 0.0.0");
+
+			Assembly assembly = Assembly.GetAssembly(typeof(Temblor.MainForm));
+
+			Version version = assembly.GetName().Version;
+			int major = version.Major;
+			int minor = version.Minor;
+			int build = version.Build;
+			int revision = version.Revision;
+
+			aboutCommand.Executed += (sender, e) => MessageBox.Show(this,
+				"Temblor " + major + "." + minor + "\n\n" +
+				"build " + build + "\n" +
+				"revision " + revision);
 
 			// create menu
 			Menu = new MenuBar
