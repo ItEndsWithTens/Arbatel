@@ -1,7 +1,7 @@
 ﻿using System;
 using Eto.Forms;
 using Eto.Drawing;
-using Eto.Gl;
+using Temblor.Controls;
 
 namespace Temblor
 {
@@ -12,6 +12,8 @@ namespace Temblor
 			InitializeComponent();
 
 			var panel = new Panel() { BackgroundColor = Colors.Aquamarine };
+
+			panel.Content = new Viewport();
 
 			Content = panel;
 		}

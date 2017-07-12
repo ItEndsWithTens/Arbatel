@@ -11,7 +11,11 @@ namespace Temblor.WinForms
 		[STAThread]
 		public static void Main(string[] args)
 		{
-			new Application(Platforms.WinForms).Run(new MainForm());
+			var platform = Platform.Detect;
+
+			platform.Add<GLSurface.IHandler>(() => new WinGLSurfaceHandler());
+
+			new Application(platform).Run(new MainForm());
 		}
 	}
 }
