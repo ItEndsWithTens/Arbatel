@@ -25,21 +25,10 @@ namespace Temblor.Controls
 			GLInitalized += Viewport_GLInitalized;
 		}
 
-		private void Viewport_GLInitalized(object sender, EventArgs e)
-		{
-			GL.Enable(EnableCap.DepthTest);
-
-			GL.Viewport(0, 0, Width, Height);
-
-			// GL.ClearColor has two overloads, and if this class' ClearColor field is
-			// passed in, the compiler tries to use the one taking a System.Drawing.Color
-			// parameter instead of the one taking an OpenTK.Graphics.Color4. Using the
-			// float signature therefore avoids an unnecessary System.Drawing reference.
-			GL.ClearColor(ClearColor.R, ClearColor.G, ClearColor.B, ClearColor.A);
-		}
-
 		public void Clear()
 		{
+			GL.Viewport(0, 0, Width, Height);
+
 			GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
 			SwapBuffers();
@@ -48,6 +37,17 @@ namespace Temblor.Controls
 		private void Viewport_Draw(object sender, EventArgs e)
 		{
 			Clear();
+		}
+
+		private void Viewport_GLInitalized(object sender, EventArgs e)
+		{
+			GL.Enable(EnableCap.DepthTest);
+
+			// GL.ClearColor has two overloads, and if this class' ClearColor field is
+			// passed in, the compiler tries to use the one taking a System.Drawing.Color
+			// parameter instead of the one taking an OpenTK.Graphics.Color4. Using the
+			// float signature therefore avoids an unnecessary System.Drawing reference.
+			GL.ClearColor(ClearColor.R, ClearColor.G, ClearColor.B, ClearColor.A);
 		}
 	}
 }
