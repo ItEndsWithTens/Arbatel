@@ -1,53 +1,79 @@
 ﻿using Eto;
-using Eto.Gl;
+using Eto.Drawing;
+using Eto.Forms;
 using OpenTK.Graphics;
-using OpenTK.Graphics.OpenGL4;
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace Temblor.Controls
 {
-	public class Viewport : GLSurface
+	public class Viewport : PixelLayout
 	{
-		// Explicitly choosing an eight-bit stencil buffer prevents visual artifacts
-		// on the Mac platform; the GraphicsMode defaults are apparently insufficient.
-		private static GraphicsMode _graphicsMode = new GraphicsMode(new ColorFormat(32), 8, 8, 8);
+		public Label Label = new Label() { BackgroundColor = Colors.Black, TextColor = Colors.White };
 
-		public Color4 ClearColor = new Color4(1.0f, 1.0f, 0.0f, 1.0f);
+		public DropDown DropDown = new DropDown() { BackgroundColor = Colors.Lavender };
 
-		public Viewport() : this(_graphicsMode, 3, 3, GraphicsContextFlags.Default)
+		private Dictionary<int, string> _viewNames = new Dictionary<int, string>
 		{
+			{ 0, "Tree" },
+			{ 1, "3D Wireframe" },
+			{ 2, "3D Flat" },
+			{ 3, "3D Textured" }
+		};
+
+		public string ViewName
+		{
+			get { return _viewNames[_view]; }
 		}
 
-		public Viewport(GraphicsMode mode, int major, int minor, GraphicsContextFlags flags) :
-			base(mode, major, minor, flags)
+		private int _view = 0;
+		public int View
 		{
-			Draw += Viewport_Draw;
-			GLInitalized += Viewport_GLInitalized;
+			get { return _view; }
+			set
+			{
+				_view = (value + _viewNames.Count) % _viewNames.Count;
+
+				var control = Views[_view];
+				control.Size = ClientSize;
+
+				RemoveAll();
+
+				DropDown.SelectedValue = _viewNames[_view];
+				Add(control, new Point(0, 0));
+				Add(DropDown, new Point(0, 0));
+			}
 		}
 
-		public void Clear()
+		public Dictionary<int, Control> Views = new Dictionary<int, Control>();
+
+		private TreeGridView _modeTree = new TreeGridView() { BackgroundColor = Colors.Cyan };
+		private Mode3d _mode3dWire = new Mode3d() { ClearColor = new Color4(1.0f, 0.0f, 0.0f, 1.0f) };
+		private Mode3d _mode3dFlat = new Mode3d() { ClearColor = new Color4(0.0f, 1.0f, 0.0f, 1.0f) };
+		private Mode3d _mode3dTex = new Mode3d() { ClearColor = new Color4(0.0f, 0.0f, 1.0f, 1.0f) };
+
+		public Viewport()
 		{
-			GL.Viewport(0, 0, Width, Height);
+			BackgroundColor = Colors.Crimson;
 
-			GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+			Label.Text = _viewNames[View];
+			DropDown.DataStore = _viewNames.Values;
+			DropDown.SelectedValueChanged += (sender, e) => { View = DropDown.SelectedIndex; };
 
-			SwapBuffers();
+			Views.Add(0, _modeTree);
+			Views.Add(1, _mode3dWire);
+			Views.Add(2, _mode3dFlat);
+			Views.Add(3, _mode3dTex);
+
+			LoadComplete += Viewport_LoadComplete;
 		}
 
-		private void Viewport_Draw(object sender, EventArgs e)
+		private void Viewport_LoadComplete(object sender, EventArgs e)
 		{
-			Clear();
-		}
-
-		private void Viewport_GLInitalized(object sender, EventArgs e)
-		{
-			GL.Enable(EnableCap.DepthTest);
-
-			// GL.ClearColor has two overloads, and if this class' ClearColor field is
-			// passed in, the compiler tries to use the one taking a System.Drawing.Color
-			// parameter instead of the one taking an OpenTK.Graphics.Color4. Using the
-			// float signature therefore avoids an unnecessary System.Drawing reference.
-			GL.ClearColor(ClearColor.R, ClearColor.G, ClearColor.B, ClearColor.A);
+			View = 0;
 		}
 	}
 }

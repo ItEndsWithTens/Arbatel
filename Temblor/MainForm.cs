@@ -11,11 +11,28 @@ namespace Temblor
 		{
 			InitializeComponent();
 
-			var panel = new Panel() { BackgroundColor = Colors.Aquamarine };
+			var viewport = new Viewport() { ID = "topLeft" };
 
-			panel.Content = new Viewport();
+			Content = viewport;
 
-			Content = panel;
+			KeyDown += MainForm_KeyDown;
+		}
+
+		private void MainForm_KeyDown(object sender, KeyEventArgs e)
+		{
+			if (e.Key == Keys.Tab)
+			{
+				var viewport = FindChild("topLeft") as Viewport;
+
+				if (e.Modifiers == Keys.Shift)
+				{
+					viewport.View--;
+				}
+				else
+				{
+					viewport.View++;
+				}
+			}
 		}
 	}
 }
