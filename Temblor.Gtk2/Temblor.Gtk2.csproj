@@ -32,6 +32,10 @@
       <HintPath>..\packages\Eto.Forms.2.3.0\lib\net45\Eto.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="Eto.Gl, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\lib\thirdparty\Eto.Gl\Eto.Gl\Debug\Eto.Gl.dll</HintPath>
+    </Reference>
     <Reference Include="Eto.Gl.Gtk2">
       <HintPath>..\lib\thirdparty\Eto.Gl\Eto.Gl.Gtk2\Debug\Eto.Gl.Gtk2.dll</HintPath>
     </Reference>

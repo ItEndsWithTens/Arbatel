@@ -1,6 +1,8 @@
 ﻿using System;
 using Eto;
 using Eto.Forms;
+using Eto.Gl;
+using Eto.Gl.Gtk;
 
 namespace Temblor.Gtk2
 {
@@ -9,7 +11,11 @@ namespace Temblor.Gtk2
 		[STAThread]
 		public static void Main(string[] args)
 		{
-			new Application(Platforms.Gtk2).Run(new MainForm());
+			var platform = new Eto.GtkSharp.Platform();
+
+			platform.Add<GLSurface.IHandler>(() => new GtkGlSurfaceHandler());
+
+			new Application(platform).Run(new MainForm());
 		}
 	}
 }
