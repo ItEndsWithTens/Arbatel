@@ -48,7 +48,7 @@
     <Compile Include="..\SharedAssemblyInfo.cs">
       <Link>SharedAssemblyInfo.cs</Link>
     </Compile>
-    <Compile Include="Controls\Mode3d.cs" />
+    <Compile Include="Controls\View3d.cs" />
     <Compile Include="Controls\Viewport.cs" />
     <Compile Include="Formats\Block.cs" />
     <Compile Include="Formats\Map.cs" />

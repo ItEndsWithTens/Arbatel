@@ -7,7 +7,7 @@ using System;
 
 namespace Temblor.Controls
 {
-	public class Mode3d : GLSurface
+	public class View3d : GLSurface
 	{
 		// Explicitly choosing an eight-bit stencil buffer prevents visual artifacts
 		// on the Mac platform; the GraphicsMode defaults are apparently insufficient.
@@ -17,11 +17,11 @@ namespace Temblor.Controls
 
 		public Label TextLabel = new Label() { Text = "3D Flat" };
 
-		public Mode3d() : this(_graphicsMode, 3, 3, GraphicsContextFlags.Default)
+		public View3d() : this(_graphicsMode, 3, 3, GraphicsContextFlags.Default)
 		{
 		}
 
-		public Mode3d(GraphicsMode mode, int major, int minor, GraphicsContextFlags flags) :
+		public View3d(GraphicsMode mode, int major, int minor, GraphicsContextFlags flags) :
 			base(mode, major, minor, flags)
 		{
 			Draw += Viewport_Draw;
