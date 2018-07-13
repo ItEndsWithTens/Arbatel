@@ -31,12 +31,6 @@ namespace Temblor.Formats
 			{
 				var firstBraceIndex = split.IndexOf("{", i);
 
-				// Works, but shouldn't be necessary. I want to be able to pass into the QuakeBlock constructor
-				// the entire block, from open brace through close brace, since that's conceptually more sensible. Not
-				// make users (e.g. me in the future) remember to strip the first brace of a map or block off of it. Need to
-				// work on the logic inside the block parsing code, I think.
-				//var firstBraceIndex = split.IndexOf("{", i) + 1;
-
 				var newBlock = new QuakeBlock(ref split, firstBraceIndex);
 				Blocks.Add(newBlock);
 

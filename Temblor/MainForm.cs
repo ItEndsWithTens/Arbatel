@@ -13,17 +13,17 @@ namespace Temblor
 		{
 			InitializeComponent();
 
-			var viewport = new Viewport() { ID = "topLeft" };
-
-			Content = viewport;
-
 			KeyDown += MainForm_KeyDown;
 
-			var filename = "D:/Development/Temblor/scratch/jam6_tens.map";
+			//var filename = "D:/Development/Temblor/scratch/jam6_tens.map";
+			var filename = "D:/Development/Temblor/scratch/medieval1.map";
 			var s = new System.IO.FileStream(filename, System.IO.FileMode.Open, System.IO.FileAccess.Read);
 			var map = new QuakeMap(s);
 
-			
+
+			var viewport = new Viewport() { ID = "topLeft", Map = map };
+
+			Content = viewport;
 
 			var text = viewport.Views[0] as TextArea;
 			//text.Text = map.Raw;
@@ -39,7 +39,7 @@ namespace Temblor
 			{
 				Title = text.CaretIndex.ToString();
 				text.CaretIndex = text.CaretIndex < 2 ? 2 : text.CaretIndex;
-				
+
 			};
 
 
@@ -49,7 +49,7 @@ namespace Temblor
 			tree.Columns.Add(new GridColumn() { HeaderText = "Column 2", DataCell = new TextBoxCell(1) });
 			tree.Columns.Add(new GridColumn() { HeaderText = "Column 3", DataCell = new TextBoxCell(2) });
 			tree.Columns.Add(new GridColumn() { HeaderText = "Column 4", DataCell = new TextBoxCell(3) });
-			
+
 
 
 			var items = new List<TreeGridItem>();

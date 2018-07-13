@@ -1,4 +1,5 @@
-﻿using System;
+﻿using OpenTK;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -16,6 +17,8 @@ namespace Temblor
 		public string Raw;
 
 		public List<Block> Blocks = new List<Block>();
+
+		public List<Renderable> Renderables = new List<Renderable>();
 
 		public Map(Stream stream)
 		{

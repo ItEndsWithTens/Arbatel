@@ -12,10 +12,6 @@ namespace Temblor.Controls
 {
 	public class Viewport : PixelLayout
 	{
-		public Label Label = new Label() { BackgroundColor = Colors.Black, TextColor = Colors.White };
-
-		public DropDown DropDown = new DropDown() { BackgroundColor = Colors.Lavender };
-
 		private Dictionary<int, string> _viewNames = new Dictionary<int, string>
 		{
 			{ 0, "Text" },
@@ -24,7 +20,6 @@ namespace Temblor.Controls
 			{ 3, "3D Flat" },
 			{ 4, "3D Textured" }
 		};
-
 		public string ViewName
 		{
 			get { return _viewNames[_view]; }
@@ -51,11 +46,16 @@ namespace Temblor.Controls
 
 		public Dictionary<int, Control> Views = new Dictionary<int, Control>();
 
+		public DropDown DropDown = new DropDown() { BackgroundColor = Colors.Lavender };
+		public Label Label = new Label() { BackgroundColor = Colors.Black, TextColor = Colors.White };
+
 		private TextArea _viewText = new TextArea() { BackgroundColor = Colors.Yellow, TextReplacements = TextReplacements.None };
 		private TreeGridView _viewTree = new TreeGridView() { BackgroundColor = Colors.Cyan };
 		private View3d _view3dWire = new View3d() { ClearColor = new Color4(1.0f, 0.0f, 0.0f, 1.0f) };
 		private View3d _view3dFlat = new View3d() { ClearColor = new Color4(0.0f, 1.0f, 0.0f, 1.0f) };
 		private View3d _view3dTex = new View3d() { ClearColor = new Color4(0.0f, 0.0f, 1.0f, 1.0f) };
+
+		public Map Map;
 
 		public Viewport()
 		{
@@ -80,6 +80,13 @@ namespace Temblor.Controls
 			Views.Add(4, _view3dTex);
 
 			LoadComplete += Viewport_LoadComplete;
+		}
+
+		protected override void OnSizeChanged(EventArgs e)
+		{
+			base.OnSizeChanged(e);
+
+			Views[View].Size = ClientSize;
 		}
 
 		private void Viewport_LoadComplete(object sender, EventArgs e)
