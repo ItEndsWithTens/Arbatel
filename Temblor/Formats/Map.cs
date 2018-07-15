@@ -20,6 +20,10 @@ namespace Temblor
 
 		public List<Renderable> Renderables = new List<Renderable>();
 
+		public Map()
+		{
+
+		}
 		public Map(Stream stream)
 		{
 			using (StreamReader sr = new StreamReader(stream))

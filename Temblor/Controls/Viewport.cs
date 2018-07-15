@@ -58,11 +58,27 @@ namespace Temblor.Controls
 
 		private TextArea _viewText = new TextArea() { BackgroundColor = Colors.Yellow, TextReplacements = TextReplacements.None };
 		private TreeGridView _viewTree = new TreeGridView() { BackgroundColor = Colors.Cyan };
-		private View3d _view3dWire = new View3d() { ClearColor = new Color4(1.0f, 0.0f, 0.0f, 1.0f), PolygonMode = PolygonMode.Line };
-		private View3d _view3dFlat = new View3d() { ClearColor = new Color4(0.0f, 1.0f, 0.0f, 1.0f) };
-		private View3d _view3dTex = new View3d() { ClearColor = new Color4(0.0f, 0.0f, 1.0f, 1.0f) };
+		private View3d _view3dWire;
+		private View3d _view3dFlat;
+		private View3d _view3dTex;
 
-		public Map Map;
+		private Map _map;
+		public Map Map
+		{
+			get { return _map; }
+			set
+			{
+				_map = value;
+
+				foreach (var view in Views)
+				{
+					if (view.Value is View)
+					{
+						(view.Value as View).Map = _map;
+					}
+				}
+			}
+		}
 
 		public Viewport()
 		{
@@ -79,6 +95,10 @@ namespace Temblor.Controls
 
 			_viewTree.Shown += (sender, e) => { Focus(); };
 			_viewTree.MouseLeave += (sender, e) => { Focus(); };
+
+			_view3dWire = new View3d() { ClearColor = new Color4(1.0f, 0.0f, 0.0f, 1.0f), PolygonMode = PolygonMode.Line };
+			_view3dFlat = new View3d() { ClearColor = new Color4(0.0f, 1.0f, 0.0f, 1.0f) };
+			_view3dTex = new View3d() { ClearColor = new Color4(0.0f, 0.0f, 1.0f, 1.0f) };
 
 			Views.Add(0, _viewText);
 			Views.Add(1, _viewTree);

@@ -1,4 +1,5 @@
-﻿using OpenTK;
+﻿using Eto.Gl;
+using OpenTK;
 using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL4;
 using System;
@@ -20,9 +21,16 @@ namespace Temblor
 	/// </remarks>
 	public class Renderable
 	{
+		/// <summary>
+		/// A list of all GLSurfaces in which this Renderable should appear.
+		/// </summary>
+		public List<GLSurface> Surfaces = new List<GLSurface>();
+
 		public int Vao;
 		public int Vbo;
 		public int Ebo;
+
+		private readonly int VertexSize = Marshal.SizeOf(typeof(Vertex));
 
 		public List<int> Indices = new List<int>();
 
@@ -62,46 +70,58 @@ namespace Temblor
 
 		public void Draw(Shader shader)
 		{
-			Init();
-
 			GL.BindVertexArray(Vao);
-			GL.DrawArrays(PrimitiveType.Triangles, 0, Indices.Count);
+
+			GL.DrawElements(BeginMode.Triangles, Indices.Count, DrawElementsType.UnsignedInt, 0);
+
 			GL.BindVertexArray(0);
 		}
 
-		private void Init()
+		public void Init()
 		{
-			GL.GenVertexArrays(1, out Vao);
-			GL.GenBuffers(1, out Vbo);
-			GL.GenBuffers(1, out Ebo);
+			foreach (var surface in Surfaces)
+			{
+				surface.MakeCurrent();
 
-			GL.BindVertexArray(Vao);
-			GL.BindBuffer(BufferTarget.ArrayBuffer, Vbo);
+				CleanUp();
 
-			int vertexSize = Marshal.SizeOf(typeof(Vertex));
+				GL.GenVertexArrays(1, out Vao);
+				GL.GenBuffers(1, out Vbo);
+				GL.GenBuffers(1, out Ebo);
 
-			GL.BufferData(BufferTarget.ArrayBuffer, vertexSize * Vertices.Count, Vertices.ToArray(), BufferUsageHint.DynamicDraw);
+				GL.BindVertexArray(Vao);
 
-			GL.BindBuffer(BufferTarget.ElementArrayBuffer, Ebo);
-			GL.BufferData(BufferTarget.ElementArrayBuffer, 4 * Indices.Count, Indices.ToArray(), BufferUsageHint.DynamicDraw);
+				GL.BindBuffer(BufferTarget.ArrayBuffer, Vbo);
+				GL.BufferData(BufferTarget.ArrayBuffer, VertexSize * Vertices.Count, Vertices.ToArray(), BufferUsageHint.DynamicDraw);
 
-			// Configure position element.
-			GL.VertexAttribPointer(0, 3, VertexAttribPointerType.Float, false, vertexSize, 0);
-			GL.EnableVertexAttribArray(0);
+				GL.BindBuffer(BufferTarget.ElementArrayBuffer, Ebo);
+				GL.BufferData(BufferTarget.ElementArrayBuffer, 4 * Indices.Count, Indices.ToArray(), BufferUsageHint.DynamicDraw);
 
-			// Normal
-			GL.VertexAttribPointer(1, 3, VertexAttribPointerType.Float, false, vertexSize, sizeof(float) * 3);
-			GL.EnableVertexAttribArray(1);
+				// Configure position element.
+				GL.VertexAttribPointer(0, 3, VertexAttribPointerType.Float, false, VertexSize, 0);
+				GL.EnableVertexAttribArray(0);
 
-			// Color
-			GL.VertexAttribPointer(2, 4, VertexAttribPointerType.Float, false, vertexSize, sizeof(float) * 6);
-			GL.EnableVertexAttribArray(2);
+				// Normal
+				GL.VertexAttribPointer(1, 3, VertexAttribPointerType.Float, false, VertexSize, sizeof(float) * 3);
+				GL.EnableVertexAttribArray(1);
 
-			// TexCoords
-			GL.VertexAttribPointer(3, 2, VertexAttribPointerType.Float, false, vertexSize, sizeof(float) * 10);
-			GL.EnableVertexAttribArray(3);
+				// Color
+				GL.VertexAttribPointer(2, 4, VertexAttribPointerType.Float, false, VertexSize, sizeof(float) * 6);
+				GL.EnableVertexAttribArray(2);
 
-			GL.BindVertexArray(0);
+				// TexCoords
+				GL.VertexAttribPointer(3, 2, VertexAttribPointerType.Float, false, VertexSize, sizeof(float) * 10);
+				GL.EnableVertexAttribArray(3);
+
+				GL.BindVertexArray(0);
+			}
+		}
+
+		private void CleanUp()
+		{
+			GL.DeleteBuffer(Ebo);
+			GL.DeleteBuffer(Vbo);
+			GL.DeleteVertexArray(Vao);
 		}
 	}
 }

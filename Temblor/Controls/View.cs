@@ -74,28 +74,31 @@ namespace Temblor.Controls
 		// -- Temblor
 		public Camera Camera = new Camera();
 		public Controller Controller;
+
+		public Map Map;
+
 		public Shader Shader;
 
 		// Explicitly choosing an eight-bit stencil buffer prevents visual artifacts
 		// on the Mac platform; the GraphicsMode defaults are apparently insufficient.
-		private static GraphicsMode _graphicsMode = new GraphicsMode(new ColorFormat(32), 8, 8, 8);
+		private static GraphicsMode _mode = new GraphicsMode(new ColorFormat(32), 8, 8, 8);
 
 		// -- Constructors
-		public View() : this(_graphicsMode, 3, 3, GraphicsContextFlags.Default)
+		public View() : this(_mode, 3, 3, GraphicsContextFlags.Default)
 		{
+
 		}
-		public View(GraphicsMode mode, int major, int minor, GraphicsContextFlags flags) :
-			base(mode, major, minor, flags)
+		public View(GraphicsMode _mode, int _major, int _minor, GraphicsContextFlags _flags) :
+			base(_mode, _major, _minor, _flags)
 		{
-			GLInitalized += View_GLInitialized;
+			Fps = 60.0f;
 
 			Label.Text = "View";
 			Label.BackgroundColor = Eto.Drawing.Colors.Black;
 			Label.TextColor = Eto.Drawing.Colors.White;
 
-			Fps = 60.0f;
-
 			Clock.Elapsed += Clock_Elapsed;
+			GLInitalized += View_GLInitialized;
 			MouseMove += View_MouseMove;
 		}
 
@@ -107,11 +110,9 @@ namespace Temblor.Controls
 			GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 		}
 
-		private void Refresh()
+		public void Refresh()
 		{
 			Clear();
-
-			var map = (Parent as Viewport).Map;
 
 			Camera.AspectRatio = (float)Width / (float)Height;
 
@@ -119,7 +120,7 @@ namespace Temblor.Controls
 			Shader.SetMatrix4("view", ref Camera.ViewMatrix);
 			Shader.SetMatrix4("projection", ref Camera.ProjectionMatrix);
 
-			foreach (var renderable in map.Renderables)
+			foreach (var renderable in Map.Renderables)
 			{
 				var model = Matrix4.CreateTranslation(renderable.Position);
 				Shader.SetMatrix4("model", ref model);
@@ -199,7 +200,8 @@ namespace Temblor.Controls
 				//ParentWindow.Title = _previousTime.ToString();
 				//ParentWindow.Title = "Parent size: " + Parent.Size.ToString() + " View size: " + Size.ToString();
 				//ParentWindow.Title = Camera.Position.ToString();
-				ParentWindow.Title = Camera.Pitch.ToString();
+				//ParentWindow.Title = Camera.Pitch.ToString();
+				ParentWindow.Title = DateTime.Now.ToString();
 			}
 
 			Controller.Move();

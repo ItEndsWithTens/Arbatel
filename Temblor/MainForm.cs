@@ -1,4 +1,6 @@
-﻿using OpenTK;
+﻿using Eto.Gl;
+using OpenTK;
+using OpenTK.Graphics.OpenGL4;
 using System;
 using System.Collections.Generic;
 using Eto.Forms;
@@ -30,24 +32,41 @@ namespace Temblor
 
 			var viewport = new Viewport() { ID = "topLeft" };
 
+			Content = viewport;
 
-			// FIXME: How can I force OpenGL to initialize at the start of the program? Right now
-			// it only initializes when the GLSurface is shown on screen, what if I want it to happen
-			// earlier? The program currently defaults to the text view, so there's no OpenGL stuff
-			// called for right away, so it doesn't get initialized until people switch to the 3D views.
-			//var map = (Parent as Viewport).Map;
-			map.Renderables.Add(new Renderable());
-			map.Renderables.Add(new Renderable() { Position = new Vector3(-4.0f, 2.25f, 1.0f) });
-			map.Renderables.Add(new Renderable() { Position = new Vector3(4.0f, 2.25f, 1.0f) });
-			map.Renderables.Add(new Renderable() { Position = new Vector3(0.0f, 0.0f, -10.0f) });
+			var surfaces = new List<GLSurface>();
+			foreach (var view in viewport.Views)
+			{
+				if (view.Value is GLSurface)
+				{
+					surfaces.Add(view.Value as GLSurface);
+				}
+			}
+
+			//map.Renderables.Add(new Renderable() { Surfaces = surfaces });
+			//map.Renderables.Add(new Renderable() { Position = new Vector3(-4.0f, 2.25f, 1.0f), Surfaces = surfaces });
+			//map.Renderables.Add(new Renderable() { Position = new Vector3(4.0f, 2.25f, 1.0f), Surfaces = surfaces });
+			//map.Renderables.Add(new Renderable() { Position = new Vector3(0.0f, 0.0f, -10.0f), Surfaces = surfaces });
+
+			var r = new Random();
+
+			var scale = 100.0f;
+
+			for (var i = 0; i < 40960; i++)
+			{
+				var pos = new Vector3((float)r.NextDouble(), (float)r.NextDouble(), (float)r.NextDouble());
+				pos *= scale;
+
+				map.Renderables.Add(new Renderable() { Position = pos, Surfaces = surfaces });
+			}
+
+			foreach (var renderable in map.Renderables)
+			{
+				renderable.Init();
+			}
 
 
 			viewport.Map = map;
-
-
-
-
-			Content = viewport;
 
 			var text = viewport.Views[0] as TextArea;
 			//text.Text = map.Raw;
@@ -101,6 +120,19 @@ namespace Temblor
 				{
 					viewport.View++;
 				}
+			}
+			else if (e.Key == Keys.F)
+			{
+				var viewport = Content as Viewport;
+
+				var view = viewport.Views[viewport.View] as View;
+
+				view.Map.Renderables[0].Vertices.Add(new Graphics.Vertex(1.0f, 0.75f, 0.0f));
+				view.Map.Renderables[0].Indices.Add(2);
+				view.Map.Renderables[0].Indices.Add(3);
+				view.Map.Renderables[0].Indices.Add(0);
+				view.Map.Renderables[0].Init();
+				view.Invalidate();
 			}
 		}
 	}
