@@ -1,9 +1,11 @@
 ﻿using Eto;
 using Eto.Forms;
 using Eto.Gl;
+using OpenTK;
 using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL4;
 using System;
+using Temblor.Controllers;
 
 namespace Temblor.Controls
 {
@@ -35,9 +37,13 @@ namespace Temblor.Controls
 			"",
 			"out vec4 vertexColor;",
 			"",
+			"uniform mat4 model;",
+			"uniform mat4 view;",
+			"uniform mat4 projection;",
+			"",
 			"void main()",
 			"{",
-			"   gl_Position = vec4(position, 1.0f);",
+			"   gl_Position = projection * view * model * vec4(position, 1.0f);",
 			"	vertexColor = color;",
 			"}"
 		};
@@ -56,18 +62,18 @@ namespace Temblor.Controls
 		};
 
 		private DateTime _initTime;
-		private float _previousTime = 0.0f;
-		private float _deltaTime = 0.0f;
 
 		// -- Eto
 		public UITimer Clock = new UITimer();
 		public Label Label = new Label();
 
 		// -- OpenTK
-		public Color4 ClearColor = new Color4(1.0f, 1.0f, 0.0f, 1.0f);
-		
+		public Color4 ClearColor;
+		public PolygonMode PolygonMode;
+
 		// -- Temblor
 		public Camera Camera = new Camera();
+		public Controller Controller;
 		public Shader Shader;
 
 		// Explicitly choosing an eight-bit stencil buffer prevents visual artifacts
@@ -90,6 +96,7 @@ namespace Temblor.Controls
 			Fps = 60.0f;
 
 			Clock.Elapsed += Clock_Elapsed;
+			MouseMove += View_MouseMove;
 		}
 
 		// -- Methods
@@ -106,10 +113,16 @@ namespace Temblor.Controls
 
 			var map = (Parent as Viewport).Map;
 
+			Camera.AspectRatio = (float)Width / (float)Height;
+
 			Shader.Use();
+			Shader.SetMatrix4("view", ref Camera.ViewMatrix);
+			Shader.SetMatrix4("projection", ref Camera.ProjectionMatrix);
 
 			foreach (var renderable in map.Renderables)
 			{
+				var model = Matrix4.CreateTranslation(renderable.Position);
+				Shader.SetMatrix4("model", ref model);
 				renderable.Draw(Shader);
 			}
 
@@ -157,23 +170,39 @@ namespace Temblor.Controls
 			base.OnUnLoad(e);
 
 			Clock.Stop();
+
+			Controller.MouseLook = false;
+			Style = "showcursor";
+		}
+
+		protected override void OnKeyDown(KeyEventArgs e)
+		{
+			Controller.KeyEvent(this, e);
+		}
+		protected override void OnKeyUp(KeyEventArgs e)
+		{
+			Controller.KeyEvent(this, e);
+		}
+
+		protected override void OnMouseEnter(MouseEventArgs e)
+		{
+			base.OnMouseEnter(e);
+
+			Focus();
 		}
 
 		// -- Event handlers
 		private void Clock_Elapsed(object sender, EventArgs e)
 		{
-			var time = Convert.ToSingle(DateTime.Now.Subtract(_initTime).TotalSeconds);
-
-			_deltaTime = time - _previousTime;
-			_previousTime = time;
-
-			// Quick test, this does seem to work. Just checking that the clock is functional.
 			if (ParentWindow != null)
 			{
 				//ParentWindow.Title = _previousTime.ToString();
-				ParentWindow.Title = "Parent size: " + Parent.Size.ToString() + " View size: " + Size.ToString();
+				//ParentWindow.Title = "Parent size: " + Parent.Size.ToString() + " View size: " + Size.ToString();
+				//ParentWindow.Title = Camera.Position.ToString();
+				ParentWindow.Title = Camera.Pitch.ToString();
 			}
 
+			Controller.Move();
 			Refresh();
 		}
 
@@ -200,8 +229,12 @@ namespace Temblor.Controls
 				// TODO: Bring 1.30 shaders over from CSharpGlTest project.
 			}
 
-			var map = (Parent as Viewport).Map;
-			map.Renderables.Add(new Renderable());
+			GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode);
+		}
+
+		private void View_MouseMove(object sender, MouseEventArgs e)
+		{
+			Controller.MouseMove(sender, e);
 		}
 	}
 }

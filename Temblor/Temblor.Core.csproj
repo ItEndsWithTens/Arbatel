@@ -48,6 +48,8 @@
     <Compile Include="..\SharedAssemblyInfo.cs">
       <Link>SharedAssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="Controllers\Controller.cs" />
+    <Compile Include="Controllers\FirstPersonController.cs" />
     <Compile Include="Graphics\Vertex.cs" />
     <Compile Include="Camera.cs" />
     <Compile Include="Controls\View.cs" />
@@ -57,6 +59,8 @@
     <Compile Include="Formats\Map.cs" />
     <Compile Include="Formats\QuakeBlock.cs" />
     <Compile Include="Formats\QuakeMap.cs" />
+    <Compile Include="Utilities\GlUtilities.cs" />
+    <Compile Include="Utilities\MathUtilities.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="MainForm.cs" />
     <Compile Include="MainForm.eto.cs">

@@ -1,4 +1,5 @@
-﻿using OpenTK.Graphics.OpenGL4;
+﻿using OpenTK;
+using OpenTK.Graphics.OpenGL4;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -107,6 +108,11 @@ namespace Temblor
 		public void Use()
 		{
 			GL.UseProgram(Program);
+		}
+
+		public void SetMatrix4(string name, ref Matrix4 matrix)
+		{
+			GL.UniformMatrix4(GL.GetUniformLocation(Program, name), false, ref matrix);
 		}
 	}
 }

@@ -2,11 +2,13 @@
 using Eto.Drawing;
 using Eto.Forms;
 using OpenTK.Graphics;
+using OpenTK.Graphics.OpenGL4;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Temblor.Utilities;
 
 namespace Temblor.Controls
 {
@@ -34,13 +36,18 @@ namespace Temblor.Controls
 				_view = (value + _viewNames.Count) % _viewNames.Count;
 
 				var control = Views[_view];
-				control.Size = ClientSize;
 
 				RemoveAll();
 
 				DropDown.SelectedValue = _viewNames[_view];
 				Add(control, new Point(0, 0));
 				Add(DropDown, new Point(0, 0));
+
+				// Can't do this before using Add, since setting the Size leads
+				// to the View's Refresh method being called, which expects to
+				// have a Parent in order to do its work. The View won't have
+				// said Parent until it's added to the Viewport.
+				control.Size = ClientSize;
 			}
 		}
 
@@ -51,7 +58,7 @@ namespace Temblor.Controls
 
 		private TextArea _viewText = new TextArea() { BackgroundColor = Colors.Yellow, TextReplacements = TextReplacements.None };
 		private TreeGridView _viewTree = new TreeGridView() { BackgroundColor = Colors.Cyan };
-		private View3d _view3dWire = new View3d() { ClearColor = new Color4(1.0f, 0.0f, 0.0f, 1.0f) };
+		private View3d _view3dWire = new View3d() { ClearColor = new Color4(1.0f, 0.0f, 0.0f, 1.0f), PolygonMode = PolygonMode.Line };
 		private View3d _view3dFlat = new View3d() { ClearColor = new Color4(0.0f, 1.0f, 0.0f, 1.0f) };
 		private View3d _view3dTex = new View3d() { ClearColor = new Color4(0.0f, 0.0f, 1.0f, 1.0f) };
 

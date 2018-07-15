@@ -7,6 +7,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
+using Temblor.Controls;
 using Temblor.Graphics;
 
 namespace Temblor
@@ -24,6 +25,8 @@ namespace Temblor
 		public int Ebo;
 
 		public List<int> Indices = new List<int>();
+
+		public Vector3 Position = new Vector3(0.0f, 0.0f, 0.0f);
 
 		public List<Vertex> Vertices = new List<Vertex>();
 
@@ -48,8 +51,6 @@ namespace Temblor
 			Indices.Add(0);
 			Indices.Add(1);
 			Indices.Add(2);
-
-			Init();
 		}
 		public Renderable(List<Vector3> vertices)
 		{
@@ -57,12 +58,12 @@ namespace Temblor
 			{
 				Vertices.Add(new Vertex(vertex.X, vertex.Y, vertex.Z));
 			}
-
-			Init();
 		}
 
 		public void Draw(Shader shader)
 		{
+			Init();
+
 			GL.BindVertexArray(Vao);
 			GL.DrawArrays(PrimitiveType.Triangles, 0, Indices.Count);
 			GL.BindVertexArray(0);

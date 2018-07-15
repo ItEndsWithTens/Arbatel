@@ -1,9 +1,11 @@
-﻿using System;
+﻿using OpenTK;
+using System;
 using System.Collections.Generic;
 using Eto.Forms;
 using Eto.Drawing;
 using Temblor.Controls;
 using Temblor.Formats;
+using Temblor.Utilities;
 
 namespace Temblor
 {
@@ -13,6 +15,10 @@ namespace Temblor
 		{
 			InitializeComponent();
 
+			// Initialize OpenGL to avoid a delay when switching to a GL view.
+			var gl = new GlUtilities();
+			gl.InitGl();
+
 			KeyDown += MainForm_KeyDown;
 
 			//var filename = "D:/Development/Temblor/scratch/jam6_tens.map";
@@ -21,7 +27,25 @@ namespace Temblor
 			var map = new QuakeMap(s);
 
 
-			var viewport = new Viewport() { ID = "topLeft", Map = map };
+
+			var viewport = new Viewport() { ID = "topLeft" };
+
+
+			// FIXME: How can I force OpenGL to initialize at the start of the program? Right now
+			// it only initializes when the GLSurface is shown on screen, what if I want it to happen
+			// earlier? The program currently defaults to the text view, so there's no OpenGL stuff
+			// called for right away, so it doesn't get initialized until people switch to the 3D views.
+			//var map = (Parent as Viewport).Map;
+			map.Renderables.Add(new Renderable());
+			map.Renderables.Add(new Renderable() { Position = new Vector3(-4.0f, 2.25f, 1.0f) });
+			map.Renderables.Add(new Renderable() { Position = new Vector3(4.0f, 2.25f, 1.0f) });
+			map.Renderables.Add(new Renderable() { Position = new Vector3(0.0f, 0.0f, -10.0f) });
+
+
+			viewport.Map = map;
+
+
+
 
 			Content = viewport;
 
