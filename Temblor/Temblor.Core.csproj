@@ -51,7 +51,7 @@
     <Compile Include="Controllers\Controller.cs" />
     <Compile Include="Controllers\FirstPersonController.cs" />
     <Compile Include="Graphics\Vertex.cs" />
-    <Compile Include="Camera.cs" />
+    <Compile Include="Graphics\Camera.cs" />
     <Compile Include="Controls\View.cs" />
     <Compile Include="Controls\View3d.cs" />
     <Compile Include="Controls\Viewport.cs" />
@@ -66,8 +66,8 @@
     <Compile Include="MainForm.eto.cs">
       <DependentUpon>MainForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="Renderable.cs" />
-    <Compile Include="Shader.cs" />
+    <Compile Include="Graphics\Renderable.cs" />
+    <Compile Include="Graphics\Shader.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

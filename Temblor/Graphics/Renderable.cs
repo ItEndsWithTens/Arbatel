@@ -9,9 +9,8 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using Temblor.Controls;
-using Temblor.Graphics;
 
-namespace Temblor
+namespace Temblor.Graphics
 {
 	/// <summary>
 	/// Any 2D or 3D object that can be drawn on screen.

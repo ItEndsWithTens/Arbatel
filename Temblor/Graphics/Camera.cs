@@ -7,7 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Temblor.Utilities;
 
-namespace Temblor
+namespace Temblor.Graphics
 {
 	public class Camera
 	{

@@ -3,9 +3,10 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using Temblor.Formats;
 using System.Text;
 using System.Threading.Tasks;
+using Temblor.Formats;
+using Temblor.Graphics;
 
 namespace Temblor
 {

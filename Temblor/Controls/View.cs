@@ -6,6 +6,7 @@ using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL4;
 using System;
 using Temblor.Controllers;
+using Temblor.Graphics;
 
 namespace Temblor.Controls
 {
