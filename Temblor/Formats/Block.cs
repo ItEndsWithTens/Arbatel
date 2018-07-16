@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Eto.Gl;
+using OpenTK;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -38,8 +40,38 @@ namespace Temblor.Formats
 		/// </remarks>
 		public bool HasConnectionsOut = false;
 
+		public List<Renderable> Renderables = new List<Renderable>();
+
 		public Block()
 		{
+		}
+
+		public void Draw(Shader shader)
+		{
+			foreach (var child in Children)
+			{
+				child.Draw(shader);
+			}
+
+			foreach (var renderable in Renderables)
+			{
+				var model = Matrix4.CreateTranslation(renderable.Position);
+				shader.SetMatrix4("model", ref model);
+				renderable.Draw(shader);
+			}
+		}
+
+		public void Init(List<GLSurface> surfaces)
+		{
+			foreach (var child in Children)
+			{
+				child.Init(surfaces);
+			}
+
+			foreach (var renderable in Renderables)
+			{
+				renderable.Init(surfaces);
+			}
 		}
 
 		protected List<KeyValuePair<string, string>> ExtractKeyVals(string raw)

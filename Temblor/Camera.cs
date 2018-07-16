@@ -105,7 +105,7 @@ namespace Temblor
 			MinPitch = -89.0f;
 
 			NearClip = 0.001f;
-			FarClip = 100.0f;
+			FarClip = 1000.0f;
 
 			Pitch = 0.0f;
 			Yaw = -90.0f;

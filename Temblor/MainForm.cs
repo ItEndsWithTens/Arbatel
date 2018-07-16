@@ -7,6 +7,7 @@ using Eto.Forms;
 using Eto.Drawing;
 using Temblor.Controls;
 using Temblor.Formats;
+using Temblor.Graphics;
 using Temblor.Utilities;
 
 namespace Temblor
@@ -48,21 +49,26 @@ namespace Temblor
 			//map.Renderables.Add(new Renderable() { Position = new Vector3(4.0f, 2.25f, 1.0f), Surfaces = surfaces });
 			//map.Renderables.Add(new Renderable() { Position = new Vector3(0.0f, 0.0f, -10.0f), Surfaces = surfaces });
 
-			var r = new Random();
+			//var r = new Random();
 
-			var scale = 100.0f;
+			//var scale = 25.0f;
 
-			for (var i = 0; i < 40960; i++)
+			//for (var i = 0; i < 1024; i++)
+			//{
+			//	var pos = new Vector3((float)r.NextDouble(), (float)r.NextDouble(), (float)r.NextDouble());
+			//	pos *= scale;
+
+			//	map.Renderables.Add(new Renderable() { Position = pos, Surfaces = surfaces });
+			//}
+
+			//foreach (var renderable in map.Renderables)
+			//{
+			//	renderable.Init();
+			//}
+
+			foreach (var block in map.Blocks)
 			{
-				var pos = new Vector3((float)r.NextDouble(), (float)r.NextDouble(), (float)r.NextDouble());
-				pos *= scale;
-
-				map.Renderables.Add(new Renderable() { Position = pos, Surfaces = surfaces });
-			}
-
-			foreach (var renderable in map.Renderables)
-			{
-				renderable.Init();
+				block.Init(surfaces);
 			}
 
 
@@ -127,11 +133,15 @@ namespace Temblor
 
 				var view = viewport.Views[viewport.View] as View;
 
-				view.Map.Renderables[0].Vertices.Add(new Graphics.Vertex(1.0f, 0.75f, 0.0f));
-				view.Map.Renderables[0].Indices.Add(2);
-				view.Map.Renderables[0].Indices.Add(3);
-				view.Map.Renderables[0].Indices.Add(0);
-				view.Map.Renderables[0].Init();
+				foreach (var renderable in view.Map.Renderables)
+				{
+					//renderable.Vertices.Add(new Graphics.Vertex(1.0f, 0.75f, 0.0f));
+					//renderable.Indices.Add(2);
+					//renderable.Indices.Add(3);
+					//renderable.Indices.Add(0);
+					//renderable.Init(surfaces);
+				}
+				
 				view.Invalidate();
 			}
 		}

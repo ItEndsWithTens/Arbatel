@@ -21,11 +21,6 @@ namespace Temblor
 	/// </remarks>
 	public class Renderable
 	{
-		/// <summary>
-		/// A list of all GLSurfaces in which this Renderable should appear.
-		/// </summary>
-		public List<GLSurface> Surfaces = new List<GLSurface>();
-
 		public int Vao;
 		public int Vbo;
 		public int Ebo;
@@ -77,9 +72,9 @@ namespace Temblor
 			GL.BindVertexArray(0);
 		}
 
-		public void Init()
+		public void Init(List<GLSurface> surfaces)
 		{
-			foreach (var surface in Surfaces)
+			foreach (var surface in surfaces)
 			{
 				surface.MakeCurrent();
 

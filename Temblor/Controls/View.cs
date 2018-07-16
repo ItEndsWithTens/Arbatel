@@ -120,11 +120,9 @@ namespace Temblor.Controls
 			Shader.SetMatrix4("view", ref Camera.ViewMatrix);
 			Shader.SetMatrix4("projection", ref Camera.ProjectionMatrix);
 
-			foreach (var renderable in Map.Renderables)
+			foreach (var block in Map.Blocks)
 			{
-				var model = Matrix4.CreateTranslation(renderable.Position);
-				Shader.SetMatrix4("model", ref model);
-				renderable.Draw(Shader);
+				block.Draw(Shader);
 			}
 
 			SwapBuffers();
