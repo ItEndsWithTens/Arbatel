@@ -55,8 +55,6 @@ namespace Temblor.Formats
 
 			foreach (var renderable in Renderables)
 			{
-				var model = Matrix4.CreateTranslation(renderable.Position);
-				shader.SetMatrix4("model", ref model);
 				renderable.Draw(shader);
 			}
 		}

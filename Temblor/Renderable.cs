@@ -65,6 +65,9 @@ namespace Temblor
 
 		public void Draw(Shader shader)
 		{
+			var model = Matrix4.CreateTranslation(Position);
+			shader.SetMatrix4("model", ref model);
+
 			GL.BindVertexArray(Vao);
 
 			GL.DrawElements(BeginMode.Triangles, Indices.Count, DrawElementsType.UnsignedInt, 0);
