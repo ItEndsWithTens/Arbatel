@@ -13,9 +13,9 @@ namespace Temblor.Formats
 	{
 		public Block Block;
 
-		public List<MapObject> Children = new List<MapObject>();
+		public List<MapObject> Children;
 
-		public List<Renderable> Renderables = new List<Renderable>();
+		public List<Renderable> Renderables;
 
 		public MapObject() : this(new Block())
 		{
@@ -24,12 +24,9 @@ namespace Temblor.Formats
 		{
 			Block = _block;
 
-			foreach (var child in Block.Children)
-			{
-				Children.Add(new MapObject(child));
-			}
+			Children = new List<MapObject>();
 
-			ExtractRenderables(Block);
+			Renderables = new List<Renderable>();
 		}
 
 		public void Draw(Shader shader)
@@ -58,13 +55,8 @@ namespace Temblor.Formats
 			}
 		}
 
-		private void ExtractRenderables(Block block)
+		virtual protected void ExtractRenderables(Block block)
 		{
-			// RawStartIndex is the only unique value accessible from here, but
-			// works well enough for this preliminary design stage.
-			var pos = new Vector3((float)block.RawStartIndex, 0.0f, 0.0f);
-
-			Renderables.Add(new Renderable() { Position = pos });
 		}
 	}
 }

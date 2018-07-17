@@ -105,16 +105,14 @@ namespace Temblor.Graphics
 			MinPitch = -89.0f;
 
 			NearClip = 0.001f;
-			FarClip = 1000.0f;
+			FarClip = 10000.0f;
+
+			WorldUp = new Vector3(0.0f, 1.0f, 0.0f);
+			Position = new Vector3(0.0f, 0.0f, 0.0f);
 
 			Pitch = 0.0f;
 			Yaw = -90.0f;
 			Roll = 0.0f;
-
-			Position = new Vector3(0.0f, 0.0f, 0.0f);
-			WorldUp = new Vector3(0.0f, 1.0f, 0.0f);
-
-			Update();
 		}
 
 		public void Update()

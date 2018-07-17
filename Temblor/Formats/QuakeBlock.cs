@@ -9,9 +9,9 @@ using Temblor.Graphics;
 
 namespace Temblor.Formats
 {
-	class QuakeBlock : Block
+	public class QuakeBlock : Block
 	{
-		private List<string> _sides = new List<string>();
+		public List<string> Sides = new List<string>();
 
 		public QuakeBlock(ref List<string> rawList, int openBraceIndex)
 		{
@@ -43,7 +43,7 @@ namespace Temblor.Formats
 				}
 			}
 
-			foreach (var side in _sides)
+			foreach (var side in Sides)
 			{
 				sb.Append(side + "\n");
 			}
@@ -99,7 +99,7 @@ namespace Temblor.Formats
 				{
 					foreach(var side in ExtractSides(item))
 					{
-						_sides.Add(side);
+						Sides.Add(side);
 					}
 
 					++i;

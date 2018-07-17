@@ -39,7 +39,7 @@ namespace Temblor.Formats
 
 			foreach (var block in Blocks)
 			{
-				MapObjects.Add(new MapObject(block));
+				MapObjects.Add(new QuakeMapObject(block as QuakeBlock));
 			}
 		}
 	}

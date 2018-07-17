@@ -28,8 +28,14 @@ namespace Temblor.Graphics
 
 		public List<int> Indices = new List<int>();
 
+		/// <summary>
+		/// Position of this object, in world coordinates.
+		/// </summary>
 		public Vector3 Position = new Vector3(0.0f, 0.0f, 0.0f);
 
+		/// <summary>
+		/// Vertices of this object, with coordinates relative to its Position.
+		/// </summary>
 		public List<Vertex> Vertices = new List<Vertex>();
 
 		public Renderable()
@@ -38,9 +44,9 @@ namespace Temblor.Graphics
 
 			// Also note I'm assuming CCW winding for starters. I think that's the most
 			// common in 3D graphics stuff? We'll see.
-			var one = new Vertex(0.0f, 0.5f, 0.0f);
-			var two = new Vertex(-0.5f, -0.5f, 0.0f);
-			var three = new Vertex(0.5f, -0.5f, 0.0f);
+			var one = new Vertex(0.0f, 16.0f, 0.0f);
+			var two = new Vertex(-16.0f, -16.0f, 0.0f);
+			var three = new Vertex(16.0f, -16.0f, 0.0f);
 
 			one.Color = Color4.Red;
 			two.Color = Color4.Lime; // WTF? "Green" doesn't get the 255 variant, only "Lime".
