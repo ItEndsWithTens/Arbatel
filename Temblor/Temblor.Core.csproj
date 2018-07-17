@@ -50,6 +50,7 @@
     </Compile>
     <Compile Include="Controllers\Controller.cs" />
     <Compile Include="Controllers\FirstPersonController.cs" />
+    <Compile Include="Formats\MapObject.cs" />
     <Compile Include="Graphics\Vertex.cs" />
     <Compile Include="Graphics\Camera.cs" />
     <Compile Include="Controls\View.cs" />

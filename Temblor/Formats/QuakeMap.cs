@@ -36,6 +36,11 @@ namespace Temblor.Formats
 
 				i = firstBraceIndex + newBlock.RawLength;
 			}
+
+			foreach (var block in Blocks)
+			{
+				MapObjects.Add(new MapObject(block));
+			}
 		}
 	}
 }

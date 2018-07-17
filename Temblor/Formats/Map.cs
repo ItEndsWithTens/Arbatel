@@ -1,12 +1,10 @@
-﻿using OpenTK;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Temblor.Formats;
-using Temblor.Graphics;
 
 namespace Temblor
 {
@@ -19,7 +17,7 @@ namespace Temblor
 
 		public List<Block> Blocks = new List<Block>();
 
-		public List<Renderable> Renderables = new List<Renderable>();
+		public List<MapObject> MapObjects = new List<MapObject>();
 
 		public Map()
 		{

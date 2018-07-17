@@ -66,13 +66,21 @@ namespace Temblor
 			//	renderable.Init();
 			//}
 
-			foreach (var block in map.Blocks)
+			foreach (var mapObject in map.MapObjects)
 			{
-				block.Init(surfaces);
+				mapObject.Init(surfaces);
 			}
 
 
 			viewport.Map = map;
+
+			foreach (var view in viewport.Views)
+			{
+				if (view.Value is View)
+				{
+					(view.Value as View).Controller.InvertMouseY = true;
+				}
+			}
 
 			var text = viewport.Views[0] as TextArea;
 			//text.Text = map.Raw;
@@ -133,14 +141,14 @@ namespace Temblor
 
 				var view = viewport.Views[viewport.View] as View;
 
-				foreach (var renderable in view.Map.Renderables)
-				{
-					//renderable.Vertices.Add(new Graphics.Vertex(1.0f, 0.75f, 0.0f));
-					//renderable.Indices.Add(2);
-					//renderable.Indices.Add(3);
-					//renderable.Indices.Add(0);
-					//renderable.Init(surfaces);
-				}
+				//foreach (var renderable in view.Map.Renderables)
+				//{
+				//	//renderable.Vertices.Add(new Graphics.Vertex(1.0f, 0.75f, 0.0f));
+				//	//renderable.Indices.Add(2);
+				//	//renderable.Indices.Add(3);
+				//	//renderable.Indices.Add(0);
+				//	//renderable.Init(surfaces);
+				//}
 				
 				view.Invalidate();
 			}

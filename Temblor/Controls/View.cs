@@ -121,9 +121,9 @@ namespace Temblor.Controls
 			Shader.SetMatrix4("view", ref Camera.ViewMatrix);
 			Shader.SetMatrix4("projection", ref Camera.ProjectionMatrix);
 
-			foreach (var block in Map.Blocks)
+			foreach (var mapObject in Map.MapObjects)
 			{
-				block.Draw(Shader);
+				mapObject.Draw(Shader);
 			}
 
 			SwapBuffers();

@@ -21,12 +21,6 @@ namespace Temblor.Formats
 			var rawBlock = rawList.GetRange(RawStartIndex, RawLength);
 
 			Parse(rawBlock);
-
-			// openBraceIndex is always different, and is a nice simple way to
-			// test that the right number of objects is created.
-			var pos = new Vector3((float)openBraceIndex, 0.0f, 0.0f);
-
-			Renderables.Add(new Renderable() { Position = pos });
 		}
 
 		public override string ToString()
