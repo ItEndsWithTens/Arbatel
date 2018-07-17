@@ -30,7 +30,7 @@ namespace Temblor.Controllers
 		protected bool _up = false;
 		protected bool _down = false;
 
-		public virtual void KeyEvent(object sender, KeyEventArgs e)
+		virtual public void KeyEvent(object sender, KeyEventArgs e)
 		{
 			if (e.Modifiers == Keys.None)
 			{
@@ -110,11 +110,11 @@ namespace Temblor.Controllers
 			}
 		}
 
-		public virtual void MouseMove(object sender, MouseEventArgs e)
+		virtual public void MouseMove(object sender, MouseEventArgs e)
 		{
 		}
 
-		public virtual void Move()
+		virtual public void Move()
 		{
 		}
 	}
