@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace Temblor.Formats
@@ -11,7 +12,11 @@ namespace Temblor.Formats
 	{
 		public QuakeSide(string _raw)
 		{
-			var split = _raw.Split(' ');
+			// Regex seems a bit heavy to drag into this, but in principle this
+			// should be able to handle tabs and other whitespace. This approach
+			// wouldn't work for key/val lines, since it might remove desirable
+			// whitespace found in values, but for sides it's perfect.
+			var split = Regex.Split(_raw, @"\s");
 
 			var planePointA = new Vector3();
 			var planePointB = new Vector3();
