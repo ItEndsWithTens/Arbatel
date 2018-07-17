@@ -24,12 +24,12 @@ namespace Temblor.Formats
 		{
 			Block = _block;
 
-			// RawStartIndex is the only unique value accessible from here, but
-			// works well enough for this preliminary design stage. Provides a
-			// much more accurate visual representation of the map file, too.
-			var pos = new Vector3((float)Block.RawStartIndex, 0.0f, 0.0f);
+			foreach (var child in Block.Children)
+			{
+				Children.Add(new MapObject(child));
+			}
 
-			Renderables.Add(new Renderable() { Position = pos });
+			ExtractRenderables(Block);
 		}
 
 		public void Draw(Shader shader)
@@ -56,6 +56,15 @@ namespace Temblor.Formats
 			{
 				renderable.Init(surfaces);
 			}
+		}
+
+		private void ExtractRenderables(Block block)
+		{
+			// RawStartIndex is the only unique value accessible from here, but
+			// works well enough for this preliminary design stage.
+			var pos = new Vector3((float)block.RawStartIndex, 0.0f, 0.0f);
+
+			Renderables.Add(new Renderable() { Position = pos });
 		}
 	}
 }
