@@ -29,7 +29,7 @@ namespace Temblor.Graphics
 		public List<int> Indices = new List<int>();
 
 		/// <summary>
-		/// Position of this object, in world coordinates.
+		/// Position of this object in left-handed, Z-up world coordinates.
 		/// </summary>
 		public Vector3 Position = new Vector3(0.0f, 0.0f, 0.0f);
 
@@ -44,20 +44,35 @@ namespace Temblor.Graphics
 
 			// Also note I'm assuming CCW winding for starters. I think that's the most
 			// common in 3D graphics stuff? We'll see.
-			var one = new Vertex(0.0f, 16.0f, 0.0f);
-			var two = new Vertex(-16.0f, -16.0f, 0.0f);
-			var three = new Vertex(16.0f, -16.0f, 0.0f);
+			var one = new Vertex(0.0f, 0.0f, 16.0f);
+			var two = new Vertex(-16.0f, -16.0f, -16.0f);
+			var three = new Vertex(16.0f, -16.0f, -16.0f);
+			var four = new Vertex(0.0f, 16.0f, -16.0f);
 
 			one.Color = Color4.Red;
 			two.Color = Color4.Lime; // WTF? "Green" doesn't get the 255 variant, only "Lime".
 			three.Color = Color4.Blue;
+			four.Color = Color4.White;
 
 			Vertices.Add(one);
 			Vertices.Add(two);
 			Vertices.Add(three);
+			Vertices.Add(four);
 
 			Indices.Add(0);
 			Indices.Add(1);
+			Indices.Add(2);
+
+			Indices.Add(0);
+			Indices.Add(2);
+			Indices.Add(3);
+
+			Indices.Add(0);
+			Indices.Add(3);
+			Indices.Add(1);
+
+			Indices.Add(1);
+			Indices.Add(3);
 			Indices.Add(2);
 		}
 		public Renderable(List<Vector3> vertices)
@@ -70,7 +85,10 @@ namespace Temblor.Graphics
 
 		public void Draw(Shader shader)
 		{
-			var model = Matrix4.CreateTranslation(Position);
+			// Quake maps, like all right-thinking, clever, handsome developers,
+			// uses left-handed, Z-up world coordinates. The Camera class, in
+			// contrast, uses right-handed, Y-up coordinates.
+			var model = Matrix4.CreateTranslation(Position.X, Position.Z, -Position.Y);
 			shader.SetMatrix4("model", ref model);
 
 			GL.BindVertexArray(Vao);

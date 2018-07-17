@@ -44,7 +44,8 @@ namespace Temblor.Controls
 			"",
 			"void main()",
 			"{",
-			"   gl_Position = projection * view * model * vec4(position, 1.0f);",
+			"	vec3 zUpLeftHand = vec3(position.x, position.z, -position.y);",
+			"   gl_Position = projection * view * model * vec4(zUpLeftHand, 1.0f);",
 			"	vertexColor = color;",
 			"}"
 		};
