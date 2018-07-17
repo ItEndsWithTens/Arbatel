@@ -124,7 +124,7 @@ namespace Temblor.Controls
 
 			foreach (var mapObject in Map.MapObjects)
 			{
-				mapObject.Draw(Shader);
+				mapObject.Draw(Shader, this);
 			}
 
 			SwapBuffers();

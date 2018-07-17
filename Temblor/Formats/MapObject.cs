@@ -29,29 +29,29 @@ namespace Temblor.Formats
 			Renderables = new List<Renderable>();
 		}
 
-		public void Draw(Shader shader)
+		public void Draw(Shader shader, GLSurface surface)
 		{
 			foreach (var child in Children)
 			{
-				child.Draw(shader);
+				child.Draw(shader, surface);
 			}
 
 			foreach (var renderable in Renderables)
 			{
-				renderable.Draw(shader);
+				renderable.Draw(shader, surface);
 			}
 		}
 
-		public void Init(List<GLSurface> surfaces)
+		public void Init(GLSurface surface)
 		{
 			foreach (var child in Children)
 			{
-				child.Init(surfaces);
+				child.Init(surface);
 			}
 
 			foreach (var renderable in Renderables)
 			{
-				renderable.Init(surfaces);
+				renderable.Init(surface);
 			}
 		}
 

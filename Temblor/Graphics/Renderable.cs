@@ -12,6 +12,27 @@ using Temblor.Controls;
 
 namespace Temblor.Graphics
 {
+	public class Buffers
+	{
+		public int Vao;
+		public int Vbo;
+		public int Ebo;
+
+		public Buffers()
+		{
+			GL.GenVertexArrays(1, out Vao);
+			GL.GenBuffers(1, out Vbo);
+			GL.GenBuffers(1, out Ebo);
+		}
+
+		public void CleanUp()
+		{
+			GL.DeleteBuffer(Ebo);
+			GL.DeleteBuffer(Vbo);
+			GL.DeleteVertexArray(Vao);
+		}
+	}
+
 	/// <summary>
 	/// Any 2D or 3D object that can be drawn on screen.
 	/// </summary>
@@ -20,9 +41,7 @@ namespace Temblor.Graphics
 	/// </remarks>
 	public class Renderable
 	{
-		public int Vao;
-		public int Vbo;
-		public int Ebo;
+		public Dictionary<GLSurface, Buffers> Buffers = new Dictionary<GLSurface, Buffers>();
 
 		private readonly int VertexSize = Marshal.SizeOf(typeof(Vertex));
 
@@ -83,7 +102,7 @@ namespace Temblor.Graphics
 			}
 		}
 
-		public void Draw(Shader shader)
+		public void Draw(Shader shader, GLSurface surface)
 		{
 			// Quake maps, like all right-thinking, clever, handsome developers,
 			// uses left-handed, Z-up world coordinates. The Camera class, in
@@ -91,58 +110,57 @@ namespace Temblor.Graphics
 			var model = Matrix4.CreateTranslation(Position.X, Position.Z, -Position.Y);
 			shader.SetMatrix4("model", ref model);
 
-			GL.BindVertexArray(Vao);
+			GL.BindVertexArray(Buffers[surface].Vao);
 
 			GL.DrawElements(BeginMode.Triangles, Indices.Count, DrawElementsType.UnsignedInt, 0);
 
 			GL.BindVertexArray(0);
 		}
 
-		public void Init(List<GLSurface> surfaces)
+		public void Init(GLSurface surface)
 		{
-			foreach (var surface in surfaces)
+			surface.MakeCurrent();
+
+			Buffers b;
+
+			if (Buffers.ContainsKey(surface))
 			{
-				surface.MakeCurrent();
+				b = Buffers[surface];
 
-				CleanUp();
-
-				GL.GenVertexArrays(1, out Vao);
-				GL.GenBuffers(1, out Vbo);
-				GL.GenBuffers(1, out Ebo);
-
-				GL.BindVertexArray(Vao);
-
-				GL.BindBuffer(BufferTarget.ArrayBuffer, Vbo);
-				GL.BufferData(BufferTarget.ArrayBuffer, VertexSize * Vertices.Count, Vertices.ToArray(), BufferUsageHint.DynamicDraw);
-
-				GL.BindBuffer(BufferTarget.ElementArrayBuffer, Ebo);
-				GL.BufferData(BufferTarget.ElementArrayBuffer, 4 * Indices.Count, Indices.ToArray(), BufferUsageHint.DynamicDraw);
-
-				// Configure position element.
-				GL.VertexAttribPointer(0, 3, VertexAttribPointerType.Float, false, VertexSize, 0);
-				GL.EnableVertexAttribArray(0);
-
-				// Normal
-				GL.VertexAttribPointer(1, 3, VertexAttribPointerType.Float, false, VertexSize, sizeof(float) * 3);
-				GL.EnableVertexAttribArray(1);
-
-				// Color
-				GL.VertexAttribPointer(2, 4, VertexAttribPointerType.Float, false, VertexSize, sizeof(float) * 6);
-				GL.EnableVertexAttribArray(2);
-
-				// TexCoords
-				GL.VertexAttribPointer(3, 2, VertexAttribPointerType.Float, false, VertexSize, sizeof(float) * 10);
-				GL.EnableVertexAttribArray(3);
-
-				GL.BindVertexArray(0);
+				b.CleanUp();
 			}
-		}
+			else
+			{
+				b = new Buffers();
 
-		private void CleanUp()
-		{
-			GL.DeleteBuffer(Ebo);
-			GL.DeleteBuffer(Vbo);
-			GL.DeleteVertexArray(Vao);
+				Buffers.Add(surface, b);
+			}
+			
+			GL.BindVertexArray(b.Vao);
+
+			GL.BindBuffer(BufferTarget.ArrayBuffer, b.Vbo);
+			GL.BufferData(BufferTarget.ArrayBuffer, VertexSize * Vertices.Count, Vertices.ToArray(), BufferUsageHint.StaticDraw);
+
+			GL.BindBuffer(BufferTarget.ElementArrayBuffer, b.Ebo);
+			GL.BufferData(BufferTarget.ElementArrayBuffer, 4 * Indices.Count, Indices.ToArray(), BufferUsageHint.StaticDraw);
+
+			// Configure position element.
+			GL.VertexAttribPointer(0, 3, VertexAttribPointerType.Float, false, VertexSize, 0);
+			GL.EnableVertexAttribArray(0);
+
+			// Normal
+			GL.VertexAttribPointer(1, 3, VertexAttribPointerType.Float, false, VertexSize, sizeof(float) * 3);
+			GL.EnableVertexAttribArray(1);
+
+			// Color
+			GL.VertexAttribPointer(2, 4, VertexAttribPointerType.Float, false, VertexSize, sizeof(float) * 6);
+			GL.EnableVertexAttribArray(2);
+
+			// TexCoords
+			GL.VertexAttribPointer(3, 2, VertexAttribPointerType.Float, false, VertexSize, sizeof(float) * 10);
+			GL.EnableVertexAttribArray(3);
+
+			GL.BindVertexArray(0);
 		}
 	}
 }

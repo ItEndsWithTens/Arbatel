@@ -67,9 +67,12 @@ namespace Temblor
 			//	renderable.Init();
 			//}
 
-			foreach (var mapObject in map.MapObjects)
+			foreach (var surface in surfaces)
 			{
-				mapObject.Init(surfaces);
+				foreach (var mapObject in map.MapObjects)
+				{
+					mapObject.Init(surface);
+				}
 			}
 
 
