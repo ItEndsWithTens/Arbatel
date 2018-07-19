@@ -20,7 +20,6 @@ namespace Temblor.Controllers
 
 		public float MouseSensitivity = 0.25f;
 
-		//public float Speed = 0.05f;
 		public float Speed = 64.0f;
 
 		protected bool _forward = false;

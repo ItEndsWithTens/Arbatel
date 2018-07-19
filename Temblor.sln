@@ -1,13 +1,15 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+# Visual Studio 15
+VisualStudioVersion = 15.0.27703.2042
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Temblor.Core", "Temblor\Temblor.Core.csproj", "{247630FD-E639-4CC1-A7D4-26EDC51A07BF}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Temblor.Gtk2", "Temblor.Gtk2\Temblor.Gtk2.csproj", "{C1F48022-B7E3-48F2-9D86-475952088AAD}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Temblor.WinForms", "Temblor.WinForms\Temblor.WinForms.csproj", "{4925B6D7-8B10-43D7-8CA9-D7A03B2B622E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TemblorTest.Core", "TemblorTest.Core\TemblorTest.Core.csproj", "{4B4E25A8-B7D3-420D-8193-1785E0528D5E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -27,8 +29,15 @@ Global
 		{4925B6D7-8B10-43D7-8CA9-D7A03B2B622E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4925B6D7-8B10-43D7-8CA9-D7A03B2B622E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4925B6D7-8B10-43D7-8CA9-D7A03B2B622E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4B4E25A8-B7D3-420D-8193-1785E0528D5E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4B4E25A8-B7D3-420D-8193-1785E0528D5E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4B4E25A8-B7D3-420D-8193-1785E0528D5E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4B4E25A8-B7D3-420D-8193-1785E0528D5E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {3C1D08AD-2C29-462B-BE50-224C00AC61D4}
 	EndGlobalSection
 EndGlobal

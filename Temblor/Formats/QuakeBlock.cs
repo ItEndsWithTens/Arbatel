@@ -11,6 +11,9 @@ namespace Temblor.Formats
 {
 	public class QuakeBlock : Block
 	{
+		/// <summary>
+		/// This block's sides, in their Quake .map text form.
+		/// </summary>
 		public List<string> Sides = new List<string>();
 
 		public QuakeBlock(ref List<string> rawList, int openBraceIndex)

@@ -4,12 +4,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Temblor.Graphics;
 
 namespace Temblor.Formats
 {
 	public class Side
 	{
-		public List<Vector3> Plane;
+		public Plane Plane;
 
 		public List<Vector3> TextureBasis;
 		public string TextureName;
@@ -19,8 +20,6 @@ namespace Temblor.Formats
 
 		public Side()
 		{
-			Plane = new List<Vector3>();
-
 			TextureBasis = new List<Vector3>();
 			TextureOffset = new Vector2();
 			TextureScale = new Vector2();

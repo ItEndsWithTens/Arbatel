@@ -14,6 +14,9 @@ namespace Temblor
 {
 	public partial class MainForm
 	{
+		// HACK: Quick, dirty test to see how much I'm dumping on the graphics card.
+		public static int triangleCount = 0;
+
 		public MainForm()
 		{
 			InitializeComponent();
@@ -27,6 +30,8 @@ namespace Temblor
 			//var filename = "D:/Development/Temblor/scratch/jam6_tens.map";
 			//var filename = "D:/Development/Temblor/scratch/medieval1.map";
 			var filename = "D:/Development/Temblor/scratch/basicobjectstest.map";
+			//var filename = "D:/Games/Quake/ad/src/xmasjam_tens.map";
+			//var filename = "D:/Games/Quake/ad/maps/ad_sepulcher.map";
 			var s = new System.IO.FileStream(filename, System.IO.FileMode.Open, System.IO.FileAccess.Read);
 			var map = new QuakeMap(s);
 
@@ -45,28 +50,6 @@ namespace Temblor
 				}
 			}
 
-			//map.Renderables.Add(new Renderable() { Surfaces = surfaces });
-			//map.Renderables.Add(new Renderable() { Position = new Vector3(-4.0f, 2.25f, 1.0f), Surfaces = surfaces });
-			//map.Renderables.Add(new Renderable() { Position = new Vector3(4.0f, 2.25f, 1.0f), Surfaces = surfaces });
-			//map.Renderables.Add(new Renderable() { Position = new Vector3(0.0f, 0.0f, -10.0f), Surfaces = surfaces });
-
-			//var r = new Random();
-
-			//var scale = 25.0f;
-
-			//for (var i = 0; i < 1024; i++)
-			//{
-			//	var pos = new Vector3((float)r.NextDouble(), (float)r.NextDouble(), (float)r.NextDouble());
-			//	pos *= scale;
-
-			//	map.Renderables.Add(new Renderable() { Position = pos, Surfaces = surfaces });
-			//}
-
-			//foreach (var renderable in map.Renderables)
-			//{
-			//	renderable.Init();
-			//}
-
 			foreach (var surface in surfaces)
 			{
 				foreach (var mapObject in map.MapObjects)
@@ -74,7 +57,6 @@ namespace Temblor
 					mapObject.Init(surface);
 				}
 			}
-
 
 			viewport.Map = map;
 

@@ -93,6 +93,8 @@ namespace Temblor.Graphics
 			Indices.Add(1);
 			Indices.Add(3);
 			Indices.Add(2);
+
+			MainForm.triangleCount += 4;
 		}
 		public Renderable(List<Vector3> vertices)
 		{

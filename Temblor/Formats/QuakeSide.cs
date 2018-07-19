@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using Temblor.Graphics;
 
 namespace Temblor.Formats
 {
@@ -18,25 +19,23 @@ namespace Temblor.Formats
 			// whitespace found in values, but for sides it's perfect.
 			var split = Regex.Split(_raw, @"\s");
 
-			var planePointA = new Vector3();
-			var planePointB = new Vector3();
-			var planePointC = new Vector3();
+			var planePointA = new Vertex();
+			var planePointB = new Vertex();
+			var planePointC = new Vertex();
 
-			float.TryParse(split[1], out planePointA.X);
-			float.TryParse(split[2], out planePointA.Y);
-			float.TryParse(split[3], out planePointA.Z);
+			float.TryParse(split[1], out planePointA.Position.X);
+			float.TryParse(split[2], out planePointA.Position.Y);
+			float.TryParse(split[3], out planePointA.Position.Z);
 
-			float.TryParse(split[6], out planePointB.X);
-			float.TryParse(split[7], out planePointB.Y);
-			float.TryParse(split[8], out planePointB.Z);
+			float.TryParse(split[6], out planePointB.Position.X);
+			float.TryParse(split[7], out planePointB.Position.Y);
+			float.TryParse(split[8], out planePointB.Position.Z);
 
-			float.TryParse(split[11], out planePointC.X);
-			float.TryParse(split[12], out planePointC.Y);
-			float.TryParse(split[13], out planePointC.Z);
+			float.TryParse(split[11], out planePointC.Position.X);
+			float.TryParse(split[12], out planePointC.Position.Y);
+			float.TryParse(split[13], out planePointC.Position.Z);
 
-			Plane.Add(planePointA);
-			Plane.Add(planePointB);
-			Plane.Add(planePointC);
+			Plane = new Plane(planePointA, planePointB, planePointC);
 
 			TextureName = split[15];
 

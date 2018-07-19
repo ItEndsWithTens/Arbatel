@@ -64,6 +64,8 @@ namespace Temblor.Controls
 		};
 
 		private DateTime _initTime;
+		private TimeSpan _previousTime;
+		private TimeSpan _deltaTime;
 
 		// -- Eto
 		public UITimer Clock = new UITimer();
@@ -192,16 +194,33 @@ namespace Temblor.Controls
 			Focus();
 		}
 
+		public double AverageFps = 0.0;
+
 		// -- Event handlers
 		private void Clock_Elapsed(object sender, EventArgs e)
 		{
+			var time = DateTime.Now.TimeOfDay;
+
+			_deltaTime = time - _previousTime;
+			_previousTime = time;
+
+			// Need a rolling average over the previous, let's say, 2 seconds?
+			var currentFps = (1000.0 / _deltaTime.TotalMilliseconds);
+
+			AverageFps = (AverageFps + currentFps) / 2.0;
+
 			if (ParentWindow != null)
 			{
 				//ParentWindow.Title = _previousTime.ToString();
 				//ParentWindow.Title = "Parent size: " + Parent.Size.ToString() + " View size: " + Size.ToString();
 				//ParentWindow.Title = Camera.Position.ToString();
 				//ParentWindow.Title = Camera.Pitch.ToString();
-				ParentWindow.Title = DateTime.Now.ToString();
+				//ParentWindow.Title = DateTime.Now.ToString();
+				//ParentWindow.Title = Camera.Front.ToString();
+				//ParentWindow.Title = MainForm.triangleCount.ToString();
+
+				ParentWindow.Title = AverageFps.ToString();
+				//ParentWindow.Title = Camera.Position.ToString();
 			}
 
 			Controller.Move();

@@ -117,6 +117,7 @@ namespace Temblor.Graphics
 
 		public void Update()
 		{
+			// TODO: Hook up Roll. Not critical, but nice to have.
 			var yawRad = MathHelper.DegreesToRadians(Yaw);
 			var pitchRad = MathHelper.DegreesToRadians(Pitch);
 

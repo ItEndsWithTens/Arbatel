@@ -32,5 +32,14 @@ namespace Temblor.Graphics
 			Color = _color;
 			TexCoords = _texcoords;
 		}
+
+		public static Vector3 operator +(Vertex lhs, Vertex rhs)
+		{
+			return lhs.Position + rhs.Position;
+		}
+		public static Vector3 operator -(Vertex lhs, Vertex rhs)
+		{
+			return lhs.Position - rhs.Position;
+		}
 	}
 }
