@@ -38,36 +38,33 @@ namespace Temblor.Formats
 				sides.Add(new QuakeSide(side));
 			}
 
-			var verts = new List<Vertex>();
-
-			var combos = Utilities.MathUtilities.Combinations(sides.Count, 3);
-			foreach (var combo in combos)
+			foreach (var combo in Utilities.MathUtilities.Combinations(sides.Count, 3))
 			{
 				var intersection = Plane.Intersect(sides[combo[0]].Plane, sides[combo[1]].Plane, sides[combo[2]].Plane);
 				if (!intersection.X.Equals(float.NaN) &&
 					!intersection.Y.Equals(float.NaN) &&
 					!intersection.Z.Equals(float.NaN))
 				{
-					verts.Add(new Vertex(intersection));
-				}
-			}
-
-			foreach (var vert in verts)
-			{
-				if (VertexIsLegal(vert, sides))
-				{
-					Renderables.Add(new Renderable() { Position = vert.Position });
+					if (VertexIsLegal(intersection, sides))
+					{
+						Renderables.Add(new Renderable() { Position = intersection });
+						MainForm.triangleCount += 4;
+					}
 				}
 			}
 		}
 
-		private bool VertexIsLegal(Vertex vertex, List<QuakeSide> sides)
+		private static bool VertexIsLegal(Vertex vertex, List<QuakeSide> sides)
+		{
+			return VertexIsLegal(vertex.Position, sides);
+		}
+		private static bool VertexIsLegal(Vector3 vertex, List<QuakeSide> sides)
 		{
 			var inFront = false;
 
 			foreach (var side in sides)
 			{
-				var dot = Vector3.Dot(side.Plane.Normal, vertex.Position);
+				var dot = Vector3.Dot(side.Plane.Normal, vertex);
 
 				var diff = dot + side.Plane.DistanceFromOrigin;
 

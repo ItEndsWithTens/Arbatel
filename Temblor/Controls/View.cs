@@ -5,6 +5,7 @@ using OpenTK;
 using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL4;
 using System;
+using System.Diagnostics;
 using Temblor.Controllers;
 using Temblor.Graphics;
 
@@ -62,10 +63,6 @@ namespace Temblor.Controls
 			"   color = vertexColor;",
 			"}"
 		};
-
-		private DateTime _initTime;
-		private TimeSpan _previousTime;
-		private TimeSpan _deltaTime;
 
 		// -- Eto
 		public UITimer Clock = new UITimer();
@@ -199,32 +196,24 @@ namespace Temblor.Controls
 		// -- Event handlers
 		private void Clock_Elapsed(object sender, EventArgs e)
 		{
-			var time = DateTime.Now.TimeOfDay;
+			var sw = Stopwatch.StartNew();
+			Controller.Move();
+			sw.Stop();
+			sw.Reset();
 
-			_deltaTime = time - _previousTime;
-			_previousTime = time;
+			var elapsedMsMove = sw.ElapsedMilliseconds;
 
-			// Need a rolling average over the previous, let's say, 2 seconds?
-			var currentFps = (1000.0 / _deltaTime.TotalMilliseconds);
+			sw.Start();
+			Refresh();
+			sw.Stop();
 
-			AverageFps = (AverageFps + currentFps) / 2.0;
+			var elapsedMsRefresh = sw.ElapsedMilliseconds;
 
 			if (ParentWindow != null)
 			{
-				//ParentWindow.Title = _previousTime.ToString();
-				//ParentWindow.Title = "Parent size: " + Parent.Size.ToString() + " View size: " + Size.ToString();
-				//ParentWindow.Title = Camera.Position.ToString();
-				//ParentWindow.Title = Camera.Pitch.ToString();
-				//ParentWindow.Title = DateTime.Now.ToString();
-				//ParentWindow.Title = Camera.Front.ToString();
 				//ParentWindow.Title = MainForm.triangleCount.ToString();
-
-				ParentWindow.Title = AverageFps.ToString();
-				//ParentWindow.Title = Camera.Position.ToString();
+				ParentWindow.Title = "Tris: "  + MainForm.triangleCount.ToString() + " Move ms: " + elapsedMsMove.ToString() + " Refresh ms: " + elapsedMsRefresh.ToString();
 			}
-
-			Controller.Move();
-			Refresh();
 		}
 
 		private void View_GLInitialized(object sender, EventArgs e)
@@ -236,8 +225,6 @@ namespace Temblor.Controls
 			// parameter instead of the one taking an OpenTK.Graphics.Color4. Using the
 			// float signature therefore avoids an unnecessary System.Drawing reference.
 			GL.ClearColor(ClearColor.R, ClearColor.G, ClearColor.B, ClearColor.A);
-
-			_initTime = DateTime.Now;
 
 			Shader.GetGlslVersion(out int major, out int minor);
 

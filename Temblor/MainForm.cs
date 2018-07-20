@@ -27,11 +27,12 @@ namespace Temblor
 
 			KeyDown += MainForm_KeyDown;
 
-			//var filename = "D:/Development/Temblor/scratch/jam6_tens.map";
+			var filename = "D:/Development/Temblor/scratch/jam6_tens.map";
 			//var filename = "D:/Development/Temblor/scratch/medieval1.map";
-			var filename = "D:/Development/Temblor/scratch/basicobjectstest.map";
+			//var filename = "D:/Development/Temblor/scratch/basicobjectstest.map";
 			//var filename = "D:/Games/Quake/ad/src/xmasjam_tens.map";
 			//var filename = "D:/Games/Quake/ad/maps/ad_sepulcher.map";
+			//var filename = "D:/Games/Quake/quake_map_source/start.map";
 			var s = new System.IO.FileStream(filename, System.IO.FileMode.Open, System.IO.FileAccess.Read);
 			var map = new QuakeMap(s);
 
