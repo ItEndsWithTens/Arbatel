@@ -41,62 +41,35 @@ namespace Temblor.Graphics
 	/// </remarks>
 	public class Renderable
 	{
-		public Dictionary<GLSurface, Buffers> Buffers = new Dictionary<GLSurface, Buffers>();
-
-		private readonly int VertexSize = Marshal.SizeOf(typeof(Vertex));
-
-		public List<int> Indices = new List<int>();
-
 		/// <summary>
 		/// Position of this object in left-handed, Z-up world coordinates.
 		/// </summary>
-		public Vector3 Position = new Vector3(0.0f, 0.0f, 0.0f);
+		public Vector3 Position;
 
+		// TODO: Are these actually relative to Position? Or are they also world coords?
 		/// <summary>
 		/// Vertices of this object, with coordinates relative to its Position.
 		/// </summary>
-		public List<Vertex> Vertices = new List<Vertex>();
+		public List<Vertex> Vertices;
+
+		/// <summary>
+		/// The vertex indices of this object, relative to the Vertices list.
+		/// </summary>
+		public List<int> Indices;
+
+		public Dictionary<GLSurface, Buffers> Buffers;
+
+		private readonly int VertexSize = Marshal.SizeOf(typeof(Vertex));
 
 		public Renderable()
 		{
-			// TODO: Make this constructor do something useful!
+			Position = new Vector3(0.0f, 0.0f, 0.0f);
+			Vertices = new List<Vertex>();
+			Indices = new List<int>();
 
-			// Also note I'm assuming CCW winding for starters. I think that's the most
-			// common in 3D graphics stuff? We'll see.
-			var one = new Vertex(0.0f, 0.0f, 16.0f);
-			var two = new Vertex(-16.0f, -16.0f, -16.0f);
-			var three = new Vertex(16.0f, -16.0f, -16.0f);
-			var four = new Vertex(0.0f, 16.0f, -16.0f);
-
-			one.Color = Color4.Red;
-			two.Color = Color4.Lime; // WTF? "Green" doesn't get the 255 variant, only "Lime".
-			three.Color = Color4.Blue;
-			four.Color = Color4.White;
-
-			Vertices.Add(one);
-			Vertices.Add(two);
-			Vertices.Add(three);
-			Vertices.Add(four);
-
-			Indices.Add(0);
-			Indices.Add(1);
-			Indices.Add(2);
-
-			Indices.Add(0);
-			Indices.Add(2);
-			Indices.Add(3);
-
-			Indices.Add(0);
-			Indices.Add(3);
-			Indices.Add(1);
-
-			Indices.Add(1);
-			Indices.Add(3);
-			Indices.Add(2);
-
-			MainForm.triangleCount += 4;
+			Buffers = new Dictionary<GLSurface, Buffers>();
 		}
-		public Renderable(List<Vector3> vertices)
+		public Renderable(List<Vector3> vertices) : this()
 		{
 			foreach (var vertex in vertices)
 			{

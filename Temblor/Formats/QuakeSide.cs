@@ -6,6 +6,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Temblor.Graphics;
+using Temblor.Utilities;
 
 namespace Temblor.Formats
 {
@@ -35,7 +36,7 @@ namespace Temblor.Formats
 			float.TryParse(split[12], out planePointC.Position.Y);
 			float.TryParse(split[13], out planePointC.Position.Z);
 
-			Plane = new Plane(planePointA, planePointB, planePointC);
+			Plane = new Plane(planePointA, planePointB, planePointC, Winding.CW);
 
 			TextureName = split[15];
 

@@ -56,8 +56,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="GraphicsTest.cs" />
-    <Compile Include="MathUtilitiesTest.cs" />
+    <Compile Include="GraphicsTest\GraphicsTest.cs" />
+    <Compile Include="UtilitiesTest\MathUtilitiesTest.cs" />
+    <Compile Include="FormatsTest\BlockTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

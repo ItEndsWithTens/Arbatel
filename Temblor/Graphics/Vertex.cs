@@ -41,5 +41,10 @@ namespace Temblor.Graphics
 		{
 			return lhs.Position - rhs.Position;
 		}
+
+		public override string ToString()
+		{
+			return Position.ToString();
+		}
 	}
 }

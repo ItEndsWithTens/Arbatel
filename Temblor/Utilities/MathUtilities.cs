@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Temblor.Graphics;
 
 namespace Temblor.Utilities
 {
@@ -71,6 +72,16 @@ namespace Temblor.Utilities
 			return combinations;
 		}
 
+		public static List<List<int>> Permutations(int count, int size)
+		{
+			var items = new List<int>();
+			for (var i = 0; i < count; i++)
+			{
+				items.Add(i);
+			}
+
+			return Permutations(items, size);
+		}
 		/// <summary>
 		/// Get all unique permutations of a set.
 		/// </summary>
@@ -133,6 +144,107 @@ namespace Temblor.Utilities
 		public static float ModAngleToCircleUnsigned(float angle)
 		{
 			return (ModAngleToCircleSigned(angle) + 360.0f) % 360.0f;
+		}
+
+		public static double SignedAngleBetweenVectors(Vector3 a, Vector3 b, Vector3 normal)
+		{
+			var dot1 = Vector3.Dot(normal, Vector3.Cross(a, b));
+			var dot2 = Vector3.Dot(a, b);
+
+			return MathHelper.RadiansToDegrees(Math.Atan2(dot1, dot2));
+		}
+
+		public static List<Vertex> SortVerticesCCW(List<Vector3> vectors, Vector3 normal)
+		{
+			var vertices = new List<Vertex>();
+
+			foreach (var vector in vectors)
+			{
+				vertices.Add(new Vertex(vector));
+			}
+
+			return SortVerticesCCW(vertices, normal);
+		}
+		public static List<Vertex> SortVerticesCCW(List<Vertex> vertices, Vector3 normal)
+		{
+			List<List<int>> pairs = Permutations(vertices.Count, 2);
+
+			var angles = new Dictionary<List<int>, double>();
+
+			var min = new Vector3(vertices[0].Position);
+			var max = new Vector3(vertices[0].Position);
+			foreach (var vertex in vertices)
+			{
+				if (vertex.Position.X < min.X)
+				{
+					min.X = vertex.Position.X;
+				}
+				if (vertex.Position.X > max.X)
+				{
+					max.X = vertex.Position.X;
+				}
+
+				if (vertex.Position.Y < min.Y)
+				{
+					min.Y = vertex.Position.Y;
+				}
+				if (vertex.Position.Y > max.Y)
+				{
+					max.Y = vertex.Position.Y;
+				}
+
+				if (vertex.Position.Z < min.Z)
+				{
+					min.Z = vertex.Position.Z;
+				}
+				if (vertex.Position.Z > max.Z)
+				{
+					max.Z = vertex.Position.Z;
+				}
+			}
+
+			Vector3 center = min + ((max - min) / 2.0f);
+
+			foreach (var pair in pairs)
+			{
+				var a = vertices[pair[0]].Position - center;
+				var b = vertices[pair[1]].Position - center;
+
+				double angle = SignedAngleBetweenVectors(a, b, normal);
+
+				// Only add counterclockwise angles.
+				if (angle > 0.0)
+				{
+					angles.Add(pair, angle);
+				}
+			}
+
+			var sorted = new List<Vertex>() { vertices[0] };
+
+			var currentIndex = 0;
+			for (var i = 0; i < vertices.Count - 1; i++)
+			{
+				var previousAngle = 181.0;
+				var nextIndex = 0;
+				foreach (var candidate in angles)
+				{
+					if (candidate.Key[0] != currentIndex)
+					{
+						continue;
+					}
+
+					if (Math.Abs(candidate.Value) < previousAngle)
+					{
+						nextIndex = candidate.Key[1];
+						previousAngle = Math.Abs(candidate.Value);
+					}
+				}
+
+				sorted.Add(vertices[nextIndex]);
+				currentIndex = nextIndex;
+			}
+
+			return sorted;
 		}
 	}
 }

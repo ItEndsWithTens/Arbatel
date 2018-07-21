@@ -1,13 +1,16 @@
 ﻿using NUnit.Framework;
+using OpenTK;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Temblor;
+using Temblor.Formats;
+using Temblor.Graphics;
 using Temblor.Utilities;
 
-namespace TemblorTest.Core
+namespace TemblorTest.Core.MathUtilitiesTest
 {
 	public class MathUtilitiesTest
 	{
@@ -187,6 +190,77 @@ namespace TemblorTest.Core
 				Assert.That(results[13], Is.EqualTo(new List<int>() { 4, 6 }));
 				Assert.That(results[14], Is.EqualTo(new List<int>() { 5, 6 }));
 			}
+		}
+
+		[TestFixture]
+		public class AngleTest
+		{
+			[TestCase]
+			public void SignedAngleBetweenVectorsTest()
+			{
+				var a = new Vector3(1, 0, 0);
+				var b = new Vector3(0, 1, 0);
+				var normal = new Vector3(0, 0, 1);
+
+				var result = MathUtilities.SignedAngleBetweenVectors(a, b, normal);
+
+				Assert.That(result, Is.EqualTo(90.0).Within(0.001f));
+
+				a = new Vector3(0, 1, 0);
+				b = new Vector3(1, 0, 0);
+				normal = new Vector3(0, 0, 1);
+
+				result = MathUtilities.SignedAngleBetweenVectors(a, b, normal);
+
+				Assert.That(result, Is.EqualTo(-90.0).Within(0.001f));
+
+				a = new Vector3(1, 0, 0);
+				b = new Vector3(0, 1, 0);
+				normal = new Vector3(0, 0, -1);
+
+				result = MathUtilities.SignedAngleBetweenVectors(a, b, normal);
+
+				Assert.That(result, Is.EqualTo(-90.0).Within(0.001f));
+
+				a = new Vector3(0, 1, 0);
+				b = new Vector3(1, 0, 0);
+				normal = new Vector3(0, 0, -1);
+
+				result = MathUtilities.SignedAngleBetweenVectors(a, b, normal);
+
+				Assert.That(result, Is.EqualTo(90.0).Within(0.001f));
+
+				a = new Vector3(1, 0, 0);
+				b = new Vector3(-1, 0, 0);
+				normal = new Vector3(0, 0, 1);
+
+				result = MathUtilities.SignedAngleBetweenVectors(a, b, normal);
+
+				Assert.That(result, Is.EqualTo(180.0).Within(0.001f));
+			}
+		}
+
+		[TestCase]
+		public void SortVerticesCounterClockwise()
+		{
+			var side = new Side();
+
+			side.Plane = new Plane(new Vector3(-256, 0, 0), new Vector3(-256, 512, 0), new Vector3(-256, 512, 512), Winding.CCW);
+
+			side.Vertices.Add(new Vertex(-256, 0, 0));
+			side.Vertices.Add(new Vertex(-256, 0, 512));
+			side.Vertices.Add(new Vertex(-256, 512, 0));
+			side.Vertices.Add(new Vertex(-256, 512, 512));
+
+			side.Vertices = MathUtilities.SortVerticesCCW(side.Vertices, side.Plane.Normal);
+
+			// No need for comparing floats with an epsilon here, since the
+			// values going in are exact, and this only tests reordering the
+			// list of vertices. None of their 3D coordinates are changed.
+			Assert.That(side.Vertices[0], Is.EqualTo(new Vertex(-256, 0, 0)));
+			Assert.That(side.Vertices[1], Is.EqualTo(new Vertex(-256, 512, 0)));
+			Assert.That(side.Vertices[2], Is.EqualTo(new Vertex(-256, 512, 512)));
+			Assert.That(side.Vertices[3], Is.EqualTo(new Vertex(-256, 0, 512)));
 		}
 	}
 }

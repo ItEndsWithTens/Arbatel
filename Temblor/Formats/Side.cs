@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Temblor.Graphics;
+using Temblor.Utilities;
 
 namespace Temblor.Formats
 {
@@ -18,11 +19,15 @@ namespace Temblor.Formats
 		public float TextureRotation;
 		public Vector2 TextureScale;
 
+		public List<Vertex> Vertices;
+
 		public Side()
 		{
 			TextureBasis = new List<Vector3>();
 			TextureOffset = new Vector2();
 			TextureScale = new Vector2();
+
+			Vertices = new List<Vertex>();
 		}
 	}
 }
