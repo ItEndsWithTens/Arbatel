@@ -82,7 +82,7 @@ namespace Temblor.Formats
 					}
 				}
 
-				side.Vertices = MathUtilities.SortVerticesCCW(side.Vertices, side.Plane.Normal);
+				side.Vertices = MathUtilities.SortVertices(side.Vertices, side.Plane.Normal, Winding.CCW);
 
 				var breakvar = 4;
 			}

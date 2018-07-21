@@ -154,7 +154,7 @@ namespace Temblor.Utilities
 			return MathHelper.RadiansToDegrees(Math.Atan2(dot1, dot2));
 		}
 
-		public static List<Vertex> SortVerticesCCW(List<Vector3> vectors, Vector3 normal)
+		public static List<Vertex> SortVerticesCCW(List<Vector3> vectors, Vector3 normal, Winding winding)
 		{
 			var vertices = new List<Vertex>();
 
@@ -163,9 +163,9 @@ namespace Temblor.Utilities
 				vertices.Add(new Vertex(vector));
 			}
 
-			return SortVerticesCCW(vertices, normal);
+			return SortVertices(vertices, normal, winding);
 		}
-		public static List<Vertex> SortVerticesCCW(List<Vertex> vertices, Vector3 normal)
+		public static List<Vertex> SortVertices(List<Vertex> vertices, Vector3 normal, Winding winding)
 		{
 			List<List<int>> pairs = Permutations(vertices.Count, 2);
 
@@ -242,6 +242,14 @@ namespace Temblor.Utilities
 
 				sorted.Add(vertices[nextIndex]);
 				currentIndex = nextIndex;
+			}
+
+			if (winding == Winding.CW)
+			{
+				// Reverse the order, but keep the first vertex at index 0.
+				sorted.Reverse();
+				sorted.Insert(0, sorted[sorted.Count - 1]);
+				sorted.RemoveAt(sorted.Count - 1);
 			}
 
 			return sorted;
