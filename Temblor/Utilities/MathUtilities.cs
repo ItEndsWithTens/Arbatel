@@ -146,6 +146,38 @@ namespace Temblor.Utilities
 			return (ModAngleToCircleSigned(angle) + 360.0f) % 360.0f;
 		}
 
+		public static Dictionary<List<int>, double> GetClockwiseAngles(List<Vertex> vertices, List<List<int>> pairs, Vector3 center, Vector3 normal)
+		{
+			var vectors = new List<Vector3>();
+
+			foreach (var vertex in vertices)
+			{
+				vectors.Add(vertex.Position);
+			}
+
+			return GetClockwiseAngles(vectors, pairs, center, normal);
+		}
+		public static Dictionary<List<int>, double> GetClockwiseAngles(List<Vector3> vertices, List<List<int>> pairs, Vector3 center, Vector3 normal)
+		{
+			var angles = new Dictionary<List<int>, double>();
+
+			foreach (var pair in pairs)
+			{
+				Vector3 a = vertices[pair[0]] - center;
+				Vector3 b = vertices[pair[1]] - center;
+
+				double angle = SignedAngleBetweenVectors(a, b, normal);
+
+				//if (angle > 0.0 || MathHelper.ApproximatelyEqualEpsilon(angle, -180.0, 0.001))
+				if (angle > 0.0)
+				{
+					angles.Add(pair, angle);
+				}
+			}
+
+			return angles;
+		}
+
 		public static double SignedAngleBetweenVectors(Vector3 a, Vector3 b, Vector3 normal)
 		{
 			var dot1 = Vector3.Dot(normal, Vector3.Cross(a, b));
@@ -154,7 +186,7 @@ namespace Temblor.Utilities
 			return MathHelper.RadiansToDegrees(Math.Atan2(dot1, dot2));
 		}
 
-		public static List<Vertex> SortVerticesCCW(List<Vector3> vectors, Vector3 normal, Winding winding)
+		public static List<Vertex> SortVertices(List<Vector3> vectors, Vector3 normal, Winding winding)
 		{
 			var vertices = new List<Vertex>();
 
@@ -168,8 +200,6 @@ namespace Temblor.Utilities
 		public static List<Vertex> SortVertices(List<Vertex> vertices, Vector3 normal, Winding winding)
 		{
 			List<List<int>> pairs = Permutations(vertices.Count, 2);
-
-			var angles = new Dictionary<List<int>, double>();
 
 			var min = new Vector3(vertices[0].Position);
 			var max = new Vector3(vertices[0].Position);
@@ -205,19 +235,7 @@ namespace Temblor.Utilities
 
 			Vector3 center = min + ((max - min) / 2.0f);
 
-			foreach (var pair in pairs)
-			{
-				var a = vertices[pair[0]].Position - center;
-				var b = vertices[pair[1]].Position - center;
-
-				double angle = SignedAngleBetweenVectors(a, b, normal);
-
-				// Only add counterclockwise angles.
-				if (angle > 0.0)
-				{
-					angles.Add(pair, angle);
-				}
-			}
+			Dictionary<List<int>, double> angles = GetClockwiseAngles(vertices, pairs, center, normal);
 
 			var sorted = new List<Vertex>() { vertices[0] };
 
