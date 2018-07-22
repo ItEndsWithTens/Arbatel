@@ -104,7 +104,7 @@ namespace Temblor.Graphics
 			MaxPitch = 89.0f;
 			MinPitch = -89.0f;
 
-			NearClip = 0.001f;
+			NearClip = 1.0f;
 			FarClip = 10000.0f;
 
 			WorldUp = new Vector3(0.0f, 1.0f, 0.0f);
