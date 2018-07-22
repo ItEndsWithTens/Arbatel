@@ -12,13 +12,13 @@ namespace TemblorTest.Core.GraphicsTest
 {
 	public class GraphicsTest
 	{
+		public const float Epsilon = 0.001f;
+
 		public class PlaneTest
 		{
 			[TestFixture]
 			public class DistanceTest
 			{
-				float Epsilon = 0.001f;
-
 				[TestCase]
 				public void PositiveDistanceFacingAwayFromOriginCw()
 				{
@@ -273,9 +273,9 @@ namespace TemblorTest.Core.GraphicsTest
 					var points = new List<Vertex>() { new Vertex(-256, 512, 512), new Vertex(-256, 512, 0), new Vertex(-256, 0, 512) };
 					var plane = new Plane(points, Winding.CW);
 
-					Assert.That(plane.Normal.X, Is.EqualTo(1).Within(0.001f));
-					Assert.That(plane.Normal.Y, Is.EqualTo(0).Within(0.001f));
-					Assert.That(plane.Normal.Z, Is.EqualTo(0).Within(0.001f));
+					Assert.That(plane.Normal.X, Is.EqualTo(1).Within(Epsilon));
+					Assert.That(plane.Normal.Y, Is.EqualTo(0).Within(Epsilon));
+					Assert.That(plane.Normal.Z, Is.EqualTo(0).Within(Epsilon));
 				}
 
 				[TestCase]
@@ -284,9 +284,9 @@ namespace TemblorTest.Core.GraphicsTest
 					var points = new List<Vertex>() { new Vertex(-256, 0, 0), new Vertex(-256, 512, 0), new Vertex(-256, 512, 512) };
 					var plane = new Plane(points, Winding.CCW);
 
-					Assert.That(plane.Normal.X, Is.EqualTo(1).Within(0.001f));
-					Assert.That(plane.Normal.Y, Is.EqualTo(0).Within(0.001f));
-					Assert.That(plane.Normal.Z, Is.EqualTo(0).Within(0.001f));
+					Assert.That(plane.Normal.X, Is.EqualTo(1).Within(Epsilon));
+					Assert.That(plane.Normal.Y, Is.EqualTo(0).Within(Epsilon));
+					Assert.That(plane.Normal.Z, Is.EqualTo(0).Within(Epsilon));
 				}
 			}
 		}

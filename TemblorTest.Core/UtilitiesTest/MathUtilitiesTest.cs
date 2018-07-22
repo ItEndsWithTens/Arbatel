@@ -14,6 +14,8 @@ namespace TemblorTest.Core.MathUtilitiesTest
 {
 	public class MathUtilitiesTest
 	{
+		public const float Epsilon = 0.001f;
+
 		[TestFixture]
 		public class PermutationsTest
 		{
@@ -196,7 +198,31 @@ namespace TemblorTest.Core.MathUtilitiesTest
 		public class AngleTest
 		{
 			[TestCase]
-			public void SignedAngleBetweenVectorsTest()
+			public void GetClockwiseAngleWholeNumbers()
+			{
+				var a = new Vector3(0, -48, 32);
+				var b = new Vector3(0, 48, -32);
+				var normal = new Vector3(1, 0, 0);
+
+				double angle = MathUtilities.GetClockwiseAngle(a, b, normal);
+
+				Assert.That(angle, Is.EqualTo(180.0).Within(Epsilon));
+			}
+
+			[TestCase]
+			public void GetClockwiseAngleRoundingErrorInInput()
+			{
+				var a = new Vector3(0, -48, 32.00001f);
+				var b = new Vector3(0, 48, -32);
+				var normal = new Vector3(1, 0, 0);
+
+				double angle = MathUtilities.GetClockwiseAngle(a, b, normal);
+
+				Assert.That(angle, Is.EqualTo(-180.0).Within(Epsilon));
+			}
+
+			[TestCase]
+			public void SignedAngleBetweenVectors()
 			{
 				var a = new Vector3(1, 0, 0);
 				var b = new Vector3(0, 1, 0);
@@ -204,7 +230,7 @@ namespace TemblorTest.Core.MathUtilitiesTest
 
 				var result = MathUtilities.SignedAngleBetweenVectors(a, b, normal);
 
-				Assert.That(result, Is.EqualTo(90.0).Within(0.001f));
+				Assert.That(result, Is.EqualTo(90.0).Within(Epsilon));
 
 				a = new Vector3(0, 1, 0);
 				b = new Vector3(1, 0, 0);
@@ -212,7 +238,7 @@ namespace TemblorTest.Core.MathUtilitiesTest
 
 				result = MathUtilities.SignedAngleBetweenVectors(a, b, normal);
 
-				Assert.That(result, Is.EqualTo(-90.0).Within(0.001f));
+				Assert.That(result, Is.EqualTo(-90.0).Within(Epsilon));
 
 				a = new Vector3(1, 0, 0);
 				b = new Vector3(0, 1, 0);
@@ -220,7 +246,7 @@ namespace TemblorTest.Core.MathUtilitiesTest
 
 				result = MathUtilities.SignedAngleBetweenVectors(a, b, normal);
 
-				Assert.That(result, Is.EqualTo(-90.0).Within(0.001f));
+				Assert.That(result, Is.EqualTo(-90.0).Within(Epsilon));
 
 				a = new Vector3(0, 1, 0);
 				b = new Vector3(1, 0, 0);
@@ -228,7 +254,7 @@ namespace TemblorTest.Core.MathUtilitiesTest
 
 				result = MathUtilities.SignedAngleBetweenVectors(a, b, normal);
 
-				Assert.That(result, Is.EqualTo(90.0).Within(0.001f));
+				Assert.That(result, Is.EqualTo(90.0).Within(Epsilon));
 
 				a = new Vector3(1, 0, 0);
 				b = new Vector3(-1, 0, 0);
@@ -236,12 +262,12 @@ namespace TemblorTest.Core.MathUtilitiesTest
 
 				result = MathUtilities.SignedAngleBetweenVectors(a, b, normal);
 
-				Assert.That(result, Is.EqualTo(180.0).Within(0.001f));
+				Assert.That(result, Is.EqualTo(180.0).Within(Epsilon));
 			}
 		}
 
 		[TestCase]
-		public void SortVerticesCounterClockwise()
+		public void SortVerticesCcw()
 		{
 			var side = new Side();
 
@@ -261,6 +287,30 @@ namespace TemblorTest.Core.MathUtilitiesTest
 			Assert.That(side.Vertices[1], Is.EqualTo(new Vertex(-256, 512, 0)));
 			Assert.That(side.Vertices[2], Is.EqualTo(new Vertex(-256, 512, 512)));
 			Assert.That(side.Vertices[3], Is.EqualTo(new Vertex(-256, 0, 512)));
+		}
+
+		[TestCase]
+		public void SortVerticesCw()
+		{
+			var side = new Side();
+
+			side.Plane = new Plane(
+				new Vector3(-256, 0, 0),
+				new Vector3(-256, 512, 0),
+				new Vector3(-256, 512, 512),
+				Winding.CCW);
+
+			side.Vertices.Add(new Vertex(-256, 0, 0));
+			side.Vertices.Add(new Vertex(-256, 0, 512));
+			side.Vertices.Add(new Vertex(-256, 512, 0));
+			side.Vertices.Add(new Vertex(-256, 512, 512));
+
+			side.Vertices = MathUtilities.SortVertices(side.Vertices, side.Plane.Normal, Winding.CW);
+
+			Assert.That(side.Vertices[0], Is.EqualTo(new Vertex(-256, 0, 0)));
+			Assert.That(side.Vertices[1], Is.EqualTo(new Vertex(-256, 0, 512)));
+			Assert.That(side.Vertices[2], Is.EqualTo(new Vertex(-256, 512, 512)));
+			Assert.That(side.Vertices[3], Is.EqualTo(new Vertex(-256, 512, 0)));
 		}
 	}
 }

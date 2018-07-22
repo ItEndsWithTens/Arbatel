@@ -72,6 +72,12 @@ namespace Temblor.Utilities
 			return combinations;
 		}
 
+		/// <summary>
+		/// Get all unique permutations of a set.
+		/// </summary>
+		/// <param name="count">The number of items to permute.</param>
+		/// <param name="size">Permutations must be exactly this length.</param>
+		/// <returns></returns>
 		public static List<List<int>> Permutations(int count, int size)
 		{
 			var items = new List<int>();
@@ -85,7 +91,7 @@ namespace Temblor.Utilities
 		/// <summary>
 		/// Get all unique permutations of a set.
 		/// </summary>
-		/// <param name="items">The items to combine.</param>
+		/// <param name="items">The items to permute.</param>
 		/// <param name="size">Permutations must be exactly this length.</param>
 		/// <returns></returns>
 		public static List<List<int>> Permutations(List<int> items, int size)
@@ -146,6 +152,38 @@ namespace Temblor.Utilities
 			return (ModAngleToCircleSigned(angle) + 360.0f) % 360.0f;
 		}
 
+		/// <summary>
+		/// Get the angle in degrees between two points, clockwise from a to b
+		/// when looking against the direction of the normal.
+		/// </summary>
+		/// <param name="a">The starting point.</param>
+		/// <param name="b">The ending point.</param>
+		/// <param name="normal">The normal of the points' face.</param>
+		/// <returns>The angle between a and b, in degrees.</returns>
+		public static double GetClockwiseAngle(Vector3 a, Vector3 b, Vector3 normal)
+		{
+			double result = double.NaN;
+
+			double angle = SignedAngleBetweenVectors(a, b, normal);
+			if (angle > 0.0 || MathHelper.ApproximatelyEqualEpsilon(angle, -180.0, 0.001))
+			{
+				result = angle;
+			}
+
+			return result;
+		}
+
+		/// <summary>
+		/// Get a series of clockwise angles between every pair of vertices in a set.
+		/// </summary>
+		/// <param name="vertices">The vertices to measure.</param>
+		/// <param name="pairs">A list of indices into 'vertices', defining pairs of
+		/// vertices to measure between.</param>
+		/// <param name="center">The point around which to measure the angle.</param>
+		/// <param name="normal">Angles will be considered either clockwise or
+		/// counterclockwise when looking opposite this direction.</param>
+		/// <returns>A Dictionary, with one entry per input vertex pair, that
+		/// uses the pair as its Key, and the measured angle as its Value.</returns>
 		public static Dictionary<List<int>, double> GetClockwiseAngles(List<Vertex> vertices, List<List<int>> pairs, Vector3 center, Vector3 normal)
 		{
 			var vectors = new List<Vector3>();
@@ -157,18 +195,29 @@ namespace Temblor.Utilities
 
 			return GetClockwiseAngles(vectors, pairs, center, normal);
 		}
-		public static Dictionary<List<int>, double> GetClockwiseAngles(List<Vector3> vertices, List<List<int>> pairs, Vector3 center, Vector3 normal)
+		/// <summary>
+		/// Get a series of clockwise angles between every pair of points in a set.
+		/// </summary>
+		/// <param name="points">The points to measure.</param>
+		/// <param name="pairs">A list of indices into 'points', defining pairs of
+		/// points to measure between.</param>
+		/// <param name="center">The point around which to measure the angle.</param>
+		/// <param name="normal">Angles will be considered either clockwise or
+		/// counterclockwise when looking opposite this direction.</param>
+		/// <returns>A Dictionary, with one entry per input point pair, that
+		/// uses the pair as its Key, and the measured angle as its Value.</returns>
+		public static Dictionary<List<int>, double> GetClockwiseAngles(List<Vector3> points, List<List<int>> pairs, Vector3 center, Vector3 normal)
 		{
 			var angles = new Dictionary<List<int>, double>();
 
 			foreach (var pair in pairs)
 			{
-				Vector3 a = vertices[pair[0]] - center;
-				Vector3 b = vertices[pair[1]] - center;
+				Vector3 a = points[pair[0]] - center;
+				Vector3 b = points[pair[1]] - center;
 
-				double angle = SignedAngleBetweenVectors(a, b, normal);
+				double angle = GetClockwiseAngle(a, b, normal);
 
-				if (angle > 0.0)
+				if (!angle.Equals(double.NaN))
 				{
 					angles.Add(pair, angle);
 				}
@@ -185,17 +234,6 @@ namespace Temblor.Utilities
 			return MathHelper.RadiansToDegrees(Math.Atan2(dot1, dot2));
 		}
 
-		public static List<Vertex> SortVertices(List<Vector3> points, Vector3 normal, Winding winding)
-		{
-			var vertices = new List<Vertex>();
-
-			foreach (var point in points)
-			{
-				vertices.Add(new Vertex(point));
-			}
-
-			return SortVertices(vertices, normal, winding);
-		}
 		public static List<Vertex> SortVertices(List<Vertex> vertices, Vector3 normal, Winding winding)
 		{
 			List<List<int>> pairs = Permutations(vertices.Count, 2);
