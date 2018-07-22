@@ -22,7 +22,19 @@ namespace Temblor.Graphics
 		{
 		}
 		public Vertex(float _x, float _y, float _z) :
-			this(new Vector3(_x, _y, _z), new Vector3(0.0f, 0.0f, 1.0f), Color4.White, new Vector2(0.0f, 0.0f))
+			this(new Vector3(_x, _y, _z), new Vector3(0.0f, 0.0f, 1.0f), Color4.White)
+		{
+		}
+		public Vertex(float _x, float _y, float _z, Color4 _color) :
+			this(new Vector3(_x, _y, _z), new Vector3(0.0f, 0.0f, 1.0f), _color)
+		{
+		}
+		public Vertex(Vector3 _position, Color4 _color) :
+			this(_position, new Vector3(0.0f, 0.0f, 1.0f), _color)
+		{
+		}
+		public Vertex(Vector3 _position, Vector3 _normal, Color4 _color) :
+			this(_position, _normal, _color, new Vector2())
 		{
 		}
 		public Vertex(Vector3 _position, Vector3 _normal, Color4 _color, Vector2 _texcoords)

@@ -252,7 +252,7 @@ namespace TemblorTest.Core.MathUtilitiesTest
 			side.Vertices.Add(new Vertex(-256, 512, 0));
 			side.Vertices.Add(new Vertex(-256, 512, 512));
 
-			side.Vertices = MathUtilities.SortVerticesCCW(side.Vertices, side.Plane.Normal);
+			side.Vertices = MathUtilities.SortVertices(side.Vertices, side.Plane.Normal, Winding.CCW);
 
 			// No need for comparing floats with an epsilon here, since the
 			// values going in are exact, and this only tests reordering the

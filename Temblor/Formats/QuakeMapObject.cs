@@ -1,4 +1,5 @@
 ﻿using OpenTK;
+using OpenTK.Graphics;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -48,7 +49,10 @@ namespace Temblor.Formats
 				{
 					if (VertexIsLegal(intersection, sides))
 					{
-						var vertex = new Vertex(intersection);
+						var r = new Random();
+						var color = new Color4((float)r.NextDouble(), (float)r.NextDouble(), (float)r.NextDouble(), 1.0f);
+
+						var vertex = new Vertex(intersection, color);
 
 						sides[combo[0]].Vertices.Add(vertex);
 						sides[combo[1]].Vertices.Add(vertex);
@@ -61,30 +65,49 @@ namespace Temblor.Formats
 
 			foreach (var side in sides)
 			{
-				foreach(var vertex in side.Vertices)
+				side.Vertices = MathUtilities.SortVertices(side.Vertices, side.Plane.Normal, Winding.CCW);
+
+				foreach (var sideVertex in side.Vertices)
 				{
-					var vertexIsInRenderable = false;
-					foreach (var v in renderable.Vertices)
+					var renderableContainsSideVertex = false;
+					var index = 0;
+					for (var i = 0; i < renderable.Vertices.Count; i++)
 					{
-						if (MathHelper.ApproximatelyEqualEpsilon(vertex.Position.X, v.Position.X, 0.001f) &&
-							MathHelper.ApproximatelyEqualEpsilon(vertex.Position.Y, v.Position.Y, 0.001f) &&
-							MathHelper.ApproximatelyEqualEpsilon(vertex.Position.Z, v.Position.Z, 0.001f))
+						var renderableVertex = renderable.Vertices[i];
+						if (MathHelper.ApproximatelyEqualEpsilon(sideVertex.Position.X, renderableVertex.Position.X, 0.001f) &&
+							MathHelper.ApproximatelyEqualEpsilon(sideVertex.Position.Y, renderableVertex.Position.Y, 0.001f) &&
+							MathHelper.ApproximatelyEqualEpsilon(sideVertex.Position.Z, renderableVertex.Position.Z, 0.001f))
 						{
-							vertexIsInRenderable = true;
-							renderable.Indices.Add(renderable.Vertices.IndexOf(v));
+							renderableContainsSideVertex = true;
+							index = i;
+							break;
 						}
 					}
 
-					if (!vertexIsInRenderable)
+					if (renderableContainsSideVertex)
 					{
-						renderable.Vertices.Add(vertex);
-						renderable.Indices.Add(side.Vertices.IndexOf(vertex));
+						side.Indices.Add(index);
+					}
+					else
+					{
+						renderable.Vertices.Add(sideVertex);
+						side.Indices.Add(renderable.Vertices.Count - 1);
 					}
 				}
 
-				side.Vertices = MathUtilities.SortVertices(side.Vertices, side.Plane.Normal, Winding.CCW);
+				// By this point, the side's vertices are sorted CCW, and the
+				// indices should reflect that. It should now just be a matter
+				// of breaking them into groups of three.
+				for (var i = 0; i < side.Vertices.Count - 2; i++)
+				{
+					var indexA = 0;
+					var indexB = i + 1;
+					var indexC = i + 2;
 
-				var breakvar = 4;
+					renderable.Indices.Add(side.Indices[indexA]);
+					renderable.Indices.Add(side.Indices[indexB]);
+					renderable.Indices.Add(side.Indices[indexC]);
+				}
 			}
 
 			Renderables.Add(renderable);

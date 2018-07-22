@@ -20,6 +20,7 @@ namespace Temblor.Formats
 		public Vector2 TextureScale;
 
 		public List<Vertex> Vertices;
+		public List<int> Indices;
 
 		public Side()
 		{
@@ -28,6 +29,7 @@ namespace Temblor.Formats
 			TextureScale = new Vector2();
 
 			Vertices = new List<Vertex>();
+			Indices = new List<int>();
 		}
 	}
 }

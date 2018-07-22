@@ -1,5 +1,6 @@
 ﻿using Eto.Gl;
 using OpenTK;
+using OpenTK.Graphics;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,6 +18,8 @@ namespace Temblor.Formats
 
 		public List<Renderable> Renderables;
 
+		public Color4 Color;
+
 		public MapObject() : this(new Block())
 		{
 		}
@@ -27,6 +30,8 @@ namespace Temblor.Formats
 			Children = new List<MapObject>();
 
 			Renderables = new List<Renderable>();
+
+			Color = new Color4(1.0f, 1.0f, 1.0f, 1.0f);
 		}
 
 		public void Draw(Shader shader, GLSurface surface)
