@@ -168,7 +168,6 @@ namespace Temblor.Utilities
 
 				double angle = SignedAngleBetweenVectors(a, b, normal);
 
-				//if (angle > 0.0 || MathHelper.ApproximatelyEqualEpsilon(angle, -180.0, 0.001))
 				if (angle > 0.0)
 				{
 					angles.Add(pair, angle);
@@ -186,13 +185,13 @@ namespace Temblor.Utilities
 			return MathHelper.RadiansToDegrees(Math.Atan2(dot1, dot2));
 		}
 
-		public static List<Vertex> SortVertices(List<Vector3> vectors, Vector3 normal, Winding winding)
+		public static List<Vertex> SortVertices(List<Vector3> points, Vector3 normal, Winding winding)
 		{
 			var vertices = new List<Vertex>();
 
-			foreach (var vector in vectors)
+			foreach (var point in points)
 			{
-				vertices.Add(new Vertex(vector));
+				vertices.Add(new Vertex(point));
 			}
 
 			return SortVertices(vertices, normal, winding);
@@ -201,41 +200,9 @@ namespace Temblor.Utilities
 		{
 			List<List<int>> pairs = Permutations(vertices.Count, 2);
 
-			var min = new Vector3(vertices[0].Position);
-			var max = new Vector3(vertices[0].Position);
-			foreach (var vertex in vertices)
-			{
-				if (vertex.Position.X < min.X)
-				{
-					min.X = vertex.Position.X;
-				}
-				if (vertex.Position.X > max.X)
-				{
-					max.X = vertex.Position.X;
-				}
+			var aabb = new AABB(vertices);
 
-				if (vertex.Position.Y < min.Y)
-				{
-					min.Y = vertex.Position.Y;
-				}
-				if (vertex.Position.Y > max.Y)
-				{
-					max.Y = vertex.Position.Y;
-				}
-
-				if (vertex.Position.Z < min.Z)
-				{
-					min.Z = vertex.Position.Z;
-				}
-				if (vertex.Position.Z > max.Z)
-				{
-					max.Z = vertex.Position.Z;
-				}
-			}
-
-			Vector3 center = min + ((max - min) / 2.0f);
-
-			Dictionary<List<int>, double> angles = GetClockwiseAngles(vertices, pairs, center, normal);
+			Dictionary<List<int>, double> angles = GetClockwiseAngles(vertices, pairs, aabb.Center, normal);
 
 			var sorted = new List<Vertex>() { vertices[0] };
 
