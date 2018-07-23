@@ -2,6 +2,7 @@
 using OpenTK;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -88,6 +89,40 @@ namespace TemblorTest.Core.MathUtilitiesTest
 				Assert.That(results[3], Is.EqualTo(new List<int>() { 2, 3, 1 }));
 				Assert.That(results[4], Is.EqualTo(new List<int>() { 3, 1, 2 }));
 				Assert.That(results[5], Is.EqualTo(new List<int>() { 3, 2, 1 }));
+			}
+			
+			[TestCase]
+			public void NinetySixItemsSizeThree()
+			{
+				items = new List<int>();
+
+				for (var i = 0; i < 96; i++)
+				{
+					items.Add(i);
+				}
+
+				var sw = Stopwatch.StartNew();
+				var permutations = MathUtilities.Permutations(items, 3);
+				sw.Stop();
+
+				Assert.That(permutations.Count, Is.EqualTo(857280));
+
+				long average = sw.ElapsedMilliseconds;
+
+				sw.Reset();
+
+				for (var i = 0; i < 9; i++)
+				{
+					sw.Start();
+					permutations = MathUtilities.Permutations(items, 3);
+					sw.Stop();
+
+					average = (average + sw.ElapsedMilliseconds) / 2;
+
+					sw.Reset();
+				}
+
+				Assert.That(average, Is.LessThan(1000));
 			}
 		}
 
@@ -191,6 +226,40 @@ namespace TemblorTest.Core.MathUtilitiesTest
 				Assert.That(results[12], Is.EqualTo(new List<int>() { 4, 5 }));
 				Assert.That(results[13], Is.EqualTo(new List<int>() { 4, 6 }));
 				Assert.That(results[14], Is.EqualTo(new List<int>() { 5, 6 }));
+			}
+
+			[TestCase]
+			public void NinetySixItemsSizeThree()
+			{
+				items = new List<int>();
+
+				for (var i = 0; i < 96; i++)
+				{
+					items.Add(i);
+				}
+
+				var sw = Stopwatch.StartNew();
+				var combinations = MathUtilities.Combinations(items, 3);
+				sw.Stop();
+
+				Assert.That(combinations.Count, Is.EqualTo(142880));
+
+				long average = sw.ElapsedMilliseconds;
+
+				sw.Reset();
+
+				for (var i = 0; i < 9; i++)
+				{
+					sw.Start();
+					combinations = MathUtilities.Combinations(items, 3);
+					sw.Stop();
+
+					average = (average + sw.ElapsedMilliseconds) / 2;
+
+					sw.Reset();
+				}
+
+				Assert.That(average, Is.LessThan(1000));
 			}
 		}
 

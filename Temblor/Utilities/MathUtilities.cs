@@ -18,13 +18,24 @@ namespace Temblor.Utilities
 		/// <returns></returns>
 		public static List<List<int>> Combinations(int count, int size)
 		{
+			return Combinations(count, size, 0);
+		}
+		/// <summary>
+		/// Get all unique combinations of a set.
+		/// </summary>
+		/// <param name="count">The number of items to combine.</param>
+		/// <param name="size">Combinations must be exactly this length.</param>
+		/// <param name="start">The list index to start on; for recursion.</param>
+		/// <returns></returns>
+		public static List<List<int>> Combinations(int count, int size, int start)
+		{
 			var items = new List<int>();
 			for (var i = 0; i < count; i++)
 			{
 				items.Add(i);
 			}
 
-			return Combinations(items, size);
+			return Combinations(items, size, start);
 		}
 		/// <summary>
 		/// Get all unique combinations of a set.
@@ -34,38 +45,38 @@ namespace Temblor.Utilities
 		/// <returns></returns>
 		public static List<List<int>> Combinations(List<int> items, int size)
 		{
-			var permutations = Permutations(items, size);
-			var combinations = new List<List<int>>() { permutations[0] };
+			return Combinations(items, size, 0);
+		}
+		/// <summary>
+		/// Get all unique combinations of a set.
+		/// </summary>
+		/// <param name="items">The items to combine.</param>
+		/// <param name="size">Combinations must be exactly this length.</param>
+		/// <param name="start">The list index to start on; for recursion.</param>
+		/// <returns></returns>
+		public static List<List<int>> Combinations(List<int> items, int size, int start)
+		{
+			var combinations = new List<List<int>>();
 
-			for (var i = 1; i < permutations.Count; i++)
+			if (size == 1)
 			{
-				var permutation = permutations[i];
-
-				var permutationIsInCombinations = false;
-				foreach (var combination in combinations)
+				for (var i = start; i < items.Count; i++)
 				{
-					foreach (var item in permutation)
-					{
-						if (combination.Contains(item))
-						{
-							permutationIsInCombinations = true;
-						}
-						else
-						{
-							permutationIsInCombinations = false;
-							break;
-						}
-					}
-
-					if (permutationIsInCombinations)
-					{
-						break;
-					}
+					combinations.Add(new List<int>() { items[i] });
 				}
 
-				if (!permutationIsInCombinations)
+				return combinations;
+			}
+
+			for (var i = start; i < items.Count; i++)
+			{
+				var remainingCombos = Combinations(items, size - 1, i + 1);
+
+				foreach (var combo in remainingCombos)
 				{
-					combinations.Add(permutation);
+					var output = new List<int>() { items[i] };
+					output.AddRange(combo);
+					combinations.Add(output);
 				}
 			}
 

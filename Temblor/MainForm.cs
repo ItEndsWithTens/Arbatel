@@ -34,9 +34,12 @@ namespace Temblor
 			//var filename = "D:/Development/Temblor/scratch/justapyramid.map";
 			//var filename = "D:/Development/Temblor/scratch/justaziggurat.map";
 			//var filename = "D:/Development/Temblor/scratch/justacylinder.map";
-			var filename = "D:/Development/Temblor/scratch/rocktris.map";
+			//var filename = "D:/Development/Temblor/scratch/rocktris.map";
+			//var filename = "D:/Development/Temblor/scratch/brokensepulcherthing.map";
+			//var filename = "D:/Development/Temblor/scratch/brokensepulcherthing-minimal.map";
 			//var filename = "D:/Games/Quake/ad/src/xmasjam_tens.map";
-			//var filename = "D:/Games/Quake/ad/maps/ad_sepulcher.map";
+			//var filename = "D:/Games/Quake/ad/src/xmasjam_icequeen.map";
+			var filename = "D:/Games/Quake/ad/maps/ad_sepulcher.map";
 			//var filename = "D:/Games/Quake/quake_map_source/start.map";
 			var s = new System.IO.FileStream(filename, System.IO.FileMode.Open, System.IO.FileAccess.Read);
 			var map = new QuakeMap(s);
