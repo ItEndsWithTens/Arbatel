@@ -236,13 +236,20 @@ namespace Temblor.Utilities
 
 		public static List<Vertex> SortVertices(List<Vertex> vertices, Vector3 normal, Winding winding)
 		{
+			var sorted = new List<Vertex>();
+
+			if (vertices.Count == 0)
+			{
+				return sorted;
+			}
+
+			sorted.Add(vertices[0]);
+
 			List<List<int>> pairs = Permutations(vertices.Count, 2);
 
 			var aabb = new AABB(vertices);
 
 			Dictionary<List<int>, double> angles = GetClockwiseAngles(vertices, pairs, aabb.Center, normal);
-
-			var sorted = new List<Vertex>() { vertices[0] };
 
 			var currentIndex = 0;
 			for (var i = 0; i < vertices.Count - 1; i++)

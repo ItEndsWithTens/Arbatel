@@ -32,6 +32,40 @@ namespace TemblorTest.Core.FormatsTest
 				var block = new QuakeBlock(ref raw, 0);
 			}
 
+			[TestCase]
+			public void SuperfluousFace()
+			{
+				// In this case, the side with exit02_2 as its texture is an
+				// invalid, extra side, which doesn't produce an actual polygon.
+				var raw = new List<string>()
+				{
+					"{",
+					"\"_phong\" \"1\"",
+					"\"classname\" \"func_detail\"",
+					"// brush 32",
+					"{",
+					"( -2272 1104 832 ) ( -2256 1104 832 ) ( -2272 1024 832 ) ceiling5 0 32 0 1.000000 1.000000",
+					"( -2272 1104 832 ) ( -2272 1040 832 ) ( -2264 1040 800 ) city2_5 0 32 0 1.000000 1.000000",
+					"( -2240 1024 832 ) ( -2240 1104 832 ) ( -2240 1104 800 ) comp1_6 0 32 0 1.000000 1.000000",
+					"( -2272 1040 832 ) ( -2256 1024 832 ) ( -2248 1024 800 ) cop1_1 8 32 0 0.700000 1.000000",
+					"( -2256 1024 832 ) ( -2240 1024 832 ) ( -2240 1024 800 ) dr05_2 0 32 0 -1.000000 1.000000",
+					"( -2264 1104 688 ) ( -2264 1080 688 ) ( -2208 1104 688 ) exit02_2 0 32 0 1.000000 1.000000",
+					"( -2240 1104 832 ) ( -2272 1104 832 ) ( -2264 1104 800 ) floor01_5 0 32 0 1.000000 1.000000",
+					"}",
+					"}"
+				};
+
+				// The assertions below are really just icing on the cake; the
+				// important part is successfully instantiating a QuakeMapObject
+				// without throwing any exceptions.
+				var qmo = new QuakeMapObject(new QuakeBlock(ref raw, 0));
+
+				Assert.That(qmo.Block.KeyVals.Count, Is.EqualTo(2));
+
+				Assert.That(qmo.Children[0].Renderables[0].Vertices.Count, Is.EqualTo(8));
+				Assert.That(qmo.Children[0].Renderables[0].Indices.Count, Is.EqualTo(36));
+			}
+
 			public class OpenBraceInTextureName
 			{
 				[TestCase]
