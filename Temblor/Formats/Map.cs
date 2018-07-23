@@ -15,15 +15,17 @@ namespace Temblor
 
 		public string Raw;
 
-		public List<Block> Blocks = new List<Block>();
+		public List<Block> Blocks;
 
-		public List<MapObject> MapObjects = new List<MapObject>();
+		public List<MapObject> MapObjects;
 
 		public Map()
 		{
+			Blocks = new List<Block>();
 
+			MapObjects = new List<MapObject>();
 		}
-		public Map(Stream stream)
+		public Map(Stream stream) : this()
 		{
 			using (StreamReader sr = new StreamReader(stream))
 			{

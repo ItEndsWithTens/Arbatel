@@ -123,11 +123,11 @@ namespace Temblor.Formats
 
 			foreach (var side in sides)
 			{
-				var dot = Vector3.Dot(side.Plane.Normal, vertex);
+				float dot = Vector3.Dot(side.Plane.Normal, vertex);
 
-				var diff = dot - side.Plane.DistanceFromOrigin;
+				float diff = dot - side.Plane.DistanceFromOrigin;
 
-				inFront = diff > 0 && Math.Abs(diff) > 0.001f;
+				inFront = diff > 0.0f && Math.Abs(diff) > 0.001f;
 
 				if (inFront)
 				{
