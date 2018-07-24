@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Temblor.Formats;
 
-namespace Temblor
+namespace Temblor.Formats
 {
 	public class Map
 	{
@@ -15,14 +15,10 @@ namespace Temblor
 
 		public string Raw;
 
-		public List<Block> Blocks;
-
 		public List<MapObject> MapObjects;
 
 		public Map()
 		{
-			Blocks = new List<Block>();
-
 			MapObjects = new List<MapObject>();
 		}
 		public Map(Stream stream) : this()

@@ -85,7 +85,7 @@ namespace Temblor
 
 			// Instead of making the text view mode vertically shorter, just add some phantom
 			// line breaks to push the text down, and make sure to keep the cursor below them.
-			text.Text = "\n\n" + map.Blocks[0].ToString();
+			text.Text = "\n\n" + map.MapObjects[0].Block.ToString();
 			text.CaretIndex = 2;
 			text.CaretIndexChanged += (sender, e) =>
 			{

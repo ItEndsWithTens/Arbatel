@@ -63,7 +63,14 @@ namespace TemblorTest.Core.FormatsTest
 				Assert.That(qmo.Block.KeyVals.Count, Is.EqualTo(2));
 
 				Assert.That(qmo.Children[0].Renderables[0].Vertices.Count, Is.EqualTo(8));
-				Assert.That(qmo.Children[0].Renderables[0].Indices.Count, Is.EqualTo(36));
+
+				var indexCount = 0;
+				foreach (var polygon in qmo.Children[0].Renderables[0].Polygons)
+				{
+					indexCount += polygon.Indices.Count;
+				}
+
+				Assert.That(indexCount, Is.EqualTo(36));
 			}
 
 			public class OpenBraceInTextureName
@@ -213,7 +220,7 @@ namespace TemblorTest.Core.FormatsTest
 				map.Raw = sb.ToString();
 				map.Parse();
 
-				Assert.That(map.Blocks.Count, Is.EqualTo(1));
+				Assert.That(map.MapObjects.Count, Is.EqualTo(1));
 
 				var worldspawn = map.MapObjects[0] as QuakeMapObject;
 
@@ -268,7 +275,7 @@ namespace TemblorTest.Core.FormatsTest
 				map.Raw = sb.ToString();
 				map.Parse();
 
-				Assert.That(map.Blocks.Count, Is.EqualTo(2));
+				Assert.That(map.MapObjects.Count, Is.EqualTo(2));
 
 				var worldspawn = map.MapObjects[0] as QuakeMapObject;
 
@@ -327,7 +334,7 @@ namespace TemblorTest.Core.FormatsTest
 				map.Raw = sb.ToString();
 				map.Parse();
 
-				Assert.That(map.Blocks.Count, Is.EqualTo(2));
+				Assert.That(map.MapObjects.Count, Is.EqualTo(2));
 
 				var entity = map.MapObjects[0] as QuakeMapObject;
 

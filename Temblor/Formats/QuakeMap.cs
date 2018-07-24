@@ -81,15 +81,10 @@ namespace Temblor.Formats
 			{
 				var firstBraceIndex = split.IndexOf("{", i);
 
-				var newBlock = new QuakeBlock(ref split, firstBraceIndex);
-				Blocks.Add(newBlock);
+				var block = new QuakeBlock(ref split, firstBraceIndex);
+				MapObjects.Add(new QuakeMapObject(block));
 
-				i = firstBraceIndex + newBlock.RawLength;
-			}
-
-			foreach (var block in Blocks)
-			{
-				MapObjects.Add(new QuakeMapObject(block as QuakeBlock));
+				i = firstBraceIndex + block.RawLength;
 			}
 		}
 	}
