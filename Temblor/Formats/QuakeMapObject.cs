@@ -42,7 +42,7 @@ namespace Temblor.Formats
 
 			foreach (var combo in MathUtilities.Combinations(sides.Count, 3))
 			{
-				var intersection = Plane.Intersect(sides[combo[0]].Plane, sides[combo[1]].Plane, sides[combo[2]].Plane);
+				Vector3 intersection = Plane.Intersect(sides[combo[0]].Plane, sides[combo[1]].Plane, sides[combo[2]].Plane);
 				if (!intersection.X.Equals(float.NaN) &&
 					!intersection.Y.Equals(float.NaN) &&
 					!intersection.Z.Equals(float.NaN))
@@ -74,9 +74,9 @@ namespace Temblor.Formats
 					for (var i = 0; i < renderable.Vertices.Count; i++)
 					{
 						var renderableVertex = renderable.Vertices[i];
-						if (MathHelper.ApproximatelyEqualEpsilon(sideVertex.Position.X, renderableVertex.Position.X, 0.001f) &&
-							MathHelper.ApproximatelyEqualEpsilon(sideVertex.Position.Y, renderableVertex.Position.Y, 0.001f) &&
-							MathHelper.ApproximatelyEqualEpsilon(sideVertex.Position.Z, renderableVertex.Position.Z, 0.001f))
+						if (MathHelper.ApproximatelyEquivalent(sideVertex.Position.X, renderableVertex.Position.X, 0.001f) &&
+							MathHelper.ApproximatelyEquivalent(sideVertex.Position.Y, renderableVertex.Position.Y, 0.001f) &&
+							MathHelper.ApproximatelyEquivalent(sideVertex.Position.Z, renderableVertex.Position.Z, 0.001f))
 						{
 							renderableContainsSideVertex = true;
 							index = i;

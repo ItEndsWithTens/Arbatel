@@ -51,7 +51,7 @@ namespace Temblor.Graphics
 			var denominator = Vector3.Dot(a.Normal, Vector3.Cross(b.Normal, c.Normal));
 
 			// Planes do not intersect.
-			if (MathHelper.ApproximatelyEqualEpsilon(denominator, 0.0f, 0.001f))
+			if (MathHelper.ApproximatelyEquivalent(denominator, 0.0f, 0.001f))
 			{
 				return new Vector3(float.NaN, float.NaN, float.NaN);
 			}

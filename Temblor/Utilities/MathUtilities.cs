@@ -176,7 +176,7 @@ namespace Temblor.Utilities
 			double result = double.NaN;
 
 			double angle = SignedAngleBetweenVectors(a, b, normal);
-			if (angle > 0.0 || MathHelper.ApproximatelyEqualEpsilon(angle, -180.0, 0.001))
+			if (angle > 0.0 || MathHelper.ApproximatelyEquivalent(angle, -180.0, 0.001))
 			{
 				result = angle;
 			}
