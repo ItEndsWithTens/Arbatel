@@ -17,6 +17,10 @@ namespace Temblor
 		// HACK: Quick, dirty test to see how much I'm dumping on the graphics card.
 		public static int triangleCount = 0;
 
+		// Texture testing!
+		public byte[] testTexture;
+		public static int testTextureID;
+
 		public MainForm()
 		{
 			InitializeComponent();
@@ -37,14 +41,31 @@ namespace Temblor
 			//var filename = "D:/Development/Temblor/scratch/rocktris.map";
 			//var filename = "D:/Development/Temblor/scratch/brokensepulcherthing.map";
 			//var filename = "D:/Development/Temblor/scratch/brokensepulcherthing-minimal.map";
+			var filename = "D:/Development/Temblor/scratch/texturedthing.map";
 			//var filename = "D:/Games/Quake/ad/src/xmasjam_tens.map";
+			//var filename = "D:/Games/Quake/ad/src/xmasjam_bal.map";
 			//var filename = "D:/Games/Quake/ad/src/xmasjam_icequeen.map";
-			var filename = "D:/Games/Quake/ad/maps/ad_sepulcher.map";
+			//var filename = "D:/Games/Quake/ad/maps/ad_sepulcher.map";
+			//var filename = "D:/Games/Quake/ad/maps/ad_magna.map";
 			//var filename = "D:/Games/Quake/quake_map_source/start.map";
+			//var filename = "D:/Games/Quake/jam6/source/jam666_daz.map";
 			var s = new System.IO.FileStream(filename, System.IO.FileMode.Open, System.IO.FileAccess.Read);
 			var map = new QuakeMap(s);
 
 
+			//var texture = new Bitmap("D:/Pictures/Dirxq6tV4AAuSi8.jpg");
+			var texture = new Bitmap("D:/Pictures/Temblor-TestingCombinations-Sepulcher96SidedSun-Inset.png");
+
+			testTexture = ConvertBitmapToRgb(texture);
+
+
+			GL.GenTextures(1, out testTextureID);
+			GL.BindTexture(TextureTarget.Texture2D, testTextureID);
+			GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgb, texture.Width, texture.Height, 0, OpenTK.Graphics.OpenGL4.PixelFormat.Rgb, PixelType.UnsignedByte, testTexture);
+			GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.ClampToEdge);
+			GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.ClampToEdge);
+			GL.GenerateMipmap(GenerateMipmapTarget.Texture2D);
+			GL.BindTexture(TextureTarget.Texture2D, 0);
 
 			var viewport = new Viewport() { ID = "topLeft" };
 
@@ -144,9 +165,37 @@ namespace Temblor
 				//	//renderable.Indices.Add(0);
 				//	//renderable.Init(surfaces);
 				//}
-				
+
 				view.Invalidate();
 			}
+		}
+
+		public byte[] ConvertBitmapToRgb(Bitmap bitmap)
+		{
+			var colorComponents = 3;
+
+			var bytes = new byte[bitmap.Width * bitmap.Height * colorComponents];
+
+			var pitch = bitmap.Width * colorComponents;
+
+			for (var y = 0; y < bitmap.Height; y++)
+			{
+				//var line = (bitmap.Height - 1 - y) * pitch;
+				var line = y * pitch;
+
+				for (var x = 0; x < bitmap.Width; x++)
+				{
+					var color = bitmap.GetPixel(x, y);
+
+					var pixel = x * colorComponents;
+
+					bytes[line + pixel + 0] = Convert.ToByte(color.Rb);
+					bytes[line + pixel + 1] = Convert.ToByte(color.Gb);
+					bytes[line + pixel + 2] = Convert.ToByte(color.Bb);
+				}
+			}
+
+			return bytes;
 		}
 	}
 }

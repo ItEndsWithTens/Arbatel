@@ -12,10 +12,27 @@ namespace Temblor.Formats
 {
 	public class MapObject
 	{
+		/// <summary>
+		/// The raw block of text that was parsed to create this object.
+		/// </summary>
 		public Block Block;
 
+		/// <summary>
+		/// A list of MapObjects nested within this one.
+		/// </summary>
+		/// <remarks>
+		/// For example, in a Quake map, a func_group would be its own
+		/// MapObject, and a func_detail inside it would be a child.
+		/// </remarks>
 		public List<MapObject> Children;
 
+		/// <summary>
+		/// Anything associated with this MapObject that's meant to be rendered.
+		/// </summary>
+		/// <remarks>
+		/// A 3D solid, for example, or a UI element that's attached to this
+		/// object and should be drawn whenever the object is drawn.
+		/// </remarks>
 		public List<Renderable> Renderables;
 
 		public Color4 Color;

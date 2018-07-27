@@ -64,6 +64,9 @@ namespace Temblor.Formats
 			// QuakeEd
 			else
 			{
+				// TODO: Find the closest matching cardinal plane and use that
+				// instead; that's how the real thing works. See Quinstance for
+				// sample code to do what I hope is the right thing.
 				basisU.X = 1.0f;
 				basisU.Y = 0.0f;
 				basisU.Z = 0.0f;

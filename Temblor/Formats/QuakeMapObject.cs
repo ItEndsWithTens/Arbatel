@@ -40,29 +40,26 @@ namespace Temblor.Formats
 				sides.Add(new QuakeSide(side));
 			}
 
-			foreach (var combo in MathUtilities.Combinations(sides.Count, 3))
-			{
-				Vector3 intersection = Plane.Intersect(sides[combo[0]].Plane, sides[combo[1]].Plane, sides[combo[2]].Plane);
-				if (!intersection.X.Equals(float.NaN) &&
-					!intersection.Y.Equals(float.NaN) &&
-					!intersection.Z.Equals(float.NaN))
-				{
-					if (VertexIsLegal(intersection, sides))
-					{
-						var r = new Random();
-						var color = new Color4((float)r.NextDouble(), (float)r.NextDouble(), (float)r.NextDouble(), 1.0f);
+			var r = new Random();
+			var color = new Color4((float)r.NextDouble(), (float)r.NextDouble(), (float)r.NextDouble(), 1.0f);
 
-						var vertex = new Vertex(intersection, color);
-
-						sides[combo[0]].Vertices.Add(vertex);
-						sides[combo[1]].Vertices.Add(vertex);
-						sides[combo[2]].Vertices.Add(vertex);
-					}
-				}
-			}
+			CalculateIntersections(ref sides, color);
 
 			var renderable = new Renderable();
 
+			BuildPolygons(ref sides, ref renderable);
+
+			Renderables.Add(renderable);
+		}
+
+		/// <summary>
+		/// Construct polygons for all provided sides, triangulate them, and add
+		/// them to the specified Renderable.
+		/// </summary>
+		/// <param name="sides">The sides to build polygons for.</param>
+		/// <param name="renderable">The renderable that will contain the resulting polygons.</param>
+		private static void BuildPolygons(ref List<QuakeSide> sides, ref Renderable renderable)
+		{
 			foreach (var side in sides)
 			{
 				side.Vertices = MathUtilities.SortVertices(side.Vertices, side.Plane.Normal, Winding.CCW);
@@ -95,6 +92,8 @@ namespace Temblor.Formats
 					}
 				}
 
+				var polygon = new Polygon();
+
 				// By this point, the side's vertices are sorted CCW, and the
 				// indices should reflect that. It should now just be a matter
 				// of breaking them into groups of three.
@@ -104,15 +103,115 @@ namespace Temblor.Formats
 					var indexB = i + 1;
 					var indexC = i + 2;
 
-					renderable.Indices.Add(side.Indices[indexA]);
-					renderable.Indices.Add(side.Indices[indexB]);
-					renderable.Indices.Add(side.Indices[indexC]);
+					polygon.Indices.Add(side.Indices[indexA]);
+					polygon.Indices.Add(side.Indices[indexB]);
+					polygon.Indices.Add(side.Indices[indexC]);
 				}
-			}
 
-			Renderables.Add(renderable);
+				//for (var i = 0; i < side.Vertices.Count; i++)
+				for (var i = 0; i < side.Indices.Count; i++)
+				{
+					var index = side.Indices[i];
+
+					//var vertex = side.Vertices[i];
+					//var vertex = renderable.Vertices[i];
+					var vertex = renderable.Vertices[index];
+
+					var basisS = side.TextureBasis[0];
+					var basisT = side.TextureBasis[1];
+
+					// TODO: Use actual input texture dimensions, also take rotation
+					// into account; so far this otherwise seems to be working.
+					var scaledTextureSizeS = 64.0f * side.TextureScale.X;
+					var scaledTextureSizeT = 64.0f * side.TextureScale.Y;
+
+					var scaledTextureOffsetS = side.TextureOffset.X * side.TextureScale.X;
+					var scaledTextureOffsetT = side.TextureOffset.Y * side.TextureScale.Y;
+
+					var coordS = Vector3.Dot(vertex.Position, basisS) + scaledTextureOffsetS;
+					var coordT = Vector3.Dot(vertex.Position, basisT) + scaledTextureOffsetT;
+
+					coordS /= scaledTextureSizeS;
+					coordT /= scaledTextureSizeT;
+
+
+
+					var texCoords = new Vector2(coordS, coordT);
+					//polygon.TexCoords.Add(i, texCoords);
+
+					if (!polygon.TexCoords.ContainsKey(index))
+					{
+						polygon.TexCoords.Add(index, texCoords);
+					}
+
+				}
+
+				renderable.Polygons.Add(polygon);
+			}
 		}
 
+		/// <summary>
+		/// Calculate all valid intersection points of the provided sides, and
+		/// add a vertex for each to all sides that share it.
+		/// </summary>
+		/// <param name="sides">The list of sides to find the intersections of.</param>
+		/// <param name="color">The color to use for all created vertices.</param>
+		private static void CalculateIntersections(ref List<QuakeSide> sides, Color4 color)
+		{
+			foreach (var combo in MathUtilities.Combinations(sides.Count, 3))
+			{
+				Vector3 intersection = Plane.Intersect(sides[combo[0]].Plane, sides[combo[1]].Plane, sides[combo[2]].Plane);
+				if (!intersection.X.Equals(float.NaN) &&
+					!intersection.Y.Equals(float.NaN) &&
+					!intersection.Z.Equals(float.NaN) &&
+					VertexIsLegal(intersection, sides))
+				{
+					for (var i = 0; i < 3; i++)
+					{
+						var side = sides[combo[i]];
+
+						var vertexIsInSide = false;
+						foreach (var sideVertex in side.Vertices)
+						{
+							if (MathHelper.ApproximatelyEquivalent(intersection.X, sideVertex.Position.X, 0.001f) &&
+								MathHelper.ApproximatelyEquivalent(intersection.Y, sideVertex.Position.Y, 0.001f) &&
+								MathHelper.ApproximatelyEquivalent(intersection.Z, sideVertex.Position.Z, 0.001f))
+							{
+								vertexIsInSide = true;
+								break;
+							}
+						}
+
+						if (!vertexIsInSide)
+						{
+							var vertex = new Vertex(intersection, color);
+							side.Vertices.Add(vertex);
+						}
+					}
+				}
+			}
+		}
+
+		/// <summary>
+		/// Determine whether the provided 3D point is valid, given the list of
+		/// sides it was calculated from.
+		/// </summary>
+		/// <param name="vertex">The point to check.</param>
+		/// <param name="sides">The sides to compare against.</param>
+		/// <returns>True if the point is on or behind all sides.</returns>
+		/// <remarks>
+		/// A convex 3D object can be represented as a group of planes instead
+		/// of explicitly stored vertices and edges. To turn such a group of
+		/// planes back into a full mesh requires calculating the intersection
+		/// point of every possible combination of 3 planes in order to retrieve
+		/// the objects vertices. Not all of those are valid, though. Ziggurats,
+		/// for example, have a phantom vertex where three of the walls meet
+		/// above the flat top. To determine this, just figure out if the point
+		/// is in front of any of the object's planes. That could be the result
+		/// of a concave object, but since the assumption in formats like Quake
+		/// maps is that the objects are convex, the only other explanation is
+		/// that the intersection is a phantom, and shouldn't become a vertex.
+		/// </remarks>
 		private static bool VertexIsLegal(Vertex vertex, List<QuakeSide> sides)
 		{
 			return VertexIsLegal(vertex.Position, sides);

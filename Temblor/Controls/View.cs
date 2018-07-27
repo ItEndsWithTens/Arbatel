@@ -39,16 +39,17 @@ namespace Temblor.Controls
 			"layout (location = 3) in vec2 texCoords;",
 			"",
 			"out vec4 vertexColor;",
+			"out vec2 TexCoords;",
 			"",
-			"uniform mat4 model;",
 			"uniform mat4 view;",
 			"uniform mat4 projection;",
 			"",
 			"void main()",
 			"{",
 			"	vec3 zUpLeftHand = vec3(position.x, position.z, -position.y);",
-			"   gl_Position = projection * view * model * vec4(zUpLeftHand, 1.0f);",
+			"   gl_Position = projection * view * vec4(zUpLeftHand, 1.0f);",
 			"	vertexColor = color;",
+			"	TexCoords = texCoords;",
 			"}"
 		};
 		public string[] FragmentShaderSource330 =
@@ -56,12 +57,16 @@ namespace Temblor.Controls
 			"#version 330 core",
 			"",
 			"in vec4 vertexColor;",
+			"in vec2 TexCoords;",
 			"",
 			"out vec4 color;",
 			"",
+			"uniform sampler2D testTexture;",
+			"",
 			"void main()",
 			"{",
-			"   color = vertexColor;",
+			"   //color = vertexColor;",
+			"	color = texture(testTexture, TexCoords);",
 			"}"
 		};
 
@@ -213,7 +218,8 @@ namespace Temblor.Controls
 			if (ParentWindow != null)
 			{
 				//ParentWindow.Title = MainForm.triangleCount.ToString();
-				ParentWindow.Title = "Tris: "  + MainForm.triangleCount.ToString() + " Move ms: " + elapsedMsMove.ToString() + " Refresh ms: " + elapsedMsRefresh.ToString();
+				//ParentWindow.Title = "Tris: "  + MainForm.triangleCount.ToString() + " Move ms: " + elapsedMsMove.ToString() + " Refresh ms: " + elapsedMsRefresh.ToString();
+				ParentWindow.Title = "Move ms: " + elapsedMsMove.ToString() + " Refresh ms: " + elapsedMsRefresh.ToString();
 			}
 		}
 
@@ -239,6 +245,10 @@ namespace Temblor.Controls
 			}
 
 			GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode);
+
+			// TEST. Also remember to switch Camera to use left-handed, Z-up position at some point.
+			Camera.Position = new Vector3(256.0f, 1024.0f, 1024.0f);
+			Camera.Pitch = -30.0f;
 		}
 
 		private void View_MouseMove(object sender, MouseEventArgs e)
