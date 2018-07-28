@@ -32,7 +32,7 @@ namespace Temblor
 			KeyDown += MainForm_KeyDown;
 
 			//var filename = "D:/Development/Temblor/scratch/jam6_tens.map";
-			//var filename = "D:/Development/Temblor/scratch/medieval1.map";
+			var filename = "D:/Development/Temblor/scratch/medieval1.map";
 			//var filename = "D:/Development/Temblor/scratch/basicobjectstest.map";
 			//var filename = "D:/Development/Temblor/scratch/justacube.map";
 			//var filename = "D:/Development/Temblor/scratch/justapyramid.map";
@@ -41,7 +41,9 @@ namespace Temblor
 			//var filename = "D:/Development/Temblor/scratch/rocktris.map";
 			//var filename = "D:/Development/Temblor/scratch/brokensepulcherthing.map";
 			//var filename = "D:/Development/Temblor/scratch/brokensepulcherthing-minimal.map";
-			var filename = "D:/Development/Temblor/scratch/texturedthing.map";
+			//var filename = "D:/Development/Temblor/scratch/texturedthing.map";
+			//var filename = "D:/Development/Temblor/scratch/texturedthings.map";
+			//var filename = "D:/Development/Temblor/scratch/texturedangledthing.map";
 			//var filename = "D:/Games/Quake/ad/src/xmasjam_tens.map";
 			//var filename = "D:/Games/Quake/ad/src/xmasjam_bal.map";
 			//var filename = "D:/Games/Quake/ad/src/xmasjam_icequeen.map";
@@ -53,8 +55,8 @@ namespace Temblor
 			var map = new QuakeMap(s);
 
 
-			//var texture = new Bitmap("D:/Pictures/Dirxq6tV4AAuSi8.jpg");
-			var texture = new Bitmap("D:/Pictures/Temblor-TestingCombinations-Sepulcher96SidedSun-Inset.png");
+			var texture = new Bitmap("D:/Pictures/Dirxq6tV4AAuSi8.jpg");
+			//var texture = new Bitmap("D:/Pictures/Temblor-TestingCombinations-Sepulcher96SidedSun-Inset.png");
 
 			testTexture = ConvertBitmapToRgb(texture);
 
@@ -62,8 +64,8 @@ namespace Temblor
 			GL.GenTextures(1, out testTextureID);
 			GL.BindTexture(TextureTarget.Texture2D, testTextureID);
 			GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgb, texture.Width, texture.Height, 0, OpenTK.Graphics.OpenGL4.PixelFormat.Rgb, PixelType.UnsignedByte, testTexture);
-			GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.ClampToEdge);
-			GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.ClampToEdge);
+			GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.Repeat);
+			GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.Repeat);
 			GL.GenerateMipmap(GenerateMipmapTarget.Texture2D);
 			GL.BindTexture(TextureTarget.Texture2D, 0);
 
