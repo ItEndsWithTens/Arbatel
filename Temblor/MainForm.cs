@@ -31,8 +31,8 @@ namespace Temblor
 
 			KeyDown += MainForm_KeyDown;
 
-			//var filename = "D:/Development/Temblor/scratch/jam6_tens.map";
-			var filename = "D:/Development/Temblor/scratch/medieval1.map";
+			var filename = "D:/Development/Temblor/scratch/jam6_tens.map";
+			//var filename = "D:/Development/Temblor/scratch/medieval1.map";
 			//var filename = "D:/Development/Temblor/scratch/basicobjectstest.map";
 			//var filename = "D:/Development/Temblor/scratch/justacube.map";
 			//var filename = "D:/Development/Temblor/scratch/justapyramid.map";

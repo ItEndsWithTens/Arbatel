@@ -43,6 +43,13 @@ namespace Temblor.Graphics
 		/// </summary>
 		public List<int> Indices;
 
+		public Vector3 BasisS;
+		public Vector3 BasisT;
+		public float OffsetS;
+		public float OffsetT;
+		public float ScaleS;
+		public float ScaleT;
+
 		/// <summary>
 		/// The texture coordinates at each index of this 
 		/// </summary>
@@ -123,7 +130,21 @@ namespace Temblor.Graphics
 
 				GL.BufferData(BufferTarget.ElementArrayBuffer, p.Indices.Count * 4, p.Indices.ToArray(), BufferUsageHint.DynamicDraw);
 
-				
+
+				GL.Uniform3(GL.GetUniformLocation(shader.Program, "basisS"), ref p.BasisS);
+				GL.Uniform3(GL.GetUniformLocation(shader.Program, "basisT"), ref p.BasisT);
+				GL.Uniform1(GL.GetUniformLocation(shader.Program, "offsetS"), p.OffsetS);
+				GL.Uniform1(GL.GetUniformLocation(shader.Program, "offsetT"), p.OffsetT);
+				GL.Uniform1(GL.GetUniformLocation(shader.Program, "scaleS"), p.ScaleS);
+				GL.Uniform1(GL.GetUniformLocation(shader.Program, "scaleT"), p.ScaleT);
+
+				GL.DrawElements(BeginMode.Triangles, p.Indices.Count, DrawElementsType.UnsignedInt, 0);
+				continue;
+
+
+
+				//var distinct = p.Indices.Distinct().ToList();
+
 				// THIS SHIT IS WRONG, I'm not looping through the vertices one at a time; I'm going polygon
 				// by polygon, since each face involves different vertices, with different indices. I need to
 				// set offset at the beginning of each loop, to (current index * VertexSize) + 40, to get an
@@ -133,8 +154,12 @@ namespace Temblor.Graphics
 				var pitch = VertexSize;
 				//foreach (var index in p.Indices)
 				for (var j = 0; j < p.Indices.Count; j++)
+				//for (var j = 0; j < p.Indices.Distinct().ToList().Count; j++)
+				//for (var j = 0; j < distinct.Count; j++)
 				{
 					var index = p.Indices[j];
+					//var index = distinct[j];
+
 					var offset = IntPtr.Zero + ((VertexSize * index) + 40);
 
 					var coords = new float[2] { p.TexCoords[index].X , p.TexCoords[index].Y };
@@ -143,19 +168,20 @@ namespace Temblor.Graphics
 					//offset += pitch;
 
 
+					
 
-					var readEbo = new int[6];
-					var readVboPosition = new float[3];
-					var readVboNormal = new float[3];
-					var readVboColor = new float[4];
-					var readVboTexCoords = new float[2];
-
-					var baseOffset = IntPtr.Zero + (VertexSize * 1);
-					GL.GetBufferSubData(BufferTarget.ElementArrayBuffer, IntPtr.Zero, 6 * 4, readEbo);
-					GL.GetBufferSubData(BufferTarget.ArrayBuffer, baseOffset, 3 * 4, readVboPosition);
-					GL.GetBufferSubData(BufferTarget.ArrayBuffer, baseOffset + (3 * 4), 3 * 4, readVboNormal);
-					GL.GetBufferSubData(BufferTarget.ArrayBuffer, baseOffset + (6 * 4), 4 * 4, readVboColor);
-					GL.GetBufferSubData(BufferTarget.ArrayBuffer, baseOffset + (10 * 4), 2 * 4, readVboTexCoords);
+					//var readEbo = new int[6];
+					//var readVboPosition = new float[3];
+					//var readVboNormal = new float[3];
+					//var readVboColor = new float[4];
+					//var readVboTexCoords = new float[2];
+					//
+					//var baseOffset = IntPtr.Zero + (VertexSize * 1);
+					//GL.GetBufferSubData(BufferTarget.ElementArrayBuffer, IntPtr.Zero, 6 * 4, readEbo);
+					//GL.GetBufferSubData(BufferTarget.ArrayBuffer, baseOffset, 3 * 4, readVboPosition);
+					//GL.GetBufferSubData(BufferTarget.ArrayBuffer, baseOffset + (3 * 4), 3 * 4, readVboNormal);
+					//GL.GetBufferSubData(BufferTarget.ArrayBuffer, baseOffset + (6 * 4), 4 * 4, readVboColor);
+					//GL.GetBufferSubData(BufferTarget.ArrayBuffer, baseOffset + (10 * 4), 2 * 4, readVboTexCoords);
 
 					var randomthing = 4;
 

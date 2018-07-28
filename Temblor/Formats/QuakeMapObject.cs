@@ -134,6 +134,13 @@ namespace Temblor.Formats
 					}
 				}
 
+				polygon.BasisS = side.TextureBasis[0];
+				polygon.BasisT = side.TextureBasis[1];
+				polygon.OffsetS = side.TextureOffset.X;
+				polygon.OffsetT = side.TextureOffset.Y;
+				polygon.ScaleS = side.TextureScale.X;
+				polygon.ScaleT = side.TextureScale.Y;
+
 				renderable.Polygons.Add(polygon);
 			}
 		}
