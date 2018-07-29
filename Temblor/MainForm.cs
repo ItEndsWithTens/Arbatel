@@ -1,5 +1,6 @@
 ﻿using Eto.Gl;
 using OpenTK;
+using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL4;
 using System;
 using System.Collections.Generic;
@@ -18,8 +19,9 @@ namespace Temblor
 		public static int triangleCount = 0;
 
 		// Texture testing!
-		public byte[] testTexture;
-		public static int testTextureID;
+		public static Dictionary<string, int> testTextureDict;
+
+		public static Wad2 Wad;
 
 		public MainForm()
 		{
@@ -31,7 +33,7 @@ namespace Temblor
 
 			KeyDown += MainForm_KeyDown;
 
-			var filename = "D:/Development/Temblor/scratch/jam6_tens.map";
+			//var filename = "D:/Development/Temblor/scratch/jam6_tens.map";
 			//var filename = "D:/Development/Temblor/scratch/medieval1.map";
 			//var filename = "D:/Development/Temblor/scratch/basicobjectstest.map";
 			//var filename = "D:/Development/Temblor/scratch/justacube.map";
@@ -44,30 +46,58 @@ namespace Temblor
 			//var filename = "D:/Development/Temblor/scratch/texturedthing.map";
 			//var filename = "D:/Development/Temblor/scratch/texturedthings.map";
 			//var filename = "D:/Development/Temblor/scratch/texturedangledthing.map";
-			//var filename = "D:/Games/Quake/ad/src/xmasjam_tens.map";
+			//var filename = "D:/Development/Temblor/scratch/rockface.map";
+			//var filename = "D:/Development/Temblor/scratch/rockface2.map";
+			var filename = "D:/Games/Quake/ad/src/xmasjam_tens.map";
 			//var filename = "D:/Games/Quake/ad/src/xmasjam_bal.map";
 			//var filename = "D:/Games/Quake/ad/src/xmasjam_icequeen.map";
 			//var filename = "D:/Games/Quake/ad/maps/ad_sepulcher.map";
 			//var filename = "D:/Games/Quake/ad/maps/ad_magna.map";
 			//var filename = "D:/Games/Quake/quake_map_source/start.map";
+			//var filename = "D:/Games/Quake/quake_map_source/e1m1.map";
+			//var filename = "D:/Games/Quake/quake_map_source/e4m3.map";
+			//var filename = "D:/Games/Quake/quake_map_source/e4m7.map";
 			//var filename = "D:/Games/Quake/jam6/source/jam666_daz.map";
 			var s = new System.IO.FileStream(filename, System.IO.FileMode.Open, System.IO.FileAccess.Read);
 			var map = new QuakeMap(s);
 
+			var palette = new Palette();
+			using (var stream = new FileStream("D:/Development/Temblor/res/paletteQ.lmp", FileMode.Open, FileAccess.Read))
+			using (var br = new BinaryReader(stream))
+			{
+				for (var i = 0; i < stream.Length / 3; i++)
+				{
+					var color = new Color() { Ab = 255 };
+					color.Rb = br.ReadByte();
+					color.Gb = br.ReadByte();
+					color.Bb = br.ReadByte();
 
-			var texture = new Bitmap("D:/Pictures/Dirxq6tV4AAuSi8.jpg");
-			//var texture = new Bitmap("D:/Pictures/Temblor-TestingCombinations-Sepulcher96SidedSun-Inset.png");
+					palette.Add(color);
+				}
+			}
 
-			testTexture = ConvertBitmapToRgb(texture);
+			//Wad = new Wad2("D:/Projects/Games/Maps/Quake/common/wads/quake.wad", palette);
+			//Wad = new Wad2("D:/Games/Quake/ad/maps/ad_sepulcher.wad", palette);
+			Wad = new Wad2("D:/Games/Quake/ad/maps/xmasjam_tens.wad", palette);
 
+			// Should throw InvalidDataException referencing the filename.
+			//var wad = new Wad2("D:/Projects/Games/Maps/Quake/common/wads/prototype.txt");
 
-			GL.GenTextures(1, out testTextureID);
-			GL.BindTexture(TextureTarget.Texture2D, testTextureID);
-			GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgb, texture.Width, texture.Height, 0, OpenTK.Graphics.OpenGL4.PixelFormat.Rgb, PixelType.UnsignedByte, testTexture);
-			GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.Repeat);
-			GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.Repeat);
-			GL.GenerateMipmap(GenerateMipmapTarget.Texture2D);
-			GL.BindTexture(TextureTarget.Texture2D, 0);
+			testTextureDict = new Dictionary<string, int>();
+			foreach (var t in Wad.Textures.Values)
+			{
+				GL.GenTextures(1, out int id);
+				testTextureDict.Add(t.Name, id);
+
+				GL.BindTexture(TextureTarget.Texture2D, id);
+				GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgb, t.Width, t.Height, 0, OpenTK.Graphics.OpenGL4.PixelFormat.Rgb, PixelType.UnsignedByte, t.ToUncompressed(flip: true));
+				GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.Repeat);
+				GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.Repeat);
+				GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Nearest);
+				GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Nearest);
+				GL.GenerateMipmap(GenerateMipmapTarget.Texture2D);
+				GL.BindTexture(TextureTarget.Texture2D, 0);
+			}
 
 			var viewport = new Viewport() { ID = "topLeft" };
 
@@ -170,34 +200,6 @@ namespace Temblor
 
 				view.Invalidate();
 			}
-		}
-
-		public byte[] ConvertBitmapToRgb(Bitmap bitmap)
-		{
-			var colorComponents = 3;
-
-			var bytes = new byte[bitmap.Width * bitmap.Height * colorComponents];
-
-			var pitch = bitmap.Width * colorComponents;
-
-			for (var y = 0; y < bitmap.Height; y++)
-			{
-				//var line = (bitmap.Height - 1 - y) * pitch;
-				var line = y * pitch;
-
-				for (var x = 0; x < bitmap.Width; x++)
-				{
-					var color = bitmap.GetPixel(x, y);
-
-					var pixel = x * colorComponents;
-
-					bytes[line + pixel + 0] = Convert.ToByte(color.Rb);
-					bytes[line + pixel + 1] = Convert.ToByte(color.Gb);
-					bytes[line + pixel + 2] = Convert.ToByte(color.Bb);
-				}
-			}
-
-			return bytes;
 		}
 	}
 }

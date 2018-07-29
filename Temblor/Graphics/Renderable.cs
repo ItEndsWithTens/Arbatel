@@ -43,12 +43,11 @@ namespace Temblor.Graphics
 		/// </summary>
 		public List<int> Indices;
 
+		public string TextureName;
 		public Vector3 BasisS;
 		public Vector3 BasisT;
-		public float OffsetS;
-		public float OffsetT;
-		public float ScaleS;
-		public float ScaleT;
+		public Vector2 Offset;
+		public Vector2 Scale;
 
 		/// <summary>
 		/// The texture coordinates at each index of this 
@@ -106,23 +105,25 @@ namespace Temblor.Graphics
 
 		public void Draw(Shader shader, GLSurface surface)
 		{
-			// Quake maps, like all right-thinking, clever, handsome developers,
-			// use left-handed, Z-up world coordinates. The Camera class, in
-			// contrast, uses right-handed, Y-up coordinates.
-			//var model = Matrix4.CreateTranslation(Position.X, Position.Z, -Position.Y);
-			//shader.SetMatrix4("model", ref model);
-
 			Buffers b = Buffers[surface];
 
-			
-
 			GL.BindVertexArray(b.Vao);
+			GL.BindAttribLocation(shader.Program, 0, "position");
+			GL.BindAttribLocation(shader.Program, 1, "normal");
+			GL.BindAttribLocation(shader.Program, 2, "color");
+			GL.BindAttribLocation(shader.Program, 3, "texCoords");
+
 			GL.BindBuffer(BufferTarget.ArrayBuffer, b.Vbo);
 			GL.BindBuffer(BufferTarget.ElementArrayBuffer, b.Ebo);
 
 			GL.ActiveTexture(TextureUnit.Texture0);
-			GL.BindTexture(TextureTarget.Texture2D, MainForm.testTextureID);
-			//GL.Uniform1(GL.GetUniformLocation(shader.Program, "testTexture"), 0);
+
+			int locationBasisS = GL.GetUniformLocation(shader.Program, "basisS");
+			int locationBasisT = GL.GetUniformLocation(shader.Program, "basisT");
+			int locationOffset = GL.GetUniformLocation(shader.Program, "offset");
+			int locationScale = GL.GetUniformLocation(shader.Program, "scale");
+			int locationTextureWidth = GL.GetUniformLocation(shader.Program, "textureWidth");
+			int locationTextureHeight = GL.GetUniformLocation(shader.Program, "textureHeight");
 
 			for (var i = 0; i < Polygons.Count; i++)
 			{
@@ -130,93 +131,25 @@ namespace Temblor.Graphics
 
 				GL.BufferData(BufferTarget.ElementArrayBuffer, p.Indices.Count * 4, p.Indices.ToArray(), BufferUsageHint.DynamicDraw);
 
+				GL.Uniform3(locationBasisS, ref p.BasisS);
+				GL.Uniform3(locationBasisT, ref p.BasisT);
+				GL.Uniform2(locationOffset, p.Offset);
+				GL.Uniform2(locationScale, p.Scale);
 
-				GL.Uniform3(GL.GetUniformLocation(shader.Program, "basisS"), ref p.BasisS);
-				GL.Uniform3(GL.GetUniformLocation(shader.Program, "basisT"), ref p.BasisT);
-				GL.Uniform1(GL.GetUniformLocation(shader.Program, "offsetS"), p.OffsetS);
-				GL.Uniform1(GL.GetUniformLocation(shader.Program, "offsetT"), p.OffsetT);
-				GL.Uniform1(GL.GetUniformLocation(shader.Program, "scaleS"), p.ScaleS);
-				GL.Uniform1(GL.GetUniformLocation(shader.Program, "scaleT"), p.ScaleT);
+				Texture texture = MainForm.Wad.Textures[p.TextureName.ToLower()];
+				GL.Uniform1(locationTextureWidth, (float)texture.Width);
+				GL.Uniform1(locationTextureHeight, (float)texture.Height);
 
-				GL.DrawElements(BeginMode.Triangles, p.Indices.Count, DrawElementsType.UnsignedInt, 0);
-				continue;
-
-
-
-				//var distinct = p.Indices.Distinct().ToList();
-
-				// THIS SHIT IS WRONG, I'm not looping through the vertices one at a time; I'm going polygon
-				// by polygon, since each face involves different vertices, with different indices. I need to
-				// set offset at the beginning of each loop, to (current index * VertexSize) + 40, to get an
-				// arbitrary vertex's texCoords position. Here goes nothing.
-				//// 12 bytes for position, 12 for normal, 16 for color.
-				//var offset = IntPtr.Zero + (12 + 12 + 16);
-				var pitch = VertexSize;
-				//foreach (var index in p.Indices)
-				for (var j = 0; j < p.Indices.Count; j++)
-				//for (var j = 0; j < p.Indices.Distinct().ToList().Count; j++)
-				//for (var j = 0; j < distinct.Count; j++)
-				{
-					var index = p.Indices[j];
-					//var index = distinct[j];
-
-					var offset = IntPtr.Zero + ((VertexSize * index) + 40);
-
-					var coords = new float[2] { p.TexCoords[index].X , p.TexCoords[index].Y };
-
-					GL.BufferSubData(BufferTarget.ArrayBuffer, offset, 8, coords);
-					//offset += pitch;
-
-
-					
-
-					//var readEbo = new int[6];
-					//var readVboPosition = new float[3];
-					//var readVboNormal = new float[3];
-					//var readVboColor = new float[4];
-					//var readVboTexCoords = new float[2];
-					//
-					//var baseOffset = IntPtr.Zero + (VertexSize * 1);
-					//GL.GetBufferSubData(BufferTarget.ElementArrayBuffer, IntPtr.Zero, 6 * 4, readEbo);
-					//GL.GetBufferSubData(BufferTarget.ArrayBuffer, baseOffset, 3 * 4, readVboPosition);
-					//GL.GetBufferSubData(BufferTarget.ArrayBuffer, baseOffset + (3 * 4), 3 * 4, readVboNormal);
-					//GL.GetBufferSubData(BufferTarget.ArrayBuffer, baseOffset + (6 * 4), 4 * 4, readVboColor);
-					//GL.GetBufferSubData(BufferTarget.ArrayBuffer, baseOffset + (10 * 4), 2 * 4, readVboTexCoords);
-
-					var randomthing = 4;
-
-				}
-
-
-				//var readEbo = new int[6];
-				//var readVboPosition = new float[3];
-				//var readVboNormal = new float[3];
-				//var readVboColor = new float[4];
-				//var readVboTexCoords = new float[2];
-
-				//var baseOffset = IntPtr.Zero + (VertexSize * 2);
-				//GL.GetBufferSubData(BufferTarget.ElementArrayBuffer, IntPtr.Zero, 6 * 4, readEbo);
-				//GL.GetBufferSubData(BufferTarget.ArrayBuffer, baseOffset, 3 * 4, readVboPosition);
-				//GL.GetBufferSubData(BufferTarget.ArrayBuffer, baseOffset + (3 * 4), 3 * 4, readVboNormal);
-				//GL.GetBufferSubData(BufferTarget.ArrayBuffer, baseOffset + (6 * 4), 4 * 4, readVboColor);
-				//GL.GetBufferSubData(BufferTarget.ArrayBuffer, baseOffset + (10 * 4), 2 * 4, readVboTexCoords);
+				GL.BindTexture(TextureTarget.Texture2D, MainForm.testTextureDict[p.TextureName.ToLower()]);
 
 				GL.DrawElements(BeginMode.Triangles, p.Indices.Count, DrawElementsType.UnsignedInt, 0);
 
-				//surface.SwapBuffers();
-
-				
-
-				var breakvar = 4;
+				GL.BindTexture(TextureTarget.Texture2D, 0);
 			}
-
-			//GL.BindTexture(TextureTarget.Texture2D, 0);
 
 			GL.BindVertexArray(0);
 			GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);
 			GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
-
-			
 		}
 
 		public void Init(GLSurface surface)
@@ -256,47 +189,11 @@ namespace Temblor.Graphics
 			GL.VertexAttribPointer(2, 4, VertexAttribPointerType.Float, false, VertexSize, sizeof(float) * 6);
 			GL.EnableVertexAttribArray(2);
 
-			// TexCoords
-			GL.VertexAttribPointer(3, 2, VertexAttribPointerType.Float, false, VertexSize, sizeof(float) * 10);
-			GL.EnableVertexAttribArray(3);
-
-			
 			GL.BufferData(BufferTarget.ArrayBuffer, VertexSize * Vertices.Count, Vertices.ToArray(), BufferUsageHint.DynamicDraw);
-
-			
-
-			//// A given renderable can have an arbitrary number of polygons, and
-			//// each of those can have an arbitrary number of indices.
-			//var indexCount = 0;
-			//foreach (var polygon in Polygons)
-			//{
-			//	indexCount += polygon.Indices.Count;
-			//}
-			//
-			//// Initialize the element buffer, but don't copy anything yet.
-			//GL.BufferData(BufferTarget.ElementArrayBuffer, 4 * indexCount, IntPtr.Zero, BufferUsageHint.StaticDraw);
-			//
-			//// Now handle each polygon's indices separately.
-			//var offset = IntPtr.Zero;
-			//for (var i = 0; i < Polygons.Count; i++)
-			//{
-			//	List<int> indices = Polygons[i].Indices;
-			//
-			//	GL.BufferSubData(BufferTarget.ElementArrayBuffer, offset, indices.Count * 4, indices.ToArray());
-			//
-			//	offset += indices.Count * 4;
-			//}
-			//
-			////var test = new int[24];
-			////GL.GetBufferSubData(BufferTarget.ElementArrayBuffer, IntPtr.Zero, 4 * 24, test);
-
-
-			
 
 			GL.BindVertexArray(0);
 			GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
 			GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);
-			
 		}
 	}
 }

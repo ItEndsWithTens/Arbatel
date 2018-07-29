@@ -11,6 +11,8 @@ namespace Temblor.Formats
 {
 	public class QuakeMap : Map
 	{
+		public List<Wad2> Wads;
+
 		public QuakeMap() : base()
 		{
 		}

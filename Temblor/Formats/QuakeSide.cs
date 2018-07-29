@@ -40,20 +40,20 @@ namespace Temblor.Formats
 
 			TextureName = split[15];
 
-			var basisU = new Vector3();
-			var basisV = new Vector3();
+			var basisS = new Vector3();
+			var basisT = new Vector3();
 
 			// Valve 220
 			if (split.Contains("["))
 			{
-				float.TryParse(split[17], out basisU.X);
-				float.TryParse(split[18], out basisU.Y);
-				float.TryParse(split[19], out basisU.Z);
+				float.TryParse(split[17], out basisS.X);
+				float.TryParse(split[18], out basisS.Y);
+				float.TryParse(split[19], out basisS.Z);
 				float.TryParse(split[20], out TextureOffset.X);
 
-				float.TryParse(split[23], out basisV.X);
-				float.TryParse(split[24], out basisV.Y);
-				float.TryParse(split[25], out basisV.Z);
+				float.TryParse(split[23], out basisT.X);
+				float.TryParse(split[24], out basisT.Y);
+				float.TryParse(split[25], out basisT.Z);
 				float.TryParse(split[26], out TextureOffset.Y);
 
 				float.TryParse(split[28], out TextureRotation);
@@ -64,27 +64,69 @@ namespace Temblor.Formats
 			// QuakeEd
 			else
 			{
-				// TODO: Find the closest matching cardinal plane and use that
-				// instead; that's how the real thing works. See Quinstance for
-				// sample code to do what I hope is the right thing.
-				basisU.X = 1.0f;
-				basisU.Y = 0.0f;
-				basisU.Z = 0.0f;
+				var cardinals = new List<Plane>()
+				{
+					new Plane(new Vector3(0, 0, 0), new Vector3(1, 0 ,0), new Vector3(0, 1, 0), Winding.Cw),
+					new Plane(new Vector3(0, 0, 0), new Vector3(1, 0 ,0), new Vector3(0, 1, 0), Winding.Ccw),
+					new Plane(new Vector3(0, 0, 0), new Vector3(0, 1 ,0), new Vector3(0, 0, 1), Winding.Cw),
+					new Plane(new Vector3(0, 0, 0), new Vector3(0, 1 ,0), new Vector3(0, 0, 1), Winding.Ccw),
+					new Plane(new Vector3(0, 0, 0), new Vector3(1, 0 ,0), new Vector3(0, 0, 1), Winding.Cw),
+					new Plane(new Vector3(0, 0, 0), new Vector3(1, 0 ,0), new Vector3(0, 0, 1), Winding.Ccw)
+				};
+
+				float smallestAngle = 180.0f;
+				Plane closestPlane = cardinals[0];
+				foreach (Plane cardinal in cardinals)
+				{
+					float angle = MathHelper.RadiansToDegrees(Vector3.CalculateAngle(Plane.Normal, cardinal.Normal));
+					if (angle < smallestAngle)
+					{
+						closestPlane = cardinal;
+						smallestAngle = angle;
+					}
+				}
+
+				basisS.X = closestPlane.Points[1].Position.X;
+				basisS.Y = closestPlane.Points[1].Position.Y;
+				basisS.Z = closestPlane.Points[1].Position.Z;
 				float.TryParse(split[16], out TextureOffset.X);
 
-				basisV.X = 0.0f;
-				basisV.Y = 1.0f;
-				basisV.Z = 0.0f;
+				// Positive T runs downward from the texture coordinate system's
+				// origin, as opposed to the world coordinates, where +Z is up.
+				basisT.X = -closestPlane.Points[2].Position.X;
+				basisT.Y = -closestPlane.Points[2].Position.Y;
+				basisT.Z = -closestPlane.Points[2].Position.Z;
 				float.TryParse(split[17], out TextureOffset.Y);
 
 				float.TryParse(split[18], out TextureRotation);
+
+				Matrix3.CreateRotationX(MathHelper.DegreesToRadians(TextureRotation), out Matrix3 matrixX);
+				Matrix3.CreateRotationY(MathHelper.DegreesToRadians(TextureRotation), out Matrix3 matrixY);
+				Matrix3.CreateRotationZ(MathHelper.DegreesToRadians(TextureRotation), out Matrix3 matrixZ);
+
+				Matrix3 matrix;
+				if (Math.Abs(closestPlane.Normal.X) == 1.0f)
+				{
+					matrix = matrixX;
+				}
+				else if (Math.Abs(closestPlane.Normal.Y) == 1.0f)
+				{
+					matrix = matrixY;
+				}
+				else
+				{
+					matrix = matrixZ;
+				}
+
+				basisS *= matrix;
+				basisT *= matrix;
 
 				float.TryParse(split[19], out TextureScale.X);
 				float.TryParse(split[20], out TextureScale.Y);
 			}
 
-			TextureBasis.Add(basisU);
-			TextureBasis.Add(basisV);
+			TextureBasis.Add(basisS);
+			TextureBasis.Add(basisT);
 		}
 	}
 }

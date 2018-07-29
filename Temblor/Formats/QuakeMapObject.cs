@@ -113,39 +113,11 @@ namespace Temblor.Formats
 					polygon.Indices.Add(side.Indices[indexC]);
 				}
 
-				for (var i = 0; i < side.Indices.Count; i++)
-				{
-					int index = side.Indices[i];
-
-					Vertex vertex = renderable.Vertices[index];
-
-					Vector3 basisS = side.TextureBasis[0];
-					Vector3 basisT = side.TextureBasis[1];
-
-					var texCoords = new Vector2
-					{
-						X = Vector3.Dot(vertex.Position, basisS) + (side.TextureOffset.X * side.TextureScale.X),
-						Y = Vector3.Dot(vertex.Position, basisT) + (side.TextureOffset.Y * side.TextureScale.Y)
-					};
-
-					// TODO: Use actual input texture dimensions, also take rotation
-					// into account; so far this otherwise seems to be working.
-					texCoords.X /= 64.0f * side.TextureScale.X;
-					texCoords.Y /= 64.0f * side.TextureScale.Y;
-
-					if (!polygon.TexCoords.ContainsKey(index))
-					{
-						polygon.TexCoords.Add(index, texCoords);
-					}
-				}
-
 				polygon.TextureName = side.TextureName;
 				polygon.BasisS = side.TextureBasis[0];
 				polygon.BasisT = side.TextureBasis[1];
-				polygon.OffsetS = side.TextureOffset.X;
-				polygon.OffsetT = side.TextureOffset.Y;
-				polygon.ScaleS = side.TextureScale.X;
-				polygon.ScaleT = side.TextureScale.Y;
+				polygon.Offset = new Vector2(side.TextureOffset.X, side.TextureOffset.Y);
+				polygon.Scale = new Vector2(side.TextureScale.X, side.TextureScale.Y);
 
 				renderable.Polygons.Add(polygon);
 			}

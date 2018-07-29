@@ -36,7 +36,6 @@ namespace Temblor.Controls
 			"layout (location = 0) in vec3 position;",
 			"layout (location = 1) in vec3 normal;",
 			"layout (location = 2) in vec4 color;",
-			"layout (location = 3) in vec2 texCoords;",
 			"",
 			"out vec4 vertexColor;",
 			"out vec2 TexCoords;",
@@ -45,21 +44,23 @@ namespace Temblor.Controls
 			"uniform mat4 projection;",
 			"uniform vec3 basisS;",
 			"uniform vec3 basisT;",
-			"uniform float offsetS;",
-			"uniform float offsetT;",
-			"uniform float scaleS;",
-			"uniform float scaleT;",
+			"uniform vec2 offset;",
+			"uniform vec2 scale;",
+			"uniform float textureWidth;",
+			"uniform float textureHeight;",
 			"",
 			"void main()",
 			"{",
+			"	// Quake maps, like all clever, handsome developers, use",
+			"	// left-handed, Z-up world coordinates. The Camera class,",
+			"	// in contrast, uses right-handed, Y-up coordinates.",
 			"	vec3 zUpLeftHand = vec3(position.x, position.z, -position.y);",
 			"   gl_Position = projection * view * vec4(zUpLeftHand, 1.0f);",
 			"	vertexColor = color;",
 			"",
-			"	float coordS = (dot(position, basisS) + (offsetS * scaleS)) / (64 * scaleS);",
-			"	float coordT = (dot(position, basisT) + (offsetT * scaleT)) / (64 * scaleT);",
+			"	float coordS = (dot(position, basisS) + (offset.x * scale.x)) / (textureWidth * scale.x);",
+			"	float coordT = (dot(position, basisT) + (offset.y * scale.y)) / (textureHeight * scale.y);",
 			"",
-			"	//TexCoords = texCoords;",
 			"	TexCoords = vec2(coordS, coordT);",
 			"}"
 		};
@@ -237,6 +238,10 @@ namespace Temblor.Controls
 		private void View_GLInitialized(object sender, EventArgs e)
 		{
 			GL.Enable(EnableCap.DepthTest);
+
+			GL.Enable(EnableCap.CullFace);
+			GL.FrontFace(FrontFaceDirection.Ccw);
+			GL.CullFace(CullFaceMode.Back);
 
 			// GL.ClearColor has two overloads, and if this class' ClearColor field is
 			// passed in, the compiler tries to use the one taking a System.Drawing.Color
