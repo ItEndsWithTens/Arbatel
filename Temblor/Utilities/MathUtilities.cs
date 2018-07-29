@@ -285,7 +285,7 @@ namespace Temblor.Utilities
 				currentIndex = nextIndex;
 			}
 
-			if (winding == Winding.CW)
+			if (winding == Winding.Cw)
 			{
 				// Reverse the order, but keep the first vertex at index 0.
 				sorted.Reverse();

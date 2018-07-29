@@ -8,7 +8,7 @@ namespace Temblor.Graphics
 {
 	public enum Winding
 	{
-		CW,
-		CCW
+		Cw,
+		Ccw
 	}
 }

@@ -36,7 +36,7 @@ namespace Temblor.Formats
 			float.TryParse(split[12], out planePointC.Position.Y);
 			float.TryParse(split[13], out planePointC.Position.Z);
 
-			Plane = new Plane(planePointA, planePointB, planePointC, Winding.CW);
+			Plane = new Plane(planePointA, planePointB, planePointC, Winding.Cw);
 
 			TextureName = split[15];
 

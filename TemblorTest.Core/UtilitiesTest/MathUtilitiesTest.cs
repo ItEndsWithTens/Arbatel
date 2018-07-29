@@ -340,14 +340,14 @@ namespace TemblorTest.Core.MathUtilitiesTest
 		{
 			var side = new Side();
 
-			side.Plane = new Plane(new Vector3(-256, 0, 0), new Vector3(-256, 512, 0), new Vector3(-256, 512, 512), Winding.CCW);
+			side.Plane = new Plane(new Vector3(-256, 0, 0), new Vector3(-256, 512, 0), new Vector3(-256, 512, 512), Winding.Ccw);
 
 			side.Vertices.Add(new Vertex(-256, 0, 0));
 			side.Vertices.Add(new Vertex(-256, 0, 512));
 			side.Vertices.Add(new Vertex(-256, 512, 0));
 			side.Vertices.Add(new Vertex(-256, 512, 512));
 
-			side.Vertices = MathUtilities.SortVertices(side.Vertices, side.Plane.Normal, Winding.CCW);
+			side.Vertices = MathUtilities.SortVertices(side.Vertices, side.Plane.Normal, Winding.Ccw);
 
 			// No need for comparing floats with an epsilon here, since the
 			// values going in are exact, and this only tests reordering the
@@ -367,14 +367,14 @@ namespace TemblorTest.Core.MathUtilitiesTest
 				new Vector3(-256, 0, 0),
 				new Vector3(-256, 512, 0),
 				new Vector3(-256, 512, 512),
-				Winding.CCW);
+				Winding.Ccw);
 
 			side.Vertices.Add(new Vertex(-256, 0, 0));
 			side.Vertices.Add(new Vertex(-256, 0, 512));
 			side.Vertices.Add(new Vertex(-256, 512, 0));
 			side.Vertices.Add(new Vertex(-256, 512, 512));
 
-			side.Vertices = MathUtilities.SortVertices(side.Vertices, side.Plane.Normal, Winding.CW);
+			side.Vertices = MathUtilities.SortVertices(side.Vertices, side.Plane.Normal, Winding.Cw);
 
 			Assert.That(side.Vertices[0], Is.EqualTo(new Vertex(-256, 0, 0)));
 			Assert.That(side.Vertices[1], Is.EqualTo(new Vertex(-256, 0, 512)));

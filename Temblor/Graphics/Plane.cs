@@ -33,7 +33,7 @@ namespace Temblor.Graphics
 			var a = Points[2] - Points[0];
 			var b = Points[1] - Points[0];
 
-			if (Winding == Winding.CCW)
+			if (Winding == Winding.Ccw)
 			{
 				var c = a;
 				a = b;
@@ -48,10 +48,10 @@ namespace Temblor.Graphics
 
 		public static Vector3 Intersect(Plane a, Plane b, Plane c)
 		{
-			var denominator = Vector3.Dot(a.Normal, Vector3.Cross(b.Normal, c.Normal));
+			float denominator = Vector3.Dot(a.Normal, Vector3.Cross(b.Normal, c.Normal));
 
 			// Planes do not intersect.
-			if (MathHelper.ApproximatelyEquivalent(denominator, 0.0f, 0.001f))
+			if (MathHelper.ApproximatelyEquivalent(denominator, 0.0f, 0.0001f))
 			{
 				return new Vector3(float.NaN, float.NaN, float.NaN);
 			}

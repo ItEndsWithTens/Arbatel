@@ -12,6 +12,11 @@ namespace Temblor.Formats
 {
 	public class QuakeMapObject : MapObject
 	{
+		/// <summary>
+		/// The tolerance to use when comparing floats in geometry calculations.
+		/// </summary>
+		private static readonly float _tolerance = 0.01f;
+
 		public QuakeMapObject(Block _block) : this(_block as QuakeBlock)
 		{
 		}
@@ -62,7 +67,7 @@ namespace Temblor.Formats
 		{
 			foreach (var side in sides)
 			{
-				side.Vertices = MathUtilities.SortVertices(side.Vertices, side.Plane.Normal, Winding.CCW);
+				side.Vertices = MathUtilities.SortVertices(side.Vertices, side.Plane.Normal, Winding.Ccw);
 
 				foreach (var sideVertex in side.Vertices)
 				{
@@ -71,9 +76,9 @@ namespace Temblor.Formats
 					for (var i = 0; i < renderable.Vertices.Count; i++)
 					{
 						var renderableVertex = renderable.Vertices[i];
-						if (MathHelper.ApproximatelyEquivalent(sideVertex.Position.X, renderableVertex.Position.X, 0.001f) &&
-							MathHelper.ApproximatelyEquivalent(sideVertex.Position.Y, renderableVertex.Position.Y, 0.001f) &&
-							MathHelper.ApproximatelyEquivalent(sideVertex.Position.Z, renderableVertex.Position.Z, 0.001f))
+						if (MathHelper.ApproximatelyEquivalent(sideVertex.Position.X, renderableVertex.Position.X, _tolerance) &&
+							MathHelper.ApproximatelyEquivalent(sideVertex.Position.Y, renderableVertex.Position.Y, _tolerance) &&
+							MathHelper.ApproximatelyEquivalent(sideVertex.Position.Z, renderableVertex.Position.Z, _tolerance))
 						{
 							renderableContainsSideVertex = true;
 							index = i;
@@ -134,6 +139,7 @@ namespace Temblor.Formats
 					}
 				}
 
+				polygon.TextureName = side.TextureName;
 				polygon.BasisS = side.TextureBasis[0];
 				polygon.BasisT = side.TextureBasis[1];
 				polygon.OffsetS = side.TextureOffset.X;
@@ -168,9 +174,9 @@ namespace Temblor.Formats
 						var vertexIsInSide = false;
 						foreach (var sideVertex in side.Vertices)
 						{
-							if (MathHelper.ApproximatelyEquivalent(intersection.X, sideVertex.Position.X, 0.001f) &&
-								MathHelper.ApproximatelyEquivalent(intersection.Y, sideVertex.Position.Y, 0.001f) &&
-								MathHelper.ApproximatelyEquivalent(intersection.Z, sideVertex.Position.Z, 0.001f))
+							if (MathHelper.ApproximatelyEquivalent(intersection.X, sideVertex.Position.X, _tolerance) &&
+								MathHelper.ApproximatelyEquivalent(intersection.Y, sideVertex.Position.Y, _tolerance) &&
+								MathHelper.ApproximatelyEquivalent(intersection.Z, sideVertex.Position.Z, _tolerance))
 							{
 								vertexIsInSide = true;
 								break;
@@ -221,7 +227,7 @@ namespace Temblor.Formats
 
 				float diff = dot - side.Plane.DistanceFromOrigin;
 
-				inFront = diff > 0.0f && Math.Abs(diff) > 0.001f;
+				inFront = diff > 0.0f && Math.Abs(diff) > _tolerance;
 
 				if (inFront)
 				{
