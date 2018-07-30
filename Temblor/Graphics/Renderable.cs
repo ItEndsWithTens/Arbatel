@@ -49,15 +49,9 @@ namespace Temblor.Graphics
 		public Vector2 Offset;
 		public Vector2 Scale;
 
-		/// <summary>
-		/// The texture coordinates at each index of this 
-		/// </summary>
-		public Dictionary<int, Vector2> TexCoords;
-
 		public Polygon()
 		{
 			Indices = new List<int>();
-			TexCoords = new Dictionary<int, Vector2>();
 		}
 	}
 
@@ -82,6 +76,11 @@ namespace Temblor.Graphics
 		/// </summary>
 		public List<Vertex> Vertices;
 
+		/// <summary>
+		/// The vertex indices of this object, relative to the Vertices list.
+		/// </summary>
+		public List<int> Indices;
+
 		public List<Polygon> Polygons;
 
 		public Dictionary<GLSurface, Buffers> Buffers;
@@ -92,6 +91,7 @@ namespace Temblor.Graphics
 		{
 			Position = new Vector3(0.0f, 0.0f, 0.0f);
 			Vertices = new List<Vertex>();
+			Indices = new List<int>();
 			Polygons = new List<Polygon>();
 			Buffers = new Dictionary<GLSurface, Buffers>();
 		}
@@ -125,11 +125,10 @@ namespace Temblor.Graphics
 			int locationTextureWidth = GL.GetUniformLocation(shader.Program, "textureWidth");
 			int locationTextureHeight = GL.GetUniformLocation(shader.Program, "textureHeight");
 
+			IntPtr elementOffset = IntPtr.Zero;
 			for (var i = 0; i < Polygons.Count; i++)
 			{
 				Polygon p = Polygons[i];
-
-				GL.BufferData(BufferTarget.ElementArrayBuffer, p.Indices.Count * 4, p.Indices.ToArray(), BufferUsageHint.DynamicDraw);
 
 				GL.Uniform3(locationBasisS, ref p.BasisS);
 				GL.Uniform3(locationBasisT, ref p.BasisT);
@@ -142,7 +141,10 @@ namespace Temblor.Graphics
 
 				GL.BindTexture(TextureTarget.Texture2D, MainForm.testTextureDict[p.TextureName.ToLower()]);
 
-				GL.DrawElements(BeginMode.Triangles, p.Indices.Count, DrawElementsType.UnsignedInt, 0);
+				// The last parameter of DrawRangeElements is a perhaps poorly
+				// labeled offset into the element buffer.
+				GL.DrawRangeElements(PrimitiveType.Triangles, p.Indices.Min(), p.Indices.Max(), p.Indices.Count, DrawElementsType.UnsignedInt, elementOffset);
+				elementOffset += p.Indices.Count * 4;
 
 				GL.BindTexture(TextureTarget.Texture2D, 0);
 			}
@@ -190,6 +192,8 @@ namespace Temblor.Graphics
 			GL.EnableVertexAttribArray(2);
 
 			GL.BufferData(BufferTarget.ArrayBuffer, VertexSize * Vertices.Count, Vertices.ToArray(), BufferUsageHint.DynamicDraw);
+
+			GL.BufferData(BufferTarget.ElementArrayBuffer, 4 * Indices.Count, Indices.ToArray(), BufferUsageHint.DynamicDraw);
 
 			GL.BindVertexArray(0);
 			GL.BindBuffer(BufferTarget.ArrayBuffer, 0);

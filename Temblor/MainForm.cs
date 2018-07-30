@@ -48,6 +48,7 @@ namespace Temblor
 			//var filename = "D:/Development/Temblor/scratch/texturedangledthing.map";
 			//var filename = "D:/Development/Temblor/scratch/rockface.map";
 			//var filename = "D:/Development/Temblor/scratch/rockface2.map";
+			//var filename = "D:/Development/Temblor/scratch/manytextures.map";
 			var filename = "D:/Games/Quake/ad/src/xmasjam_tens.map";
 			//var filename = "D:/Games/Quake/ad/src/xmasjam_bal.map";
 			//var filename = "D:/Games/Quake/ad/src/xmasjam_icequeen.map";

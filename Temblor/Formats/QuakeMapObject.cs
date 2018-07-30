@@ -111,6 +111,10 @@ namespace Temblor.Formats
 					polygon.Indices.Add(side.Indices[indexA]);
 					polygon.Indices.Add(side.Indices[indexB]);
 					polygon.Indices.Add(side.Indices[indexC]);
+
+					renderable.Indices.Add(side.Indices[indexA]);
+					renderable.Indices.Add(side.Indices[indexB]);
+					renderable.Indices.Add(side.Indices[indexC]);
 				}
 
 				polygon.TextureName = side.TextureName;
