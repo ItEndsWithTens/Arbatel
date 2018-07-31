@@ -16,8 +16,9 @@ namespace Temblor.Graphics
 
 		public Color4 Color;
 
-		public Vector2 TexCoords;
-
+		public Vertex(Vertex _vertex) : this(_vertex.Position, _vertex.Normal, _vertex.Color)
+		{
+		}
 		public Vertex(Vector3 _position) : this(_position.X, _position.Y, _position.Z)
 		{
 		}
@@ -33,16 +34,11 @@ namespace Temblor.Graphics
 			this(_position, new Vector3(0.0f, 0.0f, 1.0f), _color)
 		{
 		}
-		public Vertex(Vector3 _position, Vector3 _normal, Color4 _color) :
-			this(_position, _normal, _color, new Vector2())
-		{
-		}
-		public Vertex(Vector3 _position, Vector3 _normal, Color4 _color, Vector2 _texcoords)
+		public Vertex(Vector3 _position, Vector3 _normal, Color4 _color)
 		{
 			Position = _position;
 			Normal = _normal;
 			Color = _color;
-			TexCoords = _texcoords;
 		}
 
 		public static Vector3 operator +(Vertex lhs, Vertex rhs)

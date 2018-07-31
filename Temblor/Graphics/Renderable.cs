@@ -111,7 +111,6 @@ namespace Temblor.Graphics
 			GL.BindAttribLocation(shader.Program, 0, "position");
 			GL.BindAttribLocation(shader.Program, 1, "normal");
 			GL.BindAttribLocation(shader.Program, 2, "color");
-			GL.BindAttribLocation(shader.Program, 3, "texCoords");
 
 			GL.BindBuffer(BufferTarget.ArrayBuffer, b.Vbo);
 			GL.BindBuffer(BufferTarget.ElementArrayBuffer, b.Ebo);

@@ -45,15 +45,13 @@ namespace Temblor.Formats
 				sides.Add(new QuakeSide(side));
 			}
 
-			var r = new Random();
-			var color = new Color4((float)r.NextDouble(), (float)r.NextDouble(), (float)r.NextDouble(), 1.0f);
-
-			CalculateIntersections(ref sides, color);
+			CalculateIntersections(ref sides, new Color4(1.0f, 1.0f, 1.0f, 1.0f));
 
 			var renderable = new Renderable();
 
 			BuildPolygons(ref sides, ref renderable);
 
+			renderable.Position = new AABB(renderable.Vertices).Center;
 			Renderables.Add(renderable);
 		}
 
@@ -67,6 +65,11 @@ namespace Temblor.Formats
 		{
 			foreach (var side in sides)
 			{
+				if (side.Vertices.Count < 3)
+				{
+					continue;
+				}
+
 				side.Vertices = MathUtilities.SortVertices(side.Vertices, side.Plane.Normal, Winding.Ccw);
 
 				foreach (var sideVertex in side.Vertices)

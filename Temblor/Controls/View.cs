@@ -78,7 +78,7 @@ namespace Temblor.Controls
 			"void main()",
 			"{",
 			"   //color = vertexColor;",
-			"	color = texture(testTexture, TexCoords);",
+			"	color = texture(testTexture, TexCoords) * vertexColor;",
 			"}"
 		};
 
@@ -242,6 +242,9 @@ namespace Temblor.Controls
 			GL.Enable(EnableCap.CullFace);
 			GL.FrontFace(FrontFaceDirection.Ccw);
 			GL.CullFace(CullFaceMode.Back);
+
+			GL.Enable(EnableCap.Blend);
+			GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
 
 			// GL.ClearColor has two overloads, and if this class' ClearColor field is
 			// passed in, the compiler tries to use the one taking a System.Drawing.Color
