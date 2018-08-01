@@ -121,8 +121,44 @@ namespace Temblor.Graphics
 
 	public class Camera
 	{
-		public float AspectRatio;
-		public float Fov;
+		private float _aspectRatio;
+		public float AspectRatio
+		{
+			get { return _aspectRatio; }
+			set
+			{
+				_aspectRatio = value;
+
+				Update();
+			}
+		}
+
+		private float _fov;
+		public float Fov
+		{
+			get { return _fov; }
+			set
+			{
+				_fov = value;
+				FovY = _fov / AspectRatio;
+			}
+		}
+		private float _fovY;
+		public float FovY
+		{
+			get { return _fovY; }
+			private set
+			{
+				if (value > 120.0f)
+				{
+					_fovY = 120.0f;
+				}
+				else
+				{
+					_fovY = value;
+				}
+			}
+		}
 
 		private float _maxPitch;
 		public float MaxPitch
@@ -210,8 +246,9 @@ namespace Temblor.Graphics
 
 		public Camera()
 		{
-			AspectRatio = 16.0f / 9.0f;
+			_aspectRatio = 16.0f / 9.0f;
 			Fov = 95.0f;
+			FovY = Fov / AspectRatio;
 
 			MaxPitch = 89.0f;
 			MinPitch = -89.0f;
@@ -244,6 +281,8 @@ namespace Temblor.Graphics
 
 		public void Update()
 		{
+			FovY = Fov / AspectRatio;
+
 			// TODO: Hook up Roll. Not critical, but nice to have.
 			var yawRad = MathHelper.DegreesToRadians(Yaw);
 			var pitchRad = MathHelper.DegreesToRadians(Pitch);
@@ -258,7 +297,7 @@ namespace Temblor.Graphics
 			Up = Vector3.Normalize(Vector3.Cross(Right, Front));
 
 			ViewMatrix = Matrix4.LookAt(Position, Position + Front, Up);
-			ProjectionMatrix = Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(Fov / AspectRatio), AspectRatio, NearClip, FarClip);
+			ProjectionMatrix = Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(FovY), AspectRatio, NearClip, FarClip);
 
 			if (Frustum != null)
 			{
