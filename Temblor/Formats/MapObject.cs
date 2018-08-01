@@ -12,6 +12,8 @@ namespace Temblor.Formats
 {
 	public class MapObject
 	{
+		public AABB AABB { get; private set; }
+
 		/// <summary>
 		/// The raw block of text that was parsed to create this object.
 		/// </summary>
@@ -42,6 +44,8 @@ namespace Temblor.Formats
 		}
 		public MapObject(Block _block)
 		{
+			AABB = new AABB();
+
 			Block = _block;
 
 			Children = new List<MapObject>();
@@ -53,6 +57,11 @@ namespace Temblor.Formats
 
 		public void Draw(Shader shader, GLSurface surface, Camera camera)
 		{
+			if (!camera.CanSee(this))
+			{
+				return;
+			}
+
 			for (int i = 0; i < Children.Count; i++)
 			{
 				Children[i].Draw(shader, surface, camera);
@@ -66,14 +75,27 @@ namespace Temblor.Formats
 
 		public void Init(GLSurface surface)
 		{
+			var points = new List<Vector3>();
+
 			foreach (var child in Children)
 			{
 				child.Init(surface);
+
+				points.Add(child.AABB.Min);
+				points.Add(child.AABB.Max);
 			}
 
 			foreach (var renderable in Renderables)
 			{
 				renderable.Init(surface);
+
+				points.Add(renderable.AABB.Min);
+				points.Add(renderable.AABB.Max);
+			}
+
+			if (points.Count > 0)
+			{
+				AABB = new AABB(points);
 			}
 		}
 

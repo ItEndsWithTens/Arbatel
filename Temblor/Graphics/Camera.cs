@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Temblor.Formats;
 using Temblor.Utilities;
 
 namespace Temblor.Graphics
@@ -36,11 +37,11 @@ namespace Temblor.Graphics
 			Update(position, front, right, up, fov, aspect, near, far);
 		}
 
-		public bool Contains(Renderable r)
+		public bool Contains(List<Vector3> points)
 		{
 			var contains = true;
 
-			var rBounds = new AABB(r.Vertices);
+			var rBounds = new AABB(points);
 
 			// Note the component swap! Not the swap of Y and Z, that's only due
 			// to the difference in up axis between objects in world space and
@@ -228,9 +229,17 @@ namespace Temblor.Graphics
 			Frustum = new Frustum(Position, Front, Right, Up, Fov, AspectRatio, NearClip, FarClip);
 		}
 
+		public bool CanSee(MapObject o)
+		{
+			var points = new List<Vector3>() { o.AABB.Min, o.AABB.Max };
+
+			return Frustum.Contains(points);
+		}
 		public bool CanSee(Renderable r)
 		{
-			return Frustum.Contains(r);
+			var points = new List<Vector3>() { r.AABB.Min, r.AABB.Max };
+
+			return Frustum.Contains(points);
 		}
 
 		public void Update()

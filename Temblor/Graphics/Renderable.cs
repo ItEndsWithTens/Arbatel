@@ -63,6 +63,8 @@ namespace Temblor.Graphics
 	/// </remarks>
 	public class Renderable
 	{
+		public AABB AABB { get; private set; }
+
 		/// <summary>
 		/// Position of this object in left-handed, Z-up world coordinates.
 		/// </summary>
@@ -89,6 +91,7 @@ namespace Temblor.Graphics
 
 		public Renderable()
 		{
+			AABB = new AABB();
 			Position = new Vector3(0.0f, 0.0f, 0.0f);
 			Vertices = new List<Vertex>();
 			Indices = new List<int>();
@@ -101,6 +104,8 @@ namespace Temblor.Graphics
 			{
 				Vertices.Add(new Vertex(vertex.X, vertex.Y, vertex.Z));
 			}
+
+			AABB = new AABB(Vertices);
 		}
 
 		public void Draw(Shader shader, GLSurface surface, Camera camera)
@@ -201,6 +206,8 @@ namespace Temblor.Graphics
 			GL.BindVertexArray(0);
 			GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
 			GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);
+
+			AABB = new AABB(Vertices);
 		}
 	}
 }
