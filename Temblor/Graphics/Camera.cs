@@ -83,11 +83,11 @@ namespace Temblor.Graphics
 			Vector3 nearTarget = position + (front * near);
 			Vector3 farTarget = position + (front * far);
 
-			float nearHalfWidth = GetHalf(fov, near);
-			float nearHalfHeight = GetHalf(fov / aspect, near);
+			float nearHalfWidth = GetHalf(fov * aspect, near);
+			float nearHalfHeight = GetHalf(fov, near);
 
-			float farHalfWidth = GetHalf(fov, far);
-			float farHalfHeight = GetHalf(fov / aspect, far);
+			float farHalfWidth = GetHalf(fov * aspect, far);
+			float farHalfHeight = GetHalf(fov, far);
 
 			Vector3 nearEdgeHorizontal = right * nearHalfWidth;
 			Vector3 nearEdgeVertical = up * nearHalfHeight;
@@ -134,28 +134,23 @@ namespace Temblor.Graphics
 		}
 
 		private float _fov;
+		/// <summary>
+		/// The vertical field of view of this camera, in degrees.
+		/// </summary>
 		public float Fov
 		{
 			get { return _fov; }
 			set
 			{
-				_fov = value;
-				FovY = _fov / AspectRatio;
-			}
-		}
-		private float _fovY;
-		public float FovY
-		{
-			get { return _fovY; }
-			private set
-			{
 				if (value > 120.0f)
 				{
-					_fovY = 120.0f;
+					_fov = 120.0f;
 				}
 				else
 				{
-					_fovY = value;
+					_fov = value;
+
+					Update();
 				}
 			}
 		}
@@ -246,9 +241,8 @@ namespace Temblor.Graphics
 
 		public Camera()
 		{
+			_fov = 75.0f;
 			_aspectRatio = 16.0f / 9.0f;
-			Fov = 95.0f;
-			FovY = Fov / AspectRatio;
 
 			MaxPitch = 89.0f;
 			MinPitch = -89.0f;
@@ -262,6 +256,8 @@ namespace Temblor.Graphics
 			Pitch = 0.0f;
 			Yaw = -90.0f;
 			Roll = 0.0f;
+
+			Update();
 
 			Frustum = new Frustum(Position, Front, Right, Up, Fov, AspectRatio, NearClip, FarClip);
 		}
@@ -281,8 +277,6 @@ namespace Temblor.Graphics
 
 		public void Update()
 		{
-			FovY = Fov / AspectRatio;
-
 			// TODO: Hook up Roll. Not critical, but nice to have.
 			var yawRad = MathHelper.DegreesToRadians(Yaw);
 			var pitchRad = MathHelper.DegreesToRadians(Pitch);
@@ -297,7 +291,7 @@ namespace Temblor.Graphics
 			Up = Vector3.Normalize(Vector3.Cross(Right, Front));
 
 			ViewMatrix = Matrix4.LookAt(Position, Position + Front, Up);
-			ProjectionMatrix = Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(FovY), AspectRatio, NearClip, FarClip);
+			ProjectionMatrix = Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(Fov), AspectRatio, NearClip, FarClip);
 
 			if (Frustum != null)
 			{
