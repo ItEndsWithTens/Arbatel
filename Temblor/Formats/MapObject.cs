@@ -51,16 +51,16 @@ namespace Temblor.Formats
 			Color = new Color4(1.0f, 1.0f, 1.0f, 1.0f);
 		}
 
-		public void Draw(Shader shader, GLSurface surface)
+		public void Draw(Shader shader, GLSurface surface, Camera camera)
 		{
-			foreach (var child in Children)
+			for (int i = 0; i < Children.Count; i++)
 			{
-				child.Draw(shader, surface);
+				Children[i].Draw(shader, surface, camera);
 			}
 
-			foreach (var renderable in Renderables)
+			for (int i = 0; i < Renderables.Count; i++)
 			{
-				renderable.Draw(shader, surface);
+				Renderables[i].Draw(shader, surface, camera);
 			}
 		}
 

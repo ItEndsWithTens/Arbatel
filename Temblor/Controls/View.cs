@@ -52,10 +52,10 @@ namespace Temblor.Controls
 			"void main()",
 			"{",
 			"	// Quake maps, like all clever, handsome developers, use",
-			"	// left-handed, Z-up world coordinates. The Camera class,",
-			"	// in contrast, uses right-handed, Y-up coordinates.",
-			"	vec3 zUpLeftHand = vec3(position.x, position.z, -position.y);",
-			"   gl_Position = projection * view * vec4(zUpLeftHand, 1.0f);",
+			"	// left-handed, Z-up world coordinates. OpenGL, in contrast,",
+			"	// uses right-handed, Y-up coordinates.",
+			"	vec3 yUpRightHand = vec3(position.x, position.z, -position.y);",
+			"   gl_Position = projection * view * vec4(yUpRightHand, 1.0f);",
 			"	vertexColor = color;",
 			"",
 			"	float coordS = (dot(position, basisS) + (offset.x * scale.x)) / (textureWidth * scale.x);",
@@ -139,9 +139,9 @@ namespace Temblor.Controls
 			Shader.SetMatrix4("view", ref Camera.ViewMatrix);
 			Shader.SetMatrix4("projection", ref Camera.ProjectionMatrix);
 
-			foreach (var mapObject in Map.MapObjects)
+			for (int i = 0; i < Map.MapObjects.Count; i++)
 			{
-				mapObject.Draw(Shader, this);
+				Map.MapObjects[i].Draw(Shader, this, Camera);
 			}
 
 			SwapBuffers();
@@ -208,8 +208,6 @@ namespace Temblor.Controls
 
 			Focus();
 		}
-
-		public double AverageFps = 0.0;
 
 		// -- Event handlers
 		private void Clock_Elapsed(object sender, EventArgs e)

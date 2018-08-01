@@ -103,8 +103,13 @@ namespace Temblor.Graphics
 			}
 		}
 
-		public void Draw(Shader shader, GLSurface surface)
+		public void Draw(Shader shader, GLSurface surface, Camera camera)
 		{
+			if (!camera.CanSee(this))
+			{
+				return;
+			}
+
 			Buffers b = Buffers[surface];
 
 			GL.BindVertexArray(b.Vao);
@@ -143,9 +148,8 @@ namespace Temblor.Graphics
 				// The last parameter of DrawRangeElements is a perhaps poorly
 				// labeled offset into the element buffer.
 				GL.DrawRangeElements(PrimitiveType.Triangles, p.Indices.Min(), p.Indices.Max(), p.Indices.Count, DrawElementsType.UnsignedInt, elementOffset);
-				elementOffset += p.Indices.Count * 4;
 
-				GL.BindTexture(TextureTarget.Texture2D, 0);
+				elementOffset += p.Indices.Count * 4;
 			}
 
 			GL.BindVertexArray(0);
@@ -190,9 +194,9 @@ namespace Temblor.Graphics
 			GL.VertexAttribPointer(2, 4, VertexAttribPointerType.Float, false, VertexSize, sizeof(float) * 6);
 			GL.EnableVertexAttribArray(2);
 
-			GL.BufferData(BufferTarget.ArrayBuffer, VertexSize * Vertices.Count, Vertices.ToArray(), BufferUsageHint.DynamicDraw);
+			GL.BufferData(BufferTarget.ArrayBuffer, VertexSize * Vertices.Count, Vertices.ToArray(), BufferUsageHint.StaticDraw);
 
-			GL.BufferData(BufferTarget.ElementArrayBuffer, 4 * Indices.Count, Indices.ToArray(), BufferUsageHint.DynamicDraw);
+			GL.BufferData(BufferTarget.ElementArrayBuffer, 4 * Indices.Count, Indices.ToArray(), BufferUsageHint.StaticDraw);
 
 			GL.BindVertexArray(0);
 			GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
