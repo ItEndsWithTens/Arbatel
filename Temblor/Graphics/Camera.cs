@@ -51,7 +51,7 @@ namespace Temblor.Graphics
 			var minCamera = new Vector3(rBounds.Min.X, rBounds.Min.Z, -rBounds.Max.Y);
 			var maxCamera = new Vector3(rBounds.Max.X, rBounds.Max.Z, -rBounds.Min.Y);
 
-			var thing = new List<Vector3>()
+			var frustumPoints = new List<Vector3>()
 			{
 				NearTopLeft,
 				NearTopRight,
@@ -63,7 +63,7 @@ namespace Temblor.Graphics
 				FarBottomRight
 			};
 
-			var frustumBounds = new AABB(thing);
+			var frustumBounds = new AABB(frustumPoints);
 
 			bool outsideX = maxCamera.X < frustumBounds.Min.X || minCamera.X > frustumBounds.Max.X;
 			bool outsideY = maxCamera.Y < frustumBounds.Min.Y || minCamera.Y > frustumBounds.Max.Y;
@@ -82,30 +82,11 @@ namespace Temblor.Graphics
 			Vector3 nearTarget = position + (front * near);
 			Vector3 farTarget = position + (front * far);
 
-			float halfHorizontalAngle = fov / 2.0f;
+			float nearHalfWidth = GetHalf(fov, near);
+			float nearHalfHeight = GetHalf(fov / aspect, near);
 
-			// The angle where the view direction hits the clip planes is 90
-			// degrees, and a triangle's angles add up to 180.
-			float remainingHorizontalAngle = 90.0f - halfHorizontalAngle;
-
-			float nearHorizontalFactor = near / (float)Math.Sin(MathHelper.DegreesToRadians(remainingHorizontalAngle));
-			float nearHalfWidth = (float)Math.Sin(MathHelper.DegreesToRadians(halfHorizontalAngle)) * nearHorizontalFactor;
-
-			float farHorizontalFactor = far / (float)Math.Sin(MathHelper.DegreesToRadians(remainingHorizontalAngle));
-			float farHalfWidth = (float)Math.Sin(MathHelper.DegreesToRadians(halfHorizontalAngle)) * farHorizontalFactor;
-
-			
-			float verticalFov = fov / aspect;
-
-			float halfVerticalAngle = verticalFov / 2.0f;
-
-			float remainingVerticalAngle = 90.0f - halfVerticalAngle;
-
-			float nearVerticalFactor = near / (float)Math.Sin(MathHelper.DegreesToRadians(remainingVerticalAngle));
-			float nearHalfHeight = (float)Math.Sin(MathHelper.DegreesToRadians(halfVerticalAngle)) * nearVerticalFactor;
-
-			float farVerticalFactor = far / (float)Math.Sin(MathHelper.DegreesToRadians(remainingVerticalAngle));
-			float farHalfHeight = (float)Math.Sin(MathHelper.DegreesToRadians(halfVerticalAngle)) * farVerticalFactor;
+			float farHalfWidth = GetHalf(fov, far);
+			float farHalfHeight = GetHalf(fov / aspect, far);
 
 			Vector3 nearEdgeHorizontal = right * nearHalfWidth;
 			Vector3 nearEdgeVertical = up * nearHalfHeight;
@@ -122,6 +103,18 @@ namespace Temblor.Graphics
 			FarTopRight = (farTarget + farEdgeHorizontal) + farEdgeVertical;
 			FarBottomLeft = (farTarget - farEdgeHorizontal) - farEdgeVertical;
 			FarBottomRight = (farTarget + farEdgeHorizontal) - farEdgeVertical;
+		}
+
+		private float GetHalf(float fov, float distance)
+		{
+			float half = fov / 2.0f;
+
+			// The angle where the view direction hits a clip plane is 90
+			// degrees, and a triangle's angles add up to 180.
+			float remaining = 90.0f - half;
+
+			float factor = distance / (float)Math.Sin(MathHelper.DegreesToRadians(remaining));
+			return (float)Math.Sin(MathHelper.DegreesToRadians(half)) * factor;
 		}
 	}
 
@@ -237,20 +230,6 @@ namespace Temblor.Graphics
 
 		public bool CanSee(Renderable r)
 		{
-			//var canSee = true;
-
-			//var yUpRightHand = new Vector3(r.Position.X, r.Position.Z, -r.Position.Y);
-
-			//float distance = (yUpRightHand - Position).Length;
-
-			// Simple radius culling for now.
-			//if (distance > FarClip)
-			//{
-			//	canSee = false;
-			//}
-
-			//return canSee;
-
 			return Frustum.Contains(r);
 		}
 
