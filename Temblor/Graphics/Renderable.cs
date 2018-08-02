@@ -118,37 +118,31 @@ namespace Temblor.Graphics
 			Buffers b = Buffers[surface];
 
 			GL.BindVertexArray(b.Vao);
-			GL.BindAttribLocation(shader.Program, 0, "position");
-			GL.BindAttribLocation(shader.Program, 1, "normal");
-			GL.BindAttribLocation(shader.Program, 2, "color");
-
 			GL.BindBuffer(BufferTarget.ArrayBuffer, b.Vbo);
 			GL.BindBuffer(BufferTarget.ElementArrayBuffer, b.Ebo);
 
 			GL.ActiveTexture(TextureUnit.Texture0);
-
-			int locationBasisS = GL.GetUniformLocation(shader.Program, "basisS");
-			int locationBasisT = GL.GetUniformLocation(shader.Program, "basisT");
-			int locationOffset = GL.GetUniformLocation(shader.Program, "offset");
-			int locationScale = GL.GetUniformLocation(shader.Program, "scale");
-			int locationTextureWidth = GL.GetUniformLocation(shader.Program, "textureWidth");
-			int locationTextureHeight = GL.GetUniformLocation(shader.Program, "textureHeight");
 
 			IntPtr elementOffset = IntPtr.Zero;
 			for (var i = 0; i < Polygons.Count; i++)
 			{
 				Polygon p = Polygons[i];
 
-				GL.Uniform3(locationBasisS, ref p.BasisS);
-				GL.Uniform3(locationBasisT, ref p.BasisT);
-				GL.Uniform2(locationOffset, p.Offset);
-				GL.Uniform2(locationScale, p.Scale);
+				if (shader is SingleTextureShader)
+				{
+					var single = shader as SingleTextureShader;
 
-				Texture texture = MainForm.Wad.Textures[p.TextureName.ToLower()];
-				GL.Uniform1(locationTextureWidth, (float)texture.Width);
-				GL.Uniform1(locationTextureHeight, (float)texture.Height);
+					GL.Uniform3(single.LocationBasisS, ref p.BasisS);
+					GL.Uniform3(single.LocationBasisT, ref p.BasisT);
+					GL.Uniform2(single.LocationOffset, p.Offset);
+					GL.Uniform2(single.LocationScale, p.Scale);
 
-				GL.BindTexture(TextureTarget.Texture2D, MainForm.testTextureDict[p.TextureName.ToLower()]);
+					Texture texture = MainForm.Wad.Textures[p.TextureName.ToLower()];
+					GL.Uniform1(single.LocationTextureWidth, (float)texture.Width);
+					GL.Uniform1(single.LocationTextureHeight, (float)texture.Height);
+
+					GL.BindTexture(TextureTarget.Texture2D, MainForm.testTextureDict[p.TextureName.ToLower()]);
+				}
 
 				// The last parameter of DrawRangeElements is a perhaps poorly
 				// labeled offset into the element buffer.
@@ -162,7 +156,7 @@ namespace Temblor.Graphics
 			GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
 		}
 
-		public void Init(GLSurface surface)
+		public void Init(Shader shader, GLSurface surface)
 		{
 			surface.MakeCurrent();
 
@@ -189,14 +183,17 @@ namespace Temblor.Graphics
 
 			// Configure position element.
 			GL.VertexAttribPointer(0, 3, VertexAttribPointerType.Float, false, VertexSize, 0);
+			GL.BindAttribLocation(shader.Program, 0, "position");
 			GL.EnableVertexAttribArray(0);
 
 			// Normal
 			GL.VertexAttribPointer(1, 3, VertexAttribPointerType.Float, false, VertexSize, sizeof(float) * 3);
+			GL.BindAttribLocation(shader.Program, 1, "normal");
 			GL.EnableVertexAttribArray(1);
 
 			// Color
 			GL.VertexAttribPointer(2, 4, VertexAttribPointerType.Float, false, VertexSize, sizeof(float) * 6);
+			GL.BindAttribLocation(shader.Program, 2, "color");
 			GL.EnableVertexAttribArray(2);
 
 			GL.BufferData(BufferTarget.ArrayBuffer, VertexSize * Vertices.Count, Vertices.ToArray(), BufferUsageHint.StaticDraw);

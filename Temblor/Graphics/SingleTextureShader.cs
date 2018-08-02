@@ -1,4 +1,5 @@
-﻿using System;
+﻿using OpenTK.Graphics.OpenGL4;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -101,10 +102,23 @@ namespace Temblor.Graphics
 			"}"
 		};
 
+		public int LocationBasisS;
+		public int LocationBasisT;
+		public int LocationOffset;
+		public int LocationScale;
+		public int LocationTextureWidth;
+		public int LocationTextureHeight;
+
 		public SingleTextureShader() : base()
 		{
+			LocationBasisS = 0;
+			LocationBasisT = 0;
+			LocationOffset = 0;
+			LocationScale = 0;
+			LocationTextureWidth = 0;
+			LocationTextureHeight = 0;
 		}
-		public SingleTextureShader(int major, int minor)
+		public SingleTextureShader(int major, int minor) : this()
 		{
 			if (major >= 3 && minor >= 3)
 			{
@@ -114,6 +128,13 @@ namespace Temblor.Graphics
 			{
 				Compile(VertexShaderSource120, FragmentShaderSource120);
 			}
+
+			LocationBasisS = GL.GetUniformLocation(Program, "basisS");
+			LocationBasisT = GL.GetUniformLocation(Program, "basisT");
+			LocationOffset = GL.GetUniformLocation(Program, "offset");
+			LocationScale = GL.GetUniformLocation(Program, "scale");
+			LocationTextureWidth = GL.GetUniformLocation(Program, "textureWidth");
+			LocationTextureHeight = GL.GetUniformLocation(Program, "textureHeight");
 		}
 	}
 }

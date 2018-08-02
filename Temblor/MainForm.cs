@@ -124,25 +124,13 @@ namespace Temblor
 				GL.BindTexture(TextureTarget.Texture2D, 0);
 			}
 
-			var viewport = new Viewport() { ID = "topLeft" };
 
-			Content = viewport;
 
-			var surfaces = new List<GLSurface>();
-			foreach (var view in viewport.Views)
+			foreach (var mapObject in map.MapObjects)
 			{
-				if (view.Value is GLSurface)
-				{
-					surfaces.Add(view.Value as GLSurface);
-				}
-			}
 
-			foreach (var surface in surfaces)
-			{
 				foreach (var mapObject in map.MapObjects)
-				{
-					mapObject.Init(surface);
-				}
+				mapObject.Init(view3ds);
 			}
 
 			viewport.Map = map;
@@ -172,15 +160,11 @@ namespace Temblor
 
 			};
 
-
-
 			var tree = viewport.Views[1] as TreeGridView;
 			tree.Columns.Add(new GridColumn() { HeaderText = "Column 1", DataCell = new TextBoxCell(0) });
 			tree.Columns.Add(new GridColumn() { HeaderText = "Column 2", DataCell = new TextBoxCell(1) });
 			tree.Columns.Add(new GridColumn() { HeaderText = "Column 3", DataCell = new TextBoxCell(2) });
 			tree.Columns.Add(new GridColumn() { HeaderText = "Column 4", DataCell = new TextBoxCell(3) });
-
-
 
 			var items = new List<TreeGridItem>();
 			items.Add(new TreeGridItem(new object[] { "first", "second", "third" }));

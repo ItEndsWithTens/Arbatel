@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Temblor.Controls;
 using Temblor.Graphics;
 
 namespace Temblor.Formats
@@ -73,21 +74,39 @@ namespace Temblor.Formats
 			}
 		}
 
-		public void Init(GLSurface surface)
+		public void Init(List<View> views)
+		{
+			foreach (View view in views)
+			{
+				Init(view);
+			}
+		}
+		public void Init(View view)
+		{
+			Init(view.Shader, view);
+		}
+		public void Init(Shader shader, List<GLSurface> surfaces)
+		{
+			foreach (GLSurface surface in surfaces)
+			{
+				Init(shader, surface);
+			}
+		}
+		public void Init(Shader shader, GLSurface surface)
 		{
 			var points = new List<Vector3>();
 
-			foreach (var child in Children)
+			foreach (MapObject child in Children)
 			{
-				child.Init(surface);
+				child.Init(shader, surface);
 
 				points.Add(child.AABB.Min);
 				points.Add(child.AABB.Max);
 			}
 
-			foreach (var renderable in Renderables)
+			foreach (Renderable renderable in Renderables)
 			{
-				renderable.Init(surface);
+				renderable.Init(shader, surface);
 
 				points.Add(renderable.AABB.Min);
 				points.Add(renderable.AABB.Max);
