@@ -30,58 +30,6 @@ namespace Temblor.Controls
 			}
 		}
 
-		public string[] VertexShaderSource330 =
-		{
-			"#version 330 core",
-			"layout (location = 0) in vec3 position;",
-			"layout (location = 1) in vec3 normal;",
-			"layout (location = 2) in vec4 color;",
-			"",
-			"out vec4 vertexColor;",
-			"out vec2 TexCoords;",
-			"",
-			"uniform mat4 view;",
-			"uniform mat4 projection;",
-			"uniform vec3 basisS;",
-			"uniform vec3 basisT;",
-			"uniform vec2 offset;",
-			"uniform vec2 scale;",
-			"uniform float textureWidth;",
-			"uniform float textureHeight;",
-			"",
-			"void main()",
-			"{",
-			"	// Quake maps, like all clever, handsome developers, use",
-			"	// left-handed, Z-up world coordinates. OpenGL, in contrast,",
-			"	// uses right-handed, Y-up coordinates.",
-			"	vec3 yUpRightHand = vec3(position.x, position.z, -position.y);",
-			"   gl_Position = projection * view * vec4(yUpRightHand, 1.0f);",
-			"	vertexColor = color;",
-			"",
-			"	float coordS = (dot(position, basisS) + (offset.x * scale.x)) / (textureWidth * scale.x);",
-			"	float coordT = (dot(position, basisT) + (offset.y * scale.y)) / (textureHeight * scale.y);",
-			"",
-			"	TexCoords = vec2(coordS, coordT);",
-			"}"
-		};
-		public string[] FragmentShaderSource330 =
-		{
-			"#version 330 core",
-			"",
-			"in vec4 vertexColor;",
-			"in vec2 TexCoords;",
-			"",
-			"out vec4 color;",
-			"",
-			"uniform sampler2D testTexture;",
-			"",
-			"void main()",
-			"{",
-			"   //color = vertexColor;",
-			"	color = texture(testTexture, TexCoords) * vertexColor;",
-			"}"
-		};
-
 		// -- Eto
 		public UITimer Clock = new UITimer();
 		public Label Label = new Label();
@@ -251,15 +199,7 @@ namespace Temblor.Controls
 			GL.ClearColor(ClearColor.R, ClearColor.G, ClearColor.B, ClearColor.A);
 
 			Shader.GetGlslVersion(out int major, out int minor);
-
-			if (major >= 3 && minor >= 3)
-			{
-				Shader = new Shader(VertexShaderSource330, FragmentShaderSource330);
-			}
-			else
-			{
-				// TODO: Bring 1.30 shaders over from CSharpGlTest project.
-			}
+			Shader = new SingleTextureShader(major, minor);
 
 			GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode);
 

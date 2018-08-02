@@ -23,39 +23,25 @@ namespace Temblor.Graphics
 
 		public Shader(string vertexPath, string fragmentPath)
 		{
-			VertexShaderSource = File.ReadAllText(vertexPath);
-			FragmentShaderSource = File.ReadAllText(fragmentPath);
-
-			Compile();
+			Compile(File.ReadAllText(vertexPath), File.ReadAllText(fragmentPath));
 		}
 
-		public Shader(string[] vertexSource, string[] fragmentSource)
+		public Shader(string[] vertexArray, string[] fragmentArray)
 		{
-			var sb = new StringBuilder();
-
-			foreach (var line in vertexSource)
-			{
-				sb.AppendLine(line);
-			}
-
-			VertexShaderSource = sb.ToString();
-
-			sb.Clear();
-
-			foreach (var line in fragmentSource)
-			{
-				sb.AppendLine(line);
-			}
-
-			FragmentShaderSource = sb.ToString();
-
-			Compile();
+			Compile(VertexShaderSource, FragmentShaderSource);
 		}
 
-		public void Compile()
+		public void Compile(string[] vertexArray, string[] fragmentArray)
+		{
+			VertexShaderSource = String.Join(Environment.NewLine, vertexArray);
+			FragmentShaderSource = String.Join(Environment.NewLine, fragmentArray);
+
+			Compile(VertexShaderSource, FragmentShaderSource);
+		}
+		public void Compile(string vertex, string fragment)
 		{
 			int vertexShader = GL.CreateShader(ShaderType.VertexShader);
-			GL.ShaderSource(vertexShader, VertexShaderSource);
+			GL.ShaderSource(vertexShader, vertex);
 			GL.CompileShader(vertexShader);
 
 			string log = GL.GetShaderInfoLog(vertexShader);
@@ -65,7 +51,7 @@ namespace Temblor.Graphics
 			}
 
 			int fragmentShader = GL.CreateShader(ShaderType.FragmentShader);
-			GL.ShaderSource(fragmentShader, FragmentShaderSource);
+			GL.ShaderSource(fragmentShader, fragment);
 			GL.CompileShader(fragmentShader);
 
 			log = GL.GetShaderInfoLog(fragmentShader);
