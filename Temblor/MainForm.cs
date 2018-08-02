@@ -27,9 +27,44 @@ namespace Temblor
 		{
 			InitializeComponent();
 
+			var viewport = new Viewport() { ID = "topLeft" };
+			Content = viewport;
+
+			var view3ds = new List<View>()
+			{
+				viewport.Views[2] as View,
+				viewport.Views[3] as View,
+				viewport.Views[4] as View
+			};
+
 			// Initialize OpenGL to avoid a delay when switching to a GL view.
-			var gl = new GlUtilities();
-			gl.InitGl();
+			foreach (var view in view3ds)
+			{
+				view.MakeCurrent();
+			}
+
+			var palette = new Palette();
+			using (var stream = new FileStream("D:/Development/Temblor/res/paletteQ.lmp", FileMode.Open, FileAccess.Read))
+			using (var br = new BinaryReader(stream))
+			{
+				for (var i = 0; i < stream.Length / 3; i++)
+				{
+					var color = new Color() { Ab = 255 };
+					color.Rb = br.ReadByte();
+					color.Gb = br.ReadByte();
+					color.Bb = br.ReadByte();
+
+					palette.Add(color);
+				}
+			}
+
+			Wad = new Wad2("D:/Projects/Games/Maps/Quake/common/wads/quake.wad", palette);
+			//Wad = new Wad2("D:/Games/Quake/ad/maps/ad_sepulcher.wad", palette);
+			//Wad = new Wad2("D:/Games/Quake/ad/maps/xmasjam_tens.wad", palette);
+			//Wad = new Wad2("D:/Games/Quake/ad/maps/xmasjam_icequeen.wad", palette);
+
+			// Should throw InvalidDataException referencing the filename.
+			//var wad = new Wad2("D:/Projects/Games/Maps/Quake/common/wads/prototype.txt");
 
 			KeyDown += MainForm_KeyDown;
 
@@ -62,27 +97,16 @@ namespace Temblor
 			var s = new System.IO.FileStream(filename, System.IO.FileMode.Open, System.IO.FileAccess.Read);
 			var map = new QuakeMap(s);
 
-			var palette = new Palette();
-			using (var stream = new FileStream("D:/Development/Temblor/res/paletteQ.lmp", FileMode.Open, FileAccess.Read))
-			using (var br = new BinaryReader(stream))
-			{
-				for (var i = 0; i < stream.Length / 3; i++)
-				{
-					var color = new Color() { Ab = 255 };
-					color.Rb = br.ReadByte();
-					color.Gb = br.ReadByte();
-					color.Bb = br.ReadByte();
 
-					palette.Add(color);
-				}
-			}
 
-			//Wad = new Wad2("D:/Projects/Games/Maps/Quake/common/wads/quake.wad", palette);
-			//Wad = new Wad2("D:/Games/Quake/ad/maps/ad_sepulcher.wad", palette);
-			Wad = new Wad2("D:/Games/Quake/ad/maps/xmasjam_tens.wad", palette);
 
-			// Should throw InvalidDataException referencing the filename.
-			//var wad = new Wad2("D:/Projects/Games/Maps/Quake/common/wads/prototype.txt");
+
+
+
+
+
+
+
 
 			testTextureDict = new Dictionary<string, int>();
 			foreach (var t in Wad.Textures.Values)
