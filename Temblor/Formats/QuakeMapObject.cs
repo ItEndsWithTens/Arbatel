@@ -126,6 +126,8 @@ namespace Temblor.Formats
 				polygon.Offset = new Vector2(side.TextureOffset.X, side.TextureOffset.Y);
 				polygon.Scale = new Vector2(side.TextureScale.X, side.TextureScale.Y);
 
+				polygon.Normal = side.Plane.Normal;
+
 				renderable.Polygons.Add(polygon);
 			}
 		}

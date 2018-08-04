@@ -22,6 +22,9 @@ namespace Temblor.Graphics
 		public Vector3 FarBottomLeft;
 		public Vector3 FarBottomRight;
 
+		public double MaxAngleH;
+		public double MaxAngleV;
+
 		public Frustum(Vector3 position, Vector3 front, Vector3 right, Vector3 up, float fov, float aspect, float near, float far)
 		{
 			NearTopLeft = new Vector3();
@@ -33,6 +36,9 @@ namespace Temblor.Graphics
 			FarTopRight = new Vector3();
 			FarBottomLeft = new Vector3();
 			FarBottomRight = new Vector3();
+
+			MaxAngleH = 180.0;
+			MaxAngleV = 180.0;
 
 			Update(position, front, right, up, fov, aspect, near, far);
 		}
@@ -104,18 +110,30 @@ namespace Temblor.Graphics
 			FarTopRight = (farTarget + farEdgeHorizontal) + farEdgeVertical;
 			FarBottomLeft = (farTarget - farEdgeHorizontal) - farEdgeVertical;
 			FarBottomRight = (farTarget + farEdgeHorizontal) - farEdgeVertical;
+
+			// The angle of view is known, and the maximum angle a surface can
+			// point while still being rendered HOLD ON, let me try something
+			//MaxAngleH = GetRemainingAngle()
+
+			MaxAngleH = GetRemainingAngle((fov * aspect) / 2.0f);
+			MaxAngleV = GetRemainingAngle(fov / 2.0f);
 		}
 
-		private float GetHalf(float fov, float distance)
+		private static float GetHalf(float fov, float distance)
 		{
 			float half = fov / 2.0f;
 
 			// The angle where the view direction hits a clip plane is 90
 			// degrees, and a triangle's angles add up to 180.
-			float remaining = 90.0f - half;
+			float remaining = GetRemainingAngle(half);
 
 			float factor = distance / (float)Math.Sin(MathHelper.DegreesToRadians(remaining));
 			return (float)Math.Sin(MathHelper.DegreesToRadians(half)) * factor;
+		}
+
+		private static float GetRemainingAngle(float angle)
+		{
+			return 90.0f - angle;
 		}
 	}
 

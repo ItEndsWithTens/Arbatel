@@ -49,6 +49,8 @@ namespace Temblor.Graphics
 		public Vector2 Offset;
 		public Vector2 Scale;
 
+		public Vector3 Normal;
+
 		public Polygon()
 		{
 			Indices = new List<int>();
@@ -127,6 +129,15 @@ namespace Temblor.Graphics
 			for (var i = 0; i < Polygons.Count; i++)
 			{
 				Polygon p = Polygons[i];
+
+				double angleH = MathUtilities.SignedAngleBetweenVectors(p.Normal, camera.Front, camera.Up);
+				double angleV = MathUtilities.SignedAngleBetweenVectors(p.Normal, camera.Front, camera.Right);
+
+				if (Math.Abs(angleH) > camera.Frustum.MaxAngleH)// && Math.Abs(angleV) < 90.0)
+				{
+					elementOffset += p.Indices.Count * 4;
+					continue;
+				}
 
 				if (shader is SingleTextureShader)
 				{

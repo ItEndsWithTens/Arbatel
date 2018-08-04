@@ -134,11 +134,12 @@ namespace Temblor
 
 
 
-			foreach (var mapObject in map.MapObjects)
+			foreach (var view in view3ds)
 			{
-
 				foreach (var mapObject in map.MapObjects)
-				mapObject.Init(view3ds);
+				{
+					mapObject.Init(view);
+				}
 			}
 
 			viewport.Map = map;
