@@ -11,16 +11,20 @@ using Temblor.Graphics;
 
 namespace Temblor.Formats
 {
-	public class Wad2
+	public class Wad2 : TextureCollection
 	{
 		public Palette Palette;
 
-		public Dictionary<string, Texture> Textures;
+		public List<string> Translucents;
 
-		public Wad2()
+		public Wad2() : base()
 		{
 			Palette = new Palette();
-			Textures = new Dictionary<string, Texture>();
+			Translucents = new List<string>()
+			{
+				"trigger",
+				"clip"
+			};
 		}
 		public Wad2(string fileName, Palette palette) : this(new FileStream(fileName, FileMode.Open, FileAccess.Read), palette)
 		{
@@ -103,7 +107,7 @@ namespace Temblor.Formats
 				var height = BitConverter.ToInt32(bytes, dataOffset + 20);
 				var fullResOffset = BitConverter.ToInt32(bytes, dataOffset + 24);
 
-				var texture = new Texture(width, height) { Name = name };
+				var texture = new Texture(width, height, PixelFormat.Format32bppRgba) { Name = name };
 
 				using (BitmapData data = texture.Lock())
 				{
@@ -112,6 +116,15 @@ namespace Temblor.Formats
 						for (var x = 0; x < width; x++)
 						{
 							Color color = Palette[bytes[dataOffset + fullResOffset + (width * y) + x]];
+
+							if (Translucents.Contains(texture.Name))
+							{
+								color.A = 0.5f;
+							}
+							else if (texture.Name.StartsWith("{") && color == Palette[255])
+							{
+								color.A = 0.0f;
+							}
 
 							data.SetPixel(x, y, color);
 						}

@@ -18,6 +18,9 @@ namespace Temblor.Graphics
 		public Texture(int width, int height) : base(width, height, PixelFormat.Format24bppRgb)
 		{
 		}
+		public Texture(int width, int height, PixelFormat format) : base(width, height, format)
+		{
+		}
 		public Texture(string fileName) : base(fileName)
 		{
 		}
@@ -33,12 +36,15 @@ namespace Temblor.Graphics
 		/// <returns>The uncompressed pixel data for this Texture as an array of bytes.</returns>
 		public byte[] ToUncompressed(PixelFormat format = PixelFormat.Format24bppRgb, bool flip = false)
 		{
-			// All current Eto PixelFormats have only three color components.
-			var colorComponents = 3;
+			var components = 3;
+			if (format == PixelFormat.Format32bppRgb || format == PixelFormat.Format32bppRgba)
+			{
+				components++;
+			}
 
-			var bytes = new byte[Width * Height * colorComponents];
+			var bytes = new byte[Width * Height * components];
 
-			var pitch = Width * colorComponents;
+			var pitch = Width * components;
 
 			for (var y = 0; y < Height; y++)
 			{
@@ -56,7 +62,7 @@ namespace Temblor.Graphics
 				{
 					var color = GetPixel(x, y);
 
-					var pixel = x * colorComponents;
+					var pixel = x * components;
 
 					bytes[line + pixel + 0] = Convert.ToByte(color.Rb);
 					bytes[line + pixel + 1] = Convert.ToByte(color.Gb);

@@ -54,6 +54,7 @@
     <Compile Include="Formats\QuakeMapObject.cs" />
     <Compile Include="Formats\QuakeSide.cs" />
     <Compile Include="Formats\Side.cs" />
+    <Compile Include="Formats\TextureCollection.cs" />
     <Compile Include="Formats\Wad2.cs" />
     <Compile Include="Graphics\AABB.cs" />
     <Compile Include="Graphics\Plane.cs" />

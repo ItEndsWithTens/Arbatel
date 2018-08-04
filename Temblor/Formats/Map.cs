@@ -17,6 +17,8 @@ namespace Temblor.Formats
 
 		public List<MapObject> MapObjects;
 
+		public List<TextureCollection> Textures;
+
 		public Map()
 		{
 			MapObjects = new List<MapObject>();
