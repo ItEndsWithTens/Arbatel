@@ -45,6 +45,7 @@ namespace Temblor
 
 			var palette = new Palette();
 			using (var stream = new FileStream("D:/Development/Temblor/res/paletteQ.lmp", FileMode.Open, FileAccess.Read))
+			//using (var stream = new FileStream("C:/Users/Harry/Development/Temblor/res/paletteQ.lmp", FileMode.Open, FileAccess.Read))
 			using (var br = new BinaryReader(stream))
 			{
 				for (var i = 0; i < stream.Length / 3; i++)
@@ -62,6 +63,8 @@ namespace Temblor
 			//Wad = new Wad2("D:/Games/Quake/ad/maps/ad_sepulcher.wad", palette);
 			//Wad = new Wad2("D:/Games/Quake/ad/maps/xmasjam_tens.wad", palette);
 			//Wad = new Wad2("D:/Games/Quake/ad/maps/xmasjam_icequeen.wad", palette);
+
+			//Wad = new Wad2("C:/Games/Quake/ID1/quake.wad", palette);
 
 			// Should throw InvalidDataException referencing the filename.
 			//var wad = new Wad2("D:/Projects/Games/Maps/Quake/common/wads/prototype.txt");
@@ -89,11 +92,16 @@ namespace Temblor
 			//var filename = "D:/Games/Quake/ad/src/xmasjam_icequeen.map";
 			//var filename = "D:/Games/Quake/ad/maps/ad_sepulcher.map";
 			//var filename = "D:/Games/Quake/ad/maps/ad_magna.map";
-			//var filename = "D:/Games/Quake/quake_map_source/start.map";
+			var filename = "D:/Games/Quake/quake_map_source/start.map";
 			//var filename = "D:/Games/Quake/quake_map_source/e1m1.map";
 			//var filename = "D:/Games/Quake/quake_map_source/e4m3.map";
 			//var filename = "D:/Games/Quake/quake_map_source/e4m7.map";
 			//var filename = "D:/Games/Quake/jam6/source/jam666_daz.map";
+
+			//var filename = "C:/Users/Harry/Development/Temblor/scratch/basicobjectstest.map";
+			//var filename = "C:/Users/Harry/Development/Temblor/scratch/texturedthing.map";
+			//var filename = "C:/Users/Harry/Development/Temblor/scratch/manytextures.map";
+			//var filename = "C:/Games/Quake/quake_map_source/start.map";
 			var s = new System.IO.FileStream(filename, System.IO.FileMode.Open, System.IO.FileAccess.Read);
 			var map = new QuakeMap(s);
 

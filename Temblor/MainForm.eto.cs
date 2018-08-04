@@ -10,7 +10,7 @@ namespace Temblor
 		void InitializeComponent()
 		{
 			Title = "Temblor";
-			ClientSize = new Size(1280, 720);
+			ClientSize = new Size(Screen.PrimaryScreen.WorkingArea.Size / 1.5f);
 
 			var quitCommand = new Command { MenuText = "Quit", Shortcut = Application.Instance.CommonModifier | Keys.Q };
 			quitCommand.Executed += (sender, e) => Application.Instance.Quit();

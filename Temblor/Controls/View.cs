@@ -201,6 +201,7 @@ namespace Temblor.Controls
 			Shader.GetGlslVersion(out int major, out int minor);
 			Shader = new SingleTextureShader(major, minor);
 
+			// FIXME: Causes InvalidEnum from GL.GetError, at least on my OpenGL 2.1, GLSL 1.2, Intel HD Graphics laptop.
 			GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode);
 
 			// TEST. Also remember to switch Camera to use left-handed, Z-up position at some point.

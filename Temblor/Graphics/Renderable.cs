@@ -175,26 +175,24 @@ namespace Temblor.Graphics
 				Buffers.Add(surface, b);
 			}
 
-			var error = GL.GetError();
-
 			GL.BindVertexArray(b.Vao);
 			GL.BindBuffer(BufferTarget.ArrayBuffer, b.Vbo);
 			GL.BindBuffer(BufferTarget.ElementArrayBuffer, b.Ebo);
 
 			// Configure position element.
-			GL.VertexAttribPointer(0, 3, VertexAttribPointerType.Float, false, VertexSize, 0);
-			GL.BindAttribLocation(shader.Program, 0, "position");
-			GL.EnableVertexAttribArray(0);
+			int positionLocation = GL.GetAttribLocation(shader.Program, "position");
+			GL.VertexAttribPointer(positionLocation, 3, VertexAttribPointerType.Float, false, VertexSize, 0);
+			GL.EnableVertexAttribArray(positionLocation);
 
 			// Normal
-			GL.VertexAttribPointer(1, 3, VertexAttribPointerType.Float, false, VertexSize, sizeof(float) * 3);
-			GL.BindAttribLocation(shader.Program, 1, "normal");
-			GL.EnableVertexAttribArray(1);
+			int normalLocation = GL.GetAttribLocation(shader.Program, "normal");
+			GL.VertexAttribPointer(normalLocation, 3, VertexAttribPointerType.Float, false, VertexSize, sizeof(float) * 3);
+			GL.EnableVertexAttribArray(normalLocation);
 
 			// Color
-			GL.VertexAttribPointer(2, 4, VertexAttribPointerType.Float, false, VertexSize, sizeof(float) * 6);
-			GL.BindAttribLocation(shader.Program, 2, "color");
-			GL.EnableVertexAttribArray(2);
+			int colorLocation = GL.GetAttribLocation(shader.Program, "color");
+			GL.VertexAttribPointer(colorLocation, 4, VertexAttribPointerType.Float, false, VertexSize, sizeof(float) * 6);
+			GL.EnableVertexAttribArray(colorLocation);
 
 			GL.BufferData(BufferTarget.ArrayBuffer, VertexSize * Vertices.Count, Vertices.ToArray(), BufferUsageHint.StaticDraw);
 
