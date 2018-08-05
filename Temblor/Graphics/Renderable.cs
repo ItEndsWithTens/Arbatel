@@ -112,11 +112,6 @@ namespace Temblor.Graphics
 
 		public void Draw(Shader shader, GLSurface surface, Camera camera)
 		{
-			if (!camera.CanSee(this))
-			{
-				return;
-			}
-
 			Buffers b = Buffers[surface];
 
 			GL.BindVertexArray(b.Vao);
@@ -130,12 +125,13 @@ namespace Temblor.Graphics
 			{
 				Polygon p = Polygons[i];
 
-				double angleH = MathUtilities.SignedAngleBetweenVectors(p.Normal, camera.Front, camera.Up);
-				double angleV = MathUtilities.SignedAngleBetweenVectors(p.Normal, camera.Front, camera.Right);
-
-				if (Math.Abs(angleH) > camera.Frustum.MaxAngleH)// && Math.Abs(angleV) < 90.0)
+				// OpenGL offers its own backface culling, if it's enabled, but
+				// that only does its work after a draw call. An early backface
+				// check here skips texture binding and setting the uniforms.
+				Vector3 toPoint = camera.WorldPosition - Vertices[p.Indices[0]];
+				if (Vector3.Dot(toPoint, p.Normal) <= 0.0f)
 				{
-					elementOffset += p.Indices.Count * 4;
+					elementOffset += p.Indices.Count * sizeof(float);
 					continue;
 				}
 

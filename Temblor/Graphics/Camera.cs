@@ -191,14 +191,27 @@ namespace Temblor.Graphics
 		public float FarClip;
 
 		private Vector3 _position;
+		/// <summary>
+		/// This camera's position in Y-up, right-handed coordinates.
+		/// </summary>
 		public Vector3 Position
 		{
 			get { return _position; }
 			set
 			{
 				_position = value;
+				WorldPosition = new Vector3(value.X, value.Z, -value.Y);
 				Update();
 			}
+		}
+
+		/// <summary>
+		/// This camera's position in Z-up, left-handed coordinates.
+		/// </summary>
+		public Vector3 WorldPosition
+		{
+			get { return new Vector3(Position.X, -Position.Z, Position.Y); }
+			private set { }
 		}
 
 		public Vector3 WorldUp;
@@ -255,7 +268,7 @@ namespace Temblor.Graphics
 			}
 		}
 
-		public Frustum Frustum;
+		public readonly Frustum Frustum;
 
 		public Camera()
 		{

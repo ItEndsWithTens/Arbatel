@@ -50,6 +50,11 @@ namespace Temblor.Graphics
 			return lhs.Position - rhs.Position;
 		}
 
+		public static implicit operator Vector3(Vertex vertex)
+		{
+			return new Vector3(vertex.Position);
+		}
+
 		public override string ToString()
 		{
 			return Position.ToString();
