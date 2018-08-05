@@ -17,16 +17,19 @@ namespace Temblor.Graphics
 		public string VertexShaderSource;
 		public string FragmentShaderSource;
 
+		public int LocationViewMatrix;
+		public int LocationProjectionMatrix;
+
 		public Shader()
 		{
+			LocationViewMatrix = 0;
+			LocationProjectionMatrix = 0;
 		}
-
-		public Shader(string vertexPath, string fragmentPath)
+		public Shader(string vertexPath, string fragmentPath) : this()
 		{
 			Compile(File.ReadAllText(vertexPath), File.ReadAllText(fragmentPath));
 		}
-
-		public Shader(string[] vertexArray, string[] fragmentArray)
+		public Shader(string[] vertexArray, string[] fragmentArray) : this()
 		{
 			Compile(VertexShaderSource, FragmentShaderSource);
 		}
@@ -91,14 +94,30 @@ namespace Temblor.Graphics
 			int.TryParse(trimmed.Substring(trimmed.IndexOf('.') + 1), out minor);
 		}
 
+		public static void SetUniform(int location, int value)
+		{
+			GL.Uniform1(location, value);
+		}
+		public static void SetUniform(int location, float value)
+		{
+			GL.Uniform1(location, value);
+		}
+		public static void SetUniform(int location, Vector2 value)
+		{
+			GL.Uniform2(location, value);
+		}
+		public static void SetUniform(int location, Vector3 value)
+		{
+			GL.Uniform3(location, value);
+		}
+		public static void SetUniform(int location, ref Matrix4 value)
+		{
+			GL.UniformMatrix4(location, false, ref value);
+		}
+
 		public void Use()
 		{
 			GL.UseProgram(Program);
-		}
-
-		public void SetMatrix4(string name, ref Matrix4 matrix)
-		{
-			GL.UniformMatrix4(GL.GetUniformLocation(Program, name), false, ref matrix);
 		}
 	}
 }

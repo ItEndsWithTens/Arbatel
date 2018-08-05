@@ -135,14 +135,14 @@ namespace Temblor.Graphics
 					{
 						var single = shader as SingleTextureShader;
 
-						GL.Uniform3(single.LocationBasisS, ref p.BasisS);
-						GL.Uniform3(single.LocationBasisT, ref p.BasisT);
-						GL.Uniform2(single.LocationOffset, p.Offset);
-						GL.Uniform2(single.LocationScale, p.Scale);
+						Shader.SetUniform(single.LocationBasisS, p.BasisS);
+						Shader.SetUniform(single.LocationBasisT, p.BasisT);
+						Shader.SetUniform(single.LocationOffset, p.Offset);
+						Shader.SetUniform(single.LocationScale, p.Scale);
 
 						Texture texture = MainForm.Wad.Textures[p.TextureName.ToLower()];
-						GL.Uniform1(single.LocationTextureWidth, (float)texture.Width);
-						GL.Uniform1(single.LocationTextureHeight, (float)texture.Height);
+						Shader.SetUniform(single.LocationTextureWidth, (float)texture.Width);
+						Shader.SetUniform(single.LocationTextureHeight, (float)texture.Height);
 
 						GL.BindTexture(TextureTarget.Texture2D, MainForm.testTextureDict[p.TextureName.ToLower()]);
 					}

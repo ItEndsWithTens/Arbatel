@@ -84,8 +84,8 @@ namespace Temblor.Controls
 			Camera.AspectRatio = (float)Width / (float)Height;
 
 			Shader.Use();
-			Shader.SetMatrix4("view", ref Camera.ViewMatrix);
-			Shader.SetMatrix4("projection", ref Camera.ProjectionMatrix);
+			Shader.SetUniform(Shader.LocationViewMatrix, ref Camera.ViewMatrix);
+			Shader.SetUniform(Shader.LocationProjectionMatrix, ref Camera.ProjectionMatrix);
 
 			for (int i = 0; i < Map.MapObjects.Count; i++)
 			{
@@ -200,6 +200,8 @@ namespace Temblor.Controls
 
 			Shader.GetGlslVersion(out int major, out int minor);
 			Shader = new SingleTextureShader(major, minor);
+			Shader.LocationViewMatrix = GL.GetUniformLocation(Shader.Program, "view");
+			Shader.LocationProjectionMatrix = GL.GetUniformLocation(Shader.Program, "projection");
 
 			// FIXME: Causes InvalidEnum from GL.GetError, at least on my OpenGL 2.1, GLSL 1.2, Intel HD Graphics laptop.
 			GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode);
