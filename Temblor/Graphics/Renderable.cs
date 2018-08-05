@@ -129,33 +129,30 @@ namespace Temblor.Graphics
 				// that only does its work after a draw call. An early backface
 				// check here skips texture binding and setting the uniforms.
 				Vector3 toPoint = camera.WorldPosition - Vertices[p.Indices[0]];
-				if (Vector3.Dot(toPoint, p.Normal) <= 0.0f)
+				if (Vector3.Dot(toPoint, p.Normal) > 0.0f)
 				{
-					elementOffset += p.Indices.Count * sizeof(float);
-					continue;
+					if (shader is SingleTextureShader)
+					{
+						var single = shader as SingleTextureShader;
+
+						GL.Uniform3(single.LocationBasisS, ref p.BasisS);
+						GL.Uniform3(single.LocationBasisT, ref p.BasisT);
+						GL.Uniform2(single.LocationOffset, p.Offset);
+						GL.Uniform2(single.LocationScale, p.Scale);
+
+						Texture texture = MainForm.Wad.Textures[p.TextureName.ToLower()];
+						GL.Uniform1(single.LocationTextureWidth, (float)texture.Width);
+						GL.Uniform1(single.LocationTextureHeight, (float)texture.Height);
+
+						GL.BindTexture(TextureTarget.Texture2D, MainForm.testTextureDict[p.TextureName.ToLower()]);
+					}
+
+					// The last parameter of DrawRangeElements is a perhaps poorly
+					// labeled offset into the element buffer.
+					GL.DrawRangeElements(PrimitiveType.Triangles, p.Indices.Min(), p.Indices.Max(), p.Indices.Count, DrawElementsType.UnsignedInt, elementOffset);
 				}
 
-				if (shader is SingleTextureShader)
-				{
-					var single = shader as SingleTextureShader;
-
-					GL.Uniform3(single.LocationBasisS, ref p.BasisS);
-					GL.Uniform3(single.LocationBasisT, ref p.BasisT);
-					GL.Uniform2(single.LocationOffset, p.Offset);
-					GL.Uniform2(single.LocationScale, p.Scale);
-
-					Texture texture = MainForm.Wad.Textures[p.TextureName.ToLower()];
-					GL.Uniform1(single.LocationTextureWidth, (float)texture.Width);
-					GL.Uniform1(single.LocationTextureHeight, (float)texture.Height);
-
-					GL.BindTexture(TextureTarget.Texture2D, MainForm.testTextureDict[p.TextureName.ToLower()]);
-				}
-
-				// The last parameter of DrawRangeElements is a perhaps poorly
-				// labeled offset into the element buffer.
-				GL.DrawRangeElements(PrimitiveType.Triangles, p.Indices.Min(), p.Indices.Max(), p.Indices.Count, DrawElementsType.UnsignedInt, elementOffset);
-
-				elementOffset += p.Indices.Count * 4;
+				elementOffset += p.Indices.Count * sizeof(int);
 			}
 
 			GL.BindVertexArray(0);
