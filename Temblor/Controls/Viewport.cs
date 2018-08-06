@@ -9,6 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Temblor.Formats;
+using Temblor.Graphics;
 using Temblor.Utilities;
 
 namespace Temblor.Controls
@@ -97,9 +98,9 @@ namespace Temblor.Controls
 			_viewTree.Shown += (sender, e) => { Focus(); };
 			_viewTree.MouseLeave += (sender, e) => { Focus(); };
 
-			_view3dWire = new View3d() { ClearColor = new Color4(1.0f, 0.0f, 0.0f, 1.0f), PolygonMode = PolygonMode.Line };
-			_view3dFlat = new View3d() { ClearColor = new Color4(0.0f, 1.0f, 0.0f, 1.0f) };
-			_view3dTex = new View3d() { ClearColor = new Color4(0.0f, 0.0f, 1.0f, 1.0f) };
+			_view3dWire = new View3d() { ClearColor = new Color4(1.0f, 0.0f, 0.0f, 1.0f), ShadingStyle = ShadingStyle.Wireframe };
+			_view3dFlat = new View3d() { ClearColor = new Color4(0.0f, 1.0f, 0.0f, 1.0f), ShadingStyle = ShadingStyle.Flat };
+			_view3dTex = new View3d() { ClearColor = new Color4(0.0f, 0.0f, 1.0f, 1.0f), ShadingStyle = ShadingStyle.Textured };
 
 			Views.Add(0, _viewText);
 			Views.Add(1, _viewTree);

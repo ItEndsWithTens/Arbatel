@@ -87,7 +87,12 @@ namespace Temblor.Graphics
 
 		public List<Polygon> Polygons;
 
-		public Dictionary<GLSurface, Buffers> Buffers;
+		public Dictionary<KeyValuePair<GLSurface, Shader>, Buffers> Buffers;
+
+		/// <summary>
+		/// A mapping of requested shading style to supported shading style.
+		/// </summary>
+		public Dictionary<ShadingStyle, ShadingStyle> ShadingStyleDict;
 
 		private readonly int VertexSize = Marshal.SizeOf(typeof(Vertex));
 
@@ -98,66 +103,33 @@ namespace Temblor.Graphics
 			Vertices = new List<Vertex>();
 			Indices = new List<int>();
 			Polygons = new List<Polygon>();
-			Buffers = new Dictionary<GLSurface, Buffers>();
+			Buffers = new Dictionary<KeyValuePair<GLSurface, Shader>, Buffers>();
+			ShadingStyleDict = new Dictionary<ShadingStyle, ShadingStyle>();
 		}
-		public Renderable(List<Vector3> vertices) : this()
+		public Renderable(List<Vector3> points) : this()
+		{
+			foreach (var point in points)
+			{
+				Vertices.Add(new Vertex(point.X, point.Y, point.Z));
+			}
+
+			AABB = new AABB(Vertices);
+		}
+		public Renderable(List<Vertex> vertices) : this()
 		{
 			foreach (var vertex in vertices)
 			{
-				Vertices.Add(new Vertex(vertex.X, vertex.Y, vertex.Z));
+				Vertices.Add(vertex);
 			}
 
 			AABB = new AABB(Vertices);
 		}
 
-		public void Draw(Shader shader, GLSurface surface, Camera camera)
+		public void Draw(Dictionary<ShadingStyle, Shader> shaders, ShadingStyle style, GLSurface surface, Camera camera)
 		{
-			Buffers b = Buffers[surface];
+			ShadingStyle actualStyle = ShadingStyleDict[style];
 
-			GL.BindVertexArray(b.Vao);
-			GL.BindBuffer(BufferTarget.ArrayBuffer, b.Vbo);
-			GL.BindBuffer(BufferTarget.ElementArrayBuffer, b.Ebo);
-
-			GL.ActiveTexture(TextureUnit.Texture0);
-
-			IntPtr elementOffset = IntPtr.Zero;
-			for (var i = 0; i < Polygons.Count; i++)
-			{
-				Polygon p = Polygons[i];
-
-				// OpenGL offers its own backface culling, if it's enabled, but
-				// that only does its work after a draw call. An early backface
-				// check here skips texture binding and setting the uniforms.
-				Vector3 toPoint = camera.WorldPosition - Vertices[p.Indices[0]];
-				if (Vector3.Dot(toPoint, p.Normal) > 0.0f)
-				{
-					if (shader is SingleTextureShader)
-					{
-						var single = shader as SingleTextureShader;
-
-						Shader.SetUniform(single.LocationBasisS, p.BasisS);
-						Shader.SetUniform(single.LocationBasisT, p.BasisT);
-						Shader.SetUniform(single.LocationOffset, p.Offset);
-						Shader.SetUniform(single.LocationScale, p.Scale);
-
-						Texture texture = MainForm.Wad.Textures[p.TextureName.ToLower()];
-						Shader.SetUniform(single.LocationTextureWidth, (float)texture.Width);
-						Shader.SetUniform(single.LocationTextureHeight, (float)texture.Height);
-
-						GL.BindTexture(TextureTarget.Texture2D, MainForm.testTextureDict[p.TextureName.ToLower()]);
-					}
-
-					// The last parameter of DrawRangeElements is a perhaps poorly
-					// labeled offset into the element buffer.
-					GL.DrawRangeElements(PrimitiveType.Triangles, p.Indices.Min(), p.Indices.Max(), p.Indices.Count, DrawElementsType.UnsignedInt, elementOffset);
-				}
-
-				elementOffset += p.Indices.Count * sizeof(int);
-			}
-
-			GL.BindVertexArray(0);
-			GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);
-			GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
+			shaders[actualStyle].Draw(this, surface, camera);
 		}
 
 		public void Init(Shader shader, GLSurface surface)
@@ -166,9 +138,10 @@ namespace Temblor.Graphics
 
 			Buffers b;
 
-			if (Buffers.ContainsKey(surface))
+			var key = new KeyValuePair<GLSurface, Shader>(surface, shader);
+			if (Buffers.ContainsKey(key))
 			{
-				b = Buffers[surface];
+				b = Buffers[key];
 
 				b.CleanUp();
 			}
@@ -176,7 +149,7 @@ namespace Temblor.Graphics
 			{
 				b = new Buffers();
 
-				Buffers.Add(surface, b);
+				Buffers.Add(key, b);
 			}
 
 			GL.BindVertexArray(b.Vao);

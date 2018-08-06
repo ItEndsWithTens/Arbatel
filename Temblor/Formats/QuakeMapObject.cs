@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Temblor.Controls;
 using Temblor.Graphics;
 using Temblor.Utilities;
 
@@ -28,6 +29,80 @@ namespace Temblor.Formats
 			}
 
 			ExtractRenderables(Block);
+
+			if (Renderables.Count == 0 && Children.Count == 0)
+			{
+				var modelVerts = new List<Vector3>()
+				{
+					new Vector3(4.0f, 0.0f, 0.0f),
+					new Vector3(0.0f, 4.0f, 0.0f),
+					new Vector3(-4.0f, 0.0f, 0.0f),
+					new Vector3(0.0f, -4.0f, 0.0f),
+					new Vector3(0.0f, 0.0f, 8.0f),
+					new Vector3(0.0f, 0.0f, -8.0f)
+				};
+
+				var diamond = new Renderable(modelVerts);
+				diamond.ShadingStyleDict = new Dictionary<ShadingStyle, ShadingStyle>()
+				{
+					{ ShadingStyle.Wireframe, ShadingStyle.Wireframe },
+					{ ShadingStyle.Flat, ShadingStyle.Flat },
+					{ ShadingStyle.Textured, ShadingStyle.Flat }
+				};
+
+				// Top half
+				for (var i = 0; i < 4; i++)
+				{
+					var polygon = new Polygon();
+
+					polygon.Indices.Add(i);
+					polygon.Indices.Add((i + 1) % 4);
+					polygon.Indices.Add(4);
+
+					Vector3 a = modelVerts[polygon.Indices[1]] - modelVerts[polygon.Indices[0]];
+					Vector3 b = modelVerts[polygon.Indices[2]] - modelVerts[polygon.Indices[0]];
+					polygon.Normal = Vector3.Cross(a, b);
+					polygon.Normal.Normalize();
+
+					diamond.Polygons.Add(polygon);
+					diamond.Indices.AddRange(polygon.Indices);
+				}
+
+				// Bottom half
+				for (var i = 0; i < 4; i++)
+				{
+					var polygon = new Polygon();
+
+					polygon.Indices.Add(i);
+					polygon.Indices.Add(5);
+					polygon.Indices.Add((i + 1) % 4);
+
+					Vector3 a = modelVerts[polygon.Indices[1]] - modelVerts[polygon.Indices[0]];
+					Vector3 b = modelVerts[polygon.Indices[2]] - modelVerts[polygon.Indices[0]];
+					polygon.Normal = Vector3.Cross(a, b);
+					polygon.Normal.Normalize();
+
+					diamond.Polygons.Add(polygon);
+					diamond.Indices.AddRange(polygon.Indices);
+				}
+
+				string[] coords = Block.KeyVals["origin"][0].Split(' ');
+
+				float.TryParse(coords[0], out float x);
+				float.TryParse(coords[1], out float y);
+				float.TryParse(coords[2], out float z);
+
+				diamond.Position = new Vector3(x, y, z);
+
+				var worldVerts = new List<Vertex>();
+				foreach (var vertex in diamond.Vertices)
+				{
+					worldVerts.Add(new Vertex(diamond.Position + vertex.Position, new Color4(1.0f, 1.0f, 0.0f, 1.0f)));
+				}
+				diamond.Vertices = worldVerts;
+
+				Renderables.Add(diamond);
+			}
 		}
 
 		protected override void ExtractRenderables(Block block)
@@ -49,9 +124,25 @@ namespace Temblor.Formats
 
 			var renderable = new Renderable();
 
-			BuildPolygons(ref sides, ref renderable);
+			BuildPolygons(sides, renderable);
 
 			renderable.Position = new AABB(renderable.Vertices).Center;
+
+			renderable.ShadingStyleDict = new Dictionary<ShadingStyle, ShadingStyle>()
+			{
+				{ ShadingStyle.Wireframe, ShadingStyle.Wireframe },
+				{ ShadingStyle.Flat, ShadingStyle.Flat },
+				{ ShadingStyle.Textured, ShadingStyle.Textured }
+			};
+
+			var random = new Random();
+			var color = new Color4((float)random.NextDouble(), (float)random.NextDouble(), (float)random.NextDouble(), 1.0f);
+			for (var i = 0; i < renderable.Vertices.Count; i++)
+			{
+				var vertex = renderable.Vertices[i];
+				renderable.Vertices[i] = new Vertex(vertex, color);
+			}
+
 			Renderables.Add(renderable);
 		}
 
@@ -61,7 +152,7 @@ namespace Temblor.Formats
 		/// </summary>
 		/// <param name="sides">The sides to build polygons for.</param>
 		/// <param name="renderable">The renderable that will contain the resulting polygons.</param>
-		private static void BuildPolygons(ref List<QuakeSide> sides, ref Renderable renderable)
+		private static void BuildPolygons(List<QuakeSide> sides, Renderable renderable)
 		{
 			foreach (var side in sides)
 			{

@@ -1,4 +1,5 @@
-﻿using OpenTK;
+﻿using Eto.Gl;
+using OpenTK;
 using OpenTK.Graphics.OpenGL4;
 using System;
 using System.Collections.Generic;
@@ -118,6 +119,13 @@ namespace Temblor.Graphics
 		public void Use()
 		{
 			GL.UseProgram(Program);
+		}
+
+		virtual public void Draw(Renderable renderable, GLSurface surface, Camera camera)
+		{
+			Use();
+			SetUniform(LocationViewMatrix, ref camera.ViewMatrix);
+			SetUniform(LocationProjectionMatrix, ref camera.ProjectionMatrix);
 		}
 	}
 }

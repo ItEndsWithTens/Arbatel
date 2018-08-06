@@ -58,6 +58,7 @@
     <Compile Include="Formats\Wad2.cs" />
     <Compile Include="Graphics\AABB.cs" />
     <Compile Include="Graphics\Plane.cs" />
+    <Compile Include="Graphics\FlatShader.cs" />
     <Compile Include="Graphics\SingleTextureShader.cs" />
     <Compile Include="Graphics\Texture.cs" />
     <Compile Include="Graphics\Vertex.cs" />

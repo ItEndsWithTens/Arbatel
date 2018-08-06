@@ -56,7 +56,7 @@ namespace Temblor.Formats
 			Color = new Color4(1.0f, 1.0f, 1.0f, 1.0f);
 		}
 
-		public void Draw(Shader shader, GLSurface surface, Camera camera)
+		public void Draw(Dictionary<ShadingStyle, Shader> shaders, ShadingStyle style, GLSurface surface, Camera camera)
 		{
 			if (!camera.CanSee(this))
 			{
@@ -65,12 +65,12 @@ namespace Temblor.Formats
 
 			for (int i = 0; i < Children.Count; i++)
 			{
-				Children[i].Draw(shader, surface, camera);
+				Children[i].Draw(shaders, style, surface, camera);
 			}
 
 			for (int i = 0; i < Renderables.Count; i++)
 			{
-				Renderables[i].Draw(shader, surface, camera);
+				Renderables[i].Draw(shaders, style, surface, camera);
 			}
 		}
 
@@ -83,7 +83,10 @@ namespace Temblor.Formats
 		}
 		public void Init(View view)
 		{
-			Init(view.Shader, view);
+			foreach (var shader in view.Shaders.Values)
+			{
+				Init(shader, view);
+			}
 		}
 		public void Init(Shader shader, List<GLSurface> surfaces)
 		{

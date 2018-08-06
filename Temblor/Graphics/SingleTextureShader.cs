@@ -1,4 +1,6 @@
-﻿using OpenTK.Graphics.OpenGL4;
+﻿using Eto.Gl;
+using OpenTK;
+using OpenTK.Graphics.OpenGL4;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,7 +21,6 @@ namespace Temblor.Graphics
 			"layout (location = 1) in vec3 normal;",
 			"layout (location = 2) in vec4 color;",
 			"",
-			"out vec4 vertexColor;",
 			"out vec2 texCoords;",
 			"",
 			"uniform mat4 view;",
@@ -38,7 +39,6 @@ namespace Temblor.Graphics
 			"	// uses right-handed, Y-up coordinates.",
 			"	vec3 yUpRightHand = vec3(position.x, position.z, -position.y);",
 			"   gl_Position = projection * view * vec4(yUpRightHand, 1.0f);",
-			"	vertexColor = color;",
 			"",
 			"	float coordS = (dot(position, basisS) + (offset.x * scale.x)) / (textureWidth * scale.x);",
 			"	float coordT = (dot(position, basisT) + (offset.y * scale.y)) / (textureHeight * scale.y);",
@@ -50,7 +50,6 @@ namespace Temblor.Graphics
 		{
 			"#version 330 core",
 			"",
-			"in vec4 vertexColor;",
 			"in vec2 texCoords;",
 			"",
 			"out vec4 color;",
@@ -59,7 +58,7 @@ namespace Temblor.Graphics
 			"",
 			"void main()",
 			"{",
-			"	color = texture(tex, texCoords) * vertexColor;",
+			"	color = texture(tex, texCoords);",
 			"}"
 		};
 
@@ -71,7 +70,6 @@ namespace Temblor.Graphics
 			"attribute vec3 normal;",
 			"attribute vec4 color;",
 			"",
-			"varying vec4 vertexColor;",
 			"varying vec2 texCoords;",
 			"",
 			"uniform mat4 view;",
@@ -87,7 +85,6 @@ namespace Temblor.Graphics
 			"{",
 			"	vec3 yUpRightHand = vec3(position.x, position.z, -position.y);",
 			"	gl_Position = projection * view * vec4(yUpRightHand, 1.0f);",
-			"	vertexColor = color;",
 			"",
 			"	float coordS = (dot(position, basisS) + (offset.x * scale.x)) / (textureWidth * scale.x);",
 			"	float coordT = (dot(position, basisT) + (offset.y * scale.y)) / (textureHeight * scale.y);",
@@ -99,14 +96,13 @@ namespace Temblor.Graphics
 		{
 			"#version 120",
 			"",
-			"varying vec4 vertexColor;",
 			"varying vec2 texCoords;",
 			"",
 			"uniform sampler2D tex;",
 			"",
 			"void main()",
 			"{",
-			"	gl_FragColor = texture2D(tex, texCoords) * vertexColor;",
+			"	gl_FragColor = texture2D(tex, texCoords);",
 			"}"
 		};
 
@@ -143,6 +139,55 @@ namespace Temblor.Graphics
 			LocationScale = GL.GetUniformLocation(Program, "scale");
 			LocationTextureWidth = GL.GetUniformLocation(Program, "textureWidth");
 			LocationTextureHeight = GL.GetUniformLocation(Program, "textureHeight");
+			LocationViewMatrix = GL.GetUniformLocation(Program, "view");
+			LocationProjectionMatrix = GL.GetUniformLocation(Program, "projection");
+		}
+
+		public override void Draw(Renderable renderable, GLSurface surface, Camera camera)
+		{
+			base.Draw(renderable, surface, camera);
+
+			Buffers b = renderable.Buffers[new KeyValuePair<GLSurface, Shader>(surface, this)];
+
+			GL.BindVertexArray(b.Vao);
+			GL.BindBuffer(BufferTarget.ArrayBuffer, b.Vbo);
+			GL.BindBuffer(BufferTarget.ElementArrayBuffer, b.Ebo);
+
+			GL.ActiveTexture(TextureUnit.Texture0);
+
+			IntPtr elementOffset = IntPtr.Zero;
+			for (var i = 0; i < renderable.Polygons.Count; i++)
+			{
+				Polygon p = renderable.Polygons[i];
+
+				// OpenGL offers its own backface culling, if it's enabled, but
+				// that only does its work after a draw call. An early backface
+				// check here skips texture binding and setting the uniforms.
+				Vector3 toPoint = camera.WorldPosition - renderable.Vertices[p.Indices[0]];
+				if (Vector3.Dot(toPoint, p.Normal) > 0.0f)
+				{
+					SetUniform(LocationBasisS, p.BasisS);
+					SetUniform(LocationBasisT, p.BasisT);
+					SetUniform(LocationOffset, p.Offset);
+					SetUniform(LocationScale, p.Scale);
+
+					Texture texture = MainForm.Wad.Textures[p.TextureName.ToLower()];
+					SetUniform(LocationTextureWidth, (float)texture.Width);
+					SetUniform(LocationTextureHeight, (float)texture.Height);
+
+					GL.BindTexture(TextureTarget.Texture2D, MainForm.testTextureDict[p.TextureName.ToLower()]);
+
+					// The last parameter of DrawRangeElements is a perhaps poorly
+					// labeled offset into the element buffer.
+					GL.DrawRangeElements(PrimitiveType.Triangles, p.Indices.Min(), p.Indices.Max(), p.Indices.Count, DrawElementsType.UnsignedInt, elementOffset);
+				}
+
+				elementOffset += p.Indices.Count * sizeof(int);
+			}
+
+			GL.BindVertexArray(0);
+			GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);
+			GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
 		}
 	}
 }

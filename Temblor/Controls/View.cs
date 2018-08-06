@@ -5,6 +5,7 @@ using OpenTK;
 using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL4;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using Temblor.Controllers;
 using Temblor.Formats;
@@ -12,6 +13,13 @@ using Temblor.Graphics;
 
 namespace Temblor.Controls
 {
+	public enum ShadingStyle
+	{
+		Wireframe,
+		Flat,
+		Textured
+	}
+
 	public class View : GLSurface
 	{
 		// -- System types
@@ -44,7 +52,8 @@ namespace Temblor.Controls
 
 		public Map Map;
 
-		public Shader Shader;
+		public ShadingStyle ShadingStyle;
+		public Dictionary<ShadingStyle, Shader> Shaders;
 
 		// Explicitly choosing an eight-bit stencil buffer prevents visual artifacts
 		// on the Mac platform; the GraphicsMode defaults are apparently insufficient.
@@ -53,12 +62,13 @@ namespace Temblor.Controls
 		// -- Constructors
 		public View() : this(_mode, 3, 3, GraphicsContextFlags.Default)
 		{
-
 		}
 		public View(GraphicsMode _mode, int _major, int _minor, GraphicsContextFlags _flags) :
 			base(_mode, _major, _minor, _flags)
 		{
 			Fps = 60.0f;
+
+			ShadingStyle = ShadingStyle.Wireframe;
 
 			Label.Text = "View";
 			Label.BackgroundColor = Eto.Drawing.Colors.Black;
@@ -83,13 +93,9 @@ namespace Temblor.Controls
 
 			Camera.AspectRatio = (float)Width / (float)Height;
 
-			Shader.Use();
-			Shader.SetUniform(Shader.LocationViewMatrix, ref Camera.ViewMatrix);
-			Shader.SetUniform(Shader.LocationProjectionMatrix, ref Camera.ProjectionMatrix);
-
 			for (int i = 0; i < Map.MapObjects.Count; i++)
 			{
-				Map.MapObjects[i].Draw(Shader, this, Camera);
+				Map.MapObjects[i].Draw(Shaders, ShadingStyle, this, Camera);
 			}
 
 			SwapBuffers();
@@ -199,9 +205,12 @@ namespace Temblor.Controls
 			GL.ClearColor(ClearColor.R, ClearColor.G, ClearColor.B, ClearColor.A);
 
 			Shader.GetGlslVersion(out int major, out int minor);
-			Shader = new SingleTextureShader(major, minor);
-			Shader.LocationViewMatrix = GL.GetUniformLocation(Shader.Program, "view");
-			Shader.LocationProjectionMatrix = GL.GetUniformLocation(Shader.Program, "projection");
+			Shaders = new Dictionary<ShadingStyle, Shader>
+			{
+				{ ShadingStyle.Wireframe, new Shader() },
+				{ ShadingStyle.Flat, new FlatShader(major, minor) },
+				{ ShadingStyle.Textured, new SingleTextureShader(major, minor) }
+			};
 
 			// FIXME: Causes InvalidEnum from GL.GetError, at least on my OpenGL 2.1, GLSL 1.2, Intel HD Graphics laptop.
 			GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode);
