@@ -40,6 +40,8 @@ namespace Temblor.Formats
 
 		public Color4 Color;
 
+		public bool Translucent;
+
 		public MapObject() : this(new Block())
 		{
 		}
@@ -54,6 +56,8 @@ namespace Temblor.Formats
 			Renderables = new List<Renderable>();
 
 			Color = new Color4(1.0f, 1.0f, 1.0f, 1.0f);
+
+			Translucent = false;
 		}
 
 		public void Draw(Dictionary<ShadingStyle, Shader> shaders, ShadingStyle style, GLSurface surface, Camera camera)
@@ -119,6 +123,48 @@ namespace Temblor.Formats
 			{
 				AABB = new AABB(points);
 			}
+		}
+
+		virtual public bool UpdateTranslucency(List<string> translucents)
+		{
+			var opaqueChildren = new List<MapObject>();
+			var translucentChildren = new List<MapObject>();
+			foreach (var child in Children)
+			{
+				if (child.UpdateTranslucency(translucents))
+				{
+					Translucent = true;
+					translucentChildren.Add(child);
+				}
+				else
+				{
+					opaqueChildren.Add(child);
+				}
+			}
+			Children = opaqueChildren;
+			Children.AddRange(translucentChildren);
+
+			// If any renderable in this object is translucent, the entire
+			// object should be considered translucent, but to ensure all
+			// renderables' translucency is updated, don't break on true.
+			var opaqueRenderables = new List<Renderable>();
+			var translucentRenderables = new List<Renderable>();
+			foreach (var renderable in Renderables)
+			{
+				if (renderable.UpdateTranslucency(translucents))
+				{
+					Translucent = true;
+					translucentRenderables.Add(renderable);
+				}
+				else
+				{
+					opaqueRenderables.Add(renderable);
+				}
+			}
+			Renderables = opaqueRenderables;
+			Renderables.AddRange(translucentRenderables);
+
+			return Translucent;
 		}
 
 		virtual protected void ExtractRenderables(Block block)

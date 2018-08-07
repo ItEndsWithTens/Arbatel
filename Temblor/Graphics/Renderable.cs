@@ -94,6 +94,8 @@ namespace Temblor.Graphics
 		/// </summary>
 		public Dictionary<ShadingStyle, ShadingStyle> ShadingStyleDict;
 
+		public bool Translucent;
+
 		private readonly int VertexSize = Marshal.SizeOf(typeof(Vertex));
 
 		public Renderable()
@@ -105,6 +107,7 @@ namespace Temblor.Graphics
 			Polygons = new List<Polygon>();
 			Buffers = new Dictionary<KeyValuePair<GLSurface, Shader>, Buffers>();
 			ShadingStyleDict = new Dictionary<ShadingStyle, ShadingStyle>();
+			Translucent = false;
 		}
 		public Renderable(List<Vector3> points) : this()
 		{
@@ -180,6 +183,27 @@ namespace Temblor.Graphics
 			GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);
 
 			AABB = new AABB(Vertices);
+		}
+
+		public bool UpdateTranslucency(List<string> translucents)
+		{
+			foreach (var polygon in Polygons)
+			{
+				if (polygon.TextureName == null)
+				{
+					continue;
+				}
+
+				// The most granular translucency information that matters is
+				// per-Renderable, not per-Polygon, so breaking on true is safe.
+				if (translucents.Contains(polygon.TextureName.ToLower()))
+				{
+					Translucent = true;
+					break;
+				}
+			}
+
+			return Translucent;
 		}
 	}
 }
