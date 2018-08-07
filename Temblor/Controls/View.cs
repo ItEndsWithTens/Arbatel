@@ -139,8 +139,6 @@ namespace Temblor.Controls
 		}
 		protected override void OnUnLoad(EventArgs e)
 		{
-			base.OnUnLoad(e);
-
 			Clock.Stop();
 
 			Controller.MouseLook = false;
