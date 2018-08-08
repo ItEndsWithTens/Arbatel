@@ -31,6 +31,8 @@ namespace Temblor.Formats
 			}
 		}
 
-		virtual public void Parse() { }
+		virtual public void Parse()
+		{
+		}
 	}
 }

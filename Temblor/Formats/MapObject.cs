@@ -16,7 +16,7 @@ namespace Temblor.Formats
 		public AABB AABB { get; private set; }
 
 		/// <summary>
-		/// The raw block of text that was parsed to create this object.
+		/// The Block this object represents.
 		/// </summary>
 		public Block Block;
 

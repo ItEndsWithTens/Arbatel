@@ -11,6 +11,7 @@ using Temblor.Controls;
 using Temblor.Formats;
 using Temblor.Graphics;
 using Temblor.Utilities;
+using Temblor.Formats.Quake;
 
 namespace Temblor
 {
@@ -60,9 +61,9 @@ namespace Temblor
 				}
 			}
 
-			//Wad = new Wad2("D:/Projects/Games/Maps/Quake/common/wads/quake.wad", palette);
+			Wad = new Wad2("D:/Projects/Games/Maps/Quake/common/wads/quake.wad", palette);
 			//Wad = new Wad2("D:/Games/Quake/ad/maps/ad_sepulcher.wad", palette);
-			Wad = new Wad2("D:/Games/Quake/ad/maps/xmasjam_tens.wad", palette);
+			//Wad = new Wad2("D:/Games/Quake/ad/maps/xmasjam_tens.wad", palette);
 			//Wad = new Wad2("D:/Games/Quake/ad/maps/xmasjam_icequeen.wad", palette);
 
 			//Wad = new Wad2("C:/Games/Quake/ID1/quake.wad", palette);
@@ -71,6 +72,30 @@ namespace Temblor
 			//var wad = new Wad2("D:/Projects/Games/Maps/Quake/common/wads/prototype.txt");
 
 			KeyDown += MainForm_KeyDown;
+
+
+
+			var fs = new FileStream("D:/Development/Temblor/scratch//quake4ericwTools.fgd", FileMode.Open, FileAccess.Read);
+			var fgd = new QuakeFgd(fs);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 			//var filename = "D:/Development/Temblor/scratch/jam6_tens.map";
 			//var filename = "D:/Development/Temblor/scratch/medieval1.map";
@@ -92,12 +117,12 @@ namespace Temblor
 			//var filename = "D:/Development/Temblor/scratch/sepulcher-metal1_3.map";
 			//var filename = "D:/Development/Temblor/scratch/ad_sepulcher_test-tenslogo_EditedByHand.map";
 			//var filename = "D:/Development/Temblor/scratch/translucency.map";
-			var filename = "D:/Games/Quake/ad/src/xmasjam_tens.map";
+			//var filename = "D:/Games/Quake/ad/src/xmasjam_tens.map";
 			//var filename = "D:/Games/Quake/ad/src/xmasjam_bal.map";
 			//var filename = "D:/Games/Quake/ad/src/xmasjam_icequeen.map";
 			//var filename = "D:/Games/Quake/ad/maps/ad_sepulcher.map";
 			//var filename = "D:/Games/Quake/ad/maps/ad_magna.map";
-			//var filename = "D:/Games/Quake/quake_map_source/start.map";
+			var filename = "D:/Games/Quake/quake_map_source/start.map";
 			//var filename = "D:/Games/Quake/quake_map_source/e1m1.map";
 			//var filename = "D:/Games/Quake/quake_map_source/e3m7.map";
 			//var filename = "D:/Games/Quake/quake_map_source/e4m8.map";

@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 using Temblor.Graphics;
 using Temblor.Utilities;
 
-namespace Temblor.Formats
+namespace Temblor.Formats.Quake
 {
 	public class QuakeSide : Side
 	{

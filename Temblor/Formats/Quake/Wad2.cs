@@ -9,7 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Temblor.Graphics;
 
-namespace Temblor.Formats
+namespace Temblor.Formats.Quake
 {
 	public class Wad2 : TextureCollection
 	{

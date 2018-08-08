@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Temblor.Controls;
+using Temblor.Formats.Quake;
 using Temblor.Graphics;
 using Temblor.Utilities;
 

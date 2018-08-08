@@ -50,12 +50,15 @@
     </Compile>
     <Compile Include="Controllers\Controller.cs" />
     <Compile Include="Controllers\FirstPersonController.cs" />
+    <Compile Include="Formats\DefinitionFile.cs" />
+    <Compile Include="Formats\EntityDefinition.cs" />
+    <Compile Include="Formats\Quake\QuakeFgd.cs" />
     <Compile Include="Formats\MapObject.cs" />
-    <Compile Include="Formats\QuakeMapObject.cs" />
-    <Compile Include="Formats\QuakeSide.cs" />
+    <Compile Include="Formats\Quake\QuakeMapObject.cs" />
+    <Compile Include="Formats\Quake\QuakeSide.cs" />
     <Compile Include="Formats\Side.cs" />
     <Compile Include="Formats\TextureCollection.cs" />
-    <Compile Include="Formats\Wad2.cs" />
+    <Compile Include="Formats\Quake\Wad2.cs" />
     <Compile Include="Graphics\AABB.cs" />
     <Compile Include="Graphics\Plane.cs" />
     <Compile Include="Graphics\FlatShader.cs" />
@@ -68,8 +71,8 @@
     <Compile Include="Controls\Viewport.cs" />
     <Compile Include="Formats\Block.cs" />
     <Compile Include="Formats\Map.cs" />
-    <Compile Include="Formats\QuakeBlock.cs" />
-    <Compile Include="Formats\QuakeMap.cs" />
+    <Compile Include="Formats\Quake\QuakeBlock.cs" />
+    <Compile Include="Formats\Quake\QuakeMap.cs" />
     <Compile Include="Graphics\Winding.cs" />
     <Compile Include="Utilities\MathUtilities.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
