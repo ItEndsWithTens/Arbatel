@@ -33,59 +33,7 @@ namespace Temblor.Formats
 
 			if (Renderables.Count == 0 && Children.Count == 0)
 			{
-				var modelVerts = new List<Vector3>()
-				{
-					new Vector3(4.0f, 0.0f, 0.0f),
-					new Vector3(0.0f, 4.0f, 0.0f),
-					new Vector3(-4.0f, 0.0f, 0.0f),
-					new Vector3(0.0f, -4.0f, 0.0f),
-					new Vector3(0.0f, 0.0f, 8.0f),
-					new Vector3(0.0f, 0.0f, -8.0f)
-				};
-
-				var diamond = new Renderable(modelVerts);
-				diamond.ShadingStyleDict = new Dictionary<ShadingStyle, ShadingStyle>()
-				{
-					{ ShadingStyle.Wireframe, ShadingStyle.Wireframe },
-					{ ShadingStyle.Flat, ShadingStyle.Flat },
-					{ ShadingStyle.Textured, ShadingStyle.Flat }
-				};
-
-				// Top half
-				for (var i = 0; i < 4; i++)
-				{
-					var polygon = new Polygon();
-
-					polygon.Indices.Add(i);
-					polygon.Indices.Add((i + 1) % 4);
-					polygon.Indices.Add(4);
-
-					Vector3 a = modelVerts[polygon.Indices[1]] - modelVerts[polygon.Indices[0]];
-					Vector3 b = modelVerts[polygon.Indices[2]] - modelVerts[polygon.Indices[0]];
-					polygon.Normal = Vector3.Cross(a, b);
-					polygon.Normal.Normalize();
-
-					diamond.Polygons.Add(polygon);
-					diamond.Indices.AddRange(polygon.Indices);
-				}
-
-				// Bottom half
-				for (var i = 0; i < 4; i++)
-				{
-					var polygon = new Polygon();
-
-					polygon.Indices.Add(i);
-					polygon.Indices.Add(5);
-					polygon.Indices.Add((i + 1) % 4);
-
-					Vector3 a = modelVerts[polygon.Indices[1]] - modelVerts[polygon.Indices[0]];
-					Vector3 b = modelVerts[polygon.Indices[2]] - modelVerts[polygon.Indices[0]];
-					polygon.Normal = Vector3.Cross(a, b);
-					polygon.Normal.Normalize();
-
-					diamond.Polygons.Add(polygon);
-					diamond.Indices.AddRange(polygon.Indices);
-				}
+				Renderable gem = new GemGenerator().Generate();
 
 				string[] coords = Block.KeyVals["origin"][0].Split(' ');
 
@@ -93,16 +41,16 @@ namespace Temblor.Formats
 				float.TryParse(coords[1], out float y);
 				float.TryParse(coords[2], out float z);
 
-				diamond.Position = new Vector3(x, y, z);
+				gem.Position = new Vector3(x, y, z);
 
 				var worldVerts = new List<Vertex>();
-				foreach (var vertex in diamond.Vertices)
+				foreach (var vertex in gem.Vertices)
 				{
-					worldVerts.Add(new Vertex(diamond.Position + vertex.Position, new Color4(1.0f, 1.0f, 0.0f, 1.0f)));
+					worldVerts.Add(new Vertex(gem.Position + vertex.Position, new Color4(1.0f, 1.0f, 0.0f, 1.0f)));
 				}
-				diamond.Vertices = worldVerts;
+				gem.Vertices = worldVerts;
 
-				Renderables.Add(diamond);
+				Renderables.Add(gem);
 			}
 		}
 
@@ -112,6 +60,32 @@ namespace Temblor.Formats
 
 			if (b.Sides.Count == 0)
 			{
+				var entity = MainForm.Definitions[0][b.KeyVals["classname"][0]];
+				if (entity != null && entity.ClassType == ClassType.Point)
+				{
+					if (entity.Size != null && entity.Size.Min != new Vector3(0.0f, 0.0f, 0.0f) && entity.Size.Max != new Vector3(0.0f, 0.0f, 0.0f))
+					{
+						var box = new BoxGenerator(entity.Size.Min, entity.Size.Max).Generate();
+
+						string[] coords = Block.KeyVals["origin"][0].Split(' ');
+
+						float.TryParse(coords[0], out float x);
+						float.TryParse(coords[1], out float y);
+						float.TryParse(coords[2], out float z);
+
+						box.Position = new Vector3(x, y, z);
+
+						var worldVerts = new List<Vertex>();
+						foreach (var vertex in box.Vertices)
+						{
+							worldVerts.Add(new Vertex(box.Position + vertex.Position, entity.Color));
+						}
+						box.Vertices = worldVerts;
+
+						Renderables.Add(box);
+					}
+				}
+
 				return;
 			}
 

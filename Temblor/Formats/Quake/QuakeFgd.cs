@@ -1,10 +1,13 @@
-﻿using System;
+﻿using OpenTK;
+using OpenTK.Graphics;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using Temblor.Graphics;
 
 namespace Temblor.Formats
 {
@@ -15,6 +18,79 @@ namespace Temblor.Formats
 		}
 		public QuakeFgd(Stream stream) : base(stream)
 		{
+			var bases = new List<Definition>();
+			var points = new List<Definition>();
+			var solids = new List<Definition>();
+
+			foreach (Definition def in Definitions)
+			{
+				if (def.ClassType == ClassType.Solid && def.BaseNames.Count > 0)
+				{
+					solids.Add(def);
+				}
+				else if (def.ClassType == ClassType.Point && def.BaseNames.Count > 0)
+				{
+					points.Add(def);
+				}
+				else if (def.BaseNames.Count > 0)
+				{
+					bases.Add(def);
+				}
+			}
+
+			var defs = new List<Definition>();
+			defs.AddRange(bases.OrderBy(d => d.BaseNames.Count).ToList());
+			defs.AddRange(points.OrderBy(d => d.BaseNames.Count).ToList());
+			defs.AddRange(solids.OrderBy(d => d.BaseNames.Count).ToList());
+
+			foreach (var d in defs)
+			{
+				foreach (var name in d.BaseNames)
+				{
+					var baseClass = this[name];
+
+					foreach (var flag in baseClass.Flags)
+					{
+						if (!d.Flags.ContainsKey(flag.Key))
+						{
+							d.Flags.Add(flag.Key, flag.Value);
+						}
+					}
+
+					foreach (var keyval in baseClass.KeyVals)
+					{
+						if (!d.KeyVals.ContainsKey(keyval.Key))
+						{
+							d.KeyVals.Add(keyval.Key, keyval.Value);
+						}
+					}
+
+					// This is the easiest way to check whether this entity has
+					// a color defined; checks for null won't work.
+					if (d.Color.R == 0.0f && d.Color.G == 0.0f && d.Color.B == 0.0f && d.Color.A == 0.0f)
+					{
+						var c = baseClass.Color;
+
+						// It is of course possible the base class also has no
+						// color, in which case white will do nicely.
+						if (c.R == 0.0f && c.G == 0.0f && c.B == 0.0f && c.A == 0.0f)
+						{
+							d.Color = new Color4(1.0f, 1.0f, 1.0f, 1.0f);
+						}
+						else
+						{
+							d.Color = baseClass.Color;
+						}
+					}
+
+					d.Offset += baseClass.Offset;
+
+					if (d.Size == null)
+					{
+						d.Size = baseClass.Size;
+					}
+				}
+			}
 		}
 
 		public override void Parse(StreamReader sr)
@@ -28,7 +104,7 @@ namespace Temblor.Formats
 
 				List<string> block = Raw.GetRange(blockStart, blockLength);
 
-				var def = new EntityDefinition();
+				var def = new Definition();
 
 				var blockOffset = 0;
 				while (blockOffset < block.Count - 1)
@@ -62,8 +138,116 @@ namespace Temblor.Formats
 						def.ClassName = String.Join("", header.GetRange(classnameStart, classnameLength));
 
 						int descriptionStart = header.IndexOf(":") + 1;
-						int descriptionLength = header.Count - descriptionStart;
-						def.Description = String.Join(" ", header.GetRange(descriptionStart, descriptionLength));
+						if (descriptionStart > 0)
+						{
+							int descriptionLength = header.Count - descriptionStart;
+							def.Description = String.Join(" ", header.GetRange(descriptionStart, descriptionLength));
+						}
+
+						if (header.Contains("base"))
+						{
+							List<string> vals = ExtractHeaderProperty("base", header);
+
+							foreach (var value in vals)
+							{
+								def.BaseNames.Add(value);
+							}
+						}
+
+						if (header.Contains("color"))
+						{
+							List<string> vals = ExtractHeaderProperty("color", header);
+
+							int.TryParse(vals[0], out int red);
+							int.TryParse(vals[1], out int green);
+							int.TryParse(vals[2], out int blue);
+
+							var color = new Color4()
+							{
+								R = red / 255.0f,
+								G = green / 255.0f,
+								B = blue / 255.0f,
+								A = 1.0f
+							};
+
+							def.Color = color;
+						}
+						else
+						{
+							// Color can't be assigned null, so there's no easy
+							// way to determine whether the FGD provided a color
+							// or not; since FGDs don't have any facility for
+							// dictating alpha, however, setting it to 0 works.
+							def.Color = new Color4(0.0f, 0.0f, 0.0f, 0.0f);
+						}
+
+						if (header.Contains("flags"))
+						{
+
+						}
+
+						if (header.Contains("iconsprite"))
+						{
+
+						}
+
+						if (header.Contains("offset"))
+						{
+							List<string> vals = ExtractHeaderProperty("offset", header);
+
+							var offset = new Vector3();
+							float.TryParse(vals[0], out offset.X);
+							float.TryParse(vals[1], out offset.Y);
+							float.TryParse(vals[2], out offset.Z);
+
+							def.Offset = offset;
+						}
+
+						if (header.Contains("size"))
+						{
+							List<string> vals = ExtractHeaderProperty("size", header);
+
+							var size = new AABB();
+
+							// Size defined by custom min and max.
+							if (vals.Count == 6)
+							{
+								float.TryParse(vals[0], out size.Min.X);
+								float.TryParse(vals[1], out size.Min.Y);
+								float.TryParse(vals[2], out size.Min.Z);
+
+								float.TryParse(vals[3], out size.Max.X);
+								float.TryParse(vals[4], out size.Max.Y);
+								float.TryParse(vals[5], out size.Max.Z);
+							}
+							// Size defined by width, depth, and height.
+							else
+							{
+								float.TryParse(vals[0], out float width);
+								float.TryParse(vals[1], out float depth);
+								float.TryParse(vals[2], out float height);
+
+								size.Max.X = width / 2.0f;
+								size.Max.Y = depth / 2.0f;
+								size.Max.Z = height / 2.0f;
+
+								size.Min.X = -size.Max.X;
+								size.Min.Y = -size.Max.Y;
+								size.Min.Z = -size.Max.Z;
+							}
+
+							def.Size = size;
+						}
+
+						if (header.Contains("sprite"))
+						{
+
+						}
+
+						if (header.Contains("studio"))
+						{
+
+						}
 
 						blockOffset += header.Count;
 					}
@@ -218,7 +402,7 @@ namespace Temblor.Formats
 					}
 				}
 
-				Entities.Add(def);
+				Definitions.Add(def);
 
 				blockStart += blockLength;
 			}
@@ -248,6 +432,26 @@ namespace Temblor.Formats
 			return Regex.Split(noComments, delimiters).Select(s => s.Trim()).Where(s => s != "").ToList();
 		}
 
+		private List<string> ExtractHeaderProperty(string name, List<string> header)
+		{
+			var values = new List<string>();
+
+			int openParenthesis = header.IndexOf(name) + 1;
+			int closeParenthesis = FindClosingDelimiter(header, openParenthesis);
+
+			for (var i = openParenthesis + 1; i < closeParenthesis; i++)
+			{
+				var value = header[i];
+
+				if (value != ",")
+				{
+					values.Add(header[i]);
+				}
+			}
+
+			return values;
+		}
+
 		/// <summary>
 		/// Given an input list and the index of an opening delimiter, find the
 		/// matching closing delimiter.
@@ -263,9 +467,17 @@ namespace Temblor.Formats
 			{
 				closeDelimiter = "]";
 			}
-			else
+			else if (openDelimiter == "(")
+			{
+				closeDelimiter = ")";
+			}
+			else if (openDelimiter == "{")
 			{
 				closeDelimiter = "}";
+			}
+			else
+			{
+				throw new ArgumentException("Unrecognized open delimiter!");
 			}
 
 			var closeIndex = 0;

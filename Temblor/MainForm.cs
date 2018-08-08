@@ -25,6 +25,8 @@ namespace Temblor
 
 		public static Wad2 Wad;
 
+		public static List<DefinitionFile> Definitions;
+
 		public MainForm()
 		{
 			InitializeComponent();
@@ -78,6 +80,7 @@ namespace Temblor
 			var fs = new FileStream("D:/Development/Temblor/scratch//quake4ericwTools.fgd", FileMode.Open, FileAccess.Read);
 			var fgd = new QuakeFgd(fs);
 
+			Definitions = new List<DefinitionFile>() { fgd };
 
 
 

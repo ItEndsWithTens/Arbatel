@@ -11,17 +11,50 @@ namespace Temblor.Formats
 	{
 		public List<string> Raw;
 
-		public List<EntityDefinition> Entities;
+		public List<Definition> Definitions;
 
 		public DefinitionFile()
 		{
-			Entities = new List<EntityDefinition>();
+			Definitions = new List<Definition>();
 		}
 		public DefinitionFile(Stream stream) : this()
 		{
 			using (var sr = new StreamReader(stream))
 			{
 				Parse(sr);
+			}
+		}
+
+		public Definition this[string s]
+		{
+			get
+			{
+				Definition entity = null;
+
+				for (var i = 0; i < Definitions.Count; i++)
+				{
+					if (Definitions[i].ClassName == s)
+					{
+						entity = Definitions[i];
+						break;
+					}
+				}
+
+				return entity;
+			}
+
+			set
+			{
+				for (var i = 0; i < Definitions.Count; i++)
+				{
+					Definition entity = Definitions[i];
+
+					if (entity.ClassName == s)
+					{
+						Definitions[i] = value;
+						break;
+					}
+				}
 			}
 		}
 

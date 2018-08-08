@@ -1,4 +1,5 @@
-﻿using OpenTK.Graphics;
+﻿using OpenTK;
+using OpenTK.Graphics;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -48,10 +49,8 @@ namespace Temblor.Formats
 		}
 	}
 
-	public class EntityDefinition
+	public class Definition
 	{
-		public AABB AABB;
-
 		/// <summary>
 		/// Names of the base classes this entity inherits from.
 		/// </summary>
@@ -79,7 +78,11 @@ namespace Temblor.Formats
 		/// </remarks>
 		public Dictionary<string, List<Option>> KeyVals;
 
-		public EntityDefinition()
+		public Vector3 Offset;
+
+		public AABB Size;
+
+		public Definition()
 		{
 			BaseNames = new List<string>();
 
@@ -88,6 +91,8 @@ namespace Temblor.Formats
 			Flags = new Dictionary<string, Flag>();
 
 			KeyVals = new Dictionary<string, List<Option>>();
+
+			Offset = new Vector3();
 		}
 	}
 }

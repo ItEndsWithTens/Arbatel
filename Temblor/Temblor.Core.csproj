@@ -51,7 +51,7 @@
     <Compile Include="Controllers\Controller.cs" />
     <Compile Include="Controllers\FirstPersonController.cs" />
     <Compile Include="Formats\DefinitionFile.cs" />
-    <Compile Include="Formats\EntityDefinition.cs" />
+    <Compile Include="Formats\Definition.cs" />
     <Compile Include="Formats\Quake\QuakeFgd.cs" />
     <Compile Include="Formats\MapObject.cs" />
     <Compile Include="Formats\Quake\QuakeMapObject.cs" />
@@ -60,8 +60,11 @@
     <Compile Include="Formats\TextureCollection.cs" />
     <Compile Include="Formats\Quake\Wad2.cs" />
     <Compile Include="Graphics\AABB.cs" />
+    <Compile Include="Graphics\BoxGenerator.cs" />
+    <Compile Include="Graphics\GemGenerator.cs" />
     <Compile Include="Graphics\Plane.cs" />
     <Compile Include="Graphics\FlatShader.cs" />
+    <Compile Include="Graphics\RenderableGenerator.cs" />
     <Compile Include="Graphics\SingleTextureShader.cs" />
     <Compile Include="Graphics\Texture.cs" />
     <Compile Include="Graphics\Vertex.cs" />
