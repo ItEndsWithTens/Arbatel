@@ -127,18 +127,35 @@ namespace Temblor.Formats
 							blockOffset++;
 						}
 
-						bool earlyFinish = block[blockOffset] != ":";
-						if (earlyFinish)
+						// If there's nothing after the description, there's no
+						// more work to do for this option.
+						if (block[blockOffset] != ":")
 						{
+							def.KeyVals.Add(key, new List<Option>() { option });
 							continue;
 						}
 						blockOffset++;
 
-						bool hasDefault = !earlyFinish && (block[blockOffset] != ":" && block[blockOffset] != "=");
-						if (hasDefault)
+						// If there is a colon after the description, there's at
+						// least space for a default value, even if it's blank.
+						bool defaultIsBlank = block[blockOffset] == ":";
+						if (!defaultIsBlank)
 						{
-							option.Default = block[blockOffset];
+							string defaultValue = block[blockOffset];
 							blockOffset++;
+
+							// If the default is delimited by a double quote, it
+							// needs to be assembled from separated pieces.
+							if (defaultValue.StartsWith("\""))
+							{
+								while (block[blockOffset] != ":" && block[blockOffset] != "=")
+								{
+									defaultValue += " " + block[blockOffset];
+									blockOffset++;
+								}
+							}
+
+							option.Default = defaultValue;
 						}
 
 						bool hasRemarks = block[blockOffset] == ":" && block[blockOffset + 1].StartsWith("\"");
