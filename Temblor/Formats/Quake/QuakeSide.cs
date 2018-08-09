@@ -100,22 +100,23 @@ namespace Temblor.Formats.Quake
 
 				float.TryParse(split[18], out TextureRotation);
 
-				Matrix3.CreateRotationX(MathHelper.DegreesToRadians(TextureRotation), out Matrix3 matrixX);
-				Matrix3.CreateRotationY(MathHelper.DegreesToRadians(TextureRotation), out Matrix3 matrixY);
-				Matrix3.CreateRotationZ(MathHelper.DegreesToRadians(TextureRotation), out Matrix3 matrixZ);
-
 				Matrix3 matrix;
 				if (Math.Abs(closestPlane.Normal.X) == 1.0f)
 				{
-					matrix = matrixX;
+					Matrix3.CreateRotationX(MathHelper.DegreesToRadians(TextureRotation), out matrix);
 				}
 				else if (Math.Abs(closestPlane.Normal.Y) == 1.0f)
 				{
-					matrix = matrixY;
+					// The CreateRotation methods expect the counter-clockwise
+					// angle of rotation, but don't ask for a normal, so it's
+					// the user's reponsibility to figure that out. OpenTK also
+					// uses right-handed Z-up coordinates, apparently, so it's
+					// only necessary to subtract from 360 for this axis.
+					Matrix3.CreateRotationY(MathHelper.DegreesToRadians(360.0f - TextureRotation), out matrix);
 				}
 				else
 				{
-					matrix = matrixZ;
+					Matrix3.CreateRotationZ(MathHelper.DegreesToRadians(TextureRotation), out matrix);
 				}
 
 				basisS *= matrix;
