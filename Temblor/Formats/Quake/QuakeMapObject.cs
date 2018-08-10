@@ -12,6 +12,9 @@ using Temblor.Utilities;
 
 namespace Temblor.Formats
 {
+	/// <summary>
+	/// Any key/value-bearing entity in a Quake map.
+	/// </summary>
 	public class QuakeMapObject : MapObject
 	{
 		/// <summary>
@@ -27,25 +30,31 @@ namespace Temblor.Formats
 		{
 			KeyVals = new Dictionary<string, List<string>>(_block.KeyVals);
 
-			// TODO: Get rid of this check once solid blocks are no longer treated as children, and
-			// instead treated as Renderables.
-			if (KeyVals.ContainsKey("classname"))
-			{
-				Definition = _definitions[_block.KeyVals["classname"][0]];
-			}
+			Definition = _definitions[KeyVals["classname"][0]];
 
 			foreach (var child in _block.Children)
 			{
-				Children.Add(new QuakeMapObject(child, _definitions));
+				if (child.KeyVals.Count > 0)
+				{
+					Children.Add(new QuakeMapObject(child, _definitions));
+				}
+				else
+				{
+					ExtractRenderables(child);
+				}
 			}
 
+			// TODO: By this point, now that brushes are extracted just above in the loop through the
+			// children, all that's left should be checking for point entity bounding boxes, adding a
+			// gem if no bbox is specified, setting up sprites or models, etc. Maybe split ExtractRenderables
+			// into multiple methods to clean all this up?
 			ExtractRenderables(_block);
 
 			if (Renderables.Count == 0 && Children.Count == 0)
 			{
 				Renderable gem = new GemGenerator().Generate();
 
-				string[] coords = _block.KeyVals["origin"][0].Split(' ');
+				string[] coords = KeyVals["origin"][0].Split(' ');
 
 				float.TryParse(coords[0], out float x);
 				float.TryParse(coords[1], out float y);

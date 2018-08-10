@@ -94,10 +94,10 @@ namespace TemblorTest.Core.FormatsTest
 
 				Assert.That(qmo.KeyVals.Count, Is.EqualTo(2));
 
-				Assert.That(qmo.Children[0].Renderables[0].Vertices.Count, Is.EqualTo(8));
+				Assert.That(qmo.Renderables[0].Vertices.Count, Is.EqualTo(8));
 
 				var indexCount = 0;
-				foreach (var polygon in qmo.Children[0].Renderables[0].Polygons)
+				foreach (var polygon in qmo.Renderables[0].Polygons)
 				{
 					indexCount += polygon.Indices.Count;
 				}
@@ -325,14 +325,14 @@ namespace TemblorTest.Core.FormatsTest
 
 				Assert.That(worldspawn.KeyVals["classname"][0], Is.EqualTo("worldspawn"));
 				Assert.That(worldspawn.KeyVals.Count, Is.EqualTo(27));
-				Assert.That(worldspawn.Children.Count, Is.EqualTo(4));
+				Assert.That(worldspawn.Renderables.Count, Is.EqualTo(4));
 
 				var sideCount = new int[] { 6, 5, 6, 18 };
 				for (var i = 0; i < sideCount.Length; i++)
 				{
-					var solid = worldspawn.Children[i] as QuakeMapObject;
+					var solid = worldspawn.Renderables[i];
 
-					Assert.That(solid.Renderables[0].Polygons.Count, Is.EqualTo(sideCount[i]));
+					Assert.That(solid.Polygons.Count, Is.EqualTo(sideCount[i]));
 				}
 			}
 
@@ -387,9 +387,9 @@ namespace TemblorTest.Core.FormatsTest
 				Assert.That(entity.KeyVals.Count, Is.EqualTo(2));
 				Assert.That(entity.KeyVals["classname"][0], Is.EqualTo("func_detail"));
 
-				Assert.That(entity.Children[0].Renderables[0].Polygons.Count, Is.EqualTo(5));
+				Assert.That(entity.Renderables[0].Polygons.Count, Is.EqualTo(5));
 
-				var polygon = entity.Children[0].Renderables[0].Polygons[0];
+				var polygon = entity.Renderables[0].Polygons[0];
 
 				Assert.That(polygon.TextureName, Is.EqualTo("{SOMETRANSPARENTTEXTURE"));
 			}
@@ -439,7 +439,7 @@ namespace TemblorTest.Core.FormatsTest
 				Assert.That(entity.KeyVals.Count, Is.EqualTo(2));
 				Assert.That(entity.KeyVals["classname"][0], Is.EqualTo("func_detail"));
 
-				Assert.That(entity.Children[0].Renderables[0].Polygons.Count, Is.EqualTo(5));
+				Assert.That(entity.Renderables[0].Polygons.Count, Is.EqualTo(5));
 
 				var worldspawn = map.MapObjects[1] as QuakeMapObject;
 
@@ -447,7 +447,7 @@ namespace TemblorTest.Core.FormatsTest
 				Assert.That(worldspawn.KeyVals["classname"][0], Is.EqualTo("worldspawn"));
 				Assert.That(worldspawn.Children.Count, Is.EqualTo(0));
 
-				var polygon = entity.Children[0].Renderables[0].Polygons[0];
+				var polygon = entity.Renderables[0].Polygons[0];
 
 				Assert.That(polygon.TextureName, Is.EqualTo("{SOMETRANSPARENTTEXTURE"));
 			}
