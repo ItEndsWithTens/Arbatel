@@ -25,7 +25,7 @@ namespace Temblor
 
 		public static Wad2 Wad;
 
-		public static List<DefinitionFile> Definitions;
+		public static List<DefinitionCollection> Definitions;
 
 		public MainForm()
 		{
@@ -63,7 +63,7 @@ namespace Temblor
 				}
 			}
 
-			Wad = new Wad2("D:/Projects/Games/Maps/Quake/common/wads/quake.wad", palette);
+			//Wad = new Wad2("D:/Projects/Games/Maps/Quake/common/wads/quake.wad", palette);
 			//Wad = new Wad2("D:/Games/Quake/ad/maps/ad_sepulcher.wad", palette);
 			//Wad = new Wad2("D:/Games/Quake/ad/maps/xmasjam_tens.wad", palette);
 			//Wad = new Wad2("D:/Games/Quake/ad/maps/xmasjam_icequeen.wad", palette);
@@ -71,7 +71,7 @@ namespace Temblor
 			//Wad = new Wad2("D:/Games/Quake/jam6/maps/jam6_ericwtronyn.wad", palette);
 			//Wad = new Wad2("D:/Games/Quake/jam1/maps/jam1_arrrcee.wad", palette);
 			//Wad = new Wad2("D:/Games/Quake/jam1/maps/jam1_skacky.wad", palette);
-			//Wad = new Wad2("D:/Games/Quake/jam1/maps/jam1_scampie.wad", palette);
+			Wad = new Wad2("D:/Games/Quake/jam1/maps/jam1_scampie.wad", palette);
 			//Wad = new Wad2("D:/Games/Quake/retrojam5/maps/retrojam5_shambler.wad", palette);
 
 			//Wad = new Wad2("C:/Games/Quake/ID1/quake.wad", palette);
@@ -86,7 +86,7 @@ namespace Temblor
 			var fs = new FileStream("D:/Development/Temblor/scratch//quake4ericwTools.fgd", FileMode.Open, FileAccess.Read);
 			var fgd = new QuakeFgd(fs);
 
-			Definitions = new List<DefinitionFile>() { fgd };
+			Definitions = new List<DefinitionCollection>() { fgd };
 
 
 
@@ -126,7 +126,7 @@ namespace Temblor
 			//var filename = "D:/Development/Temblor/scratch/sepulcher-metal1_3.map";
 			//var filename = "D:/Development/Temblor/scratch/ad_sepulcher_test-tenslogo_EditedByHand.map";
 			//var filename = "D:/Development/Temblor/scratch/translucency.map";
-			var filename = "D:/Development/Temblor/scratch/rotations_fromTB2.map";
+			//var filename = "D:/Development/Temblor/scratch/rotations_fromTB2.map";
 			//var filename = "D:/Games/Quake/ad/src/xmasjam_tens.map";
 			//var filename = "D:/Games/Quake/ad/src/xmasjam_bal.map";
 			//var filename = "D:/Games/Quake/ad/src/xmasjam_icequeen.map";
@@ -142,7 +142,7 @@ namespace Temblor
 			//var filename = "D:/Games/Quake/jam6/source/jam6_ericwtronyn.map";
 			//var filename = "D:/Games/Quake/jam1/source/jam1_arrrcee.map";
 			//var filename = "D:/Games/Quake/jam1/source/jam1_skacky.map";
-			//var filename = "D:/Games/Quake/jam1/source/jam1_scampie.map";
+			var filename = "D:/Games/Quake/jam1/source/jam1_scampie.map";
 			//var filename = "D:/Games/Quake/retrojam5/source/retrojam5_shambler.map";
 
 			//var filename = "C:/Users/Harry/Development/Temblor/scratch/basicobjectstest.map";
@@ -150,7 +150,7 @@ namespace Temblor
 			//var filename = "C:/Users/Harry/Development/Temblor/scratch/manytextures.map";
 			//var filename = "C:/Games/Quake/quake_map_source/start.map";
 			var s = new FileStream(filename, FileMode.Open, FileAccess.Read);
-			var map = new QuakeMap(s);
+			var map = new QuakeMap(s, fgd);
 
 
 
@@ -226,14 +226,14 @@ namespace Temblor
 
 			// Instead of making the text view mode vertically shorter, just add some phantom
 			// line breaks to push the text down, and make sure to keep the cursor below them.
-			text.Text = "\n\n" + map.MapObjects[0].Block.ToString();
-			text.CaretIndex = 2;
-			text.CaretIndexChanged += (sender, e) =>
-			{
-				Title = text.CaretIndex.ToString();
-				text.CaretIndex = text.CaretIndex < 2 ? 2 : text.CaretIndex;
-
-			};
+			//text.Text = "\n\n" + map.MapObjects[0].Block.ToString();
+			//text.CaretIndex = 2;
+			//text.CaretIndexChanged += (sender, e) =>
+			//{
+			//	Title = text.CaretIndex.ToString();
+			//	text.CaretIndex = text.CaretIndex < 2 ? 2 : text.CaretIndex;
+			//
+			//};
 
 			var tree = viewport.Views[1] as TreeGridView;
 			tree.Columns.Add(new GridColumn() { HeaderText = "Column 1", DataCell = new TextBoxCell(0) });

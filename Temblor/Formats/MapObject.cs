@@ -16,11 +16,6 @@ namespace Temblor.Formats
 		public AABB AABB { get; private set; }
 
 		/// <summary>
-		/// The Block this object represents.
-		/// </summary>
-		public Block Block;
-
-		/// <summary>
 		/// A list of MapObjects nested within this one.
 		/// </summary>
 		/// <remarks>
@@ -28,6 +23,22 @@ namespace Temblor.Formats
 		/// MapObject, and a func_detail inside it would be a child.
 		/// </remarks>
 		public List<MapObject> Children;
+
+		public Color4 Color;
+
+		public Definition Definition;
+
+		/// <summary>
+		/// The set of key/value pairs currently defined for this entity.
+		/// </summary>
+		/// <remarks>
+		/// Remember that not everything from the list of key/value pairs found
+		/// in an entity Definition's KeyValsTemplate will be found here; the
+		/// template is only a list of what's expected. Pairs left out of this
+		/// list should be assumed to be set to their defaults, and any extras
+		/// not in the template should be permitted to stay.
+		/// </remarks>
+		public Dictionary<string, List<string>> KeyVals;
 
 		/// <summary>
 		/// Anything associated with this MapObject that's meant to be rendered.
@@ -38,24 +49,22 @@ namespace Temblor.Formats
 		/// </remarks>
 		public List<Renderable> Renderables;
 
-		public Color4 Color;
-
 		public bool Translucent;
 
-		public MapObject() : this(new Block())
+		public MapObject() : this(new Block(), new DefinitionCollection())
 		{
 		}
-		public MapObject(Block _block)
+		public MapObject(Block _block, DefinitionCollection _definitions)
 		{
 			AABB = new AABB();
 
-			Block = _block;
-
 			Children = new List<MapObject>();
 
-			Renderables = new List<Renderable>();
-
 			Color = new Color4(1.0f, 1.0f, 1.0f, 1.0f);
+
+			KeyVals = new Dictionary<string, List<string>>();
+
+			Renderables = new List<Renderable>();
 
 			Translucent = false;
 		}

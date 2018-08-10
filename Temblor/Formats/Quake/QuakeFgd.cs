@@ -11,7 +11,7 @@ using Temblor.Graphics;
 
 namespace Temblor.Formats
 {
-	public class QuakeFgd : DefinitionFile
+	public class QuakeFgd : DefinitionCollection
 	{
 		public QuakeFgd() : base()
 		{
@@ -57,11 +57,11 @@ namespace Temblor.Formats
 						}
 					}
 
-					foreach (var keyval in baseClass.KeyVals)
+					foreach (var keyval in baseClass.KeyValsTemplate)
 					{
-						if (!d.KeyVals.ContainsKey(keyval.Key))
+						if (!d.KeyValsTemplate.ContainsKey(keyval.Key))
 						{
-							d.KeyVals.Add(keyval.Key, keyval.Value);
+							d.KeyValsTemplate.Add(keyval.Key, keyval.Value);
 						}
 					}
 
@@ -315,7 +315,7 @@ namespace Temblor.Formats
 						// more work to do for this option.
 						if (block[blockOffset] != ":")
 						{
-							def.KeyVals.Add(key, new List<Option>() { option });
+							def.KeyValsTemplate.Add(key, new List<Option>() { option });
 							continue;
 						}
 						blockOffset++;
@@ -394,7 +394,7 @@ namespace Temblor.Formats
 							}
 						}
 
-						def.KeyVals.Add(key, new List<Option>() { option });
+						def.KeyValsTemplate.Add(key, new List<Option>() { option });
 					}
 					else
 					{

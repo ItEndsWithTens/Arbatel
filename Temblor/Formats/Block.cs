@@ -68,7 +68,7 @@ namespace Temblor.Formats
 			return keyVals;
 		}
 
-		protected int FindCloseBraceIndex(ref List<string> raw, int openBraceIndex)
+		protected int FindCloseBraceIndex(List<string> raw, int openBraceIndex)
 		{
 			int closeBraceIndex = openBraceIndex + 1;
 

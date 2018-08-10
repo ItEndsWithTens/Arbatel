@@ -16,7 +16,7 @@ namespace Temblor.Formats.Quake
 		public QuakeMap() : base()
 		{
 		}
-		public QuakeMap(Stream stream) : base(stream)
+		public QuakeMap(Stream stream, DefinitionCollection definitions) : base(stream, definitions)
 		{
 			Parse();
 		}
@@ -83,8 +83,8 @@ namespace Temblor.Formats.Quake
 			{
 				var firstBraceIndex = split.IndexOf("{", i);
 
-				var block = new QuakeBlock(ref split, firstBraceIndex);
-				MapObjects.Add(new QuakeMapObject(block));
+				var block = new QuakeBlock(split, firstBraceIndex);
+				MapObjects.Add(new QuakeMapObject(block, Definitions));
 
 				i = firstBraceIndex + block.RawLength;
 			}

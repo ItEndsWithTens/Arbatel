@@ -11,15 +11,12 @@ namespace Temblor.Formats.Quake
 {
 	public class QuakeBlock : Block
 	{
-		/// <summary>
-		/// This block's sides, in their Quake .map text form.
-		/// </summary>
-		public List<string> Sides = new List<string>();
+		public List<QuakeSide> Sides = new List<QuakeSide>();
 
-		public QuakeBlock(ref List<string> rawList, int openBraceIndex)
+		public QuakeBlock(List<string> rawList, int openBraceIndex)
 		{
 			RawStartIndex = openBraceIndex;
-			RawLength = (FindCloseBraceIndex(ref rawList, openBraceIndex) + 1) - RawStartIndex;
+			RawLength = (FindCloseBraceIndex(rawList, openBraceIndex) + 1) - RawStartIndex;
 
 			var rawBlock = rawList.GetRange(RawStartIndex, RawLength);
 
@@ -93,7 +90,7 @@ namespace Temblor.Formats.Quake
 				{
 					var childOpenBraceIndex = i + 1;
 
-					var childBlock = new QuakeBlock(ref rawBlock, childOpenBraceIndex);
+					var childBlock = new QuakeBlock(rawBlock, childOpenBraceIndex);
 					Children.Add(childBlock);
 
 					i = childBlock.RawStartIndex + childBlock.RawLength;
@@ -102,7 +99,7 @@ namespace Temblor.Formats.Quake
 				{
 					foreach(var side in ExtractSides(item))
 					{
-						Sides.Add(side);
+						Sides.Add(new QuakeSide(side));
 					}
 
 					++i;

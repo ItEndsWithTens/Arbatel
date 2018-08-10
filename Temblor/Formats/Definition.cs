@@ -70,13 +70,14 @@ namespace Temblor.Formats
 		//public Model Model;
 
 		/// <summary>
-		/// The list of key/value pairs this entity has, if any.
+		/// The predefined list of key/value pairs this entity might contain.
 		/// </summary>
 		/// <remarks>
-		/// Quake maps, as one example, permit duplicate keys with different
-		/// values, so it's necessary to store values as a List.
+		/// Entities often won't have everything contained in this template, and
+		/// it's possible to add keys to an entity even if they aren't defined
+		/// in this set, so this only a template of expected possibilities.
 		/// </remarks>
-		public Dictionary<string, List<Option>> KeyVals;
+		public Dictionary<string, List<Option>> KeyValsTemplate;
 
 		public Vector3 Offset;
 
@@ -90,7 +91,7 @@ namespace Temblor.Formats
 
 			Flags = new Dictionary<string, Flag>();
 
-			KeyVals = new Dictionary<string, List<Option>>();
+			KeyValsTemplate = new Dictionary<string, List<Option>>();
 
 			Offset = new Vector3();
 		}

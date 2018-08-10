@@ -15,6 +15,8 @@ namespace Temblor.Formats
 
 		public string Raw;
 
+		public DefinitionCollection Definitions;
+
 		public List<MapObject> MapObjects;
 
 		public List<TextureCollection> Textures;
@@ -23,12 +25,14 @@ namespace Temblor.Formats
 		{
 			MapObjects = new List<MapObject>();
 		}
-		public Map(Stream stream) : this()
+		public Map(Stream stream, DefinitionCollection definitions) : this()
 		{
 			using (StreamReader sr = new StreamReader(stream))
 			{
 				Raw = sr.ReadToEnd();
 			}
+
+			Definitions = definitions;
 		}
 
 		virtual public void Parse()

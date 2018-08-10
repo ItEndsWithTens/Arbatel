@@ -7,17 +7,17 @@ using System.Threading.Tasks;
 
 namespace Temblor.Formats
 {
-	public class DefinitionFile
+	public class DefinitionCollection
 	{
 		public List<string> Raw;
 
 		public List<Definition> Definitions;
 
-		public DefinitionFile()
+		public DefinitionCollection()
 		{
 			Definitions = new List<Definition>();
 		}
-		public DefinitionFile(Stream stream) : this()
+		public DefinitionCollection(Stream stream) : this()
 		{
 			using (var sr = new StreamReader(stream))
 			{

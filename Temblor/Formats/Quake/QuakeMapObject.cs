@@ -19,23 +19,33 @@ namespace Temblor.Formats
 		/// </summary>
 		private static readonly float _tolerance = 0.01f;
 
-		public QuakeMapObject(Block _block) : this(_block as QuakeBlock)
+		public QuakeMapObject(Block _block, DefinitionCollection _definitions) :
+			this(_block as QuakeBlock, _definitions as QuakeFgd)
 		{
 		}
-		public QuakeMapObject(QuakeBlock _block) : base(_block)
+		public QuakeMapObject(QuakeBlock _block, QuakeFgd _definitions) : base(_block, _definitions)
 		{
-			foreach (var child in Block.Children)
+			KeyVals = new Dictionary<string, List<string>>(_block.KeyVals);
+
+			// TODO: Get rid of this check once solid blocks are no longer treated as children, and
+			// instead treated as Renderables.
+			if (KeyVals.ContainsKey("classname"))
 			{
-				Children.Add(new QuakeMapObject(child));
+				Definition = _definitions[_block.KeyVals["classname"][0]];
 			}
 
-			ExtractRenderables(Block);
+			foreach (var child in _block.Children)
+			{
+				Children.Add(new QuakeMapObject(child, _definitions));
+			}
+
+			ExtractRenderables(_block);
 
 			if (Renderables.Count == 0 && Children.Count == 0)
 			{
 				Renderable gem = new GemGenerator().Generate();
 
-				string[] coords = Block.KeyVals["origin"][0].Split(' ');
+				string[] coords = _block.KeyVals["origin"][0].Split(' ');
 
 				float.TryParse(coords[0], out float x);
 				float.TryParse(coords[1], out float y);
@@ -60,14 +70,13 @@ namespace Temblor.Formats
 
 			if (b.Sides.Count == 0)
 			{
-				var entity = MainForm.Definitions[0][b.KeyVals["classname"][0]];
-				if (entity != null && entity.ClassType == ClassType.Point)
+				if (Definition != null && Definition.ClassType == ClassType.Point)
 				{
-					if (entity.Size != null && entity.Size.Min != new Vector3(0.0f, 0.0f, 0.0f) && entity.Size.Max != new Vector3(0.0f, 0.0f, 0.0f))
+					if (Definition.Size != null && Definition.Size.Min != new Vector3(0.0f, 0.0f, 0.0f) && Definition.Size.Max != new Vector3(0.0f, 0.0f, 0.0f))
 					{
-						var box = new BoxGenerator(entity.Size.Min, entity.Size.Max).Generate();
+						var box = new BoxGenerator(Definition.Size.Min, Definition.Size.Max).Generate();
 
-						string[] coords = Block.KeyVals["origin"][0].Split(' ');
+						string[] coords = b.KeyVals["origin"][0].Split(' ');
 
 						float.TryParse(coords[0], out float x);
 						float.TryParse(coords[1], out float y);
@@ -78,7 +87,7 @@ namespace Temblor.Formats
 						var worldVerts = new List<Vertex>();
 						foreach (var vertex in box.Vertices)
 						{
-							worldVerts.Add(new Vertex(box.Position + vertex.Position, entity.Color));
+							worldVerts.Add(new Vertex(box.Position + vertex.Position, Definition.Color));
 						}
 						box.Vertices = worldVerts;
 
@@ -89,17 +98,11 @@ namespace Temblor.Formats
 				return;
 			}
 
-			var sides = new List<QuakeSide>();
-			foreach (var side in b.Sides)
-			{
-				sides.Add(new QuakeSide(side));
-			}
-
-			CalculateIntersections(ref sides, new Color4(1.0f, 1.0f, 1.0f, 1.0f));
+			CalculateIntersections(ref b.Sides, new Color4(1.0f, 1.0f, 1.0f, 1.0f));
 
 			var renderable = new Renderable();
 
-			BuildPolygons(sides, renderable);
+			BuildPolygons(b.Sides, renderable);
 
 			renderable.Position = new AABB(renderable.Vertices).Center;
 
