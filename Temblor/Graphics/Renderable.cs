@@ -87,7 +87,7 @@ namespace Temblor.Graphics
 
 		public List<Polygon> Polygons;
 
-		public Dictionary<KeyValuePair<GLSurface, Shader>, Buffers> Buffers;
+		public Dictionary<GLSurface, Buffers> Buffers;
 
 		/// <summary>
 		/// A mapping of requested shading style to supported shading style.
@@ -105,7 +105,7 @@ namespace Temblor.Graphics
 			Vertices = new List<Vertex>();
 			Indices = new List<int>();
 			Polygons = new List<Polygon>();
-			Buffers = new Dictionary<KeyValuePair<GLSurface, Shader>, Buffers>();
+			Buffers = new Dictionary<GLSurface, Buffers>();
 			ShadingStyleDict = new Dictionary<ShadingStyle, ShadingStyle>().Default();
 			Translucent = false;
 		}
@@ -141,18 +141,15 @@ namespace Temblor.Graphics
 
 			Buffers b;
 
-			var key = new KeyValuePair<GLSurface, Shader>(surface, shader);
-			if (Buffers.ContainsKey(key))
+			if (Buffers.ContainsKey(surface))
 			{
-				b = Buffers[key];
-
-				b.CleanUp();
+				b = Buffers[surface];
 			}
 			else
 			{
 				b = new Buffers();
 
-				Buffers.Add(key, b);
+				Buffers.Add(surface, b);
 			}
 
 			GL.BindVertexArray(b.Vao);

@@ -147,7 +147,7 @@ namespace Temblor.Graphics
 		{
 			base.Draw(renderable, surface, camera);
 
-			Buffers b = renderable.Buffers[new KeyValuePair<GLSurface, Shader>(surface, this)];
+			Buffers b = renderable.Buffers[surface];
 
 			GL.BindVertexArray(b.Vao);
 			GL.BindBuffer(BufferTarget.ArrayBuffer, b.Vbo);
