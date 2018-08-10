@@ -16,6 +16,10 @@ namespace Temblor.Formats.Quake
 		public QuakeMap() : base()
 		{
 		}
+		public QuakeMap(string filename, DefinitionCollection definitions) :
+			this(new FileStream(filename, FileMode.Open, FileAccess.Read), definitions)
+		{
+		}
 		public QuakeMap(Stream stream, DefinitionCollection definitions) : base(stream, definitions)
 		{
 			Parse();

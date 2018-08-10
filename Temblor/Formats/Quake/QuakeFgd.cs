@@ -16,6 +16,9 @@ namespace Temblor.Formats
 		public QuakeFgd() : base()
 		{
 		}
+		public QuakeFgd(string filename) : this(new FileStream(filename, FileMode.Open, FileAccess.Read))
+		{
+		}
 		public QuakeFgd(Stream stream) : base(stream)
 		{
 			var bases = new List<Definition>();

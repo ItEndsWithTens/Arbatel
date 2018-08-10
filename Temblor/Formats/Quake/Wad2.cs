@@ -11,6 +11,28 @@ using Temblor.Graphics;
 
 namespace Temblor.Formats.Quake
 {
+	public static class PaletteExtensions
+	{
+		public static Palette LoadQuakePalette(this Palette palette, string filename)
+		{
+			using (var stream = new FileStream(filename, FileMode.Open, FileAccess.Read))
+			using (var br = new BinaryReader(stream))
+			{
+				for (var i = 0; i < stream.Length / 3; i++)
+				{
+					var color = new Color() { Ab = 255 };
+					color.Rb = br.ReadByte();
+					color.Gb = br.ReadByte();
+					color.Bb = br.ReadByte();
+
+					palette.Add(color);
+				}
+			}
+
+			return palette;
+		}
+	}
+
 	public class Wad2 : TextureCollection
 	{
 		public Palette Palette;

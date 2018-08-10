@@ -25,6 +25,10 @@ namespace Temblor.Formats
 		{
 			MapObjects = new List<MapObject>();
 		}
+		public Map(string filename, DefinitionCollection definitions) :
+			this(new FileStream(filename, FileMode.Open, FileAccess.Read), definitions)
+		{
+		}
 		public Map(Stream stream, DefinitionCollection definitions) : this()
 		{
 			using (StreamReader sr = new StreamReader(stream))

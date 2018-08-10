@@ -25,8 +25,6 @@ namespace Temblor
 
 		public static Wad2 Wad;
 
-		public static List<DefinitionCollection> Definitions;
-
 		public MainForm()
 		{
 			InitializeComponent();
@@ -47,21 +45,9 @@ namespace Temblor
 				view.MakeCurrent();
 			}
 
-			var palette = new Palette();
-			using (var stream = new FileStream("D:/Development/Temblor/res/paletteQ.lmp", FileMode.Open, FileAccess.Read))
-			//using (var stream = new FileStream("C:/Users/Harry/Development/Temblor/res/paletteQ.lmp", FileMode.Open, FileAccess.Read))
-			using (var br = new BinaryReader(stream))
-			{
-				for (var i = 0; i < stream.Length / 3; i++)
-				{
-					var color = new Color() { Ab = 255 };
-					color.Rb = br.ReadByte();
-					color.Gb = br.ReadByte();
-					color.Bb = br.ReadByte();
-
-					palette.Add(color);
-				}
-			}
+			var palettePath = "D:/Development/Temblor/res/paletteQ.lmp";
+			//var palettePath = "C:/Users/Harry/Development/Temblor/res/paletteQ.lmp";
+			var palette = new Palette().LoadQuakePalette(palettePath);
 
 			//Wad = new Wad2("D:/Projects/Games/Maps/Quake/common/wads/quake.wad", palette);
 			//Wad = new Wad2("D:/Games/Quake/ad/maps/ad_sepulcher.wad", palette);
@@ -81,12 +67,7 @@ namespace Temblor
 
 			KeyDown += MainForm_KeyDown;
 
-
-
-			var fs = new FileStream("D:/Development/Temblor/scratch//quake4ericwTools.fgd", FileMode.Open, FileAccess.Read);
-			var fgd = new QuakeFgd(fs);
-
-			Definitions = new List<DefinitionCollection>() { fgd };
+			var fgd = new QuakeFgd("D:/Development/Temblor/scratch/quake4ericwTools.fgd");
 
 
 
@@ -149,8 +130,8 @@ namespace Temblor
 			//var filename = "C:/Users/Harry/Development/Temblor/scratch/texturedthing.map";
 			//var filename = "C:/Users/Harry/Development/Temblor/scratch/manytextures.map";
 			//var filename = "C:/Games/Quake/quake_map_source/start.map";
-			var s = new FileStream(filename, FileMode.Open, FileAccess.Read);
-			var map = new QuakeMap(s, fgd);
+
+			var map = new QuakeMap(filename, fgd);
 
 
 

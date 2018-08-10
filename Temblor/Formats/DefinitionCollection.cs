@@ -17,6 +17,9 @@ namespace Temblor.Formats
 		{
 			Definitions = new List<Definition>();
 		}
+		public DefinitionCollection(string filename) : this(new FileStream(filename, FileMode.Open, FileAccess.Read))
+		{
+		}
 		public DefinitionCollection(Stream stream) : this()
 		{
 			using (var sr = new StreamReader(stream))
