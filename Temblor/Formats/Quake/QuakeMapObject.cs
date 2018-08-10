@@ -115,12 +115,7 @@ namespace Temblor.Formats
 
 			renderable.Position = new AABB(renderable.Vertices).Center;
 
-			renderable.ShadingStyleDict = new Dictionary<ShadingStyle, ShadingStyle>()
-			{
-				{ ShadingStyle.Wireframe, ShadingStyle.Wireframe },
-				{ ShadingStyle.Flat, ShadingStyle.Flat },
-				{ ShadingStyle.Textured, ShadingStyle.Textured }
-			};
+			renderable.ShadingStyleDict = new Dictionary<ShadingStyle, ShadingStyle>().Default();
 
 			var random = new Random();
 			var color = new Color4((float)random.NextDouble(), (float)random.NextDouble(), (float)random.NextDouble(), 1.0f);

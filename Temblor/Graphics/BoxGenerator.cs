@@ -56,12 +56,7 @@ namespace Temblor.Graphics
 
 			var cube = new Renderable(modelVerts)
 			{
-				ShadingStyleDict = new Dictionary<ShadingStyle, ShadingStyle>()
-				{
-					{ ShadingStyle.Wireframe, ShadingStyle.Wireframe },
-					{ ShadingStyle.Flat, ShadingStyle.Flat },
-					{ ShadingStyle.Textured, ShadingStyle.Flat }
-				}
+				ShadingStyleDict = new Dictionary<ShadingStyle, ShadingStyle>().Capped(ShadingStyle.Flat)
 			};
 
 			// Sides

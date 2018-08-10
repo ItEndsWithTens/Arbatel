@@ -44,12 +44,7 @@ namespace Temblor.Graphics
 
 			var gem = new Renderable(modelVerts)
 			{
-				ShadingStyleDict = new Dictionary<ShadingStyle, ShadingStyle>()
-				{
-					{ ShadingStyle.Wireframe, ShadingStyle.Wireframe },
-					{ ShadingStyle.Flat, ShadingStyle.Flat },
-					{ ShadingStyle.Textured, ShadingStyle.Flat }
-				}
+				ShadingStyleDict = new Dictionary<ShadingStyle, ShadingStyle>().Capped(ShadingStyle.Flat)
 			};
 
 			// Top half

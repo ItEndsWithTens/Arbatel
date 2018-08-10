@@ -106,7 +106,7 @@ namespace Temblor.Graphics
 			Indices = new List<int>();
 			Polygons = new List<Polygon>();
 			Buffers = new Dictionary<KeyValuePair<GLSurface, Shader>, Buffers>();
-			ShadingStyleDict = new Dictionary<ShadingStyle, ShadingStyle>();
+			ShadingStyleDict = new Dictionary<ShadingStyle, ShadingStyle>().Default();
 			Translucent = false;
 		}
 		public Renderable(List<Vector3> points) : this()

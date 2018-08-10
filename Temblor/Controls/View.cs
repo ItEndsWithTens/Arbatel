@@ -20,6 +20,26 @@ namespace Temblor.Controls
 		Textured
 	}
 
+	public static class ShadingStyleExtensions
+	{
+		public static Dictionary<ShadingStyle, ShadingStyle> Capped(this Dictionary<ShadingStyle, ShadingStyle> dict, ShadingStyle max)
+		{
+			foreach (var style in (ShadingStyle[])Enum.GetValues(typeof(ShadingStyle)))
+			{
+				dict.Add(style, style > max ? max : style);
+			}
+
+			return dict;
+		}
+
+		public static Dictionary<ShadingStyle, ShadingStyle> Default(this Dictionary<ShadingStyle, ShadingStyle> dict)
+		{
+			var values = (ShadingStyle[])Enum.GetValues(typeof(ShadingStyle));
+
+			return dict.Capped(values[values.Length - 1]);
+		}
+	}
+
 	public class View : GLSurface
 	{
 		// -- System types
