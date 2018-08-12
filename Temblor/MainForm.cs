@@ -49,7 +49,7 @@ namespace Temblor
 			//var palettePath = "C:/Users/Harry/Development/Temblor/res/paletteQ.lmp";
 			var palette = new Palette().LoadQuakePalette(palettePath);
 
-			//Wad = new Wad2("D:/Projects/Games/Maps/Quake/common/wads/quake.wad", palette);
+			Wad = new Wad2("D:/Projects/Games/Maps/Quake/common/wads/quake.wad", palette);
 			//Wad = new Wad2("D:/Games/Quake/ad/maps/ad_sepulcher.wad", palette);
 			//Wad = new Wad2("D:/Games/Quake/ad/maps/xmasjam_tens.wad", palette);
 			//Wad = new Wad2("D:/Games/Quake/ad/maps/xmasjam_icequeen.wad", palette);
@@ -57,7 +57,7 @@ namespace Temblor
 			//Wad = new Wad2("D:/Games/Quake/jam6/maps/jam6_ericwtronyn.wad", palette);
 			//Wad = new Wad2("D:/Games/Quake/jam1/maps/jam1_arrrcee.wad", palette);
 			//Wad = new Wad2("D:/Games/Quake/jam1/maps/jam1_skacky.wad", palette);
-			Wad = new Wad2("D:/Games/Quake/jam1/maps/jam1_scampie.wad", palette);
+			//Wad = new Wad2("D:/Games/Quake/jam1/maps/jam1_scampie.wad", palette);
 			//Wad = new Wad2("D:/Games/Quake/retrojam5/maps/retrojam5_shambler.wad", palette);
 
 			//Wad = new Wad2("C:/Games/Quake/ID1/quake.wad", palette);
@@ -68,7 +68,6 @@ namespace Temblor
 			KeyDown += MainForm_KeyDown;
 
 			var fgd = new QuakeFgd("D:/Development/Temblor/scratch/quake4ericwTools.fgd");
-
 
 
 
@@ -108,6 +107,7 @@ namespace Temblor
 			//var filename = "D:/Development/Temblor/scratch/ad_sepulcher_test-tenslogo_EditedByHand.map";
 			//var filename = "D:/Development/Temblor/scratch/translucency.map";
 			//var filename = "D:/Development/Temblor/scratch/rotations_fromTB2.map";
+			var filename = "D:/Development/Temblor/scratch/instance_test.map";
 			//var filename = "D:/Games/Quake/ad/src/xmasjam_tens.map";
 			//var filename = "D:/Games/Quake/ad/src/xmasjam_bal.map";
 			//var filename = "D:/Games/Quake/ad/src/xmasjam_icequeen.map";
@@ -118,12 +118,13 @@ namespace Temblor
 			//var filename = "D:/Games/Quake/quake_map_source/e3m7.map";
 			//var filename = "D:/Games/Quake/quake_map_source/e4m8.map";
 			//var filename = "D:/Games/Quake/quake_map_source/e4m3.map";
+			//var filename = "D:/Games/Quake/quake_map_source/e4m6.map";
 			//var filename = "D:/Games/Quake/quake_map_source/e4m7.map";
 			//var filename = "D:/Games/Quake/jam6/source/jam666_daz.map";
 			//var filename = "D:/Games/Quake/jam6/source/jam6_ericwtronyn.map";
 			//var filename = "D:/Games/Quake/jam1/source/jam1_arrrcee.map";
 			//var filename = "D:/Games/Quake/jam1/source/jam1_skacky.map";
-			var filename = "D:/Games/Quake/jam1/source/jam1_scampie.map";
+			//var filename = "D:/Games/Quake/jam1/source/jam1_scampie.map";
 			//var filename = "D:/Games/Quake/retrojam5/source/retrojam5_shambler.map";
 
 			//var filename = "C:/Users/Harry/Development/Temblor/scratch/basicobjectstest.map";
@@ -135,6 +136,14 @@ namespace Temblor
 
 
 
+			//string testString = map.ToString(QuakeSideFormat.Valve220);
+			//
+			//
+			//using (var fs = new FileStream("D:/Development/Temblor/scratch/writingtest.map", FileMode.Create, FileAccess.Write))
+			//using (var sw = new StreamWriter(fs))
+			//{
+			//	sw.Write(testString);
+			//}
 
 
 

@@ -51,22 +51,17 @@ namespace Temblor.Formats
 
 		public bool Translucent;
 
-		public MapObject() : this(new Block(), new DefinitionCollection())
-		{
-		}
-		public MapObject(Block _block, DefinitionCollection _definitions)
+		public MapObject()
 		{
 			AABB = new AABB();
-
 			Children = new List<MapObject>();
-
 			Color = new Color4(1.0f, 1.0f, 1.0f, 1.0f);
-
 			KeyVals = new Dictionary<string, List<string>>();
-
 			Renderables = new List<Renderable>();
-
 			Translucent = false;
+		}
+		public MapObject(Block _block, DefinitionCollection _definitions) : this()
+		{	
 		}
 
 		public void Draw(Dictionary<ShadingStyle, Shader> shaders, ShadingStyle style, GLSurface surface, Camera camera)

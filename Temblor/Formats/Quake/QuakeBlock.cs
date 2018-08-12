@@ -22,12 +22,49 @@ namespace Temblor.Formats.Quake
 
 			Parse(rawBlock);
 		}
+		public QuakeBlock(MapObject mo) : this(mo as QuakeMapObject)
+		{
+		}
+		public QuakeBlock(QuakeMapObject qmo)
+		{
+			foreach (var child in qmo.Children)
+			{
+				Children.Add(new QuakeBlock(child));
+			}
+
+			KeyVals = qmo.KeyVals;
+
+			if (qmo.Definition != null && qmo.Definition.ClassType == ClassType.Solid)
+			{
+				foreach (var r in qmo.Renderables)
+				{
+					foreach (var p in r.Polygons)
+					{
+						var side = new QuakeSide();
+
+						side.Plane = new Plane(r.Vertices[p.Indices[2]], r.Vertices[p.Indices[1]], r.Vertices[p.Indices[0]], Winding.Cw);
+
+						side.TextureName = p.TextureName;
+						side.TextureBasis = new List<Vector3>() { p.BasisS, p.BasisT };
+						side.TextureOffset = p.Offset;
+						side.TextureRotation = p.Rotation;
+						side.TextureScale = p.Scale;
+
+						Sides.Add(side);
+					}
+				}
+			}
+		}
 
 		public override string ToString()
 		{
+			return ToString(QuakeSideFormat.Valve220);
+		}
+		public string ToString(QuakeSideFormat format)
+		{
 			var sb = new StringBuilder();
 
-			sb.Append("{\n");
+			sb.AppendLine(OpenDelimiter);
 
 			foreach (var keyVal in KeyVals)
 			{
@@ -39,13 +76,14 @@ namespace Temblor.Formats.Quake
 					sb.Append(keyVal.Key);
 					sb.Append("\" \"");
 					sb.Append(value);
-					sb.Append("\"\n");
+					sb.Append("\"");
+					sb.Append(Environment.NewLine);
 				}
 			}
 
 			foreach (var side in Sides)
 			{
-				sb.Append(side + "\n");
+				sb.AppendLine(side.ToString(format));
 			}
 
 			foreach (var child in Children)
@@ -53,7 +91,7 @@ namespace Temblor.Formats.Quake
 				sb.Append(child.ToString());
 			}
 
-			sb.Append("}\n");
+			sb.Append(CloseDelimiter);
 
 			return sb.ToString();
 		}
@@ -97,7 +135,7 @@ namespace Temblor.Formats.Quake
 				}
 				else if (item.StartsWith("("))
 				{
-					foreach(var side in ExtractSides(item))
+					foreach (var side in ExtractSides(item))
 					{
 						Sides.Add(new QuakeSide(side));
 					}

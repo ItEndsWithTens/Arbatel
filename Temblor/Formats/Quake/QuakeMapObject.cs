@@ -197,6 +197,7 @@ namespace Temblor.Formats
 				polygon.BasisS = side.TextureBasis[0];
 				polygon.BasisT = side.TextureBasis[1];
 				polygon.Offset = new Vector2(side.TextureOffset.X, side.TextureOffset.Y);
+				polygon.Rotation = side.TextureRotation;
 				polygon.Scale = new Vector2(side.TextureScale.X, side.TextureScale.Y);
 
 				polygon.Normal = side.Plane.Normal;

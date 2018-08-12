@@ -93,5 +93,21 @@ namespace Temblor.Formats.Quake
 				i = firstBraceIndex + block.RawLength;
 			}
 		}
+
+		public override string ToString()
+		{
+			return ToString(QuakeSideFormat.Valve220);
+		}
+		public string ToString(QuakeSideFormat format)
+		{
+			var sb = new StringBuilder();
+
+			foreach (var mo in MapObjects)
+			{
+				sb.AppendLine(new QuakeBlock(mo).ToString(format));
+			}
+
+			return sb.ToString();
+		}
 	}
 }

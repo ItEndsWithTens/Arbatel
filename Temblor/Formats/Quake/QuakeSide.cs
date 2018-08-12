@@ -10,8 +10,17 @@ using Temblor.Utilities;
 
 namespace Temblor.Formats.Quake
 {
+	public enum QuakeSideFormat
+	{
+		QuakeEd,
+		Valve220
+	}
+
 	public class QuakeSide : Side
 	{
+		public QuakeSide()
+		{
+		}
 		public QuakeSide(string _raw)
 		{
 			// Regex seems a bit heavy to drag into this, but in principle this
@@ -128,6 +137,53 @@ namespace Temblor.Formats.Quake
 
 			TextureBasis.Add(basisS);
 			TextureBasis.Add(basisT);
+		}
+
+		public override string ToString()
+		{
+			return ToString(QuakeSideFormat.Valve220);
+		}
+		public string ToString(QuakeSideFormat format)
+		{
+			var sb = new StringBuilder();
+
+			foreach (var point in Plane.Points)
+			{
+				sb.Append("(");
+
+				for (int i = 0; i < 3; i++)
+				{
+					float coord = point.Position[i];
+					sb.Append(" " + coord + " ");
+				}
+
+				sb.Append(") ");
+			}
+
+			sb.Append(TextureName + " ");
+
+			if (format == QuakeSideFormat.Valve220)
+			{
+				for (var i = 0; i < 2; i++)
+				{
+					Vector3 vec = TextureBasis[i];
+
+					sb.Append("[ ");
+					sb.Append(vec.X + " " + vec.Y + " " + vec.Z + " " + TextureOffset[i]);
+					sb.Append(" ] ");
+				}
+			}
+			else
+			{
+				sb.Append(TextureOffset.X + " ");
+				sb.Append(TextureOffset.Y + " ");
+			}
+
+			sb.Append(TextureRotation + " ");
+			sb.Append(TextureScale.X + " ");
+			sb.Append(TextureScale.Y);
+
+			return sb.ToString();
 		}
 	}
 }

@@ -47,6 +47,7 @@ namespace Temblor.Graphics
 		public Vector3 BasisS;
 		public Vector3 BasisT;
 		public Vector2 Offset;
+		public float Rotation;
 		public Vector2 Scale;
 
 		public Vector3 Normal;
@@ -67,10 +68,26 @@ namespace Temblor.Graphics
 	{
 		public AABB AABB { get; private set; }
 
+		public Dictionary<GLSurface, Buffers> Buffers;
+
+		/// <summary>
+		/// The vertex indices of this object, relative to the Vertices list.
+		/// </summary>
+		public List<int> Indices;
+
+		public List<Polygon> Polygons;
+
 		/// <summary>
 		/// Position of this object in left-handed, Z-up world coordinates.
 		/// </summary>
 		public Vector3 Position;
+
+		/// <summary>
+		/// A mapping of requested shading style to supported shading style.
+		/// </summary>
+		public Dictionary<ShadingStyle, ShadingStyle> ShadingStyleDict;
+
+		public bool Translucent;
 
 		// TODO: Are these actually relative to Position? Or are they also world coords?
 		// NO, they should be relative to whatever; add a custom model matrix, per Renderable,
@@ -80,34 +97,18 @@ namespace Temblor.Graphics
 		/// </summary>
 		public List<Vertex> Vertices;
 
-		/// <summary>
-		/// The vertex indices of this object, relative to the Vertices list.
-		/// </summary>
-		public List<int> Indices;
-
-		public List<Polygon> Polygons;
-
-		public Dictionary<GLSurface, Buffers> Buffers;
-
-		/// <summary>
-		/// A mapping of requested shading style to supported shading style.
-		/// </summary>
-		public Dictionary<ShadingStyle, ShadingStyle> ShadingStyleDict;
-
-		public bool Translucent;
-
 		private readonly int VertexSize = Marshal.SizeOf(typeof(Vertex));
 
 		public Renderable()
 		{
 			AABB = new AABB();
-			Position = new Vector3(0.0f, 0.0f, 0.0f);
-			Vertices = new List<Vertex>();
+			Buffers = new Dictionary<GLSurface, Buffers>();
 			Indices = new List<int>();
 			Polygons = new List<Polygon>();
-			Buffers = new Dictionary<GLSurface, Buffers>();
+			Position = new Vector3(0.0f, 0.0f, 0.0f);
 			ShadingStyleDict = new Dictionary<ShadingStyle, ShadingStyle>().Default();
 			Translucent = false;
+			Vertices = new List<Vertex>();
 		}
 		public Renderable(List<Vector3> points) : this()
 		{
