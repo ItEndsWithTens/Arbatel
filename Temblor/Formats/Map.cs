@@ -13,8 +13,6 @@ namespace Temblor.Formats
 		public string OpenDelimiter = "{";
 		public string CloseDelimiter = "}";
 
-		public string Raw;
-
 		public DefinitionCollection Definitions;
 
 		public List<MapObject> MapObjects;
@@ -31,15 +29,15 @@ namespace Temblor.Formats
 		}
 		public Map(Stream stream, DefinitionCollection definitions) : this()
 		{
+			Definitions = definitions;
+
 			using (StreamReader sr = new StreamReader(stream))
 			{
-				Raw = sr.ReadToEnd();
+				Parse(sr.ReadToEnd());
 			}
-
-			Definitions = definitions;
 		}
 
-		virtual public void Parse()
+		virtual public void Parse(string raw)
 		{
 		}
 	}

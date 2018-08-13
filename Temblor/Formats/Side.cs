@@ -9,6 +9,20 @@ using Temblor.Utilities;
 
 namespace Temblor.Formats
 {
+	public class Solid
+	{
+		public List<Side> Sides;
+
+		public Solid()
+		{
+			Sides = new List<Side>();
+		}
+		public Solid(List<Side> sides) : this()
+		{
+			Sides = sides;
+		}
+	}
+
 	public class Side
 	{
 		public Plane Plane;

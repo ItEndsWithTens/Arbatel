@@ -147,8 +147,8 @@ namespace TemblorTest.Core.FormatsTest
 
 					var child = block.Children[0] as QuakeBlock;
 
-					Assert.That(child.Sides[2].TextureName, Is.EqualTo("{vinehang2b"));
-					Assert.That(child.Sides[3].TextureName, Is.EqualTo("{vinehang2b"));
+					Assert.That(child.Solids[0].Sides[2].TextureName, Is.EqualTo("{vinehang2b"));
+					Assert.That(child.Solids[0].Sides[3].TextureName, Is.EqualTo("{vinehang2b"));
 				}
 			}
 		}

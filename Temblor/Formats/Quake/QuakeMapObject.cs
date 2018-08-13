@@ -77,7 +77,7 @@ namespace Temblor.Formats
 		{
 			var b = block as QuakeBlock;
 
-			if (b.Sides.Count == 0)
+			if (b.Solids.Count == 0)
 			{
 				if (Definition != null && Definition.ClassType == ClassType.Point)
 				{
@@ -107,25 +107,28 @@ namespace Temblor.Formats
 				return;
 			}
 
-			CalculateIntersections(ref b.Sides, new Color4(1.0f, 1.0f, 1.0f, 1.0f));
-
-			var renderable = new Renderable();
-
-			BuildPolygons(b.Sides, renderable);
-
-			renderable.Position = new AABB(renderable.Vertices).Center;
-
-			renderable.ShadingStyleDict = new Dictionary<ShadingStyle, ShadingStyle>().Default();
-
-			var random = new Random();
-			var color = new Color4((float)random.NextDouble(), (float)random.NextDouble(), (float)random.NextDouble(), 1.0f);
-			for (var i = 0; i < renderable.Vertices.Count; i++)
+			foreach (var solid in b.Solids)
 			{
-				var vertex = renderable.Vertices[i];
-				renderable.Vertices[i] = new Vertex(vertex, color);
-			}
+				CalculateIntersections(solid, new Color4(1.0f, 1.0f, 1.0f, 1.0f));
 
-			Renderables.Add(renderable);
+				var renderable = new Renderable();
+
+				BuildPolygons(solid, renderable);
+
+				renderable.Position = new AABB(renderable.Vertices).Center;
+
+				renderable.ShadingStyleDict = new Dictionary<ShadingStyle, ShadingStyle>().Default();
+
+				var random = new Random();
+				var color = new Color4((float)random.NextDouble(), (float)random.NextDouble(), (float)random.NextDouble(), 1.0f);
+				for (var i = 0; i < renderable.Vertices.Count; i++)
+				{
+					var vertex = renderable.Vertices[i];
+					renderable.Vertices[i] = new Vertex(vertex, color);
+				}
+
+				Renderables.Add(renderable);
+			}
 		}
 
 		/// <summary>
@@ -134,9 +137,9 @@ namespace Temblor.Formats
 		/// </summary>
 		/// <param name="sides">The sides to build polygons for.</param>
 		/// <param name="renderable">The renderable that will contain the resulting polygons.</param>
-		private static void BuildPolygons(List<QuakeSide> sides, Renderable renderable)
+		private static void BuildPolygons(Solid solid, Renderable renderable)
 		{
-			foreach (var side in sides)
+			foreach (var side in solid.Sides)
 			{
 				if (side.Vertices.Count < 3)
 				{
@@ -212,15 +215,17 @@ namespace Temblor.Formats
 		/// </summary>
 		/// <param name="sides">The list of sides to find the intersections of.</param>
 		/// <param name="color">The color to use for all created vertices.</param>
-		private static void CalculateIntersections(ref List<QuakeSide> sides, Color4 color)
+		private static void CalculateIntersections(Solid solid, Color4 color)
 		{
+			var sides = solid.Sides;
+
 			foreach (var combo in MathUtilities.Combinations(sides.Count, 3))
 			{
 				Vector3 intersection = Plane.Intersect(sides[combo[0]].Plane, sides[combo[1]].Plane, sides[combo[2]].Plane);
 				if (!intersection.X.Equals(float.NaN) &&
 					!intersection.Y.Equals(float.NaN) &&
 					!intersection.Z.Equals(float.NaN) &&
-					VertexIsLegal(intersection, sides))
+					VertexIsLegal(intersection, solid))
 				{
 					for (var i = 0; i < 3; i++)
 					{
@@ -268,15 +273,15 @@ namespace Temblor.Formats
 		/// maps is that the objects are convex, the only other explanation is
 		/// that the intersection is a phantom, and shouldn't become a vertex.
 		/// </remarks>
-		private static bool VertexIsLegal(Vertex vertex, List<QuakeSide> sides)
+		private static bool VertexIsLegal(Vertex vertex, Solid solid)
 		{
-			return VertexIsLegal(vertex.Position, sides);
+			return VertexIsLegal(vertex.Position, solid);
 		}
-		private static bool VertexIsLegal(Vector3 vertex, List<QuakeSide> sides)
+		private static bool VertexIsLegal(Vector3 vertex, Solid solid)
 		{
 			var inFront = false;
 
-			foreach (var side in sides)
+			foreach (var side in solid.Sides)
 			{
 				float dot = Vector3.Dot(side.Plane.Normal, vertex);
 

@@ -11,12 +11,14 @@ namespace Temblor.Formats.Quake
 {
 	public class QuakeBlock : Block
 	{
-		public List<QuakeSide> Sides = new List<QuakeSide>();
+		public List<Solid> Solids = new List<Solid>();
 
 		public QuakeBlock(List<string> rawList, int openBraceIndex)
 		{
 			RawStartIndex = openBraceIndex;
 			RawLength = (FindCloseBraceIndex(rawList, openBraceIndex) + 1) - RawStartIndex;
+
+			Solids = new List<Solid>();
 
 			var rawBlock = rawList.GetRange(RawStartIndex, RawLength);
 
@@ -38,20 +40,25 @@ namespace Temblor.Formats.Quake
 			{
 				foreach (var r in qmo.Renderables)
 				{
+					var solid = new Solid();
+
 					foreach (var p in r.Polygons)
 					{
-						var side = new QuakeSide();
+						var side = new QuakeSide
+						{
+							Plane = new Plane(r.Vertices[p.Indices[2]], r.Vertices[p.Indices[1]], r.Vertices[p.Indices[0]], Winding.Cw),
 
-						side.Plane = new Plane(r.Vertices[p.Indices[2]], r.Vertices[p.Indices[1]], r.Vertices[p.Indices[0]], Winding.Cw);
+							TextureName = p.TextureName,
+							TextureBasis = new List<Vector3>() { p.BasisS, p.BasisT },
+							TextureOffset = p.Offset,
+							TextureRotation = p.Rotation,
+							TextureScale = p.Scale
+						};
 
-						side.TextureName = p.TextureName;
-						side.TextureBasis = new List<Vector3>() { p.BasisS, p.BasisT };
-						side.TextureOffset = p.Offset;
-						side.TextureRotation = p.Rotation;
-						side.TextureScale = p.Scale;
-
-						Sides.Add(side);
+						solid.Sides.Add(side);
 					}
+
+					Solids.Add(solid);
 				}
 			}
 		}
@@ -81,14 +88,21 @@ namespace Temblor.Formats.Quake
 				}
 			}
 
-			foreach (var side in Sides)
+			foreach (var solid in Solids)
 			{
-				sb.AppendLine(side.ToString(format));
+				sb.AppendLine(OpenDelimiter);
+
+				foreach (var side in solid.Sides)
+				{
+					sb.AppendLine((side as QuakeSide).ToString(format));
+				}
+
+				sb.AppendLine(CloseDelimiter);
 			}
 
 			foreach (var child in Children)
 			{
-				sb.Append(child.ToString());
+				sb.AppendLine(child.ToString());
 			}
 
 			sb.Append(CloseDelimiter);
@@ -135,23 +149,28 @@ namespace Temblor.Formats.Quake
 				}
 				else if (item.StartsWith("("))
 				{
-					foreach (var side in ExtractSides(item))
+					var solid = item;
+					var j = i + 1;
+					while (rawBlock[j] != CloseDelimiter)
 					{
-						Sides.Add(new QuakeSide(side));
+						solid += rawBlock[j];
+						j++;
 					}
 
-					++i;
+					Solids.Add(new Solid(ExtractSides(solid)));
+
+					i += j;
 				}
 				else
 				{
-					++i;
+					i++;
 				}
 			}
 		}
 
-		private List<string> ExtractSides(string raw)
+		private List<Side> ExtractSides(string raw)
 		{
-			var sides = new List<string>();
+			var sides = new List<Side>();
 
 			var delimiters = "(\\(|\\))";
 
@@ -160,7 +179,7 @@ namespace Temblor.Formats.Quake
 
 			for (var i = 0; i < split.Count; i += 10)
 			{
-				sides.Add(String.Join(" ", split.GetRange(i, 10)));
+				sides.Add(new QuakeSide(String.Join(" ", split.GetRange(i, 10))));
 			}
 
 			return sides;

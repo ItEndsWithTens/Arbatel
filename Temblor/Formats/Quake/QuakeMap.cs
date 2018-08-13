@@ -22,12 +22,11 @@ namespace Temblor.Formats.Quake
 		}
 		public QuakeMap(Stream stream, DefinitionCollection definitions) : base(stream, definitions)
 		{
-			Parse();
 		}
 
-		public sealed override void Parse()
+		public sealed override void Parse(string raw)
 		{
-			string stripped = Raw.Replace("\r", "");
+			string stripped = raw.Replace("\r", "");
 			stripped = stripped.Replace("\n", "");
 			stripped = stripped.Replace("\t", ""); // FIXME: Only strip leading tabs! Or just tabs not within a key or value?
 

@@ -136,13 +136,7 @@ namespace Temblor
 
 
 
-			//string testString = map.ToString(QuakeSideFormat.Valve220);
-			//
-			//
-			//using (var fs = new FileStream("D:/Development/Temblor/scratch/writingtest.map", FileMode.Create, FileAccess.Write))
-			//using (var sw = new StreamWriter(fs))
 			//{
-			//	sw.Write(testString);
 			//}
 
 
@@ -206,21 +200,17 @@ namespace Temblor
 			}
 
 			var text = viewport.Views[0] as TextArea;
-			//text.Text = map.Raw;
-
-			//text.Text = map.Blocks[0].ToString();
-			//text.CaretIndex = 0;
 
 			// Instead of making the text view mode vertically shorter, just add some phantom
 			// line breaks to push the text down, and make sure to keep the cursor below them.
-			//text.Text = "\n\n" + map.MapObjects[0].Block.ToString();
-			//text.CaretIndex = 2;
-			//text.CaretIndexChanged += (sender, e) =>
-			//{
-			//	Title = text.CaretIndex.ToString();
-			//	text.CaretIndex = text.CaretIndex < 2 ? 2 : text.CaretIndex;
-			//
-			//};
+			text.Text = "\n\n" + map.ToString();
+			text.CaretIndex = 2;
+			text.CaretIndexChanged += (sender, e) =>
+			{
+				Title = text.CaretIndex.ToString();
+				text.CaretIndex = text.CaretIndex < 2 ? 2 : text.CaretIndex;
+
+			};
 
 			var tree = viewport.Views[1] as TreeGridView;
 			tree.Columns.Add(new GridColumn() { HeaderText = "Column 1", DataCell = new TextBoxCell(0) });
