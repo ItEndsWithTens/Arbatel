@@ -18,11 +18,13 @@ namespace Temblor.Graphics
 		public string VertexShaderSource;
 		public string FragmentShaderSource;
 
+		public int LocationModelMatrix;
 		public int LocationViewMatrix;
 		public int LocationProjectionMatrix;
 
 		public Shader()
 		{
+			LocationModelMatrix = 0;
 			LocationViewMatrix = 0;
 			LocationProjectionMatrix = 0;
 		}
@@ -124,6 +126,7 @@ namespace Temblor.Graphics
 		virtual public void Draw(Renderable renderable, GLSurface surface, Camera camera)
 		{
 			Use();
+			SetUniform(LocationModelMatrix, ref renderable.ModelMatrix);
 			SetUniform(LocationViewMatrix, ref camera.ViewMatrix);
 			SetUniform(LocationProjectionMatrix, ref camera.ProjectionMatrix);
 		}

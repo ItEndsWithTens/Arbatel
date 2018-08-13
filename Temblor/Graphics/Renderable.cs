@@ -75,6 +75,8 @@ namespace Temblor.Graphics
 		/// </summary>
 		public List<int> Indices;
 
+		public Matrix4 ModelMatrix;
+
 		public List<Polygon> Polygons;
 
 		/// <summary>
@@ -104,6 +106,7 @@ namespace Temblor.Graphics
 			AABB = new AABB();
 			Buffers = new Dictionary<GLSurface, Buffers>();
 			Indices = new List<int>();
+			ModelMatrix = Matrix4.Identity;
 			Polygons = new List<Polygon>();
 			Position = new Vector3(0.0f, 0.0f, 0.0f);
 			ShadingStyleDict = new Dictionary<ShadingStyle, ShadingStyle>().Default();

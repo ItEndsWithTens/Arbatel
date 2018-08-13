@@ -23,6 +23,7 @@ namespace Temblor.Graphics
 			"",
 			"out vec4 vertexColor;",
 			"",
+			"uniform mat4 model;",
 			"uniform mat4 view;",
 			"uniform mat4 projection;",
 			"",
@@ -32,7 +33,7 @@ namespace Temblor.Graphics
 			"	// left-handed, Z-up world coordinates. OpenGL, in contrast,",
 			"	// uses right-handed, Y-up coordinates.",
 			"	vec3 yUpRightHand = vec3(position.x, position.z, -position.y);",
-			"   gl_Position = projection * view * vec4(yUpRightHand, 1.0f);",
+			"   gl_Position = projection * view * model * vec4(yUpRightHand, 1.0f);",
 			"	vertexColor = color;",
 			"}"
 		};
@@ -60,13 +61,14 @@ namespace Temblor.Graphics
 			"",
 			"varying vec4 vertexColor;",
 			"",
+			"uniform mat4 model;",
 			"uniform mat4 view;",
 			"uniform mat4 projection;",
 			"",
 			"void main()",
 			"{",
 			"	vec3 yUpRightHand = vec3(position.x, position.z, -position.y);",
-			"	gl_Position = projection * view * vec4(yUpRightHand, 1.0f);",
+			"	gl_Position = projection * view * model * vec4(yUpRightHand, 1.0f);",
 			"	vertexColor = color;",
 			"}"
 		};
@@ -103,6 +105,7 @@ namespace Temblor.Graphics
 				Compile(VertexShaderSource120, FragmentShaderSource120);
 			}
 
+			LocationModelMatrix = GL.GetUniformLocation(Program, "model");
 			LocationViewMatrix = GL.GetUniformLocation(Program, "view");
 			LocationProjectionMatrix = GL.GetUniformLocation(Program, "projection");
 		}

@@ -189,10 +189,10 @@ namespace Temblor.Controls
 			var sw = Stopwatch.StartNew();
 			Controller.Move();
 			sw.Stop();
-			sw.Reset();
 
 			var elapsedMsMove = sw.ElapsedMilliseconds;
 
+			sw.Reset();
 			sw.Start();
 			Refresh();
 			sw.Stop();

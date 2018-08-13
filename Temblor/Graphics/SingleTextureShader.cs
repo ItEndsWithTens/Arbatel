@@ -23,6 +23,7 @@ namespace Temblor.Graphics
 			"",
 			"out vec2 texCoords;",
 			"",
+			"uniform mat4 model;",
 			"uniform mat4 view;",
 			"uniform mat4 projection;",
 			"uniform vec3 basisS;",
@@ -38,7 +39,7 @@ namespace Temblor.Graphics
 			"	// left-handed, Z-up world coordinates. OpenGL, in contrast,",
 			"	// uses right-handed, Y-up coordinates.",
 			"	vec3 yUpRightHand = vec3(position.x, position.z, -position.y);",
-			"   gl_Position = projection * view * vec4(yUpRightHand, 1.0f);",
+			"   gl_Position = projection * view * model * vec4(yUpRightHand, 1.0f);",
 			"",
 			"	float coordS = (dot(position, basisS) + (offset.x * scale.x)) / (textureWidth * scale.x);",
 			"	float coordT = (dot(position, basisT) + (offset.y * scale.y)) / (textureHeight * scale.y);",
@@ -72,6 +73,7 @@ namespace Temblor.Graphics
 			"",
 			"varying vec2 texCoords;",
 			"",
+			"uniform mat4 model;",
 			"uniform mat4 view;",
 			"uniform mat4 projection;",
 			"uniform vec3 basisS;",
@@ -84,7 +86,7 @@ namespace Temblor.Graphics
 			"void main()",
 			"{",
 			"	vec3 yUpRightHand = vec3(position.x, position.z, -position.y);",
-			"	gl_Position = projection * view * vec4(yUpRightHand, 1.0f);",
+			"	gl_Position = projection * view * model * vec4(yUpRightHand, 1.0f);",
 			"",
 			"	float coordS = (dot(position, basisS) + (offset.x * scale.x)) / (textureWidth * scale.x);",
 			"	float coordT = (dot(position, basisT) + (offset.y * scale.y)) / (textureHeight * scale.y);",
@@ -133,14 +135,16 @@ namespace Temblor.Graphics
 				Compile(VertexShaderSource120, FragmentShaderSource120);
 			}
 
+			LocationModelMatrix = GL.GetUniformLocation(Program, "model");
+			LocationViewMatrix = GL.GetUniformLocation(Program, "view");
+			LocationProjectionMatrix = GL.GetUniformLocation(Program, "projection");
+
 			LocationBasisS = GL.GetUniformLocation(Program, "basisS");
 			LocationBasisT = GL.GetUniformLocation(Program, "basisT");
 			LocationOffset = GL.GetUniformLocation(Program, "offset");
 			LocationScale = GL.GetUniformLocation(Program, "scale");
 			LocationTextureWidth = GL.GetUniformLocation(Program, "textureWidth");
 			LocationTextureHeight = GL.GetUniformLocation(Program, "textureHeight");
-			LocationViewMatrix = GL.GetUniformLocation(Program, "view");
-			LocationProjectionMatrix = GL.GetUniformLocation(Program, "projection");
 		}
 
 		public override void Draw(Renderable renderable, GLSurface surface, Camera camera)
