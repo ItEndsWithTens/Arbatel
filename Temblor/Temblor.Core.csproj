@@ -57,6 +57,7 @@
     <Compile Include="Formats\Quake\QuakeMapObject.cs" />
     <Compile Include="Formats\Quake\QuakeSide.cs" />
     <Compile Include="Formats\Side.cs" />
+    <Compile Include="Formats\Solid.cs" />
     <Compile Include="Formats\TextureCollection.cs" />
     <Compile Include="Formats\Quake\Wad2.cs" />
     <Compile Include="Graphics\AABB.cs" />
@@ -64,6 +65,7 @@
     <Compile Include="Graphics\GemGenerator.cs" />
     <Compile Include="Graphics\Plane.cs" />
     <Compile Include="Graphics\FlatShader.cs" />
+    <Compile Include="Graphics\QuakeBrush.cs" />
     <Compile Include="Graphics\RenderableGenerator.cs" />
     <Compile Include="Graphics\SingleTextureShader.cs" />
     <Compile Include="Graphics\Texture.cs" />

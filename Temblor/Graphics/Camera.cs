@@ -45,9 +45,11 @@ namespace Temblor.Graphics
 
 		public bool Contains(List<Vector3> points)
 		{
+			return Contains(new AABB(points));
+		}
+		public bool Contains(AABB aabb)
+		{
 			var contains = true;
-
-			var rBounds = new AABB(points);
 
 			// Note the component swap! Not the swap of Y and Z, that's only due
 			// to the difference in up axis between objects in world space and
@@ -55,8 +57,8 @@ namespace Temblor.Graphics
 			// the new min/max, however, is thanks to switching left-handed 
 			// coordinates to right-handed; that flips the sign of the camera's
 			// lens axis, so the old min and max become the new max and min.
-			var minCamera = new Vector3(rBounds.Min.X, rBounds.Min.Z, -rBounds.Max.Y);
-			var maxCamera = new Vector3(rBounds.Max.X, rBounds.Max.Z, -rBounds.Min.Y);
+			var minCamera = new Vector3(aabb.Min.X, aabb.Min.Z, -aabb.Max.Y);
+			var maxCamera = new Vector3(aabb.Max.X, aabb.Max.Z, -aabb.Min.Y);
 
 			var frustumPoints = new List<Vector3>()
 			{
@@ -295,15 +297,11 @@ namespace Temblor.Graphics
 
 		public bool CanSee(MapObject o)
 		{
-			var points = new List<Vector3>() { o.AABB.Min, o.AABB.Max };
-
-			return Frustum.Contains(points);
+			return Frustum.Contains(o.AABB);
 		}
 		public bool CanSee(Renderable r)
 		{
-			var points = new List<Vector3>() { r.AABB.Min, r.AABB.Max };
-
-			return Frustum.Contains(points);
+			return Frustum.Contains(r.AABB);
 		}
 
 		public void Update()

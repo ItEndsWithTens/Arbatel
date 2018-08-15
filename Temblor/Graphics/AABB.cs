@@ -75,5 +75,25 @@ namespace Temblor.Graphics
 
 			Center = Min + ((Max - Min) / 2.0f);
 		}
+
+		public static AABB operator +(AABB lhs, Vector3 rhs)
+		{
+			return new AABB
+			{
+				Min = lhs.Min + rhs,
+				Max = lhs.Max + rhs,
+				Center = lhs.Center + rhs
+			};
+		}
+
+		public static AABB operator -(AABB lhs, Vector3 rhs)
+		{
+			return new AABB
+			{
+				Min = lhs.Min - rhs,
+				Max = lhs.Max - rhs,
+				Center = lhs.Center - rhs
+			};
+		}
 	}
 }

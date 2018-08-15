@@ -1,4 +1,5 @@
 ﻿using OpenTK;
+using OpenTK.Graphics;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,7 +21,7 @@ namespace Temblor.Graphics
 		public BoxGenerator(float _size) : this(_size, _size, _size)
 		{
 		}
-		public BoxGenerator(float _width, float _depth, float _height)
+		public BoxGenerator(float _width, float _depth, float _height) : base()
 		{
 			float Width = _width;
 			float Depth = _depth;
@@ -37,21 +38,27 @@ namespace Temblor.Graphics
 		{
 			Min = _min;
 			Max = _max;
+
+			Color = Color4.White;
+		}
+		public BoxGenerator(Vector3 _min, Vector3 _max, Color4 _color) : this(_min, _max)
+		{
+			Color = _color;
 		}
 
 		public override Renderable Generate()
 		{
-			var modelVerts = new List<Vector3>()
+			var modelVerts = new List<Vertex>()
 			{
-				new Vector3(Min.X, Min.Y, Min.Z),
-				new Vector3(Min.X, Max.Y, Min.Z),
-				new Vector3(Max.X, Max.Y, Min.Z),
-				new Vector3(Max.X, Min.Y, Min.Z),
+				new Vertex(Min.X, Min.Y, Min.Z, Color),
+				new Vertex(Min.X, Max.Y, Min.Z, Color),
+				new Vertex(Max.X, Max.Y, Min.Z, Color),
+				new Vertex(Max.X, Min.Y, Min.Z, Color),
 
-				new Vector3(Min.X, Min.Y, Max.Z),
-				new Vector3(Min.X, Max.Y, Max.Z),
-				new Vector3(Max.X, Max.Y, Max.Z),
-				new Vector3(Max.X, Min.Y, Max.Z)
+				new Vertex(Min.X, Min.Y, Max.Z, Color),
+				new Vertex(Min.X, Max.Y, Max.Z, Color),
+				new Vertex(Max.X, Max.Y, Max.Z, Color),
+				new Vertex(Max.X, Min.Y, Max.Z, Color)
 			};
 
 			var cube = new Renderable(modelVerts)

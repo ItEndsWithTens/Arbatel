@@ -24,6 +24,8 @@ namespace Temblor.Graphics
 			Width = _width;
 			Depth = _depth;
 			Height = _height;
+
+			Color = Color4.Yellow;
 		}
 
 		public override Renderable Generate()
@@ -32,14 +34,14 @@ namespace Temblor.Graphics
 			float halfDepth = Depth / 2.0f;
 			float halfHeight = Height / 2.0f;
 
-			var modelVerts = new List<Vector3>()
+			var modelVerts = new List<Vertex>()
 			{
-				new Vector3(halfWidth, 0.0f, 0.0f),
-				new Vector3(0.0f, halfDepth, 0.0f),
-				new Vector3(-halfWidth, 0.0f, 0.0f),
-				new Vector3(0.0f, -halfDepth, 0.0f),
-				new Vector3(0.0f, 0.0f, halfHeight),
-				new Vector3(0.0f, 0.0f, -halfHeight)
+				new Vertex(halfWidth, 0.0f, 0.0f, Color),
+				new Vertex(0.0f, halfDepth, 0.0f, Color),
+				new Vertex(-halfWidth, 0.0f, 0.0f, Color),
+				new Vertex(0.0f, -halfDepth, 0.0f, Color),
+				new Vertex(0.0f, 0.0f, halfHeight, Color),
+				new Vertex(0.0f, 0.0f, -halfHeight, Color)
 			};
 
 			var gem = new Renderable(modelVerts)

@@ -66,7 +66,7 @@ namespace Temblor.Graphics
 	/// </remarks>
 	public class Renderable
 	{
-		public AABB AABB { get; private set; }
+		public AABB AABB { get; protected set; }
 
 		public Dictionary<GLSurface, Buffers> Buffers;
 
@@ -79,10 +79,22 @@ namespace Temblor.Graphics
 
 		public List<Polygon> Polygons;
 
+		private Vector3 _position;
 		/// <summary>
 		/// Position of this object in left-handed, Z-up world coordinates.
 		/// </summary>
-		public Vector3 Position;
+		public Vector3 Position
+		{
+			get { return _position; }
+			set
+			{
+				// Before setting the new Position, use the old one to bring the
+				// AABB into model space, then compensate for the new position.
+				AABB = (AABB - _position) + value;
+
+				_position = value;
+			}
+		}
 
 		/// <summary>
 		/// A mapping of requested shading style to supported shading style.
@@ -121,6 +133,7 @@ namespace Temblor.Graphics
 			}
 
 			AABB = new AABB(Vertices);
+			Position = AABB.Center;
 		}
 		public Renderable(List<Vertex> vertices) : this()
 		{
@@ -130,6 +143,7 @@ namespace Temblor.Graphics
 			}
 
 			AABB = new AABB(Vertices);
+			Position = AABB.Center;
 		}
 
 		public void Draw(Dictionary<ShadingStyle, Shader> shaders, ShadingStyle style, GLSurface surface, Camera camera)
@@ -182,8 +196,6 @@ namespace Temblor.Graphics
 			GL.BindVertexArray(0);
 			GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
 			GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);
-
-			AABB = new AABB(Vertices);
 		}
 
 		public bool UpdateTranslucency(List<string> translucents)
