@@ -46,28 +46,8 @@ namespace Temblor.Formats
 		{
 			var b = block as QuakeBlock;
 
-			if (b.Solids.Count == 0)
-			{
-				if (Definition != null && Definition.ClassType == ClassType.Point)
-				{
-					if (Definition.Size != null && Definition.Size.Min != new Vector3(0.0f, 0.0f, 0.0f) && Definition.Size.Max != new Vector3(0.0f, 0.0f, 0.0f))
-					{
-						var box = new BoxGenerator(Definition.Size.Min, Definition.Size.Max, Definition.Color).Generate();
-
-						string[] coords = b.KeyVals["origin"][0].Split(' ');
-
-						float.TryParse(coords[0], out float x);
-						float.TryParse(coords[1], out float y);
-						float.TryParse(coords[2], out float z);
-
-						box.Position = new Vector3(x, y, z);
-						box.ModelMatrix = Matrix4.CreateTranslation(box.Position.X, box.Position.Z, -box.Position.Y);
-
-						Renderables.Add(box);
-					}
-				}
-			}
-			else
+			// Contains brushes.
+			if (b.Solids.Count > 0)
 			{
 				foreach (var solid in b.Solids)
 				{
@@ -75,11 +55,31 @@ namespace Temblor.Formats
 				}
 			}
 
-			if (Renderables.Count == 0 && Children.Count == 0)
+			// Known point entity with predefined size.
+			else if (Definition != null && Definition.ClassType == ClassType.Point && Definition.Size != null)
+			{
+				AABB s = Definition.Size;
+
+				var box = new BoxGenerator(s.Min, s.Max, Definition.Color).Generate();
+
+				string[] coords = b.KeyVals["origin"][0].Split(' ');
+
+				float.TryParse(coords[0], out float x);
+				float.TryParse(coords[1], out float y);
+				float.TryParse(coords[2], out float z);
+
+				box.Position = new Vector3(x, y, z);
+				box.ModelMatrix = Matrix4.CreateTranslation(box.Position.X, box.Position.Z, -box.Position.Y);
+
+				Renderables.Add(box);
+			}
+
+			// Unknown point entity, or known point entity with no predefined size.
+			else if (Renderables.Count == 0 && Children.Count == 0)
 			{
 				Renderable gem = new GemGenerator().Generate();
 
-				string[] coords = KeyVals["origin"][0].Split(' ');
+				string[] coords = b.KeyVals["origin"][0].Split(' ');
 
 				float.TryParse(coords[0], out float x);
 				float.TryParse(coords[1], out float y);
