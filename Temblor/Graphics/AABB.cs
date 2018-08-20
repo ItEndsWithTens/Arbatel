@@ -37,6 +37,12 @@ namespace Temblor.Graphics
 		{
 			Init(points);
 		}
+		public AABB(AABB aabb)
+		{
+			Min = new Vector3(aabb.Min);
+			Max = new Vector3(aabb.Max);
+			Center = new Vector3(aabb.Center);
+		}
 
 		private void Init(List<Vector3> vertices)
 		{
@@ -74,6 +80,45 @@ namespace Temblor.Graphics
 			}
 
 			Center = Min + ((Max - Min) / 2.0f);
+		}
+
+		public static AABB operator +(AABB lhs, AABB rhs)
+		{
+			var updated = new AABB(lhs);
+
+			if (rhs.Max.X > updated.Max.X)
+			{
+				updated.Max.X = rhs.Max.X;
+			}
+
+			if (rhs.Max.Y > updated.Max.Y)
+			{
+				updated.Max.Y = rhs.Max.Y;
+			}
+
+			if (rhs.Max.Z > updated.Max.Z)
+			{
+				updated.Max.Z = rhs.Max.Z;
+			}
+
+			if (rhs.Min.X < updated.Min.X)
+			{
+				updated.Min.X = rhs.Min.X;
+			}
+
+			if (rhs.Min.Y < updated.Min.Y)
+			{
+				updated.Min.Y = rhs.Min.Y;
+			}
+
+			if (rhs.Min.Z < updated.Min.Z)
+			{
+				updated.Min.Z = rhs.Min.Z;
+			}
+
+			updated.Center = (updated.Max - updated.Min) / 2.0f;
+
+			return updated;
 		}
 
 		public static AABB operator +(AABB lhs, Vector3 rhs)

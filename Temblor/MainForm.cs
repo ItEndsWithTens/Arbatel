@@ -49,12 +49,13 @@ namespace Temblor
 			//var palettePath = "C:/Users/Harry/Development/Temblor/res/paletteQ.lmp";
 			var palette = new Palette().LoadQuakePalette(palettePath);
 
-			Wad = new Wad2("D:/Projects/Games/Maps/Quake/common/wads/quake.wad", palette);
+			//Wad = new Wad2("D:/Projects/Games/Maps/Quake/common/wads/quake.wad", palette);
 			//Wad = new Wad2("D:/Games/Quake/ad/maps/ad_sepulcher.wad", palette);
 			//Wad = new Wad2("D:/Games/Quake/ad/maps/xmasjam_tens.wad", palette);
 			//Wad = new Wad2("D:/Games/Quake/ad/maps/xmasjam_icequeen.wad", palette);
 			//Wad = new Wad2("D:/Games/Quake/jam6/maps/jam6_daz.wad", palette);
 			//Wad = new Wad2("D:/Games/Quake/jam6/maps/jam6_ericwtronyn.wad", palette);
+			Wad = new Wad2("D:/Games/Quake/jam6/maps/jam6_tens.wad", palette);
 			//Wad = new Wad2("D:/Games/Quake/jam1/maps/jam1_arrrcee.wad", palette);
 			//Wad = new Wad2("D:/Games/Quake/jam1/maps/jam1_skacky.wad", palette);
 			//Wad = new Wad2("D:/Games/Quake/jam1/maps/jam1_scampie.wad", palette);
@@ -68,10 +69,9 @@ namespace Temblor
 			KeyDown += MainForm_KeyDown;
 
 			var fgd = new QuakeFgd("D:/Development/Temblor/scratch/quake4ericwTools.fgd");
+			var anotherFgd = new QuakeFgd("D:/Development/Temblor/scratch/func_instance.fgd");
 
-
-
-
+			var fgds = new List<DefinitionCollection>() { fgd, anotherFgd };
 
 
 
@@ -107,7 +107,7 @@ namespace Temblor
 			//var filename = "D:/Development/Temblor/scratch/ad_sepulcher_test-tenslogo_EditedByHand.map";
 			//var filename = "D:/Development/Temblor/scratch/translucency.map";
 			//var filename = "D:/Development/Temblor/scratch/rotations_fromTB2.map";
-			var filename = "D:/Development/Temblor/scratch/instance_test.map";
+			//var filename = "D:/Development/Temblor/scratch/instance_test.map";
 			//var filename = "D:/Games/Quake/ad/src/xmasjam_tens.map";
 			//var filename = "D:/Games/Quake/ad/src/xmasjam_bal.map";
 			//var filename = "D:/Games/Quake/ad/src/xmasjam_icequeen.map";
@@ -126,18 +126,31 @@ namespace Temblor
 			//var filename = "D:/Games/Quake/jam1/source/jam1_skacky.map";
 			//var filename = "D:/Games/Quake/jam1/source/jam1_scampie.map";
 			//var filename = "D:/Games/Quake/retrojam5/source/retrojam5_shambler.map";
+			var filename = "D:/Projects/Games/Maps/Quake/func_mapjam6/current/v6/mapsrc/jam6_itendswithtens.map";
 
 			//var filename = "C:/Users/Harry/Development/Temblor/scratch/basicobjectstest.map";
 			//var filename = "C:/Users/Harry/Development/Temblor/scratch/texturedthing.map";
 			//var filename = "C:/Users/Harry/Development/Temblor/scratch/manytextures.map";
 			//var filename = "C:/Games/Quake/quake_map_source/start.map";
 
-			var map = new QuakeMap(filename, fgd);
 
 
 
-			//{
-			//}
+
+			var combined = fgds.Stack();
+
+
+			var oldCwd = Directory.GetCurrentDirectory();
+			Directory.SetCurrentDirectory(Path.GetDirectoryName(filename));
+			var map = new QuakeMap(filename, combined);
+			Directory.SetCurrentDirectory(oldCwd);
+
+
+
+
+
+
+
 
 
 

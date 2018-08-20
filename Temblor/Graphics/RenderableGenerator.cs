@@ -12,9 +12,12 @@ namespace Temblor.Graphics
 	{
 		public Color4 Color;
 
-		public RenderableGenerator()
+		public RenderableGenerator() : this(Color4.White)
 		{
-			Color = Color4.White;
+		}
+		public RenderableGenerator(Color4 _color)
+		{
+			Color = _color;
 		}
 
 		virtual public Renderable Generate()

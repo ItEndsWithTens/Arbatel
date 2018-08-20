@@ -26,9 +26,9 @@ namespace Temblor.Formats.Quake
 
 		public sealed override void Parse(string raw)
 		{
-			string stripped = raw.Replace("\r", "");
-			stripped = stripped.Replace("\n", "");
-			stripped = stripped.Replace("\t", ""); // FIXME: Only strip leading tabs! Or just tabs not within a key or value?
+			string stripped = raw.Replace("\r", String.Empty);
+			stripped = stripped.Replace("\n", String.Empty);
+			stripped = stripped.Replace("\t", String.Empty); // FIXME: Only strip leading tabs! Or just tabs not within a key or value?
 
 			// Modern Quake sourceports allow for transparency in textures,
 			// indicated by an open curly brace in the texture name. This

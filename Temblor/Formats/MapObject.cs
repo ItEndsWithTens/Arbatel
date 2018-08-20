@@ -13,7 +13,7 @@ namespace Temblor.Formats
 {
 	public class MapObject
 	{
-		public AABB AABB { get; private set; }
+		public AABB AABB { get; protected set; }
 
 		/// <summary>
 		/// A list of MapObjects nested within this one.
@@ -40,6 +40,19 @@ namespace Temblor.Formats
 		/// </remarks>
 		public Dictionary<string, List<string>> KeyVals;
 
+		public Vector3 Position
+		{
+			get { return AABB.Center; }
+			set
+			{
+				var diff = value - AABB.Center;
+
+				AABB.Center = value;
+				AABB.Min += diff;
+				AABB.Max += diff;
+			}
+		}
+
 		/// <summary>
 		/// Anything associated with this MapObject that's meant to be rendered.
 		/// </summary>
@@ -61,7 +74,7 @@ namespace Temblor.Formats
 			Translucent = false;
 		}
 		public MapObject(Block _block, DefinitionCollection _definitions) : this()
-		{	
+		{
 		}
 
 		public void Draw(Dictionary<ShadingStyle, Shader> shaders, ShadingStyle style, GLSurface surface, Camera camera)
@@ -127,6 +140,38 @@ namespace Temblor.Formats
 			{
 				AABB = new AABB(points);
 			}
+		}
+
+		/// <summary>
+		/// Get a list of all Renderables contained by the tree of MapObjects
+		/// rooted at this one.
+		/// </summary>
+		/// <returns></returns>
+		virtual public List<Renderable> GetAllRenderables()
+		{
+			var totalRenderables = new List<Renderable>(Renderables);
+
+			foreach (var child in Children)
+			{
+				totalRenderables.AddRange(child.GetAllRenderables());
+			}
+
+			return totalRenderables;
+		}
+
+		virtual public AABB UpdateBounds()
+		{
+			foreach (var child in Children)
+			{
+				AABB += child.UpdateBounds();
+			}
+
+			foreach (var renderable in Renderables)
+			{
+				AABB += renderable.UpdateBounds();
+			}
+
+			return AABB;
 		}
 
 		virtual public bool UpdateTranslucency(List<string> translucents)

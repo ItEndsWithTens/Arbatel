@@ -16,16 +16,17 @@ namespace Temblor.Graphics
 		public float Depth;
 		public float Height;
 
-		public GemGenerator() : this(8.0f, 8.0f, 16.0f)
+		public GemGenerator() : this(8.0f, 8.0f, 16.0f, Color4.Yellow)
 		{
 		}
-		public GemGenerator(float _width, float _depth, float _height)
+		public GemGenerator(Color4 _color) : this(8.0f, 8.0f, 16.0f, _color)
+		{
+		}
+		public GemGenerator(float _width, float _depth, float _height, Color4 _color) : base(_color)
 		{
 			Width = _width;
 			Depth = _depth;
 			Height = _height;
-
-			Color = Color4.Yellow;
 		}
 
 		public override Renderable Generate()

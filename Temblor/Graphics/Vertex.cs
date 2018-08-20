@@ -41,6 +41,41 @@ namespace Temblor.Graphics
 			Color = _color;
 		}
 
+		public static Vertex Rotate(Vertex vertex, float pitch, float yaw, float roll)
+		{
+			if (pitch < 0.0f)
+			{
+				pitch = Math.Abs(pitch);
+			}
+			else
+			{
+				pitch = 360.0f - pitch;
+			}
+
+			// Assumes that objects are  pointing toward +X; thereby pitch
+			// represents rotation around world Y (camera Z), yaw is world
+			// Z (camera Y), and roll is world/camera X.
+			Matrix4 rotZ = Matrix4.CreateRotationZ(MathHelper.DegreesToRadians(pitch));
+			Matrix4 rotY = Matrix4.CreateRotationY(MathHelper.DegreesToRadians(yaw));
+			Matrix4 rotX = Matrix4.CreateRotationX(MathHelper.DegreesToRadians(roll));
+
+			Matrix4 rotation = rotZ * rotY * rotX;
+
+			var v = new Vertex(vertex);
+
+			var yUpRightHand = new Vector4(v.Position.X, v.Position.Z, -v.Position.Y, 1.0f);
+			Vector4 rotated = yUpRightHand * rotation;
+			var zUpLeftHand = new Vector3(rotated.X, -rotated.Z, rotated.Y);
+			v.Position = zUpLeftHand;
+
+			yUpRightHand = new Vector4(v.Normal.X, v.Normal.Z, -v.Normal.Y, 1.0f);
+			rotated = yUpRightHand * rotation;
+			zUpLeftHand = new Vector3(rotated.X, -rotated.Z, rotated.Y);
+			v.Normal = zUpLeftHand;
+
+			return v;
+		}
+
 		public static Vector3 operator +(Vertex lhs, Vertex rhs)
 		{
 			return lhs.Position + rhs.Position;

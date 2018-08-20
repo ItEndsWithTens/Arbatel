@@ -167,7 +167,11 @@ namespace Temblor.Graphics
 				// OpenGL offers its own backface culling, if it's enabled, but
 				// that only does its work after a draw call. An early backface
 				// check here skips texture binding and setting the uniforms.
-				Vector3 toPoint = camera.WorldPosition - renderable.Vertices[p.Indices[0]];
+				Vector3 point = renderable.Vertices[p.Indices[0]];
+				var yUpRightHand = new Vector4(point.X, point.Z, -point.Y, 1.0f);
+				var transformed = yUpRightHand * renderable.ModelMatrix;
+				var zUpLeftHand = new Vector3(transformed.X, -transformed.Z, transformed.Y);
+				var toPoint = camera.WorldPosition - new Vector3(zUpLeftHand);
 				if (Vector3.Dot(toPoint, p.Normal) > 0.0f)
 				{
 					SetUniform(LocationBasisS, p.BasisS);

@@ -49,6 +49,37 @@ namespace Temblor.Formats
 		}
 	}
 
+	/// <summary>
+	/// One possible source of Renderables for a given Definition.
+	/// </summary>
+	public enum RenderableSource
+	{
+		/// <summary>
+		/// A simple flat shaded box serving as a placeholder for an entity.
+		/// </summary>
+		Size,
+
+		/// <summary>
+		/// One or more 3D shapes that make up an entity's visual aspect.
+		/// </summary>
+		Solids,
+
+		/// <summary>
+		/// A 2D image that represents an entity.
+		/// </summary>
+		Sprite,
+
+		/// <summary>
+		/// A 3D model that represents an entity.
+		/// </summary>
+		Model,
+
+		/// <summary>
+		/// A Renderable that's built from the value of one of an entity's keys.
+		/// </summary>
+		Key
+	}
+
 	public class Definition
 	{
 		/// <summary>
@@ -61,6 +92,11 @@ namespace Temblor.Formats
 		public ClassType ClassType;
 
 		public Color4 Color;
+
+		/// <summary>
+		/// The DefinitionCollection this Definition came from.
+		/// </summary>
+		public DefinitionCollection DefinitionCollection;
 
 		public string Description;
 
@@ -81,19 +117,35 @@ namespace Temblor.Formats
 
 		public Vector3 Offset;
 
+		/// <summary>
+		/// The possible places this Definition's Renderables can be taken from.
+		/// </summary>
+		public Dictionary<RenderableSource, string> RenderableSources;
+
 		public AABB Size;
 
 		public Definition()
 		{
 			BaseNames = new List<string>();
-
 			Color = new Color4();
-
 			Flags = new Dictionary<string, Flag>();
-
 			KeyValsTemplate = new Dictionary<string, List<Option>>();
-
 			Offset = new Vector3();
+			RenderableSources = new Dictionary<RenderableSource, string>();
+		}
+		public Definition(Definition d)
+		{
+			BaseNames = new List<string>(d.BaseNames);
+			ClassName = d.ClassName;
+			ClassType = d.ClassType;
+			Color = new Color4(d.Color.R, d.Color.G, d.Color.B, d.Color.A);
+			DefinitionCollection = d.DefinitionCollection;
+			Description = d.Description;
+			Flags = new Dictionary<string, Flag>(d.Flags);
+			KeyValsTemplate = new Dictionary<string, List<Option>>(d.KeyValsTemplate);
+			Offset = new Vector3(d.Offset);
+			RenderableSources = new Dictionary<RenderableSource, string>(d.RenderableSources);
+			Size = d.Size != null ? new AABB(d.Size) : null;
 		}
 	}
 }

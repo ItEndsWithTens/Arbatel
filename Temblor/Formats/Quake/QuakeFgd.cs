@@ -25,7 +25,7 @@ namespace Temblor.Formats
 			var points = new List<Definition>();
 			var solids = new List<Definition>();
 
-			foreach (Definition def in Definitions)
+			foreach (Definition def in Values)
 			{
 				if (def.ClassType == ClassType.Solid && def.BaseNames.Count > 0)
 				{
@@ -50,7 +50,7 @@ namespace Temblor.Formats
 			{
 				foreach (var name in d.BaseNames)
 				{
-					var baseClass = this[name];
+					Definition baseClass = this[name];
 
 					foreach (var flag in baseClass.Flags)
 					{
@@ -98,16 +98,16 @@ namespace Temblor.Formats
 
 		public override void Parse(StreamReader sr)
 		{
-			Raw = Preprocess(sr);
+			List<string> raw = Preprocess(sr);
 
 			var blockStart = 0;
-			while (blockStart < Raw.Count)
+			while (blockStart < raw.Count)
 			{
-				int blockLength = GetBlockLength(Raw, blockStart);
+				int blockLength = GetBlockLength(raw, blockStart);
 
-				List<string> block = Raw.GetRange(blockStart, blockLength);
+				List<string> block = raw.GetRange(blockStart, blockLength);
 
-				var def = new Definition();
+				var def = new Definition() { DefinitionCollection = this };
 
 				var blockOffset = 0;
 				while (blockOffset < block.Count - 1)
@@ -126,6 +126,7 @@ namespace Temblor.Formats
 						else if (type == "solidclass")
 						{
 							def.ClassType = ClassType.Solid;
+							def.RenderableSources.Add(RenderableSource.Solids, "");
 						}
 						else
 						{
@@ -191,7 +192,9 @@ namespace Temblor.Formats
 
 						if (header.Contains("iconsprite"))
 						{
+							List<string> path = ExtractHeaderProperty("iconsprite", header);
 
+							def.RenderableSources.Add(RenderableSource.Sprite, path[0]);
 						}
 
 						if (header.Contains("offset"))
@@ -240,16 +243,29 @@ namespace Temblor.Formats
 							}
 
 							def.Size = size;
+
+							def.RenderableSources.Add(RenderableSource.Size, String.Empty);
 						}
 
 						if (header.Contains("sprite"))
 						{
+							List<string> path = ExtractHeaderProperty("sprite", header);
 
+							def.RenderableSources.Add(RenderableSource.Sprite, path[0]);
 						}
 
 						if (header.Contains("studio"))
 						{
+							string path = ExtractHeaderProperty("studio", header)[0];
 
+							def.RenderableSources.Add(RenderableSource.Model, path);
+						}
+
+						if (header.Contains("instance"))
+						{
+							string value = ExtractHeaderProperty("instance", header)[0];
+
+							def.RenderableSources.Add(RenderableSource.Key, value);
 						}
 
 						blockOffset += header.Count;
@@ -405,7 +421,7 @@ namespace Temblor.Formats
 					}
 				}
 
-				Definitions.Add(def);
+				Add(def.ClassName, def);
 
 				blockStart += blockLength;
 			}

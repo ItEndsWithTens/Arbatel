@@ -33,6 +33,7 @@ namespace Temblor.Formats.Quake
 		}
 	}
 
+	// TODO: Add the same Blend and Stack methods for WADs that I have for FGDs.
 	public class Wad2 : TextureCollection
 	{
 		public Palette Palette;
@@ -112,7 +113,7 @@ namespace Temblor.Formats.Quake
 						sb.Append(c);
 					}
 				}
-				string name = sb.ToString();
+				string name = sb.ToString().ToLower();
 
 				// 16 bytes for texture name
 				// 4 byte width

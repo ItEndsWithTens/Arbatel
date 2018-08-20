@@ -56,6 +56,54 @@ namespace Temblor.Graphics
 		{
 			Indices = new List<int>();
 		}
+		public Polygon(Polygon p)
+		{
+			Indices = new List<int>(p.Indices);
+			TextureName = p.TextureName;
+			BasisS = new Vector3(p.BasisS);
+			BasisT = new Vector3(p.BasisT);
+			Offset = new Vector2(p.Offset.X, p.Offset.Y);
+			Rotation = p.Rotation;
+			Scale = new Vector2(p.Scale.X, p.Scale.Y);
+			Normal = new Vector3(p.Normal);
+		}
+
+		public static Polygon Rotate(Polygon polygon, float pitch, float yaw, float roll)
+		{
+			if (pitch < 0.0f)
+			{
+				pitch = Math.Abs(pitch);
+			}
+			else
+			{
+				pitch = 360.0f - pitch;
+			}
+
+			Matrix4 rotZ = Matrix4.CreateRotationZ(MathHelper.DegreesToRadians(pitch));
+			Matrix4 rotY = Matrix4.CreateRotationY(MathHelper.DegreesToRadians(yaw));
+			Matrix4 rotX = Matrix4.CreateRotationX(MathHelper.DegreesToRadians(roll));
+
+			Matrix4 rotation = rotZ * rotY * rotX;
+
+			var p = new Polygon(polygon);
+
+			var yUpRightHand = new Vector4(p.BasisS.X, p.BasisS.Z, -p.BasisS.Y, 1.0f);
+			Vector4 rotated = yUpRightHand * rotation;
+			var zUpLeftHand = new Vector3(rotated.X, -rotated.Z, rotated.Y);
+			p.BasisS = zUpLeftHand;
+
+			yUpRightHand = new Vector4(p.BasisT.X, p.BasisT.Z, -p.BasisT.Y, 1.0f);
+			rotated = yUpRightHand * rotation;
+			zUpLeftHand = new Vector3(rotated.X, -rotated.Z, rotated.Y);
+			p.BasisT = zUpLeftHand;
+
+			yUpRightHand = new Vector4(p.Normal.X, p.Normal.Z, -p.Normal.Y, 1.0f);
+			rotated = yUpRightHand * rotation;
+			zUpLeftHand = new Vector3(rotated.X, -rotated.Z, rotated.Y);
+			p.Normal = zUpLeftHand;
+
+			return p;
+		}
 	}
 
 	/// <summary>
@@ -75,24 +123,28 @@ namespace Temblor.Graphics
 		/// </summary>
 		public List<int> Indices;
 
+		/// <summary>
+		/// The transformation matrix used to bring this Renderable's vertices
+		/// into world space from object space.
+		/// </summary>
+		/// <remarks>Allows for object's vertices to be stored as coordinates in
+		/// world space, object space, or anything else. Actual 3D objects can
+		/// be drawn with minimal effort, as well as UI elements associated with
+		/// said objects, or placeholder meshes, etc.</remarks>
 		public Matrix4 ModelMatrix;
 
 		public List<Polygon> Polygons;
 
-		private Vector3 _position;
-		/// <summary>
-		/// Position of this object in left-handed, Z-up world coordinates.
-		/// </summary>
 		public Vector3 Position
 		{
-			get { return _position; }
+			get { return AABB.Center; }
 			set
 			{
-				// Before setting the new Position, use the old one to bring the
-				// AABB into model space, then compensate for the new position.
-				AABB = (AABB - _position) + value;
+				var diff = value - AABB.Center;
 
-				_position = value;
+				AABB.Center = value;
+				AABB.Min += diff;
+				AABB.Max += diff;
 			}
 		}
 
@@ -196,6 +248,36 @@ namespace Temblor.Graphics
 			GL.BindVertexArray(0);
 			GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
 			GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);
+		}
+
+		public void Rotate(float pitch, float yaw, float roll)
+		{
+			for (var i = 0; i < Vertices.Count; i++)
+			{
+				Vertices[i] = Vertex.Rotate(Vertices[i], pitch, yaw, roll);
+			}
+
+			for (var i = 0; i < Polygons.Count; i++)
+			{
+				Polygons[i] = Polygon.Rotate(Polygons[i], pitch, yaw, roll);
+			}
+		}
+
+		public AABB UpdateBounds()
+		{
+			var worldVerts = new List<Vector3>();
+			foreach (var v in Vertices)
+			{
+				var model = new Vector4(v.Position.X, v.Position.Z, -v.Position.Y, 1.0f);
+				var world = model * ModelMatrix;
+
+				var updated = new Vector3(world.X, -world.Z, world.Y);
+				worldVerts.Add(updated);
+			}
+
+			AABB = new AABB(worldVerts);
+
+			return AABB;
 		}
 
 		public bool UpdateTranslucency(List<string> translucents)

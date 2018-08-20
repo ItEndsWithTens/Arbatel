@@ -52,17 +52,65 @@ namespace Temblor.Formats
 			// Using a pair of capturing parentheses in the regex pattern preserves
 			// delimiters in the output.
 			List<string> list = Regex.Split(raw, "(" + Regex.Escape(KeyValDelimiter) + ")").ToList();
-			list.RemoveAll(s => s.Trim() == "");
 
-			// With the raw input split on doublequotes, and those quotes preserved,
-			// there's a predictable sequence of quote, key, quote, quote, value, quote,
-			// and so on. Preserving the delimiters and doing things this way easily allows
-			// for empty values, which are not uncommon.
-			var i = 1;
+			// After splitting, the list may contain entries that are empty or
+			// comprised only of whitespace. Empty entries are the result of the
+			// input string having had newline characters removed. Whitespace is
+			// from spaces in the original input that were inside or outside of
+			// a value. Whitespace inside a value would be desirable if it were
+			// always present in the case of a key/val that was present but not
+			// defined; unfortunately it's common for undefined values to be
+			// entirely empty, without even whitespace. Since there's no way to
+			// reliably detect undefined values, blank list items are useless,
+			// and can safely be stripped out.
+			list.RemoveAll(s => String.IsNullOrEmpty(s.Trim()));
+
+			// With no way to detect undefined values, the only reliable method
+			// remaining is brute force: count delimiters one by one.
+			var i = 0;
 			while (i < list.Count)
 			{
-				keyVals.Add(new KeyValuePair<string, string>(list[i], list[i + 3]));
-				i += 6;
+				// There are four double quote marks per key/value pair.
+				int quotes = 0;
+
+				string key = "";
+				string value = "";
+
+				while (quotes < 1)
+				{
+					if (list[i] == "\"")
+					{
+						quotes++;
+						i++;
+					}
+				}
+
+				key = list[i++];
+
+				while (quotes < 3)
+				{
+					if (list[i] == "\"")
+					{
+						quotes++;
+						i++;
+					}
+				}
+
+				if (list[i] != "\"")
+				{
+					value = list[i++];
+				}
+
+				while (quotes < 4)
+				{
+					if (list[i] == "\"")
+					{
+						quotes++;
+						i++;
+					}
+				}
+
+				keyVals.Add(new KeyValuePair<string, string>(key, value));
 			}
 
 			return keyVals;
