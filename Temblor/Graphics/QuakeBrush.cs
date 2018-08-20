@@ -25,7 +25,20 @@ namespace Temblor.Graphics
 		{
 			var random = new Random();
 			var color = new Color4((float)random.NextDouble(), (float)random.NextDouble(), (float)random.NextDouble(), 1.0f);
-			
+
+			CalculateIntersections(solid, color);
+
+			BuildPolygons(solid, this);
+
+			AABB = new AABB(Vertices);
+		}
+		public QuakeBrush(Solid solid, TextureCollection textures)
+		{
+			TextureCollection = textures;
+
+			var random = new Random();
+			var color = new Color4((float)random.NextDouble(), (float)random.NextDouble(), (float)random.NextDouble(), 1.0f);
+
 			CalculateIntersections(solid, color);
 
 			BuildPolygons(solid, this);
@@ -98,7 +111,14 @@ namespace Temblor.Graphics
 					renderable.Indices.Add(side.Indices[indexC]);
 				}
 
-				polygon.TextureName = side.TextureName;
+				if (renderable.TextureCollection != null && renderable.TextureCollection.ContainsKey(side.TextureName.ToLower()))
+				{
+					polygon.Texture = renderable.TextureCollection[side.TextureName.ToLower()];
+				}
+				else
+				{
+					polygon.Texture = new Texture() { Name = side.TextureName.ToLower() };
+				}
 				polygon.BasisS = side.TextureBasis[0];
 				polygon.BasisT = side.TextureBasis[1];
 				polygon.Offset = new Vector2(side.TextureOffset.X, side.TextureOffset.Y);

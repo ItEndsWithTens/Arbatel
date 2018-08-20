@@ -40,16 +40,19 @@ namespace Temblor.Formats
 		/// </remarks>
 		public Dictionary<string, List<string>> KeyVals;
 
+		private Vector3 _position;
 		public Vector3 Position
 		{
-			get { return AABB.Center; }
+			get { return _position; }
 			set
 			{
-				var diff = value - AABB.Center;
+				var diff = value - _position;
 
-				AABB.Center = value;
+				AABB.Center += diff;
 				AABB.Min += diff;
 				AABB.Max += diff;
+
+				_position = value;
 			}
 		}
 
@@ -61,6 +64,11 @@ namespace Temblor.Formats
 		/// object and should be drawn whenever the object is drawn.
 		/// </remarks>
 		public List<Renderable> Renderables;
+
+		/// <summary>
+		/// The TextureCollection containing the textures used by this MapObject.
+		/// </summary>
+		public TextureCollection TextureCollection;
 
 		public bool Translucent;
 
@@ -74,6 +82,9 @@ namespace Temblor.Formats
 			Translucent = false;
 		}
 		public MapObject(Block _block, DefinitionCollection _definitions) : this()
+		{
+		}
+		public MapObject(Block _block, DefinitionCollection _definitions, TextureCollection _textures) : this()
 		{
 		}
 
@@ -161,6 +172,10 @@ namespace Temblor.Formats
 
 		virtual public AABB UpdateBounds()
 		{
+			AABB.Center = new Vector3(Position);
+			AABB.Min = new Vector3(Position);
+			AABB.Max = new Vector3(Position);
+
 			foreach (var child in Children)
 			{
 				AABB += child.UpdateBounds();

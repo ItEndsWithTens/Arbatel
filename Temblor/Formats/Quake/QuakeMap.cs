@@ -23,6 +23,14 @@ namespace Temblor.Formats.Quake
 		public QuakeMap(Stream stream, DefinitionCollection definitions) : base(stream, definitions)
 		{
 		}
+		public QuakeMap(string filename, DefinitionCollection definitions, TextureCollection textures) :
+			this(new FileStream(filename, FileMode.Open, FileAccess.Read), definitions, textures)
+		{
+		}
+		public QuakeMap(Stream stream, DefinitionCollection definitions, TextureCollection textures) :
+			base(stream, definitions, textures)
+		{
+		}
 
 		public sealed override void Parse(string raw)
 		{
@@ -87,7 +95,7 @@ namespace Temblor.Formats.Quake
 				var firstBraceIndex = split.IndexOf("{", i);
 
 				var block = new QuakeBlock(split, firstBraceIndex);
-				MapObjects.Add(new QuakeMapObject(block, Definitions));
+				MapObjects.Add(new QuakeMapObject(block, Definitions, TextureCollection));
 
 				i = firstBraceIndex + block.RawLength;
 			}

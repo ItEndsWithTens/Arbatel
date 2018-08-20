@@ -7,13 +7,10 @@ using Temblor.Graphics;
 
 namespace Temblor.Formats
 {
-	public class TextureCollection
+	public class TextureCollection : Dictionary<string, Texture>
 	{
-		public Dictionary<string, Texture> Textures;
-
 		public TextureCollection()
 		{
-			Textures = new Dictionary<string, Texture>();
 		}
 	}
 }

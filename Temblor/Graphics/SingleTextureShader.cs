@@ -179,11 +179,10 @@ namespace Temblor.Graphics
 					SetUniform(LocationOffset, p.Offset);
 					SetUniform(LocationScale, p.Scale);
 
-					Texture texture = MainForm.Wad.Textures[p.TextureName.ToLower()];
-					SetUniform(LocationTextureWidth, (float)texture.Width);
-					SetUniform(LocationTextureHeight, (float)texture.Height);
+					SetUniform(LocationTextureWidth, (float)p.Texture.Width);
+					SetUniform(LocationTextureHeight, (float)p.Texture.Height);
 
-					GL.BindTexture(TextureTarget.Texture2D, MainForm.testTextureDict[p.TextureName.ToLower()]);
+					GL.BindTexture(TextureTarget.Texture2D, MainForm.testTextureDict[p.Texture.Name.ToLower()]);
 
 					// The last parameter of DrawRangeElements is a perhaps poorly
 					// labeled offset into the element buffer.

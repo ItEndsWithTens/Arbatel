@@ -113,7 +113,7 @@ namespace Temblor.Graphics
 		{
 			GL.Uniform3(location, value);
 		}
-		public static void SetUniform(int location, ref Matrix4 value)
+		public static void SetUniform(int location, Matrix4 value)
 		{
 			GL.UniformMatrix4(location, false, ref value);
 		}
@@ -126,9 +126,9 @@ namespace Temblor.Graphics
 		virtual public void Draw(Renderable renderable, GLSurface surface, Camera camera)
 		{
 			Use();
-			SetUniform(LocationModelMatrix, ref renderable.ModelMatrix);
-			SetUniform(LocationViewMatrix, ref camera.ViewMatrix);
-			SetUniform(LocationProjectionMatrix, ref camera.ProjectionMatrix);
+			SetUniform(LocationModelMatrix, renderable.ModelMatrix);
+			SetUniform(LocationViewMatrix, camera.ViewMatrix);
+			SetUniform(LocationProjectionMatrix, camera.ProjectionMatrix);
 		}
 	}
 }

@@ -63,6 +63,7 @@ namespace Temblor.Graphics
 
 			var cube = new Renderable(modelVerts)
 			{
+				CoordinateSpace = CoordinateSpace.Model,
 				ShadingStyleDict = new Dictionary<ShadingStyle, ShadingStyle>().Capped(ShadingStyle.Flat)
 			};
 

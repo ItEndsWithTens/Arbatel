@@ -14,6 +14,15 @@ using Temblor.Utilities;
 
 namespace Temblor.Graphics
 {
+	public enum CoordinateSpace
+	{
+		Model,
+		World,
+		View,
+		Projection,
+		Screen
+	}
+
 	public class Buffers
 	{
 		public int Vao;
@@ -43,7 +52,7 @@ namespace Temblor.Graphics
 		/// </summary>
 		public List<int> Indices;
 
-		public string TextureName;
+		public Texture Texture;
 		public Vector3 BasisS;
 		public Vector3 BasisT;
 		public Vector2 Offset;
@@ -55,11 +64,12 @@ namespace Temblor.Graphics
 		public Polygon()
 		{
 			Indices = new List<int>();
+			Texture = new Texture() { Name = "NOODLES" };
 		}
 		public Polygon(Polygon p)
 		{
 			Indices = new List<int>(p.Indices);
-			TextureName = p.TextureName;
+			Texture = new Texture(p.Texture);
 			BasisS = new Vector3(p.BasisS);
 			BasisT = new Vector3(p.BasisT);
 			Offset = new Vector2(p.Offset.X, p.Offset.Y);
@@ -104,6 +114,23 @@ namespace Temblor.Graphics
 
 			return p;
 		}
+
+		public static Polygon TranslateRelative(Polygon polygon, Vector3 diff)
+		{
+			var p = new Polygon(polygon);
+
+			// The dot product projects one vector onto another, in essence
+			// describing how far along one of them the other is. That gives the
+			// relative offset on the respective basis vector, though scaled.
+			p.Offset.X -= Vector3.Dot(diff, p.BasisS) / p.Scale.X;
+			p.Offset.Y -= Vector3.Dot(diff, p.BasisT) / p.Scale.Y;
+
+			return p;
+		}
+		public static Polygon TranslateRelative(Polygon polygon, float diffX, float diffY, float diffZ)
+		{
+			return TranslateRelative(polygon, new Vector3(diffX, diffY, diffZ));
+		}
 	}
 
 	/// <summary>
@@ -119,6 +146,22 @@ namespace Temblor.Graphics
 		public Dictionary<GLSurface, Buffers> Buffers;
 
 		/// <summary>
+		/// The coordinate space in which this Renderable's vertices are stored.
+		/// </summary>
+		/// <remarks>Used to set the ModelMatrix for this Renderable.</remarks>
+		private CoordinateSpace _coordinateSpace;
+		public CoordinateSpace CoordinateSpace
+		{
+			get { return _coordinateSpace; }
+			set
+			{
+				_coordinateSpace = value;
+
+				UpdateModelMatrix();
+			}
+		}
+
+		/// <summary>
 		/// The vertex indices of this object, relative to the Vertices list.
 		/// </summary>
 		public List<int> Indices;
@@ -130,21 +173,22 @@ namespace Temblor.Graphics
 		/// <remarks>Allows for object's vertices to be stored as coordinates in
 		/// world space, object space, or anything else. Actual 3D objects can
 		/// be drawn with minimal effort, as well as UI elements associated with
-		/// said objects, or placeholder meshes, etc.</remarks>
-		public Matrix4 ModelMatrix;
+		/// said objects, or placeholder meshes, etc. Set the CoordinateSpace
+		/// field to switch the matrix used for this Renderable.</remarks>
+		public Matrix4 ModelMatrix { get; protected set; }
 
 		public List<Polygon> Polygons;
 
+		private Vector3 _position;
 		public Vector3 Position
 		{
-			get { return AABB.Center; }
+			get { return _position; }
 			set
 			{
-				var diff = value - AABB.Center;
+				TranslateRelative(value - _position);
+				_position = value;
 
-				AABB.Center = value;
-				AABB.Min += diff;
-				AABB.Max += diff;
+				UpdateModelMatrix();
 			}
 		}
 
@@ -153,13 +197,15 @@ namespace Temblor.Graphics
 		/// </summary>
 		public Dictionary<ShadingStyle, ShadingStyle> ShadingStyleDict;
 
+		/// <summary>
+		/// The TextureCollection containing this Renderable's textures.
+		/// </summary>
+		public TextureCollection TextureCollection;
+
 		public bool Translucent;
 
-		// TODO: Are these actually relative to Position? Or are they also world coords?
-		// NO, they should be relative to whatever; add a custom model matrix, per Renderable,
-		// that accommodates however a given Renderable's vertices are represented.
 		/// <summary>
-		/// Vertices of this object, with coordinates relative to its Position.
+		/// Vertices of this object.
 		/// </summary>
 		public List<Vertex> Vertices;
 
@@ -169,11 +215,12 @@ namespace Temblor.Graphics
 		{
 			AABB = new AABB();
 			Buffers = new Dictionary<GLSurface, Buffers>();
+			CoordinateSpace = CoordinateSpace.World;
 			Indices = new List<int>();
 			ModelMatrix = Matrix4.Identity;
 			Polygons = new List<Polygon>();
-			Position = new Vector3(0.0f, 0.0f, 0.0f);
 			ShadingStyleDict = new Dictionary<ShadingStyle, ShadingStyle>().Default();
+			TextureCollection = new TextureCollection();
 			Translucent = false;
 			Vertices = new List<Vertex>();
 		}
@@ -185,7 +232,6 @@ namespace Temblor.Graphics
 			}
 
 			AABB = new AABB(Vertices);
-			Position = AABB.Center;
 		}
 		public Renderable(List<Vertex> vertices) : this()
 		{
@@ -195,7 +241,6 @@ namespace Temblor.Graphics
 			}
 
 			AABB = new AABB(Vertices);
-			Position = AABB.Center;
 		}
 
 		public void Draw(Dictionary<ShadingStyle, Shader> shaders, ShadingStyle style, GLSurface surface, Camera camera)
@@ -261,6 +306,30 @@ namespace Temblor.Graphics
 			{
 				Polygons[i] = Polygon.Rotate(Polygons[i], pitch, yaw, roll);
 			}
+
+			UpdateBounds();
+		}
+
+		public void TranslateRelative(Vector3 diff)
+		{
+			if (CoordinateSpace == CoordinateSpace.World)
+			{
+				for (var i = 0; i < Vertices.Count; i++)
+				{
+					Vertices[i] = Vertex.TranslateRelative(Vertices[i], diff);
+				}
+			}
+
+			for (var i = 0; i < Polygons.Count; i++)
+			{
+				Polygons[i] = Polygon.TranslateRelative(Polygons[i], diff);
+			}
+
+			AABB += diff;
+		}
+		public void TranslateRelative(float diffX, float diffY, float diffZ)
+		{
+			TranslateRelative(new Vector3(diffX, diffY, diffZ));
 		}
 
 		public AABB UpdateBounds()
@@ -284,14 +353,14 @@ namespace Temblor.Graphics
 		{
 			foreach (var polygon in Polygons)
 			{
-				if (polygon.TextureName == null)
+				if (polygon.Texture.Name == null)
 				{
 					continue;
 				}
 
 				// The most granular translucency information that matters is
 				// per-Renderable, not per-Polygon, so breaking on true is safe.
-				if (translucents.Contains(polygon.TextureName.ToLower()))
+				if (translucents.Contains(polygon.Texture.Name.ToLower()))
 				{
 					Translucent = true;
 					break;
@@ -299,6 +368,26 @@ namespace Temblor.Graphics
 			}
 
 			return Translucent;
+		}
+
+		protected void UpdateModelMatrix()
+		{
+			switch (CoordinateSpace)
+			{
+				case CoordinateSpace.Model:
+					ModelMatrix = Matrix4.CreateTranslation(Position.X, Position.Z, -Position.Y);
+					break;
+				case CoordinateSpace.World:
+				default:
+					ModelMatrix = Matrix4.Identity;
+					break;
+				case CoordinateSpace.View:
+					break;
+				case CoordinateSpace.Projection:
+					break;
+				case CoordinateSpace.Screen:
+					break;
+			}
 		}
 	}
 }

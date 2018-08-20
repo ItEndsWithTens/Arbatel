@@ -142,7 +142,7 @@ namespace Temblor
 
 			var oldCwd = Directory.GetCurrentDirectory();
 			Directory.SetCurrentDirectory(Path.GetDirectoryName(filename));
-			var map = new QuakeMap(filename, combined);
+			var map = new QuakeMap(filename, combined, Wad);
 			Directory.SetCurrentDirectory(oldCwd);
 
 
@@ -161,7 +161,7 @@ namespace Temblor
 
 
 			testTextureDict = new Dictionary<string, int>();
-			foreach (var t in Wad.Textures.Values)
+			foreach (var t in Wad.Values)
 			{
 				GL.GenTextures(1, out int id);
 				testTextureDict.Add(t.Name, id);

@@ -82,6 +82,12 @@ namespace Temblor.Graphics
 			Center = Min + ((Max - Min) / 2.0f);
 		}
 
+		/// <summary>
+		/// Combine two AABBs to produce a new AABB that covers them both.
+		/// </summary>
+		/// <param name="lhs">The first AABB to combine.</param>
+		/// <param name="rhs">The second AABB to combine.</param>
+		/// <returns>A new AABB representing the total AABB of the two inputs.</returns>
 		public static AABB operator +(AABB lhs, AABB rhs)
 		{
 			var updated = new AABB(lhs);
@@ -116,11 +122,17 @@ namespace Temblor.Graphics
 				updated.Min.Z = rhs.Min.Z;
 			}
 
-			updated.Center = (updated.Max - updated.Min) / 2.0f;
+			updated.Center = updated.Min + ((updated.Max - updated.Min) / 2.0f);
 
 			return updated;
 		}
 
+		/// <summary>
+		/// Offset an AABB in 3D.
+		/// </summary>
+		/// <param name="lhs">The AABB to offset.</param>
+		/// <param name="rhs">The distance to offset.</param>
+		/// <returns>A new AABB, offset by the specified amounts.</returns>
 		public static AABB operator +(AABB lhs, Vector3 rhs)
 		{
 			return new AABB
@@ -131,6 +143,12 @@ namespace Temblor.Graphics
 			};
 		}
 
+		/// <summary>
+		/// Offset an AABB in 3D.
+		/// </summary>
+		/// <param name="lhs">The AABB to offset.</param>
+		/// <param name="rhs">The distance to offset.</param>
+		/// <returns>A new AABB, offset by the specified amounts.</returns>
 		public static AABB operator -(AABB lhs, Vector3 rhs)
 		{
 			return new AABB

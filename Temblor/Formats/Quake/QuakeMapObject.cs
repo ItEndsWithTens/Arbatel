@@ -22,6 +22,10 @@ namespace Temblor.Formats
 			this(_block as QuakeBlock, _definitions)
 		{
 		}
+		public QuakeMapObject(Block _block, DefinitionCollection _definitions, TextureCollection _textures) :
+			this(_block as QuakeBlock, _definitions, _textures)
+		{
+		}
 		public QuakeMapObject(QuakeBlock _block, DefinitionCollection _definitions) :
 			base(_block, _definitions)
 		{
@@ -43,15 +47,32 @@ namespace Temblor.Formats
 
 			ExtractRenderables(_block);
 
-			foreach (var child in Children)
+			UpdateBounds();
+		}
+		public QuakeMapObject(QuakeBlock _block, DefinitionCollection _definitions, TextureCollection _textures) :
+			base(_block, _definitions, _textures)
+		{
+			KeyVals = new Dictionary<string, List<string>>(_block.KeyVals);
+
+			Definition = _definitions[KeyVals["classname"][0]];
+
+			TextureCollection = _textures;
+
+			foreach (var child in _block.Children)
 			{
-				AABB += child.AABB;
+				if (child.KeyVals.Count > 0)
+				{
+					Children.Add(new QuakeMapObject(child, _definitions, _textures));
+				}
+				else
+				{
+					ExtractRenderables(child);
+				}
 			}
 
-			foreach (var renderable in Renderables)
-			{
-				AABB += renderable.AABB;
-			}
+			ExtractRenderables(_block);
+
+			UpdateBounds();
 		}
 
 		protected override void ExtractRenderables(Block block)
@@ -63,12 +84,20 @@ namespace Temblor.Formats
 			{
 				foreach (var solid in b.Solids)
 				{
-					Renderables.Add(new QuakeBrush(solid));
+					Renderables.Add(new QuakeBrush(solid, TextureCollection));
 				}
 			}
 			// Known point entity with predefined size.
 			else if (Definition != null && Definition.ClassType == ClassType.Point && Definition.Size != null)
 			{
+				string[] coords = KeyVals["origin"][0].Split(' ');
+
+				float.TryParse(coords[0], out float x);
+				float.TryParse(coords[1], out float y);
+				float.TryParse(coords[2], out float z);
+
+				Position = new Vector3(x, y, z);
+
 				if (Definition.RenderableSources.ContainsKey(RenderableSource.Key))
 				{
 					string key = Definition.RenderableSources[RenderableSource.Key];
@@ -82,24 +111,14 @@ namespace Temblor.Formats
 
 						Directory.SetCurrentDirectory(Path.GetDirectoryName(instancePath));
 
-						var map = new QuakeMap(instancePath, Definition.DefinitionCollection);
+						var map = new QuakeMap(instancePath, Definition.DefinitionCollection, TextureCollection);
 						foreach (var mo in map.MapObjects)
 						{
-							Renderables = mo.GetAllRenderables();
+							Renderables.AddRange(mo.GetAllRenderables());
 						}
 
 						foreach (var r in Renderables)
 						{
-							string[] coords = KeyVals["origin"][0].Split(' ');
-
-							float.TryParse(coords[0], out float x);
-							float.TryParse(coords[1], out float y);
-							float.TryParse(coords[2], out float z);
-
-							r.Position += new Vector3(x, y, z);
-
-							Matrix4 translation = Matrix4.CreateTranslation(x, z, -y);
-
 							string[] angles = KeyVals["angles"][0].Split(' ');
 
 							float.TryParse(angles[0], out float pitch);
@@ -107,7 +126,9 @@ namespace Temblor.Formats
 							float.TryParse(angles[2], out float roll);
 
 							r.Rotate(pitch, yaw, roll);
-							r.ModelMatrix = translation;
+
+							r.CoordinateSpace = CoordinateSpace.World;
+							r.Position += Position;
 						}
 
 						UpdateBounds();
@@ -125,14 +146,8 @@ namespace Temblor.Formats
 
 					var box = new BoxGenerator(s.Min, s.Max, Definition.Color).Generate();
 
-					string[] coords = b.KeyVals["origin"][0].Split(' ');
-
-					float.TryParse(coords[0], out float x);
-					float.TryParse(coords[1], out float y);
-					float.TryParse(coords[2], out float z);
-
-					box.Position = new Vector3(x, y, z);
-					box.ModelMatrix = Matrix4.CreateTranslation(box.Position.X, box.Position.Z, -box.Position.Y);
+					box.CoordinateSpace = CoordinateSpace.World;
+					box.Position = Position;
 
 					Renderables.Add(box);
 				}
@@ -151,7 +166,6 @@ namespace Temblor.Formats
 				float.TryParse(coords[2], out float z);
 
 				gem.Position = new Vector3(x, y, z);
-				gem.ModelMatrix = Matrix4.CreateTranslation(gem.Position.X, gem.Position.Z, -gem.Position.Y);
 
 				Renderables.Add(gem);
 			}
@@ -168,7 +182,6 @@ namespace Temblor.Formats
 			float.TryParse(coords[2], out float z);
 
 			gem.Position = new Vector3(x, y, z);
-			gem.ModelMatrix = Matrix4.CreateTranslation(gem.Position.X, gem.Position.Z, -gem.Position.Y);
 
 			Renderables.Add(gem);
 		}

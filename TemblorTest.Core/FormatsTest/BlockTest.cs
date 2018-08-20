@@ -1,4 +1,5 @@
-﻿using NUnit.Framework;
+﻿using Eto.Forms;
+using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -10,6 +11,18 @@ using Temblor.Formats.Quake;
 
 namespace TemblorTest.Core.FormatsTest
 {
+	[SetUpFixture]
+	public class InitializePlatform
+	{
+		[OneTimeSetUp]
+		public void SetUp()
+		{
+			var platform = Eto.Platform.Detect;
+
+			Eto.Platform.Initialize(platform);
+		}
+	}
+
 	public class BlockTest
 	{
 		[TestFixture]
@@ -391,7 +404,7 @@ namespace TemblorTest.Core.FormatsTest
 
 				var polygon = entity.Renderables[0].Polygons[0];
 
-				Assert.That(polygon.TextureName, Is.EqualTo("{SOMETRANSPARENTTEXTURE"));
+				Assert.That(polygon.Texture.Name, Is.EqualTo("{sometransparenttexture"));
 			}
 
 			[TestCase]
@@ -449,7 +462,7 @@ namespace TemblorTest.Core.FormatsTest
 
 				var polygon = entity.Renderables[0].Polygons[0];
 
-				Assert.That(polygon.TextureName, Is.EqualTo("{SOMETRANSPARENTTEXTURE"));
+				Assert.That(polygon.Texture.Name, Is.EqualTo("{sometransparenttexture"));
 			}
 		}
 	}

@@ -47,6 +47,7 @@ namespace Temblor.Graphics
 
 			var gem = new Renderable(modelVerts)
 			{
+				CoordinateSpace = CoordinateSpace.Model,
 				ShadingStyleDict = new Dictionary<ShadingStyle, ShadingStyle>().Capped(ShadingStyle.Flat)
 			};
 

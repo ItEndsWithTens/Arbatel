@@ -17,7 +17,7 @@ namespace Temblor.Formats
 
 		public List<MapObject> MapObjects;
 
-		public List<TextureCollection> Textures;
+		public TextureCollection TextureCollection;
 
 		public Map()
 		{
@@ -30,6 +30,21 @@ namespace Temblor.Formats
 		public Map(Stream stream, DefinitionCollection definitions) : this()
 		{
 			Definitions = definitions;
+
+			using (StreamReader sr = new StreamReader(stream))
+			{
+				Parse(sr.ReadToEnd());
+			}
+		}
+		public Map(string filename, DefinitionCollection definitions, TextureCollection textures) :
+			this(new FileStream(filename, FileMode.Open, FileAccess.Read), definitions, textures)
+		{
+		}
+		public Map(Stream stream, DefinitionCollection definitions, TextureCollection textures) : this()
+		{
+			Definitions = definitions;
+
+			TextureCollection = textures;
 
 			using (StreamReader sr = new StreamReader(stream))
 			{

@@ -15,17 +15,21 @@ namespace Temblor.Graphics
 		public Texture() : base(16, 16, PixelFormat.Format24bppRgb)
 		{
 		}
-		public Texture(int width, int height) : base(width, height, PixelFormat.Format24bppRgb)
+		public Texture(int width, int height) : this(width, height, PixelFormat.Format24bppRgb)
 		{
 		}
 		public Texture(int width, int height, PixelFormat format) : base(width, height, format)
 		{
 		}
-		public Texture(string fileName) : base(fileName)
+		public Texture(string filename) : base(filename)
 		{
 		}
 		public Texture(Stream stream) : base(stream)
 		{
+		}
+		public Texture(Texture texture) : base(texture)
+		{
+			Name = texture.Name;
 		}
 
 		/// <summary>

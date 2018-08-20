@@ -76,6 +76,18 @@ namespace Temblor.Graphics
 			return v;
 		}
 
+		public static Vertex TranslateRelative(Vertex v, Vector3 diff)
+		{
+			return new Vertex(v)
+			{
+				Position = new Vector3(v.Position + diff)
+			};
+		}
+		public static Vertex TranslateRelative(Vertex v, float diffX, float diffY, float diffZ)
+		{
+			return TranslateRelative(v, new Vector3(diffX, diffY, diffZ));
+		}
+
 		public static Vector3 operator +(Vertex lhs, Vertex rhs)
 		{
 			return lhs.Position + rhs.Position;

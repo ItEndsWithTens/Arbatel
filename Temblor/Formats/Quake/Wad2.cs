@@ -154,7 +154,7 @@ namespace Temblor.Formats.Quake
 					}
 				}
 
-				Textures.Add(name, texture);
+				Add(name, texture);
 			}
 		}
 	}
