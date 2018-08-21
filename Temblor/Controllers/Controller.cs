@@ -10,24 +10,24 @@ namespace Temblor.Controllers
 {
 	public class Controller
 	{
-		public bool MouseLook = false;
+		public bool MouseLook { get; set; } = false;
 
 		// Flightstick: false, true
 		// Spotlight: true, true
 		// Goldeneye: false, false
-		public bool InvertMouseX = false;
-		public bool InvertMouseY = false;
+		public bool InvertMouseX { get; set; } = false;
+		public bool InvertMouseY { get; set; } = true;
 
-		public float MouseSensitivity = 0.25f;
+		public float MouseSensitivity { get; set; } = 0.25f;
 
-		public float Speed = 64.0f;
+		public float Speed { get; set; } = 64.0f;
 
-		protected bool _forward = false;
-		protected bool _backward = false;
-		protected bool _left = false;
-		protected bool _right = false;
-		protected bool _up = false;
-		protected bool _down = false;
+		protected bool Forward { get; set; } = false;
+		protected bool Backward { get; set; } = false;
+		protected bool Left { get; set; } = false;
+		protected bool Right { get; set; } = false;
+		protected bool Up { get; set; } = false;
+		protected bool Down { get; set; } = false;
 
 		virtual public void KeyEvent(object sender, KeyEventArgs e)
 		{
@@ -35,76 +35,73 @@ namespace Temblor.Controllers
 			{
 				if (e.IsKeyDown(Keys.Z))
 				{
-					if (MouseLook == false)
+					if (sender is View v)
 					{
-						MouseLook = true;
-						if (sender is View)
+						if (MouseLook == false)
 						{
-							(sender as View).Style = "hidecursor";
+							MouseLook = true;
+							v.Style = "hidecursor";
 						}
-					}
-					else
-					{
-						MouseLook = false;
-						if (sender is View)
+						else
 						{
-							(sender as View).Style = "showcursor";
+							MouseLook = false;
+							v.Style = "showcursor";
 						}
 					}
 				}
 
 				if (e.IsKeyDown(Keys.W))
 				{
-					_forward = true;
+					Forward = true;
 				}
 				else if (e.IsKeyUp(Keys.W))
 				{
-					_forward = false;
+					Forward = false;
 				}
 
 				if (e.IsKeyDown(Keys.S))
 				{
-					_backward = true;
+					Backward = true;
 				}
 				else if (e.IsKeyUp(Keys.S))
 				{
-					_backward = false;
+					Backward = false;
 				}
 
 				if (e.IsKeyDown(Keys.A))
 				{
-					_left = true;
+					Left = true;
 				}
 				else if (e.IsKeyUp(Keys.A))
 				{
-					_left = false;
+					Left = false;
 				}
 
 				if (e.IsKeyDown(Keys.D))
 				{
-					_right = true;
+					Right = true;
 				}
 				else if (e.IsKeyUp(Keys.D))
 				{
-					_right = false;
+					Right = false;
 				}
 
 				if (e.IsKeyDown(Keys.E))
 				{
-					_up = true;
+					Up = true;
 				}
 				else if (e.IsKeyUp(Keys.E))
 				{
-					_up = false;
+					Up = false;
 				}
 
 				if (e.IsKeyDown(Keys.Q))
 				{
-					_down = true;
+					Down = true;
 				}
 				else if (e.IsKeyUp(Keys.Q))
 				{
-					_down = false;
+					Down = false;
 				}
 			}
 		}

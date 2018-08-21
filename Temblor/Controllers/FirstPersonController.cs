@@ -25,30 +25,30 @@ namespace Temblor.Controllers
 
 		public override void Move()
 		{
-			if (_forward)
+			if (Forward)
 			{
 				// Remember that OpenGL uses right-handed coordinates.
 				Camera.Position += Speed * Camera.Front;
 			}
-			else if (_backward)
+			else if (Backward)
 			{
 				Camera.Position -= Speed * Camera.Front;
 			}
 
-			if (_left)
+			if (Left)
 			{
 				Camera.Position -= Speed * Camera.Right;
 			}
-			else if (_right)
+			else if (Right)
 			{
 				Camera.Position += Speed * Camera.Right;
 			}
 
-			if (_up)
+			if (Up)
 			{
 				Camera.Position += Speed * Camera.WorldUp;
 			}
-			else if (_down)
+			else if (Down)
 			{
 				Camera.Position -= Speed * Camera.WorldUp;
 			}
