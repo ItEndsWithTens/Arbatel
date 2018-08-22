@@ -127,7 +127,6 @@ namespace Temblor.Formats
 
 							r.Rotate(pitch, yaw, roll);
 
-							r.CoordinateSpace = CoordinateSpace.World;
 							r.Position += Position;
 						}
 
