@@ -71,6 +71,11 @@ namespace Temblor.Formats
 
 		public bool Translucent;
 
+		/// <summary>
+		/// Any custom data associated with this MapObject.
+		/// </summary>
+		public object UserData { get; set; }
+
 		public MapObject()
 		{
 			AABB = new Aabb();
@@ -85,6 +90,19 @@ namespace Temblor.Formats
 		}
 		public MapObject(Block _block, DefinitionCollection _definitions, TextureCollection _textures) : this()
 		{
+		}
+		public MapObject(MapObject mo)
+		{
+			AABB = new Aabb(mo.AABB);
+			Children = new List<MapObject>(mo.Children);
+			Color = new Color4(mo.Color.R, mo.Color.G, mo.Color.B, mo.Color.A);
+			Definition = new Definition(mo.Definition);
+			KeyVals = new Dictionary<string, List<string>>(mo.KeyVals);
+			Position = new Vector3(mo.Position);
+			Renderables = new List<Renderable>(mo.Renderables);
+			TextureCollection = new TextureCollection(mo.TextureCollection);
+			Translucent = mo.Translucent;
+			UserData = mo.UserData;
 		}
 
 		public void Draw(Dictionary<ShadingStyle, Shader> shaders, ShadingStyle style, GLSurface surface, Camera camera)
@@ -169,6 +187,19 @@ namespace Temblor.Formats
 			return totalRenderables;
 		}
 
+		virtual public void Transform(Vector3 translation, Vector3 rotation, Vector3 scale)
+		{
+			foreach (var child in Children)
+			{
+				child.Transform(translation, rotation, scale);
+			}
+
+			foreach (var renderable in Renderables)
+			{
+				renderable.Transform(translation, rotation, scale);
+			}
+		}
+		
 		virtual public Aabb UpdateBounds()
 		{
 			AABB.Min = new Vector3(Position);

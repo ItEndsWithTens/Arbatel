@@ -18,6 +18,12 @@ namespace Temblor.Formats
 	/// </summary>
 	public class QuakeMapObject : MapObject
 	{
+		public QuakeMapObject() : base()
+		{
+		}
+		public QuakeMapObject(QuakeMapObject qmo) : base(qmo)
+		{
+		}
 		public QuakeMapObject(Block _block, DefinitionCollection _definitions) :
 			this(_block as QuakeBlock, _definitions)
 		{
@@ -79,7 +85,8 @@ namespace Temblor.Formats
 		{
 			var b = block as QuakeBlock;
 
-			// Contains brushes.
+			// Contains brushes. Checking the Solids count allows for both known
+			// and unknown solid entities, which can be treated the same way.
 			if (b.Solids.Count > 0)
 			{
 				foreach (var solid in b.Solids)
@@ -87,16 +94,23 @@ namespace Temblor.Formats
 					Renderables.Add(new QuakeBrush(solid, TextureCollection));
 				}
 			}
-			// Known point entity with predefined size.
-			else if (Definition != null && Definition.ClassType == ClassType.Point && Definition.Size != null)
+			// Known point entity.
+			else if (Definition?.ClassType == ClassType.Point)
 			{
-				string[] coords = KeyVals["origin"][0].Split(' ');
+				float x = Position.X;
+				float y = Position.Y;
+				float z = Position.Z;
 
-				float.TryParse(coords[0], out float x);
-				float.TryParse(coords[1], out float y);
-				float.TryParse(coords[2], out float z);
+				if (KeyVals.ContainsKey("origin"))
+				{
+					string[] coords = KeyVals["origin"][0].Split(' ');
 
-				Position = new Vector3(x, y, z);
+					float.TryParse(coords[0], out x);
+					float.TryParse(coords[1], out y);
+					float.TryParse(coords[2], out z);
+
+					Position = new Vector3(x, y, z);
+				}
 
 				if (Definition.RenderableSources.ContainsKey(RenderableSource.Key))
 				{
@@ -112,23 +126,28 @@ namespace Temblor.Formats
 						Directory.SetCurrentDirectory(Path.GetDirectoryName(instancePath));
 
 						var map = new QuakeMap(instancePath, Definition.DefinitionCollection, TextureCollection);
+						map.Transform(this);
+						UserData = map;
+
 						foreach (var mo in map.MapObjects)
 						{
+							// Since instances are point entities, none of their
+							// Renderables will be written out when saving the
+							// map to disk, so this is safe. Actually collapsing
+							// the instance is accomplished by way of UserData.
 							Renderables.AddRange(mo.GetAllRenderables());
 						}
 
-						foreach (var r in Renderables)
+						// Create a simple box to mark this instance's origin.
+						var generator = new BoxGenerator()
 						{
-							string[] angles = KeyVals["angles"][0].Split(' ');
+							Color = Color4.Orange
+						};
 
-							float.TryParse(angles[0], out float pitch);
-							float.TryParse(angles[1], out float yaw);
-							float.TryParse(angles[2], out float roll);
+						var box = generator.Generate();
+						box.Position = new Vector3(x, y, z);
 
-							r.Rotate(pitch, yaw, roll);
-
-							r.Position += Position;
-						}
+						Renderables.Add(box);
 
 						UpdateBounds();
 
@@ -150,21 +169,22 @@ namespace Temblor.Formats
 
 					Renderables.Add(box);
 				}
-			}
+				// Known point entity with no predefined size.
+				else
+				{
+					Renderable gem = new GemGenerator(Color4.Lime).Generate();
 
-			// Unknown point entity, known point entity with no predefined size,
-			// or entity whose renderables failed to load for some reason.
-			if (Renderables.Count == 0 && Children.Count == 0)
+					gem.Position = new Vector3(x, y, z);
+
+					Renderables.Add(gem);
+				}
+			}
+			// Unknown entity.
+			else if (Definition == null)
 			{
 				Renderable gem = new GemGenerator().Generate();
 
-				string[] coords = b.KeyVals["origin"][0].Split(' ');
-
-				float.TryParse(coords[0], out float x);
-				float.TryParse(coords[1], out float y);
-				float.TryParse(coords[2], out float z);
-
-				gem.Position = new Vector3(x, y, z);
+				gem.Position = Position;
 
 				Renderables.Add(gem);
 			}

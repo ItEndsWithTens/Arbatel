@@ -12,5 +12,8 @@ namespace Temblor.Formats
 		public TextureCollection()
 		{
 		}
+		public TextureCollection(TextureCollection collection) : base(collection)
+		{
+		}
 	}
 }

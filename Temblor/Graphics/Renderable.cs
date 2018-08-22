@@ -295,6 +295,10 @@ namespace Temblor.Graphics
 			GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);
 		}
 
+		public void Rotate(Vector3 rotation)
+		{
+			Rotate(rotation.Y, rotation.Z, rotation.X);
+		}
 		public void Rotate(float pitch, float yaw, float roll)
 		{
 			for (var i = 0; i < Vertices.Count; i++)
@@ -308,6 +312,33 @@ namespace Temblor.Graphics
 			}
 
 			UpdateBounds();
+		}
+
+		public void Scale(Vector3 scale)
+		{
+			Scale(scale.X, scale.Y, scale.Z);
+		}
+		public void Scale(float x, float y, float z)
+		{
+			// TODO: Implement scale.
+		}
+
+		public void Transform(Vector3 translation, Vector3 rotation, Vector3 scale)
+		{
+			if (scale != null)
+			{
+				Scale(scale);
+			}
+
+			if (rotation != null)
+			{
+				Rotate(rotation);
+			}
+
+			if (translation != null)
+			{
+				Position += translation;
+			}
 		}
 
 		public void TranslateRelative(Vector3 diff)

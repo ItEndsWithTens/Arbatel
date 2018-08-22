@@ -6,9 +6,66 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using Temblor.Graphics;
 
 namespace Temblor.Formats.Quake
 {
+	public enum CollapseType
+	{
+		Position,
+		Angle,
+		Target
+	}
+
+	public static class QuakeMapExtensions
+	{
+		public static QuakeMap Collapse(this QuakeMap map)
+		{
+			var result = new QuakeMap();
+
+			MapObject worldspawn = map.MapObjects.Find(o => o.Definition.ClassName == "worldspawn");
+			var newWorldspawn = new QuakeMapObject(worldspawn as QuakeMapObject)
+			{
+				Renderables = new List<Renderable>()
+			};
+
+			foreach (var mo in map.MapObjects)
+			{
+				if (mo.Definition.ClassName == "worldspawn")
+				{
+					foreach (var renderable in mo.Renderables)
+					{
+						if (renderable is QuakeBrush b)
+						{
+							newWorldspawn.Renderables.Add(b);
+						}
+					}
+				}
+				else if (mo.UserData is QuakeMap m)
+				{
+					var collapsed = m.Collapse();
+
+					newWorldspawn.Renderables.AddRange(collapsed.MapObjects[0].Renderables);
+
+					if (collapsed.MapObjects.Count > 1)
+					{
+						result.MapObjects.AddRange(collapsed.MapObjects.GetRange(1, collapsed.MapObjects.Count - 1));
+					}
+				}
+				else
+				{
+					result.MapObjects.Add(mo);
+				}
+			}
+
+			result.MapObjects.Reverse();
+			result.MapObjects.Add(newWorldspawn);
+			result.MapObjects.Reverse();
+
+			return result;
+		}
+	}
+
 	public class QuakeMap : Map
 	{
 		public List<Wad2> Wads;
