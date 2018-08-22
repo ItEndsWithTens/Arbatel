@@ -142,7 +142,7 @@ namespace Temblor.Formats
 				}
 				else if (Definition.RenderableSources.ContainsKey(RenderableSource.Size))
 				{
-					AABB s = Definition.Size;
+					Aabb s = Definition.Size;
 
 					var box = new BoxGenerator(s.Min, s.Max, Definition.Color).Generate();
 

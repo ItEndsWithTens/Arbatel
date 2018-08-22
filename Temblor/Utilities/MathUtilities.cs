@@ -258,7 +258,7 @@ namespace Temblor.Utilities
 
 			List<List<int>> pairs = Permutations(vertices.Count, 2);
 
-			var aabb = new AABB(vertices);
+			var aabb = new Aabb(vertices);
 
 			Dictionary<List<int>, double> angles = GetClockwiseAngles(vertices, pairs, aabb.Center, normal);
 

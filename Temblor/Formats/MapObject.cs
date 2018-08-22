@@ -13,7 +13,7 @@ namespace Temblor.Formats
 {
 	public class MapObject
 	{
-		public AABB AABB { get; protected set; }
+		public Aabb AABB { get; protected set; }
 
 		/// <summary>
 		/// A list of MapObjects nested within this one.
@@ -48,7 +48,6 @@ namespace Temblor.Formats
 			{
 				var diff = value - _position;
 
-				AABB.Center += diff;
 				AABB.Min += diff;
 				AABB.Max += diff;
 
@@ -74,7 +73,7 @@ namespace Temblor.Formats
 
 		public MapObject()
 		{
-			AABB = new AABB();
+			AABB = new Aabb();
 			Children = new List<MapObject>();
 			Color = new Color4(1.0f, 1.0f, 1.0f, 1.0f);
 			KeyVals = new Dictionary<string, List<string>>();
@@ -149,7 +148,7 @@ namespace Temblor.Formats
 
 			if (points.Count > 0)
 			{
-				AABB = new AABB(points);
+				AABB = new Aabb(points);
 			}
 		}
 
@@ -170,9 +169,8 @@ namespace Temblor.Formats
 			return totalRenderables;
 		}
 
-		virtual public AABB UpdateBounds()
+		virtual public Aabb UpdateBounds()
 		{
-			AABB.Center = new Vector3(Position);
 			AABB.Min = new Vector3(Position);
 			AABB.Max = new Vector3(Position);
 

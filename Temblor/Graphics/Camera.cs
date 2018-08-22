@@ -45,9 +45,9 @@ namespace Temblor.Graphics
 
 		public bool Contains(List<Vector3> points)
 		{
-			return Contains(new AABB(points));
+			return Contains(new Aabb(points));
 		}
-		public bool Contains(AABB aabb)
+		public bool Contains(Aabb aabb)
 		{
 			var contains = true;
 
@@ -72,7 +72,7 @@ namespace Temblor.Graphics
 				FarBottomRight
 			};
 
-			var frustumBounds = new AABB(frustumPoints);
+			var frustumBounds = new Aabb(frustumPoints);
 
 			bool outsideX = maxCamera.X < frustumBounds.Min.X || minCamera.X > frustumBounds.Max.X;
 			bool outsideY = maxCamera.Y < frustumBounds.Min.Y || minCamera.Y > frustumBounds.Max.Y;

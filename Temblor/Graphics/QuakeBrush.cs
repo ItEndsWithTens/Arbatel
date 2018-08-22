@@ -30,7 +30,7 @@ namespace Temblor.Graphics
 
 			BuildPolygons(solid, this);
 
-			AABB = new AABB(Vertices);
+			AABB = new Aabb(Vertices);
 		}
 		public QuakeBrush(Solid solid, TextureCollection textures)
 		{
@@ -43,7 +43,7 @@ namespace Temblor.Graphics
 
 			BuildPolygons(solid, this);
 
-			AABB = new AABB(Vertices);
+			AABB = new Aabb(Vertices);
 		}
 
 		/// <summary>

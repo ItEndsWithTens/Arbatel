@@ -141,7 +141,7 @@ namespace Temblor.Graphics
 	/// </remarks>
 	public class Renderable
 	{
-		public AABB AABB { get; protected set; }
+		public Aabb AABB { get; protected set; }
 
 		public Dictionary<GLSurface, Buffers> Buffers;
 
@@ -213,7 +213,7 @@ namespace Temblor.Graphics
 
 		public Renderable()
 		{
-			AABB = new AABB();
+			AABB = new Aabb();
 			Buffers = new Dictionary<GLSurface, Buffers>();
 			CoordinateSpace = CoordinateSpace.World;
 			Indices = new List<int>();
@@ -231,7 +231,7 @@ namespace Temblor.Graphics
 				Vertices.Add(new Vertex(point.X, point.Y, point.Z));
 			}
 
-			AABB = new AABB(Vertices);
+			AABB = new Aabb(Vertices);
 		}
 		public Renderable(List<Vertex> vertices) : this()
 		{
@@ -240,7 +240,7 @@ namespace Temblor.Graphics
 				Vertices.Add(vertex);
 			}
 
-			AABB = new AABB(Vertices);
+			AABB = new Aabb(Vertices);
 		}
 
 		public void Draw(Dictionary<ShadingStyle, Shader> shaders, ShadingStyle style, GLSurface surface, Camera camera)
@@ -332,7 +332,7 @@ namespace Temblor.Graphics
 			TranslateRelative(new Vector3(diffX, diffY, diffZ));
 		}
 
-		public AABB UpdateBounds()
+		public Aabb UpdateBounds()
 		{
 			var worldVerts = new List<Vector3>();
 			foreach (var v in Vertices)
@@ -344,7 +344,7 @@ namespace Temblor.Graphics
 				worldVerts.Add(updated);
 			}
 
-			AABB = new AABB(worldVerts);
+			AABB = new Aabb(worldVerts);
 
 			return AABB;
 		}

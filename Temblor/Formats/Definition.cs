@@ -122,7 +122,7 @@ namespace Temblor.Formats
 		/// </summary>
 		public Dictionary<RenderableSource, string> RenderableSources;
 
-		public AABB Size;
+		public Aabb Size;
 
 		public Definition()
 		{
@@ -145,7 +145,7 @@ namespace Temblor.Formats
 			KeyValsTemplate = new Dictionary<string, List<Option>>(d.KeyValsTemplate);
 			Offset = new Vector3(d.Offset);
 			RenderableSources = new Dictionary<RenderableSource, string>(d.RenderableSources);
-			Size = d.Size != null ? new AABB(d.Size) : null;
+			Size = d.Size != null ? new Aabb(d.Size) : null;
 		}
 	}
 }

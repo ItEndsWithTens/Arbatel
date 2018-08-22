@@ -10,19 +10,38 @@ namespace Temblor.Graphics
 	/// <summary>
 	/// An axis-aligned bounding box surrounding a given set of points.
 	/// </summary>
-	public class AABB
+	public class Aabb
 	{
-		public Vector3 Min;
-		public Vector3 Max;
-		public Vector3 Center;
+		private Vector3 min;
+		public Vector3 Min
+		{
+			get { return min; }
+			set
+			{
+				min = value;
+				Center = Min + ((Max - Min) / 2.0f);
+			}
+		}
 
-		public AABB()
+		private Vector3 max;
+		public Vector3 Max
+		{
+			get { return max; }
+			set
+			{
+				max = value;
+				Center = Min + ((Max - Min) / 2.0f);
+			}
+		}
+
+		public Vector3 Center { get; private set; }
+
+		public Aabb()
 		{
 			Min = new Vector3();
 			Max = new Vector3();
-			Center = new Vector3();
 		}
-		public AABB(List<Vertex> vertices) : base()
+		public Aabb(List<Vertex> vertices) : base()
 		{
 			var points = new List<Vector3>();
 
@@ -33,53 +52,53 @@ namespace Temblor.Graphics
 
 			Init(points);
 		}
-		public AABB(List<Vector3> points) : base()
+		public Aabb(List<Vector3> points) : base()
 		{
 			Init(points);
 		}
-		public AABB(AABB aabb)
+		public Aabb(Aabb aabb)
 		{
 			Min = new Vector3(aabb.Min);
 			Max = new Vector3(aabb.Max);
-			Center = new Vector3(aabb.Center);
 		}
 
 		private void Init(List<Vector3> vertices)
 		{
-			Min = vertices[0];
-			Max = vertices[0];
+			Vector3 newMin = vertices[0];
+			Vector3 newMax = vertices[0];
 
 			foreach (var vertex in vertices)
 			{
-				if (vertex.X < Min.X)
+				if (vertex.X < newMin.X)
 				{
-					Min.X = vertex.X;
+					newMin.X = vertex.X;
 				}
-				if (vertex.X > Max.X)
+				if (vertex.X > newMax.X)
 				{
-					Max.X = vertex.X;
-				}
-
-				if (vertex.Y < Min.Y)
-				{
-					Min.Y = vertex.Y;
-				}
-				if (vertex.Y > Max.Y)
-				{
-					Max.Y = vertex.Y;
+					newMax.X = vertex.X;
 				}
 
-				if (vertex.Z < Min.Z)
+				if (vertex.Y < newMin.Y)
 				{
-					Min.Z = vertex.Z;
+					newMin.Y = vertex.Y;
 				}
-				if (vertex.Z > Max.Z)
+				if (vertex.Y > newMax.Y)
 				{
-					Max.Z = vertex.Z;
+					newMax.Y = vertex.Y;
+				}
+
+				if (vertex.Z < newMin.Z)
+				{
+					newMin.Z = vertex.Z;
+				}
+				if (vertex.Z > newMax.Z)
+				{
+					newMax.Z = vertex.Z;
 				}
 			}
 
-			Center = Min + ((Max - Min) / 2.0f);
+			Min = newMin;
+			Max = newMax;
 		}
 
 		/// <summary>
@@ -88,58 +107,45 @@ namespace Temblor.Graphics
 		/// <param name="lhs">The first AABB to combine.</param>
 		/// <param name="rhs">The second AABB to combine.</param>
 		/// <returns>A new AABB representing the total AABB of the two inputs.</returns>
-		public static AABB operator +(AABB lhs, AABB rhs)
+		public static Aabb operator +(Aabb lhs, Aabb rhs)
 		{
-			var updated = new AABB(lhs);
+			Vector3 newMin = lhs.Min;
+			Vector3 newMax = lhs.Max;
 
-			if (rhs.Max.X > updated.Max.X)
+			if (rhs.Max.X > newMax.X)
 			{
-				updated.Max.X = rhs.Max.X;
+				newMax.X = rhs.Max.X;
 			}
 
-			if (rhs.Max.Y > updated.Max.Y)
+			if (rhs.Max.Y > newMax.Y)
 			{
-				updated.Max.Y = rhs.Max.Y;
+				newMax.Y = rhs.Max.Y;
 			}
 
-			if (rhs.Max.Z > updated.Max.Z)
+			if (rhs.Max.Z > newMax.Z)
 			{
-				updated.Max.Z = rhs.Max.Z;
+				newMax.Z = rhs.Max.Z;
 			}
 
-			if (rhs.Min.X < updated.Min.X)
+			if (rhs.Min.X < newMin.X)
 			{
-				updated.Min.X = rhs.Min.X;
+				newMin.X = rhs.Min.X;
 			}
 
-			if (rhs.Min.Y < updated.Min.Y)
+			if (rhs.Min.Y < newMin.Y)
 			{
-				updated.Min.Y = rhs.Min.Y;
+				newMin.Y = rhs.Min.Y;
 			}
 
-			if (rhs.Min.Z < updated.Min.Z)
+			if (rhs.Min.Z < newMin.Z)
 			{
-				updated.Min.Z = rhs.Min.Z;
+				newMin.Z = rhs.Min.Z;
 			}
 
-			updated.Center = updated.Min + ((updated.Max - updated.Min) / 2.0f);
-
-			return updated;
-		}
-
-		/// <summary>
-		/// Offset an AABB in 3D.
-		/// </summary>
-		/// <param name="lhs">The AABB to offset.</param>
-		/// <param name="rhs">The distance to offset.</param>
-		/// <returns>A new AABB, offset by the specified amounts.</returns>
-		public static AABB operator +(AABB lhs, Vector3 rhs)
-		{
-			return new AABB
+			return new Aabb()
 			{
-				Min = lhs.Min + rhs,
-				Max = lhs.Max + rhs,
-				Center = lhs.Center + rhs
+				Min = newMin,
+				Max = newMax
 			};
 		}
 
@@ -149,13 +155,27 @@ namespace Temblor.Graphics
 		/// <param name="lhs">The AABB to offset.</param>
 		/// <param name="rhs">The distance to offset.</param>
 		/// <returns>A new AABB, offset by the specified amounts.</returns>
-		public static AABB operator -(AABB lhs, Vector3 rhs)
+		public static Aabb operator +(Aabb lhs, Vector3 rhs)
 		{
-			return new AABB
+			return new Aabb
+			{
+				Min = lhs.Min + rhs,
+				Max = lhs.Max + rhs
+			};
+		}
+
+		/// <summary>
+		/// Offset an AABB in 3D.
+		/// </summary>
+		/// <param name="lhs">The AABB to offset.</param>
+		/// <param name="rhs">The distance to offset.</param>
+		/// <returns>A new AABB, offset by the specified amounts.</returns>
+		public static Aabb operator -(Aabb lhs, Vector3 rhs)
+		{
+			return new Aabb
 			{
 				Min = lhs.Min - rhs,
-				Max = lhs.Max - rhs,
-				Center = lhs.Center - rhs
+				Max = lhs.Max - rhs
 			};
 		}
 	}

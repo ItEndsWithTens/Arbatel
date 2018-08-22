@@ -213,18 +213,23 @@ namespace Temblor.Formats
 						{
 							List<string> vals = ExtractHeaderProperty("size", header);
 
-							var size = new AABB();
+							var size = new Aabb();
 
 							// Size defined by custom min and max.
 							if (vals.Count == 6)
 							{
-								float.TryParse(vals[0], out size.Min.X);
-								float.TryParse(vals[1], out size.Min.Y);
-								float.TryParse(vals[2], out size.Min.Z);
+								var min = new Vector3();
+								float.TryParse(vals[0], out min.X);
+								float.TryParse(vals[1], out min.Y);
+								float.TryParse(vals[2], out min.Z);
 
-								float.TryParse(vals[3], out size.Max.X);
-								float.TryParse(vals[4], out size.Max.Y);
-								float.TryParse(vals[5], out size.Max.Z);
+								var max = new Vector3();
+								float.TryParse(vals[3], out max.X);
+								float.TryParse(vals[4], out max.Y);
+								float.TryParse(vals[5], out max.Z);
+
+								size.Min = min;
+								size.Max = max;
 							}
 							// Size defined by width, depth, and height.
 							else
@@ -233,13 +238,14 @@ namespace Temblor.Formats
 								float.TryParse(vals[1], out float depth);
 								float.TryParse(vals[2], out float height);
 
-								size.Max.X = width / 2.0f;
-								size.Max.Y = depth / 2.0f;
-								size.Max.Z = height / 2.0f;
+								size.Max = new Vector3()
+								{
+									X = width / 2.0f,
+									Y = depth / 2.0f,
+									Z = height / 2.0f
+								};
 
-								size.Min.X = -size.Max.X;
-								size.Min.Y = -size.Max.Y;
-								size.Min.Z = -size.Max.Z;
+								size.Min = -size.Max;
 							}
 
 							def.Size = size;
