@@ -36,9 +36,28 @@ namespace Temblor
 				Items =
 					{
 					    // File submenu
-					    //new ButtonMenuItem { Text = "&File", Items = { clickMe } },
+					    new ButtonMenuItem { Text = "&File", Items = { } },
 					    // new ButtonMenuItem { Text = "&Edit", Items = { /* commands/items */ } },
 					    // new ButtonMenuItem { Text = "&View", Items = { /* commands/items */ } },
+						new ButtonMenuItem
+						{
+							Text = "&Instancing",
+							Items =
+							{
+								new ButtonMenuItem
+								{
+									Text = "View",
+									Items =
+									{
+										new CheckMenuItem { Text = "Hidden", Checked = false },
+										new CheckMenuItem { Text = "Tinted", Checked = true },
+										new CheckMenuItem { Text = "Normal", Checked = false  }
+									}
+								},
+								new SeparatorMenuItem { },
+								new ButtonMenuItem { Text ="Save collapsed as..." }
+							}
+						}
 				    },
 				ApplicationItems =
 					{

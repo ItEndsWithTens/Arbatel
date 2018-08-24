@@ -11,9 +11,61 @@ using Temblor.Graphics;
 
 namespace Temblor.Formats
 {
+	/// <summary>
+	/// What components of a MapObject should be kept when saving a Map.
+	/// </summary>
+	public enum Saveability
+	{
+		/// <summary>
+		/// Don't save this object.
+		/// </summary>
+		None = 0x0,
+
+		/// <summary>
+		/// Save this object's entity definition.
+		/// </summary>
+		Entity = 0x1,
+
+		/// <summary>
+		/// Save this object's solids.
+		/// </summary>
+		Solids = 0x2,
+
+		/// <summary>
+		/// Save this object's children.
+		/// </summary>
+		Children = 0x4,
+
+		/// <summary>
+		/// Save this entire object; key/values, solids, children, and all.
+		/// </summary>
+		All = Entity | Solids | Children
+	}
+
 	public class MapObject
 	{
 		public Aabb AABB { get; protected set; }
+
+		/// <summary>
+		/// The inclusive, flat list of all MapObjects contained by this one.
+		/// </summary>
+		public List<MapObject> AllObjects
+		{
+			get
+			{
+				var all = new List<MapObject>()
+				{
+					this
+				};
+
+				foreach (var child in Children)
+				{
+					all.AddRange(child.AllObjects);
+				}
+
+				return all;
+			}
+		}
 
 		/// <summary>
 		/// A list of MapObjects nested within this one.
@@ -38,22 +90,23 @@ namespace Temblor.Formats
 		/// list should be assumed to be set to their defaults, and any extras
 		/// not in the template should be permitted to stay.
 		/// </remarks>
-		public Dictionary<string, List<string>> KeyVals;
+		public Dictionary<string, Option> KeyVals;
 
-		private Vector3 _position;
-		public Vector3 Position
-		{
-			get { return _position; }
-			set
-			{
-				var diff = value - _position;
+		//private Vector3 position;
+		//public Vector3 Position
+		//{
+		//	get { return position; }
+		//	set
+		//	{
+		//		var diff = value - position;
 
-				AABB.Min += diff;
-				AABB.Max += diff;
+		//		AABB.Min += diff;
+		//		AABB.Max += diff;
 
-				_position = value;
-			}
-		}
+		//		position = value;
+		//	}
+		//}
+		public Vector3 Position { get; set; }
 
 		/// <summary>
 		/// Anything associated with this MapObject that's meant to be rendered.
@@ -63,6 +116,11 @@ namespace Temblor.Formats
 		/// object and should be drawn whenever the object is drawn.
 		/// </remarks>
 		public List<Renderable> Renderables;
+
+		/// <summary>
+		/// What components of this object should be kept when saving a map.
+		/// </summary>
+		public Saveability Saveability { get; set; }
 
 		/// <summary>
 		/// The TextureCollection containing the textures used by this MapObject.
@@ -81,14 +139,14 @@ namespace Temblor.Formats
 			AABB = new Aabb();
 			Children = new List<MapObject>();
 			Color = new Color4(1.0f, 1.0f, 1.0f, 1.0f);
-			KeyVals = new Dictionary<string, List<string>>();
+			KeyVals = new Dictionary<string, Option>();
 			Renderables = new List<Renderable>();
 			Translucent = false;
 		}
-		public MapObject(Block _block, DefinitionCollection _definitions) : this()
+		public MapObject(Block block, DefinitionDictionary definitions) : this()
 		{
 		}
-		public MapObject(Block _block, DefinitionCollection _definitions, TextureCollection _textures) : this()
+		public MapObject(Block block, DefinitionDictionary definitions, TextureCollection textures) : this()
 		{
 		}
 		public MapObject(MapObject mo)
@@ -97,9 +155,10 @@ namespace Temblor.Formats
 			Children = new List<MapObject>(mo.Children);
 			Color = new Color4(mo.Color.R, mo.Color.G, mo.Color.B, mo.Color.A);
 			Definition = new Definition(mo.Definition);
-			KeyVals = new Dictionary<string, List<string>>(mo.KeyVals);
+			KeyVals = new Dictionary<string, Option>(mo.KeyVals);
 			Position = new Vector3(mo.Position);
 			Renderables = new List<Renderable>(mo.Renderables);
+			Saveability = mo.Saveability;
 			TextureCollection = new TextureCollection(mo.TextureCollection);
 			Translucent = mo.Translucent;
 			UserData = mo.UserData;
@@ -191,6 +250,7 @@ namespace Temblor.Formats
 		{
 			foreach (var child in Children)
 			{
+				// Transform children relative to origin or relative to parent?
 				child.Transform(translation, rotation, scale);
 			}
 
@@ -198,12 +258,72 @@ namespace Temblor.Formats
 			{
 				renderable.Transform(translation, rotation, scale);
 			}
+
+			// If this MapObject has a key/value pair specifying a separate
+			// origin, this will be overwritten, but it takes care of entities
+			// without such a key, while also updating the bounding box.
+			Position = UpdateBounds().Center;
+
+			var transformedKeyVals = new Dictionary<string, Option>();
+
+			foreach (var kv in KeyVals)
+			{
+				var newOption = new Option(kv.Value);
+
+				string[] split;
+				switch (kv.Value.TransformType)
+				{
+					case TransformType.Angles:
+						split = kv.Value.Value.Split(' ');
+
+						var angles = new Vector3();
+						float.TryParse(split[0], out angles.X);
+						float.TryParse(split[1], out angles.Y);
+						float.TryParse(split[2], out angles.Z);
+						angles += rotation;
+
+						newOption.Value = String.Join(" ", new float[] { angles.X, angles.Y, angles.Z });
+
+						transformedKeyVals.Add(kv.Key, newOption);
+						break;
+
+					case TransformType.Position:
+						split = kv.Value.Value.Split(' ');
+
+						var origin = new Vertex();
+						float.TryParse(split[0], out origin.Position.X);
+						float.TryParse(split[1], out origin.Position.Y);
+						float.TryParse(split[2], out origin.Position.Z);
+
+						// TODO: Scale!
+						origin = Vertex.Rotate(origin, rotation.Y, rotation.Z, rotation.X);
+						origin.Position += translation;
+
+						Position = origin.Position;
+
+						newOption.Value = origin.Position.X + " " + origin.Position.Y + " " + origin.Position.Z;
+						transformedKeyVals.Add(kv.Key, newOption);
+						break;
+
+					default:
+						transformedKeyVals.Add(kv.Key, kv.Value);
+						break;
+				}
+			}
+
+			KeyVals = transformedKeyVals;
 		}
-		
+
 		virtual public Aabb UpdateBounds()
 		{
-			AABB.Min = new Vector3(Position);
-			AABB.Max = new Vector3(Position);
+			if (Renderables.Count == 0)
+			{
+				return AABB;
+			}
+
+			Vector3 baseline = Renderables[0].ToWorld().AABB.Center;
+			AABB.Min = new Vector3(baseline);
+			AABB.Max = new Vector3(baseline);
 
 			foreach (var child in Children)
 			{

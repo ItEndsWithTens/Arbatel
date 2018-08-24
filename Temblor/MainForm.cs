@@ -45,11 +45,11 @@ namespace Temblor
 				view.MakeCurrent();
 			}
 
-			//var palettePath = "D:/Development/Temblor/res/paletteQ.lmp";
-			var palettePath = "C:/Users/Harry/Development/Temblor/res/paletteQ.lmp";
+			var palettePath = "D:/Development/Temblor/res/paletteQ.lmp";
+			//var palettePath = "C:/Users/Harry/Development/Temblor/res/paletteQ.lmp";
 			var palette = new Palette().LoadQuakePalette(palettePath);
 
-			//Wad = new Wad2("D:/Projects/Games/Maps/Quake/common/wads/quake.wad", palette);
+			Wad = new Wad2("D:/Projects/Games/Maps/Quake/common/wads/quake.wad", palette);
 			//Wad = new Wad2("D:/Games/Quake/ad/maps/ad_sepulcher.wad", palette);
 			//Wad = new Wad2("D:/Games/Quake/ad/maps/xmasjam_tens.wad", palette);
 			//Wad = new Wad2("D:/Games/Quake/ad/maps/xmasjam_icequeen.wad", palette);
@@ -61,19 +61,19 @@ namespace Temblor
 			//Wad = new Wad2("D:/Games/Quake/jam1/maps/jam1_scampie.wad", palette);
 			//Wad = new Wad2("D:/Games/Quake/retrojam5/maps/retrojam5_shambler.wad", palette);
 
-			Wad = new Wad2("C:/Games/Quake/ID1/quake.wad", palette);
+			//Wad = new Wad2("C:/Games/Quake/ID1/quake.wad", palette);
 
 			// Should throw InvalidDataException referencing the filename.
 			//var wad = new Wad2("D:/Projects/Games/Maps/Quake/common/wads/prototype.txt");
 
 			KeyDown += MainForm_KeyDown;
 
-			//var fgd = new QuakeFgd("D:/Development/Temblor/scratch/quake4ericwTools.fgd");
-			//var anotherFgd = new QuakeFgd("D:/Development/Temblor/scratch/func_instance.fgd");
-			var fgd = new QuakeFgd("C:/Users/Harry/Development/Temblor/scratch/quake4ericwTools.fgd");
-			var anotherFgd = new QuakeFgd("C:/Users/Harry/Development/Temblor/scratch/func_instance.fgd");
+			var fgd = new QuakeFgd("D:/Development/Temblor/extras/quake4ericwTools.fgd");
+			var anotherFgd = new QuakeFgd("D:/Development/Temblor/extras/func_instance.fgd");
+			//var fgd = new QuakeFgd("C:/Users/Harry/Development/Temblor/scratch/quake4ericwTools.fgd");
+			//var anotherFgd = new QuakeFgd("C:/Users/Harry/Development/Temblor/scratch/func_instance.fgd");
 
-			var fgds = new List<DefinitionCollection>() { fgd, anotherFgd };
+			var fgds = new List<DefinitionDictionary>() { fgd, anotherFgd };
 
 
 
@@ -110,6 +110,7 @@ namespace Temblor
 			//var filename = "D:/Development/Temblor/scratch/translucency.map";
 			//var filename = "D:/Development/Temblor/scratch/rotations_fromTB2.map";
 			//var filename = "D:/Development/Temblor/scratch/instance_test.map";
+			var filename = "D:/Development/Temblor/TemblorTest.Core/data/instance_test-arrow_wedge.map";
 			//var filename = "D:/Games/Quake/ad/src/xmasjam_tens.map";
 			//var filename = "D:/Games/Quake/ad/src/xmasjam_bal.map";
 			//var filename = "D:/Games/Quake/ad/src/xmasjam_icequeen.map";
@@ -134,7 +135,7 @@ namespace Temblor
 			//var filename = "C:/Users/Harry/Development/Temblor/scratch/texturedthing.map";
 			//var filename = "C:/Users/Harry/Development/Temblor/scratch/manytextures.map";
 			//var filename = "C:/Games/Quake/quake_map_source/start.map";
-			var filename = "C:/Users/Harry/Development/Temblor/scratch/instance_test.map";
+			//var filename = "C:/Users/Harry/Development/Temblor/scratch/instance_test.map";
 
 
 
@@ -143,10 +144,10 @@ namespace Temblor
 			var combined = fgds.Stack();
 
 
-			var oldCwd = Directory.GetCurrentDirectory();
-			Directory.SetCurrentDirectory(Path.GetDirectoryName(filename));
+			//var oldCwd = Directory.GetCurrentDirectory();
+			//Directory.SetCurrentDirectory(Path.GetDirectoryName(filename));
 			var map = new QuakeMap(filename, combined, Wad);
-			Directory.SetCurrentDirectory(oldCwd);
+			//Directory.SetCurrentDirectory(oldCwd);
 
 
 
@@ -162,7 +163,12 @@ namespace Temblor
 
 
 
-			using (var sw = new StreamWriter(new FileStream("C:/Users/Harry/Development/Temblor/scratch/testoutput.map", FileMode.Create, FileAccess.Write)))
+			//using (var sw = new StreamWriter(new FileStream("C:/Users/Harry/Development/Temblor/scratch/testoutput.map", FileMode.Create, FileAccess.Write)))
+			//{
+			//	sw.Write(collapsed.ToString());
+			//}
+
+			using (var sw = new StreamWriter(new FileStream("D:/Development/Temblor/scratch/testoutput.map", FileMode.Create, FileAccess.Write)))
 			{
 				sw.Write(collapsed.ToString());
 			}

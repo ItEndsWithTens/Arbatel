@@ -13,6 +13,32 @@ using Temblor.Utilities;
 
 namespace Temblor.Formats
 {
+	public static class QuakeMapObjectExtensions
+	{
+		public static List<MapObject> Collapse(this MapObject mo)
+		{
+			var collapsed = new QuakeMapObject(mo);
+			collapsed.Children.Clear();
+
+			foreach (var child in mo.Children)
+			{
+				collapsed.Children.AddRange(new QuakeMapObject(child).Collapse());
+			}
+
+			if (mo.Definition.ClassName == "worldspawn")
+			{
+				collapsed.Saveability = Saveability.Solids;
+			}
+			else if (mo.Definition.ClassName == "func_instance")
+			{
+				collapsed.Saveability = Saveability.Children;
+			}
+
+			var onlyChildren = collapsed.Saveability == Saveability.Children;
+			return onlyChildren ? collapsed.Children : new List<MapObject>() { collapsed };
+		}
+	}
+
 	/// <summary>
 	/// Any key/value-bearing entity in a Quake map.
 	/// </summary>
@@ -21,29 +47,43 @@ namespace Temblor.Formats
 		public QuakeMapObject() : base()
 		{
 		}
+		public QuakeMapObject(MapObject mo) : base(mo)
+		{
+		}
 		public QuakeMapObject(QuakeMapObject qmo) : base(qmo)
 		{
 		}
-		public QuakeMapObject(Block _block, DefinitionCollection _definitions) :
-			this(_block as QuakeBlock, _definitions)
+		public QuakeMapObject(Block block, DefinitionDictionary definitions) :
+			this(block, definitions, new TextureCollection())
 		{
 		}
-		public QuakeMapObject(Block _block, DefinitionCollection _definitions, TextureCollection _textures) :
-			this(_block as QuakeBlock, _definitions, _textures)
+		public QuakeMapObject(Block block, DefinitionDictionary definitions, TextureCollection textures) :
+			base(block, definitions, textures)
 		{
-		}
-		public QuakeMapObject(QuakeBlock _block, DefinitionCollection _definitions) :
-			base(_block, _definitions)
-		{
-			KeyVals = new Dictionary<string, List<string>>(_block.KeyVals);
+			QuakeBlock quakeBlock;
+			if (block is QuakeBlock)
+			{
+				quakeBlock = block as QuakeBlock;
+			}
+			else
+			{
+				var message = "Provided Block isn't actually a QuakeBlock!";
+				throw new ArgumentException(message);
+			}
 
-			Definition = _definitions[KeyVals["classname"][0]];
+			KeyVals = new Dictionary<string, Option>(quakeBlock.KeyVals);
 
-			foreach (var child in _block.Children)
+			Definition = definitions[KeyVals["classname"].Value];
+
+			Saveability = Definition.Saveability;
+
+			TextureCollection = textures;
+
+			foreach (var child in quakeBlock.Children)
 			{
 				if (child.KeyVals.Count > 0)
 				{
-					Children.Add(new QuakeMapObject(child, _definitions));
+					Children.Add(new QuakeMapObject(child, definitions, textures));
 				}
 				else
 				{
@@ -51,34 +91,26 @@ namespace Temblor.Formats
 				}
 			}
 
-			ExtractRenderables(_block);
+			ExtractRenderables(quakeBlock);
 
 			UpdateBounds();
-		}
-		public QuakeMapObject(QuakeBlock _block, DefinitionCollection _definitions, TextureCollection _textures) :
-			base(_block, _definitions, _textures)
-		{
-			KeyVals = new Dictionary<string, List<string>>(_block.KeyVals);
 
-			Definition = _definitions[KeyVals["classname"][0]];
+			Position = AABB.Center;
 
-			TextureCollection = _textures;
-
-			foreach (var child in _block.Children)
+			if (KeyVals.ContainsKey("origin"))
 			{
-				if (child.KeyVals.Count > 0)
-				{
-					Children.Add(new QuakeMapObject(child, _definitions, _textures));
-				}
-				else
-				{
-					ExtractRenderables(child);
-				}
+				string[] coords = KeyVals["origin"].Value.Split(' ');
+
+				float.TryParse(coords[0], out float x);
+				float.TryParse(coords[1], out float y);
+				float.TryParse(coords[2], out float z);
+
+				Position = new Vector3(x, y, z);
 			}
-
-			ExtractRenderables(_block);
-
-			UpdateBounds();
+			else if (Definition.ClassName == "worldspawn")
+			{
+				Position = new Vector3(0, 0, 0);
+			}
 		}
 
 		protected override void ExtractRenderables(Block block)
@@ -103,7 +135,7 @@ namespace Temblor.Formats
 
 				if (KeyVals.ContainsKey("origin"))
 				{
-					string[] coords = KeyVals["origin"][0].Split(' ');
+					string[] coords = KeyVals["origin"].Value.Split(' ');
 
 					float.TryParse(coords[0], out x);
 					float.TryParse(coords[1], out y);
@@ -116,14 +148,12 @@ namespace Temblor.Formats
 				{
 					string key = Definition.RenderableSources[RenderableSource.Key];
 
-					string path = KeyVals[key][0];
+					string path = KeyVals[key].Value;
 
 					if (path.EndsWith(".map"))
 					{
 						var oldCwd = Directory.GetCurrentDirectory();
 						var instancePath = oldCwd + Path.DirectorySeparatorChar + path;
-
-						Directory.SetCurrentDirectory(Path.GetDirectoryName(instancePath));
 
 						var map = new QuakeMap(instancePath, Definition.DefinitionCollection, TextureCollection);
 						map.Transform(this);
@@ -135,7 +165,15 @@ namespace Temblor.Formats
 							// Renderables will be written out when saving the
 							// map to disk, so this is safe. Actually collapsing
 							// the instance is accomplished by way of UserData.
-							Renderables.AddRange(mo.GetAllRenderables());
+							//Renderables.AddRange(mo.GetAllRenderables());
+
+							var modified = new QuakeMapObject(mo);
+							if (mo.KeyVals["classname"].Value == "worldspawn")
+							{
+								modified.Saveability = Saveability.Solids;
+							}
+
+							Children.Add(modified);
 						}
 
 						// Create a simple box to mark this instance's origin.
@@ -148,10 +186,6 @@ namespace Temblor.Formats
 						box.Position = new Vector3(x, y, z);
 
 						Renderables.Add(box);
-
-						UpdateBounds();
-
-						Directory.SetCurrentDirectory(oldCwd);
 					}
 				}
 				else if (Definition.RenderableSources.ContainsKey(RenderableSource.Model))
@@ -164,7 +198,7 @@ namespace Temblor.Formats
 
 					var box = new BoxGenerator(s.Min, s.Max, Definition.Color).Generate();
 
-					box.CoordinateSpace = CoordinateSpace.World;
+					//box.CoordinateSpace = CoordinateSpace.World;
 					box.Position = Position;
 
 					Renderables.Add(box);
@@ -194,7 +228,7 @@ namespace Temblor.Formats
 		{
 			Renderable gem = new GemGenerator(Color4.Red).Generate();
 
-			string[] coords = block.KeyVals["origin"][0].Split(' ');
+			string[] coords = block.KeyVals["origin"].Value.Split(' ');
 
 			float.TryParse(coords[0], out float x);
 			float.TryParse(coords[1], out float y);

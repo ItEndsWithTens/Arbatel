@@ -2,6 +2,7 @@
 using OpenTK;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -12,6 +13,11 @@ namespace Temblor.Formats
 {
 	public class Block
 	{
+		/// <summary>
+		/// The DefinitionDictionary this block pulled its key/value defaults from.
+		/// </summary>
+		public DefinitionDictionary Definitions { get; set; }
+
 		public string OpenDelimiter = "{";
 		public string CloseDelimiter = "}";
 		public string KeyValDelimiter = "\"";
@@ -28,7 +34,7 @@ namespace Temblor.Formats
 		/// </summary>
 		public int RawLength;
 
-		public Dictionary<string, List<string>> KeyVals = new Dictionary<string, List<string>>();
+		public Dictionary<string, Option> KeyVals = new Dictionary<string, Option>();
 
 		public List<Block> Children = new List<Block>();
 
@@ -40,6 +46,8 @@ namespace Temblor.Formats
 		/// targets them, only whether they target anything else.
 		/// </remarks>
 		public bool HasConnectionsOut = false;
+
+		public Saveability Saveability { get; set; }
 
 		public Block()
 		{
@@ -81,8 +89,9 @@ namespace Temblor.Formats
 					if (list[i] == "\"")
 					{
 						quotes++;
-						i++;
 					}
+
+					i++;
 				}
 
 				key = list[i++];
@@ -92,8 +101,9 @@ namespace Temblor.Formats
 					if (list[i] == "\"")
 					{
 						quotes++;
-						i++;
 					}
+
+					i++;
 				}
 
 				if (list[i] != "\"")
@@ -106,8 +116,9 @@ namespace Temblor.Formats
 					if (list[i] == "\"")
 					{
 						quotes++;
-						i++;
 					}
+
+					i++;
 				}
 
 				keyVals.Add(new KeyValuePair<string, string>(key, value));

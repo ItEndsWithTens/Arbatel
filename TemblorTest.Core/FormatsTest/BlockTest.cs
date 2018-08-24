@@ -34,16 +34,16 @@ namespace TemblorTest.Core.FormatsTest
 				var raw = new List<string>()
 				{
 					"{",
-					"( -256 512 512 ) ( -256 512 0 ) ( -256 0 512 ) TRIGGER [ 0 1 0 0 ] [ 0 0 - 1 0 ] 0 1 1",
-					"( -768 0 512 ) ( -768 0 0 ) ( -768 512 512 ) TRIGGER [ 0 1 0 0 ] [ 0 0 -1 0 ] 0 1 1",
-					"( -256 0 512 ) ( -256 0 0 ) ( -768 0 512 ) TRIGGER [ 1 0 0 0 ] [ 0 0 -1 0 ] 0 1 1",
-					"( -768 512 512 ) ( -768 512 0 ) ( -256 512 512 ) TRIGGER [ 1 0 0 0 ] [ 0 0 -1 0 ] 0 1 1",
-					"( -768 512 0 ) ( -768 0 0 ) ( -256 512 0 ) TRIGGER [ 1 0 0 0 ] [ 0 -1 0 0 ] 0 1 1",
+					"( -256 512 512 ) ( -256 512 0 ) ( -256 0 512 ) TRIGGER [ 0 1 0 0 ] [ 0 0 - 1 0 ] 0 1 1" +
+					"( -768 0 512 ) ( -768 0 0 ) ( -768 512 512 ) TRIGGER [ 0 1 0 0 ] [ 0 0 -1 0 ] 0 1 1" +
+					"( -256 0 512 ) ( -256 0 0 ) ( -768 0 512 ) TRIGGER [ 1 0 0 0 ] [ 0 0 -1 0 ] 0 1 1" +
+					"( -768 512 512 ) ( -768 512 0 ) ( -256 512 512 ) TRIGGER [ 1 0 0 0 ] [ 0 0 -1 0 ] 0 1 1" +
+					"( -768 512 0 ) ( -768 0 0 ) ( -256 512 0 ) TRIGGER [ 1 0 0 0 ] [ 0 -1 0 0 ] 0 1 1" +
 					"( -256 0 512 ) ( -768 0 512 ) ( -256 512 512 ) TRIGGER [ 1 0 0 0 ] [ 0 -1 0 0 ] 0 1 1",
 					"}"
 				};
 
-				var block = new QuakeBlock(raw, 0);
+				var block = new QuakeBlock(raw, 0, new DefinitionDictionary());
 			}
 
 			[TestCase]
@@ -54,16 +54,15 @@ namespace TemblorTest.Core.FormatsTest
 				var raw = new List<string>()
 				{
 					"{",
-					"\"_phong\" \"1\"",
+					"\"_phong\" \"1\"" +
 					"\"classname\" \"func_detail\"",
-					"// brush 32",
 					"{",
-					"( -2272 1104 832 ) ( -2256 1104 832 ) ( -2272 1024 832 ) ceiling5 0 32 0 1.000000 1.000000",
-					"( -2272 1104 832 ) ( -2272 1040 832 ) ( -2264 1040 800 ) city2_5 0 32 0 1.000000 1.000000",
-					"( -2240 1024 832 ) ( -2240 1104 832 ) ( -2240 1104 800 ) comp1_6 0 32 0 1.000000 1.000000",
-					"( -2272 1040 832 ) ( -2256 1024 832 ) ( -2248 1024 800 ) cop1_1 8 32 0 0.700000 1.000000",
-					"( -2256 1024 832 ) ( -2240 1024 832 ) ( -2240 1024 800 ) dr05_2 0 32 0 -1.000000 1.000000",
-					"( -2264 1104 688 ) ( -2264 1080 688 ) ( -2208 1104 688 ) exit02_2 0 32 0 1.000000 1.000000",
+					"( -2272 1104 832 ) ( -2256 1104 832 ) ( -2272 1024 832 ) ceiling5 0 32 0 1.000000 1.000000" +
+					"( -2272 1104 832 ) ( -2272 1040 832 ) ( -2264 1040 800 ) city2_5 0 32 0 1.000000 1.000000" +
+					"( -2240 1024 832 ) ( -2240 1104 832 ) ( -2240 1104 800 ) comp1_6 0 32 0 1.000000 1.000000" +
+					"( -2272 1040 832 ) ( -2256 1024 832 ) ( -2248 1024 800 ) cop1_1 8 32 0 0.700000 1.000000" +
+					"( -2256 1024 832 ) ( -2240 1024 832 ) ( -2240 1024 800 ) dr05_2 0 32 0 -1.000000 1.000000" +
+					"( -2264 1104 688 ) ( -2264 1080 688 ) ( -2208 1104 688 ) exit02_2 0 32 0 1.000000 1.000000" +
 					"( -2240 1104 832 ) ( -2272 1104 832 ) ( -2264 1104 800 ) floor01_5 0 32 0 1.000000 1.000000",
 					"}",
 					"}"
@@ -103,7 +102,7 @@ namespace TemblorTest.Core.FormatsTest
 				// The assertions below are really just icing on the cake; the
 				// important part is successfully instantiating a QuakeMapObject
 				// without throwing any exceptions.
-				var qmo = new QuakeMapObject(new QuakeBlock(raw, 0), fgd);
+				var qmo = new QuakeMapObject(new QuakeBlock(raw, 0, fgd), fgd);
 
 				Assert.That(qmo.KeyVals.Count, Is.EqualTo(2));
 
@@ -126,35 +125,32 @@ namespace TemblorTest.Core.FormatsTest
 					// Test block lifted from ad_sepulcher.
 					List<string> raw = new List<string>()
 					{
-						"// entity 1458",
 						"{",
-						"\"_minlight\" \"25\"",
-						"\"classname\" \"func_detail_illusionary\"",
-						"\"_phong\" \"1\"",
-						"\"spawnflags\" \"32\"",
+						"\"_minlight\" \"25\""+
+						"\"classname\" \"func_detail_illusionary\"" +
+						"\"_phong\" \"1\"" +
+						"\"spawnflags\" \"32\"" +
 						"\"_shadow\" \"1\"",
-						"// brush 0",
 						"{",
-						"( -1232 -1076 32 ) ( -1232 -1074 32 ) ( -1232 -1074 -104 ) skip 0 0 0 1.000000 1.000000",
-						"( -1280 -1084 -104 ) ( -1280 -1082 -104 ) ( -1280 -1082 32 ) skip 0 0 0 1.000000 1.000000",
-						"( -1280 -1082 0 ) ( -1280 -1082 -136 ) ( -1232 -1074 -136 ) {vinehang2b -104 64 0 1.000000 1.000000",
-						"( -1280 -1084 -136 ) ( -1280 -1084 0 ) ( -1232 -1076 0 ) {vinehang2b -104 64 0 1.000000 1.000000",
-						"( -1280 -1084 0 ) ( -1280 -1082 0 ) ( -1232 -1074 0 ) skip 0 0 0 1.000000 1.000000",
+						"( -1232 -1076 32 ) ( -1232 -1074 32 ) ( -1232 -1074 -104 ) skip 0 0 0 1.000000 1.000000" +
+						"( -1280 -1084 -104 ) ( -1280 -1082 -104 ) ( -1280 -1082 32 ) skip 0 0 0 1.000000 1.000000" +
+						"( -1280 -1082 0 ) ( -1280 -1082 -136 ) ( -1232 -1074 -136 ) {vinehang2b -104 64 0 1.000000 1.000000" +
+						"( -1280 -1084 -136 ) ( -1280 -1084 0 ) ( -1232 -1076 0 ) {vinehang2b -104 64 0 1.000000 1.000000" +
+						"( -1280 -1084 0 ) ( -1280 -1082 0 ) ( -1232 -1074 0 ) skip 0 0 0 1.000000 1.000000" +
 						"( -1280 -1082 -136 ) ( -1280 -1084 -136 ) ( -1232 -1076 -136 ) skip 0 0 0 1.000000 1.000000",
 						"}",
-						"// brush 1",
 						"{",
-						"( -1184 -1088 -136 ) ( -1184 -1086 -136 ) ( -1232 -1074 -136 ) skip 0 0 0 1.000000 1.000000",
-						"( -1184 -1086 0 ) ( -1184 -1088 0 ) ( -1232 -1076 0 ) skip 0 0 0 1.000000 1.000000",
-						"( -1184 -1088 0 ) ( -1184 -1088 -136 ) ( -1232 -1076 -136 ) {vinehang2b -104 64 0 1.000000 1.000000",
-						"( -1184 -1086 -136 ) ( -1184 -1086 0 ) ( -1232 -1074 0 ) {vinehang2b -104 64 0 1.000000 1.000000",
-						"( -1232 -1076 -104 ) ( -1232 -1074 -104 ) ( -1232 -1074 32 ) skip 0 0 0 1.000000 1.000000",
+						"( -1184 -1088 -136 ) ( -1184 -1086 -136 ) ( -1232 -1074 -136 ) skip 0 0 0 1.000000 1.000000" +
+						"( -1184 -1086 0 ) ( -1184 -1088 0 ) ( -1232 -1076 0 ) skip 0 0 0 1.000000 1.000000" +
+						"( -1184 -1088 0 ) ( -1184 -1088 -136 ) ( -1232 -1076 -136 ) {vinehang2b -104 64 0 1.000000 1.000000" +
+						"( -1184 -1086 -136 ) ( -1184 -1086 0 ) ( -1232 -1074 0 ) {vinehang2b -104 64 0 1.000000 1.000000" +
+						"( -1232 -1076 -104 ) ( -1232 -1074 -104 ) ( -1232 -1074 32 ) skip 0 0 0 1.000000 1.000000" +
 						"( -1184 -1088 32 ) ( -1184 -1086 32 ) ( -1184 -1086 -104 ) skip 0 0 0 1.000000 1.000000",
 						"}",
 						"}"
 					};
 
-					var block = new QuakeBlock(raw, 1);
+					var block = new QuakeBlock(raw, 1, new DefinitionDictionary());
 
 					Assert.That(block.KeyVals.Count, Is.EqualTo(5));
 
@@ -225,7 +221,7 @@ namespace TemblorTest.Core.FormatsTest
 					"]"
 			};
 
-			DefinitionCollection Fgd;
+			DefinitionDictionary Fgd;
 
 			[SetUp]
 			public void SetUp()
@@ -336,7 +332,7 @@ namespace TemblorTest.Core.FormatsTest
 
 				var worldspawn = map.MapObjects[0] as QuakeMapObject;
 
-				Assert.That(worldspawn.KeyVals["classname"][0], Is.EqualTo("worldspawn"));
+				Assert.That(worldspawn.KeyVals["classname"].ToString(), Is.EqualTo("worldspawn"));
 				Assert.That(worldspawn.KeyVals.Count, Is.EqualTo(27));
 				Assert.That(worldspawn.Renderables.Count, Is.EqualTo(4));
 
@@ -392,13 +388,13 @@ namespace TemblorTest.Core.FormatsTest
 				var worldspawn = map.MapObjects[0] as QuakeMapObject;
 
 				Assert.That(worldspawn.KeyVals.Count, Is.EqualTo(7));
-				Assert.That(worldspawn.KeyVals["classname"][0], Is.EqualTo("worldspawn"));
+				Assert.That(worldspawn.KeyVals["classname"].ToString(), Is.EqualTo("worldspawn"));
 				Assert.That(worldspawn.Children.Count, Is.EqualTo(0));
 
 				var entity = map.MapObjects[1] as QuakeMapObject;
 
 				Assert.That(entity.KeyVals.Count, Is.EqualTo(2));
-				Assert.That(entity.KeyVals["classname"][0], Is.EqualTo("func_detail"));
+				Assert.That(entity.KeyVals["classname"].ToString(), Is.EqualTo("func_detail"));
 
 				Assert.That(entity.Renderables[0].Polygons.Count, Is.EqualTo(5));
 
@@ -450,14 +446,14 @@ namespace TemblorTest.Core.FormatsTest
 				var entity = map.MapObjects[0] as QuakeMapObject;
 
 				Assert.That(entity.KeyVals.Count, Is.EqualTo(2));
-				Assert.That(entity.KeyVals["classname"][0], Is.EqualTo("func_detail"));
+				Assert.That(entity.KeyVals["classname"].ToString(), Is.EqualTo("func_detail"));
 
 				Assert.That(entity.Renderables[0].Polygons.Count, Is.EqualTo(5));
 
 				var worldspawn = map.MapObjects[1] as QuakeMapObject;
 
 				Assert.That(worldspawn.KeyVals.Count, Is.EqualTo(7));
-				Assert.That(worldspawn.KeyVals["classname"][0], Is.EqualTo("worldspawn"));
+				Assert.That(worldspawn.KeyVals["classname"].ToString(), Is.EqualTo("worldspawn"));
 				Assert.That(worldspawn.Children.Count, Is.EqualTo(0));
 
 				var polygon = entity.Renderables[0].Polygons[0];

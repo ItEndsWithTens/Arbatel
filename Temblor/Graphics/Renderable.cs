@@ -14,6 +14,27 @@ using Temblor.Utilities;
 
 namespace Temblor.Graphics
 {
+	public static class RenderableExtensions
+	{
+		public static Renderable ToWorld(this Renderable renderable)
+		{
+			var world = new Renderable(renderable);
+
+			if (renderable.CoordinateSpace != CoordinateSpace.World)
+			{
+				var worldVerts = new List<Vertex>();
+				foreach (var vertex in renderable.Vertices)
+				{
+					worldVerts.Add(vertex.ToWorld(renderable.ModelMatrix));
+				}
+
+				world.Vertices = worldVerts;
+			}
+
+			return world;
+		}
+	}
+
 	public enum CoordinateSpace
 	{
 		Model,
@@ -157,7 +178,7 @@ namespace Temblor.Graphics
 			{
 				_coordinateSpace = value;
 
-				UpdateModelMatrix();
+				//UpdateModelMatrix();
 			}
 		}
 
@@ -179,7 +200,7 @@ namespace Temblor.Graphics
 
 		public List<Polygon> Polygons;
 
-		private Vector3 _position;
+		protected Vector3 _position;
 		public Vector3 Position
 		{
 			get { return _position; }
@@ -188,7 +209,7 @@ namespace Temblor.Graphics
 				TranslateRelative(value - _position);
 				_position = value;
 
-				UpdateModelMatrix();
+				//UpdateModelMatrix();
 			}
 		}
 
@@ -241,6 +262,21 @@ namespace Temblor.Graphics
 			}
 
 			AABB = new Aabb(Vertices);
+		}
+		public Renderable(Renderable r)
+		{
+			AABB = new Aabb(r.AABB);
+			Buffers = new Dictionary<GLSurface, Buffers>(r.Buffers);
+			CoordinateSpace = r.CoordinateSpace;
+			Indices = new List<int>(r.Indices);
+			ModelMatrix = r.ModelMatrix;
+			Polygons = new List<Polygon>(r.Polygons);
+			_position = r.Position;
+			ShadingStyleDict = new Dictionary<ShadingStyle, ShadingStyle>(r.ShadingStyleDict);
+			TextureCollection = r.TextureCollection;
+			Translucent = r.Translucent;
+			Vertices = new List<Vertex>(r.Vertices);
+
 		}
 
 		public void Draw(Dictionary<ShadingStyle, Shader> shaders, ShadingStyle style, GLSurface surface, Camera camera)
@@ -295,11 +331,11 @@ namespace Temblor.Graphics
 			GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);
 		}
 
-		public void Rotate(Vector3 rotation)
+		protected void Rotate(Vector3 rotation)
 		{
 			Rotate(rotation.Y, rotation.Z, rotation.X);
 		}
-		public void Rotate(float pitch, float yaw, float roll)
+		protected void Rotate(float pitch, float yaw, float roll)
 		{
 			for (var i = 0; i < Vertices.Count; i++)
 			{
@@ -311,14 +347,23 @@ namespace Temblor.Graphics
 				Polygons[i] = Polygon.Rotate(Polygons[i], pitch, yaw, roll);
 			}
 
+			if (CoordinateSpace == CoordinateSpace.Model)
+			{
+				Matrix4 rotZ = Matrix4.CreateRotationZ(MathHelper.DegreesToRadians(pitch));
+				Matrix4 rotY = Matrix4.CreateRotationY(MathHelper.DegreesToRadians(yaw));
+				Matrix4 rotX = Matrix4.CreateRotationX(MathHelper.DegreesToRadians(roll));
+
+				ModelMatrix *= rotZ * rotY * rotX;
+			}
+
 			UpdateBounds();
 		}
 
-		public void Scale(Vector3 scale)
+		protected void Scale(Vector3 scale)
 		{
 			Scale(scale.X, scale.Y, scale.Z);
 		}
-		public void Scale(float x, float y, float z)
+		protected void Scale(float x, float y, float z)
 		{
 			// TODO: Implement scale.
 		}
@@ -337,11 +382,15 @@ namespace Temblor.Graphics
 
 			if (translation != null)
 			{
-				Position += translation;
+				TranslateRelative(translation);
 			}
+
+			UpdateBounds();
+
+			_position = AABB.Center;
 		}
 
-		public void TranslateRelative(Vector3 diff)
+		protected void TranslateRelative(Vector3 diff)
 		{
 			if (CoordinateSpace == CoordinateSpace.World)
 			{
@@ -354,6 +403,12 @@ namespace Temblor.Graphics
 			for (var i = 0; i < Polygons.Count; i++)
 			{
 				Polygons[i] = Polygon.TranslateRelative(Polygons[i], diff);
+			}
+
+			if (CoordinateSpace == CoordinateSpace.Model)
+			{
+				var yUpRightHand = new Vector3(diff.X, diff.Z, -diff.Y);
+				ModelMatrix *= Matrix4.CreateTranslation(yUpRightHand);
 			}
 
 			AABB += diff;
@@ -406,7 +461,7 @@ namespace Temblor.Graphics
 			switch (CoordinateSpace)
 			{
 				case CoordinateSpace.Model:
-					ModelMatrix = Matrix4.CreateTranslation(Position.X, Position.Z, -Position.Y);
+					//ModelMatrix = Matrix4.CreateTranslation(Position.X, Position.Z, -Position.Y);
 					break;
 				case CoordinateSpace.World:
 				default:

@@ -15,13 +15,13 @@ namespace Temblor.Formats
 		/// <param name="collections"></param>
 		/// <param name="key"></param>
 		/// <returns></returns>
-		public static Definition GetNewestDefinition(this List<DefinitionCollection> collections, string key)
+		public static Definition GetNewestDefinition(this List<DefinitionDictionary> collections, string key)
 		{
 			Definition recent = null;
 
 			// Assume the input list is provided the way it was built, one
 			// DefinitionCollection after another, most recent last.
-			var reversed = new List<DefinitionCollection>(collections);
+			var reversed = new List<DefinitionDictionary>(collections);
 			reversed.Reverse();
 
 			foreach (var collection in reversed)
@@ -45,7 +45,7 @@ namespace Temblor.Formats
 		/// <returns>A single Definition with all unique key/value pairs from
 		/// its various duplicate instances, and the most recently added copy
 		/// of any duplicate key/value pairs.</returns>
-		public static Definition BlendDefinition(this List<DefinitionCollection> collections, string key)
+		public static Definition BlendDefinition(this List<DefinitionDictionary> collections, string key)
 		{
 			var blended = new Definition();
 
@@ -68,9 +68,9 @@ namespace Temblor.Formats
 		/// for, and duplicate definitions blended together. Duplicate key/value
 		/// pairs will be represented by the one from the collection that has
 		/// the highest index in the input list.</returns>
-		public static DefinitionCollection Blend(this List<DefinitionCollection> collections)
+		public static DefinitionDictionary Blend(this List<DefinitionDictionary> collections)
 		{
-			var blended = new DefinitionCollection();
+			var blended = new DefinitionDictionary();
 
 			return blended;
 		}
@@ -84,9 +84,9 @@ namespace Temblor.Formats
 		/// every unique definition from each collection present and accounted
 		/// for, but duplicate definitions represented by whichever copy is
 		/// found in the collection with the highest index in the input list.</returns>
-		public static DefinitionCollection Stack(this List<DefinitionCollection> collections)
+		public static DefinitionDictionary Stack(this List<DefinitionDictionary> collections)
 		{
-			var stacked = new DefinitionCollection();
+			var stacked = new DefinitionDictionary();
 
 			foreach (var collection in collections)
 			{
@@ -112,24 +112,41 @@ namespace Temblor.Formats
 		}
 	}
 
-	public class DefinitionCollection : Dictionary<string, Definition>
+	public class DefinitionDictionary : Dictionary<string, Definition>
 	{
-		public DefinitionCollection() : base()
-		{
-		}
-		public DefinitionCollection(string filename) : this(new FileStream(filename, FileMode.Open, FileAccess.Read))
-		{
-		}
-		public DefinitionCollection(Stream stream) : this()
-		{
-			using (var sr = new StreamReader(stream))
-			{
-				Parse(sr);
-			}
-		}
-		public DefinitionCollection(List<DefinitionCollection> collections) : this()
-		{
+		/// <summary>
+		/// A dictionary that maps key names to transform types.
+		/// </summary>
+		/// <remarks>For cases where a given key needs to be treated differently
+		/// from other keys with the same data type, or where a key is expected
+		/// to appear in a map but not in a DefinitionDictionary, e.g. 'origin'
+		/// or 'angles' in a Quake map, which don't appear in FGDs and therefore
+		/// won't have any data type defined.</remarks>
+		public Dictionary<string, TransformType> TransformTypeOverrides { get; set; }
 
+		/// <summary>
+		/// A dictionary that maps value data types to transform types.
+		/// </summary>
+		public Dictionary<string, TransformType> TransformTypes { get; set; }
+
+		public DefinitionDictionary() : base()
+		{
+			TransformTypeOverrides = new Dictionary<string, TransformType>();
+			TransformTypes = new Dictionary<string, TransformType>();
+		}
+		public DefinitionDictionary(DefinitionDictionary definitions) : base(definitions)
+		{
+			TransformTypeOverrides = new Dictionary<string, TransformType>(definitions.TransformTypeOverrides);
+			TransformTypes = new Dictionary<string, TransformType>(definitions.TransformTypes);
+		}
+		public DefinitionDictionary(string filename) : this(new FileStream(filename, FileMode.Open, FileAccess.Read))
+		{
+		}
+		public DefinitionDictionary(Stream stream) : this()
+		{
+		}
+		public DefinitionDictionary(List<DefinitionDictionary> collections) : this()
+		{
 		}
 
 		virtual public void Parse(StreamReader sr)

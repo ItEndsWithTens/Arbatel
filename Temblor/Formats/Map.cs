@@ -7,43 +7,91 @@ using System.Text;
 using System.Threading.Tasks;
 using Temblor.Formats;
 using Temblor.Formats.Quake;
+using Temblor.Graphics;
 
 namespace Temblor.Formats
 {
 	public class Map
 	{
-		public string OpenDelimiter = "{";
-		public string CloseDelimiter = "}";
+		public Aabb Aabb { get; protected set; }
 
-		public DefinitionCollection Definitions;
+		public string AbsolutePath { get; protected set; }
 
-		public List<MapObject> MapObjects;
+		/// <summary>
+		/// The flat stack of all objects in this map.
+		/// </summary>
+		public List<MapObject> AllObjects
+		{
+			get
+			{
+				var all = new List<MapObject>();
 
-		public TextureCollection TextureCollection;
+				foreach (var mo in MapObjects)
+				{
+					all.AddRange(mo.AllObjects);
+				}
+
+				return all;
+			}
+		}
+
+		public string OpenDelimiter { get; set; } = "{";
+		public string CloseDelimiter { get; set; } = "}";
+
+		public DefinitionDictionary Definitions { get; set; }
+
+		public List<MapObject> MapObjects { get; set; } = new List<MapObject>();
+
+		public TextureCollection TextureCollection { get; set; }
 
 		public Map()
 		{
-			MapObjects = new List<MapObject>();
 		}
-		public Map(string filename, DefinitionCollection definitions) :
+		public Map(Map map)
+		{
+			Aabb = new Aabb(map.Aabb);
+			AbsolutePath = map.AbsolutePath;
+			OpenDelimiter = map.OpenDelimiter;
+			CloseDelimiter = map.CloseDelimiter;
+			Definitions = new DefinitionDictionary(map.Definitions);
+			MapObjects = new List<MapObject>(map.MapObjects);
+			TextureCollection = new TextureCollection(map.TextureCollection);
+		}
+		public Map(string filename, DefinitionDictionary definitions) :
 			this(new FileStream(filename, FileMode.Open, FileAccess.Read), definitions)
 		{
 		}
-		public Map(Stream stream, DefinitionCollection definitions) : this()
+		public Map(Stream stream, DefinitionDictionary definitions)
 		{
+			Aabb = new Aabb();
+
+			if (stream is FileStream f)
+			{
+				AbsolutePath = f.Name;
+			}
+
 			Definitions = definitions;
+
+			TextureCollection = new TextureCollection();
 
 			using (StreamReader sr = new StreamReader(stream))
 			{
 				Parse(sr.ReadToEnd());
 			}
 		}
-		public Map(string filename, DefinitionCollection definitions, TextureCollection textures) :
+		public Map(string filename, DefinitionDictionary definitions, TextureCollection textures) :
 			this(new FileStream(filename, FileMode.Open, FileAccess.Read), definitions, textures)
 		{
 		}
-		public Map(Stream stream, DefinitionCollection definitions, TextureCollection textures) : this()
+		public Map(Stream stream, DefinitionDictionary definitions, TextureCollection textures)
 		{
+			Aabb = new Aabb();
+
+			if (stream is FileStream f)
+			{
+				AbsolutePath = f.Name;
+			}
+
 			Definitions = definitions;
 
 			TextureCollection = textures;
@@ -65,20 +113,20 @@ namespace Temblor.Formats
 		/// <param name="basis">The MapObject serving as the basis of the transform.</param>
 		public void Transform(MapObject basis)
 		{
-			var translation = new Vector3();
-			if (basis.KeyVals.ContainsKey("origin"))
-			{
-				string[] origin = basis.KeyVals["origin"][0].Split(' ');
+			//var translation = new Vector3();
+			//if (basis.KeyVals.ContainsKey("origin"))
+			//{
+			//	string[] origin = basis.KeyVals["origin"].Value.Split(' ');
 
-				float.TryParse(origin[0], out translation.X);
-				float.TryParse(origin[1], out translation.Y);
-				float.TryParse(origin[2], out translation.Z);
-			}
+			//	float.TryParse(origin[0], out translation.X);
+			//	float.TryParse(origin[1], out translation.Y);
+			//	float.TryParse(origin[2], out translation.Z);
+			//}
 
 			var rotation = new Vector3();
 			if (basis.KeyVals.ContainsKey("angles"))
 			{
-				string[] angles = basis.KeyVals["angles"][0].Split(' ');
+				string[] angles = basis.KeyVals["angles"].Value.Split(' ');
 
 				// Remember the orientation of instance objects, pointing toward
 				// +X in a Z-up, left-handed coordinate space.
@@ -90,13 +138,14 @@ namespace Temblor.Formats
 			// TODO: Implement scale.
 			var scale = new Vector3(1.0f, 1.0f, 1.0f);
 
-			Transform(translation, rotation, scale);
+			Transform(basis.Position, rotation, scale);
 		}
 
 		/// <summary>
 		/// Translate, rotate, and/or scale a map.
 		/// </summary>
 		/// <param name="map">The map to transform.</param>
+		/// <param name="origin">The point these transforms are relative to.</param>
 		/// <param name="translation">The relative translation to apply.</param>
 		/// <param name="rotation">The roll/pitch/yaw to apply.</param>
 		/// <param name="scale">The scale to apply.</param>

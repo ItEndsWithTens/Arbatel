@@ -1,0 +1,32 @@
+@PointClass size( -8 -8 -8, 8 8 8 ) flags(Angle) instance(file) = func_instance : "An automatically updated prefab. " +
+  "Set Filename to the name of a .map containing geometry and/or entities you'd like to duplicate at " +
+  "various locations in this map. Position and orient this func_instance in any way you like, and on " +
+  "compile the map referenced herein will be collapsed into this map. Use for common architectural " +
+  "elements, repetitive entity configurations, building on grid but positioning off grid while " +
+  "maintaining ease of editing, etc."
+[
+	targetname(target_source) : "Fixup Name" : : "A name that will, depending on the fixup style, be prepended or appended to any entities. If a Fixup Style is set, but a Fixup Name is not provided, an automatically generated name will be used. Keep in mind that even with fixup enabled and a name set, you can selectively avoid fixup by giving entities names starting with the @ symbol."
+	file(string) : "Filename" : : "A path, relative to the current map file's location, pointing to the map you'd like to copy in."
+	fixup_style(Choices) : "Fixup Style" : 0 : "The method by which entity names will be fixed up." =
+	[
+		0 : "Prefix"
+		1 : "Postfix"
+		2 : "None"
+	]
+
+	replace01(string) : "Replace" : : "A replacement parameter that takes the form of $variable value. For example, set this field to $brightness 750 and any occurrence of $brightness inside the Filename map will be replaced with 750 when the instances are collapsed."
+	replace02(string) : "Replace" : : "Materials can also be replaced, with #. For example, setting a replacement variable to #SKY1 DOPEFISH will retexture any surfaces in the Filename map, replacing the classic purple sky with everyone's favorite goofy fish."
+	replace03(string) : "Replace" : : ""
+	replace04(string) : "Replace" : : ""
+	replace05(string) : "Replace" : : ""
+	replace06(string) : "Replace" : : ""
+	replace07(string) : "Replace" : : ""
+	replace08(string) : "Replace" : : ""
+	replace09(string) : "Replace" : : ""
+	replace10(string) : "Replace" : : "If you need more than ten replacements, don't forget you can turn off SmartEdit (if applicable) and add keys manually: replace11, replace12, etc."
+]
+
+@SolidClass = func_placeholder : "Placeholder geometry, to be removed with the --remove_entities option " +
+  "of Quinstance 0.3.0 and later."
+[
+]

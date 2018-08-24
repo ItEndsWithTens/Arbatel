@@ -8,6 +8,18 @@ using System.Threading.Tasks;
 
 namespace Temblor.Graphics
 {
+	public static class VertexExtensions
+	{
+		public static Vertex ToWorld(this Vertex vertex, Matrix4 modelMatrix)
+		{
+			var vec4 = new Vector4(vertex.Position.X, vertex.Position.Z, -vertex.Position.Y, 1.0f);
+			Vector4 world = vec4 * modelMatrix;
+			var vec3 = new Vector3(world.X, -world.Z, world.Y);
+
+			return new Vertex(vertex) { Position = vec3 };
+		}
+	}
+
 	public struct Vertex
 	{
 		public Vector3 Position;
@@ -52,7 +64,7 @@ namespace Temblor.Graphics
 				pitch = 360.0f - pitch;
 			}
 
-			// Assumes that objects are  pointing toward +X; thereby pitch
+			// Assumes that objects are pointing toward +X; thereby pitch
 			// represents rotation around world Y (camera Z), yaw is world
 			// Z (camera Y), and roll is world/camera X.
 			Matrix4 rotZ = Matrix4.CreateRotationZ(MathHelper.DegreesToRadians(pitch));
@@ -61,7 +73,7 @@ namespace Temblor.Graphics
 
 			Matrix4 rotation = rotZ * rotY * rotX;
 
-			var v = new Vertex(vertex);
+			var v = new Vertex(vertex) { Position = vertex };
 
 			var yUpRightHand = new Vector4(v.Position.X, v.Position.Z, -v.Position.Y, 1.0f);
 			Vector4 rotated = yUpRightHand * rotation;
