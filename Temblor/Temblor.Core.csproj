@@ -52,7 +52,7 @@
     </Compile>
     <Compile Include="Controllers\Controller.cs" />
     <Compile Include="Controllers\FirstPersonController.cs" />
-    <Compile Include="Formats\DefinitionCollection.cs" />
+    <Compile Include="Formats\DefinitionDictionary.cs" />
     <Compile Include="Formats\Definition.cs" />
     <Compile Include="Formats\Quake\QuakeFgd.cs" />
     <Compile Include="Formats\MapObject.cs" />

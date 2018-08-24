@@ -31,6 +31,8 @@ namespace Temblor.Graphics
 			BuildPolygons(solid, this);
 
 			AABB = new Aabb(Vertices);
+
+			_position = AABB.Center;
 		}
 		public QuakeBrush(Solid solid, TextureCollection textures)
 		{
@@ -44,6 +46,8 @@ namespace Temblor.Graphics
 			BuildPolygons(solid, this);
 
 			AABB = new Aabb(Vertices);
+
+			_position = AABB.Center;
 		}
 
 		/// <summary>

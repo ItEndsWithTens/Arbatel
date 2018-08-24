@@ -1,0 +1,52 @@
+{
+"classname" "worldspawn"
+"_gamma" "1"
+"_dirtgain" "1"
+"_dirtscale" "1"
+"_dirtdepth" "128"
+"_dirtmode" "0"
+"_minlight_dirt" "-1"
+"_sunlight2_dirt" "-1"
+"_sunlight_dirt" "-1"
+"_dirt" "-1"
+"_anglescale" "0.5"
+"_range" "0.5"
+"_dist" "1"
+"_sunlight3_color" "255 255 255"
+"_sunlight3" "0"
+"_sunlight2_color" "255 255 255"
+"_sunlight2" "0"
+"_sunlight_color" "255 255 255"
+"_sunlight_penumbra" "0"
+"_sun_mangle" "0 -90 0"
+"_sunlight" "0"
+"light" "0"
+"sounds" "1"
+"worldtype" "0"
+"message" "TOP LEVEL MAP"
+"mapversion" "220"
+"wad" "D:\Projects\Games\Maps\Quake\common\wads\quake.wad"
+"_generator" "J.A.C.K. 1.1.1064 (vpQuake)"
+{
+( 96 160 0 ) ( 96 96 0 ) ( 160 160 0 ) SWTCH1_1 [ -1 0 0 32 ] [ 0 -1 0 32 ] 0 1 1
+( 128 128 128 ) ( 96 160 0 ) ( 160 160 0 ) SWTCH1_1 [ -1 0 -0 32 ] [ 0 0.242536 -0.970143 25.1943 ] 0 1 1
+( 128 128 128 ) ( 160 160 0 ) ( 160 96 0 ) SWTCH1_1 [ -0 1 0 -32 ] [ 0.242536 0 -0.970143 25.1943 ] 0 1 1
+( 128 128 128 ) ( 96 96 0 ) ( 96 160 0 ) SWTCH1_1 [ -0 -1 -0 32 ] [ -0.242536 0 -0.970143 23.2834 ] 0 1 1
+( 128 128 128 ) ( 160 96 0 ) ( 96 96 0 ) SWTCH1_1 [ 1 0 0 -32 ] [ 0 -0.242536 -0.970143 23.2834 ] 0 1 1
+}
+{
+( 32 32 32 ) ( 32 32 -32 ) ( 32 -32 32 ) +0BUTN [ 0 1 0 32 ] [ 0 0 -1 32 ] 0 1 1
+( -32 -32 32 ) ( -32 -32 -32 ) ( -32 32 32 ) +0BUTN [ 0 -1 0 32 ] [ 0 0 -1 32 ] 0 1 1
+( 32 -32 32 ) ( 32 -32 -32 ) ( -32 -32 32 ) +0BUTN [ 1 0 0 32 ] [ 0 0 -1 32 ] 0 1 1
+( -32 32 32 ) ( -32 32 -32 ) ( 32 32 32 ) +0BUTN [ -1 0 0 32 ] [ 0 0 -1 32 ] 0 1 1
+( -32 32 -32 ) ( -32 -32 -32 ) ( 32 32 -32 ) +0BUTN [ -1 0 0 32 ] [ 0 -1 0 32 ] 0 1 1
+( 32 -32 32 ) ( -32 -32 32 ) ( 32 32 32 ) +0BUTN [ 1 0 -0 32 ] [ 0 -1 0 32 ] 0 1 1
+}
+}
+{
+"classname" "func_instance"
+"fixup_style" "0"
+"angles" "0 180 0"
+"file" "instance/arrow_wedge_holder.map"
+"origin" "128 128 128"
+}

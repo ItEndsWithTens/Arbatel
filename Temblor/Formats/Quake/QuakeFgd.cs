@@ -11,16 +11,63 @@ using Temblor.Graphics;
 
 namespace Temblor.Formats
 {
-	public class QuakeFgd : DefinitionCollection
+	public enum TransformType
+	{
+		/// <summary>
+		/// This key doesn't need to be modified when transforming its entity.
+		/// </summary>
+		None,
+
+		/// <summary>
+		/// This key represents a 3D point.
+		/// </summary>
+		Position,
+
+		/// <summary>
+		/// This key represents a set of angles in pitch/yaw/roll form.
+		/// </summary>
+		Angles,
+
+		/// <summary>
+		/// This key needs its name fixed up during instance collapse.
+		/// </summary>
+		Name
+	}
+
+	public class QuakeFgd : DefinitionDictionary
 	{
 		public QuakeFgd() : base()
 		{
+			// TODO: Either load these from disk, or offer a UI dialog to set these for a given
+			// FGD. ericw's _sun_mangle is not in every Quake FGD, and when it is, it's a string
+			// type, so it needs to be in the overrides but shouldn't be there all the time, in
+			// principle. Or should it? The overrides are just things one might find, not things
+			// to depend on, so if they're not in a map it's no big deal.
+			TransformTypeOverrides = new Dictionary<string, TransformType>()
+			{
+				{ "origin", TransformType.Position },
+				{ "angles", TransformType.Angles },
+				{ "mangle", TransformType.Angles },
+				{ "_sun_mangle", TransformType.Angles },
+				{ "_project_mangle", TransformType.Angles }
+			};
+
+			TransformTypes = new Dictionary<string, TransformType>()
+			{
+				{ "target_source", TransformType.Name },
+				{ "target_destination", TransformType.Name }
+			};
 		}
 		public QuakeFgd(string filename) : this(new FileStream(filename, FileMode.Open, FileAccess.Read))
 		{
 		}
-		public QuakeFgd(Stream stream) : base(stream)
+		public QuakeFgd(Stream stream) : this()
 		{
+			using (var sr = new StreamReader(stream))
+			{
+				Parse(sr);
+			}
+
 			var bases = new List<Definition>();
 			var points = new List<Definition>();
 			var solids = new List<Definition>();
@@ -107,7 +154,11 @@ namespace Temblor.Formats
 
 				List<string> block = raw.GetRange(blockStart, blockLength);
 
-				var def = new Definition() { DefinitionCollection = this };
+				var def = new Definition()
+				{
+					DefinitionCollection = this,
+					Saveability = Saveability.All
+				};
 
 				var blockOffset = 0;
 				while (blockOffset < block.Count - 1)
@@ -131,6 +182,7 @@ namespace Temblor.Formats
 						else
 						{
 							def.ClassType = ClassType.Base;
+							def.Saveability = Saveability.None;
 						}
 
 						int classnameStart = header.IndexOf("=") + 1;
@@ -187,7 +239,12 @@ namespace Temblor.Formats
 
 						if (header.Contains("flags"))
 						{
+							List<string> flags = ExtractHeaderProperty("flags", header);
 
+							if (flags.Contains("Angle"))
+							{
+								def.KeyValsTemplate.Add("angles", new Option() { TransformType = TransformType.Angles });
+							}
 						}
 
 						if (header.Contains("iconsprite"))
@@ -272,6 +329,8 @@ namespace Temblor.Formats
 							string value = ExtractHeaderProperty("instance", header)[0];
 
 							def.RenderableSources.Add(RenderableSource.Key, value);
+
+							def.Saveability = Saveability.Entity;
 						}
 
 						blockOffset += header.Count;
@@ -301,7 +360,7 @@ namespace Temblor.Formats
 								string defaultValue = block[blockOffset];
 								blockOffset++;
 
-								var flag = new Flag
+								var flag = new Spawnflag
 								{
 									Description = description,
 									Default = defaultValue
@@ -327,6 +386,19 @@ namespace Temblor.Formats
 						option.Type = block[blockOffset].ToLower();
 						blockOffset += 3;
 
+						if (TransformTypeOverrides.ContainsKey(key))
+						{
+							option.TransformType = TransformTypeOverrides[key];
+						}
+						else if (TransformTypes.ContainsKey(option.Type))
+						{
+							option.TransformType = TransformTypes[option.Type];
+						}
+						else
+						{
+							option.TransformType = TransformType.None;
+						}
+
 						option.Description = block[blockOffset];
 						blockOffset++;
 
@@ -340,7 +412,7 @@ namespace Temblor.Formats
 						// more work to do for this option.
 						if (block[blockOffset] != ":")
 						{
-							def.KeyValsTemplate.Add(key, new List<Option>() { option });
+							def.KeyValsTemplate.Add(key, option);
 							continue;
 						}
 						blockOffset++;
@@ -419,12 +491,25 @@ namespace Temblor.Formats
 							}
 						}
 
-						def.KeyValsTemplate.Add(key, new List<Option>() { option });
+						if (!def.KeyValsTemplate.ContainsKey(key))
+						{
+							def.KeyValsTemplate.Add(key, option);
+						}
 					}
 					else
 					{
 						blockOffset++;
 					}
+				}
+
+				if (def.ClassType == ClassType.Point && !def.KeyValsTemplate.ContainsKey("origin"))
+				{
+					def.KeyValsTemplate.Add("origin", new Option() { TransformType = TransformType.Position });
+				}
+
+				if (!def.KeyValsTemplate.ContainsKey("classname"))
+				{
+					def.KeyValsTemplate.Add("classname", new Option());
 				}
 
 				Add(def.ClassName, def);

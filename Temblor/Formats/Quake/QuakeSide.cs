@@ -149,12 +149,12 @@ namespace Temblor.Formats.Quake
 
 			foreach (var point in Plane.Points)
 			{
-				sb.Append("(");
+				sb.Append("( ");
 
 				for (int i = 0; i < 3; i++)
 				{
 					float coord = point.Position[i];
-					sb.Append(" " + coord + " ");
+					sb.Append(coord + " ");
 				}
 
 				sb.Append(") ");

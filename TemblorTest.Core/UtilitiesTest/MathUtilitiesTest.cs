@@ -122,7 +122,7 @@ namespace TemblorTest.Core.MathUtilitiesTest
 					sw.Reset();
 				}
 
-				Assert.That(average, Is.LessThan(1000));
+				Assert.That(average, Is.LessThan(1500));
 			}
 		}
 

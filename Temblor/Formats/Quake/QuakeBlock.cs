@@ -13,8 +13,10 @@ namespace Temblor.Formats.Quake
 	{
 		public List<Solid> Solids = new List<Solid>();
 
-		public QuakeBlock(List<string> rawList, int openBraceIndex)
+		public QuakeBlock(List<string> rawList, int openBraceIndex, DefinitionDictionary definitions)
 		{
+			Definitions = definitions;
+
 			RawStartIndex = openBraceIndex;
 			RawLength = (FindCloseBraceIndex(rawList, openBraceIndex) + 1) - RawStartIndex;
 
@@ -24,14 +26,24 @@ namespace Temblor.Formats.Quake
 
 			Parse(rawBlock);
 		}
-		public QuakeBlock(MapObject mo) : this(mo as QuakeMapObject)
+		public QuakeBlock(MapObject mo)
 		{
-		}
-		public QuakeBlock(QuakeMapObject qmo)
-		{
+			QuakeMapObject qmo;
+			if (mo is QuakeMapObject)
+			{
+				qmo = mo as QuakeMapObject;
+			}
+			else
+			{
+				var message = "Provided MapObject isn't actually a QuakeMapObject!";
+				throw new ArgumentException(message);
+			}
+
+			Saveability = qmo.Saveability;
+
 			foreach (var child in qmo.Children)
 			{
-				Children.Add(new QuakeBlock(child));
+				Children.Add(new QuakeBlock(child as QuakeMapObject));
 			}
 
 			KeyVals = qmo.KeyVals;
@@ -67,7 +79,7 @@ namespace Temblor.Formats.Quake
 		{
 			return ToString(QuakeSideFormat.Valve220);
 		}
-		public string ToString(QuakeSideFormat format)
+		public string ToStringOLD(QuakeSideFormat format)
 		{
 			var sb = new StringBuilder();
 
@@ -75,17 +87,12 @@ namespace Temblor.Formats.Quake
 
 			foreach (var keyVal in KeyVals)
 			{
-				// There can occasionally be duplicate keys, so to ensure none
-				// of them are forgotten, loop on the value.
-				foreach (var value in keyVal.Value)
-				{
-					sb.Append("\"");
-					sb.Append(keyVal.Key);
-					sb.Append("\" \"");
-					sb.Append(value);
-					sb.Append("\"");
-					sb.Append(Environment.NewLine);
-				}
+				sb.Append("\"");
+				sb.Append(keyVal.Key);
+				sb.Append("\" \"");
+				sb.Append(keyVal.Value);
+				sb.Append("\"");
+				sb.Append(Environment.NewLine);
 			}
 
 			foreach (var solid in Solids)
@@ -109,6 +116,55 @@ namespace Temblor.Formats.Quake
 
 			return sb.ToString();
 		}
+		public string ToString(QuakeSideFormat format)
+		{
+			var sb = new StringBuilder();
+
+			if ((Saveability & Saveability.Entity) == Saveability.Entity)
+			{
+				sb.AppendLine(OpenDelimiter);
+
+				foreach (var keyVal in KeyVals)
+				{
+					sb.Append("\"");
+					sb.Append(keyVal.Key);
+					sb.Append("\" \"");
+					sb.Append(keyVal.Value);
+					sb.Append("\"");
+					sb.Append(Environment.NewLine);
+				}
+			}
+
+			if ((Saveability & Saveability.Solids) == Saveability.Solids)
+			{
+				foreach (var solid in Solids)
+				{
+					sb.AppendLine(OpenDelimiter);
+
+					foreach (var side in solid.Sides)
+					{
+						sb.AppendLine((side as QuakeSide).ToString(format));
+					}
+
+					sb.AppendLine(CloseDelimiter);
+				}
+			}
+
+			if ((Saveability & Saveability.Children) == Saveability.Children)
+			{
+				foreach (var child in Children)
+				{
+					sb.AppendLine(child.ToString());
+				}
+			}
+
+			if ((Saveability & Saveability.Entity) == Saveability.Entity)
+			{
+				sb.Append(CloseDelimiter);
+			}
+
+			return sb.ToString();
+		}
 
 		private void Parse(List<string> rawBlock)
 		{
@@ -121,16 +177,28 @@ namespace Temblor.Formats.Quake
 				{
 					var rawKeyVals = ExtractKeyVals(item);
 
+					string classname = rawKeyVals.Find(s => s.Key == "classname").Value;
+
 					foreach (var rawKeyVal in rawKeyVals)
 					{
-						if (!KeyVals.ContainsKey(rawKeyVal.Key))
+						Option newOption;
+						if (Definitions.ContainsKey(classname) && Definitions[classname].KeyValsTemplate.ContainsKey(rawKeyVal.Key))
 						{
-							var list = new List<string>() { rawKeyVal.Value };
-							KeyVals.Add(rawKeyVal.Key, list);
+							newOption = new Option(Definitions[classname].KeyValsTemplate[rawKeyVal.Key]);
 						}
 						else
 						{
-							KeyVals[rawKeyVal.Key].Add(rawKeyVal.Value);
+							newOption = new Option();
+						}
+						newOption.Value = rawKeyVal.Value;
+
+						if (!KeyVals.ContainsKey(rawKeyVal.Key))
+						{
+							KeyVals.Add(rawKeyVal.Key, newOption);
+						}
+						else
+						{
+							KeyVals[rawKeyVal.Key] = newOption;
 						}
 					}
 
@@ -142,7 +210,7 @@ namespace Temblor.Formats.Quake
 				{
 					var childOpenBraceIndex = i + 1;
 
-					var childBlock = new QuakeBlock(rawBlock, childOpenBraceIndex);
+					var childBlock = new QuakeBlock(rawBlock, childOpenBraceIndex, Definitions);
 					Children.Add(childBlock);
 
 					i = childBlock.RawStartIndex + childBlock.RawLength;

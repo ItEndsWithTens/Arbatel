@@ -19,50 +19,45 @@ namespace Temblor.Formats.Quake
 
 	public static class QuakeMapExtensions
 	{
+		/// <summary>
+		/// Update the Saveability of every MapObject in this map, setting
+		/// instance entities to be Saveability.Children.
+		/// </summary>
+		/// <param name="map"></param>
+		/// <returns>A copy of the input Map with its MapObjects' Saveability
+		/// updated, in preparation for writing to disk as a string.</returns>
 		public static QuakeMap Collapse(this QuakeMap map)
 		{
-			var result = new QuakeMap();
+			var collapsed = new QuakeMap(map);
+			collapsed.MapObjects.Clear();
 
-			MapObject worldspawn = map.MapObjects.Find(o => o.Definition.ClassName == "worldspawn");
-			var newWorldspawn = new QuakeMapObject(worldspawn as QuakeMapObject)
-			{
-				Renderables = new List<Renderable>()
-			};
+			int worldspawnIndex = map.MapObjects.FindIndex(o => o.Definition.ClassName == "worldspawn");
 
-			foreach (var mo in map.MapObjects)
+			MapObject worldspawn = map.MapObjects[worldspawnIndex];
+
+			collapsed.MapObjects.Add(worldspawn);
+
+			for (var i = 0; i < map.MapObjects.Count; i++)
 			{
-				if (mo.Definition.ClassName == "worldspawn")
+				if (i != worldspawnIndex)
 				{
-					foreach (var renderable in mo.Renderables)
+					var collapsedObject = map.MapObjects[i].Collapse();
+
+					foreach (var co in collapsedObject)
 					{
-						if (renderable is QuakeBrush b)
+						if (co.Definition.ClassName == "worldspawn")
 						{
-							newWorldspawn.Renderables.Add(b);
+							worldspawn.Renderables.AddRange(co.Renderables);
+						}
+						else
+						{
+							collapsed.MapObjects.Add(co);
 						}
 					}
 				}
-				else if (mo.UserData is QuakeMap m)
-				{
-					var collapsed = m.Collapse();
-
-					newWorldspawn.Renderables.AddRange(collapsed.MapObjects[0].Renderables);
-
-					if (collapsed.MapObjects.Count > 1)
-					{
-						result.MapObjects.AddRange(collapsed.MapObjects.GetRange(1, collapsed.MapObjects.Count - 1));
-					}
-				}
-				else
-				{
-					result.MapObjects.Add(mo);
-				}
 			}
 
-			result.MapObjects.Reverse();
-			result.MapObjects.Add(newWorldspawn);
-			result.MapObjects.Reverse();
-
-			return result;
+			return collapsed;
 		}
 	}
 
@@ -73,24 +68,30 @@ namespace Temblor.Formats.Quake
 		public QuakeMap() : base()
 		{
 		}
-		public QuakeMap(string filename, DefinitionCollection definitions) :
+		public QuakeMap(QuakeMap map) : base(map)
+		{
+		}
+		public QuakeMap(string filename, DefinitionDictionary definitions) :
 			this(new FileStream(filename, FileMode.Open, FileAccess.Read), definitions)
 		{
 		}
-		public QuakeMap(Stream stream, DefinitionCollection definitions) : base(stream, definitions)
+		public QuakeMap(Stream stream, DefinitionDictionary definitions) : base(stream, definitions)
 		{
 		}
-		public QuakeMap(string filename, DefinitionCollection definitions, TextureCollection textures) :
+		public QuakeMap(string filename, DefinitionDictionary definitions, TextureCollection textures) :
 			this(new FileStream(filename, FileMode.Open, FileAccess.Read), definitions, textures)
 		{
 		}
-		public QuakeMap(Stream stream, DefinitionCollection definitions, TextureCollection textures) :
+		public QuakeMap(Stream stream, DefinitionDictionary definitions, TextureCollection textures) :
 			base(stream, definitions, textures)
 		{
 		}
 
 		public sealed override void Parse(string raw)
 		{
+			var oldCwd = Directory.GetCurrentDirectory();
+			Directory.SetCurrentDirectory(Path.GetDirectoryName(AbsolutePath ?? oldCwd));
+
 			string stripped = raw.Replace("\r", String.Empty);
 			stripped = stripped.Replace("\n", String.Empty);
 			stripped = stripped.Replace("\t", String.Empty); // FIXME: Only strip leading tabs! Or just tabs not within a key or value?
@@ -151,11 +152,18 @@ namespace Temblor.Formats.Quake
 			{
 				var firstBraceIndex = split.IndexOf("{", i);
 
-				var block = new QuakeBlock(split, firstBraceIndex);
+				var block = new QuakeBlock(split, firstBraceIndex, Definitions);
 				MapObjects.Add(new QuakeMapObject(block, Definitions, TextureCollection));
 
 				i = firstBraceIndex + block.RawLength;
 			}
+
+			foreach (var mo in MapObjects)
+			{
+				Aabb += mo.AABB;
+			}
+
+			Directory.SetCurrentDirectory(oldCwd);
 		}
 
 		public override string ToString()
@@ -166,8 +174,36 @@ namespace Temblor.Formats.Quake
 		{
 			var sb = new StringBuilder();
 
-			foreach (var mo in MapObjects)
+			// First build the final worldspawn.
+			int worldspawnIndex = MapObjects.FindIndex(o => o.Definition.ClassName == "worldspawn");
+			MapObject worldspawn = MapObjects[worldspawnIndex];
+			foreach (var mo in AllObjects)
 			{
+				// Only copy solids to worldspawn if that's all this entity
+				// is set to save, otherwise let it get handled later.
+				if (mo.Saveability == Saveability.Solids)
+				{
+					worldspawn.Renderables.AddRange(mo.Renderables);
+				}
+			}
+
+			sb.AppendLine(new QuakeBlock(worldspawn).ToString(format));
+
+			for (var i = 0; i < MapObjects.Count; i++)
+			{
+				if (i == worldspawnIndex)
+				{
+					continue;
+				}
+
+				var mo = MapObjects[i];
+
+				// Avoid saving a null character to the output.
+				if (mo.Saveability == Saveability.None)
+				{
+					continue;
+				}
+
 				sb.AppendLine(new QuakeBlock(mo).ToString(format));
 			}
 

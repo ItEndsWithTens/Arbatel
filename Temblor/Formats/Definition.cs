@@ -27,7 +27,7 @@ namespace Temblor.Formats
 		Point
 	}
 
-	public struct Flag
+	public struct Spawnflag
 	{
 		public string Description;
 		public string Default;
@@ -43,9 +43,28 @@ namespace Temblor.Formats
 
 		public string Value;
 
+		public TransformType TransformType;
+
 		public Option()
 		{
 			Choices = new Dictionary<string, string>();
+		}
+		public Option(Option option)
+		{
+			Type = option.Type;
+			Description = option.Description;
+			Default = option.Default;
+			Choices = new Dictionary<string, string>(option.Choices);
+			Remarks = option.Remarks;
+
+			Value = option.Value;
+
+			TransformType = option.TransformType;
+		}
+
+		public override string ToString()
+		{
+			return Value;
 		}
 	}
 
@@ -96,11 +115,11 @@ namespace Temblor.Formats
 		/// <summary>
 		/// The DefinitionCollection this Definition came from.
 		/// </summary>
-		public DefinitionCollection DefinitionCollection;
+		public DefinitionDictionary DefinitionCollection;
 
 		public string Description;
 
-		public Dictionary<string, Flag> Flags;
+		public Dictionary<string, Spawnflag> Flags;
 
 		// TODO: Implement models! For now just use bounding boxes.
 		//public Model Model;
@@ -113,7 +132,7 @@ namespace Temblor.Formats
 		/// it's possible to add keys to an entity even if they aren't defined
 		/// in this set, so this only a template of expected possibilities.
 		/// </remarks>
-		public Dictionary<string, List<Option>> KeyValsTemplate;
+		public Dictionary<string, Option> KeyValsTemplate;
 
 		public Vector3 Offset;
 
@@ -122,14 +141,16 @@ namespace Temblor.Formats
 		/// </summary>
 		public Dictionary<RenderableSource, string> RenderableSources;
 
+		public Saveability Saveability { get; set; }
+
 		public Aabb Size;
 
 		public Definition()
 		{
 			BaseNames = new List<string>();
 			Color = new Color4();
-			Flags = new Dictionary<string, Flag>();
-			KeyValsTemplate = new Dictionary<string, List<Option>>();
+			Flags = new Dictionary<string, Spawnflag>();
+			KeyValsTemplate = new Dictionary<string, Option>();
 			Offset = new Vector3();
 			RenderableSources = new Dictionary<RenderableSource, string>();
 		}
@@ -141,10 +162,11 @@ namespace Temblor.Formats
 			Color = new Color4(d.Color.R, d.Color.G, d.Color.B, d.Color.A);
 			DefinitionCollection = d.DefinitionCollection;
 			Description = d.Description;
-			Flags = new Dictionary<string, Flag>(d.Flags);
-			KeyValsTemplate = new Dictionary<string, List<Option>>(d.KeyValsTemplate);
+			Flags = new Dictionary<string, Spawnflag>(d.Flags);
+			KeyValsTemplate = new Dictionary<string, Option>(d.KeyValsTemplate);
 			Offset = new Vector3(d.Offset);
 			RenderableSources = new Dictionary<RenderableSource, string>(d.RenderableSources);
+			Saveability = d.Saveability;
 			Size = d.Size != null ? new Aabb(d.Size) : null;
 		}
 	}

@@ -64,6 +64,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Features\InstanceTest.cs" />
     <Compile Include="GraphicsTest\GraphicsTest.cs" />
     <Compile Include="UtilitiesTest\MathUtilitiesTest.cs" />
     <Compile Include="FormatsTest\BlockTest.cs" />
