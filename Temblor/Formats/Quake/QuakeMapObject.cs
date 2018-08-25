@@ -184,6 +184,7 @@ namespace Temblor.Formats
 
 						var box = generator.Generate();
 						box.Position = new Vector3(x, y, z);
+						box.Transformability = Definition.RenderableTransformability;
 
 						Renderables.Add(box);
 					}
@@ -209,6 +210,7 @@ namespace Temblor.Formats
 					Renderable gem = new GemGenerator(Color4.Lime).Generate();
 
 					gem.Position = new Vector3(x, y, z);
+					gem.Transformability = Definition.RenderableTransformability;
 
 					Renderables.Add(gem);
 				}
@@ -219,6 +221,7 @@ namespace Temblor.Formats
 				Renderable gem = new GemGenerator().Generate();
 
 				gem.Position = Position;
+				gem.Transformability = Definition.RenderableTransformability;
 
 				Renderables.Add(gem);
 			}
@@ -235,6 +238,7 @@ namespace Temblor.Formats
 			float.TryParse(coords[2], out float z);
 
 			gem.Position = new Vector3(x, y, z);
+			gem.Transformability = Definition.RenderableTransformability;
 
 			Renderables.Add(gem);
 		}

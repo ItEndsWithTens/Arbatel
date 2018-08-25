@@ -1,5 +1,9 @@
+# A local working directory for quick, informal tests, along with things like
+# design plans, a todo list, and general notes. Useful, but not for the repo.
 scratch/
 
+# J.A.C.K. backups of .map files
+*.max
 
 
 ## Ignore Visual Studio temporary files, build results, and

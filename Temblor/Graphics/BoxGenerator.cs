@@ -61,7 +61,7 @@ namespace Temblor.Graphics
 				new Vertex(Max.X, Min.Y, Max.Z, Color)
 			};
 
-			var cube = new Renderable(modelVerts)
+			var box = new Renderable(modelVerts)
 			{
 				CoordinateSpace = CoordinateSpace.Model,
 				ShadingStyleDict = new Dictionary<ShadingStyle, ShadingStyle>().Capped(ShadingStyle.Flat)
@@ -85,8 +85,8 @@ namespace Temblor.Graphics
 				polygon.Normal = Vector3.Cross(a, b);
 				polygon.Normal.Normalize();
 
-				cube.Polygons.Add(polygon);
-				cube.Indices.AddRange(polygon.Indices);
+				box.Polygons.Add(polygon);
+				box.Indices.AddRange(polygon.Indices);
 			}
 
 			// Bottom
@@ -107,8 +107,8 @@ namespace Temblor.Graphics
 				polyBottom.Normal.Normalize();
 			}
 
-			cube.Polygons.Add(polyBottom);
-			cube.Indices.AddRange(polyBottom.Indices);
+			box.Polygons.Add(polyBottom);
+			box.Indices.AddRange(polyBottom.Indices);
 
 			// Top
 			var polyTop = new Polygon();
@@ -127,11 +127,13 @@ namespace Temblor.Graphics
 				polyTop.Normal = Vector3.Cross(a, b);
 				polyTop.Normal.Normalize();
 
-				cube.Polygons.Add(polyTop);
-				cube.Indices.AddRange(polyTop.Indices);
+				box.Polygons.Add(polyTop);
+				box.Indices.AddRange(polyTop.Indices);
 			}
 
-			return cube;
+			box.Transformability = Transformability.Translate;
+
+			return box;
 		}
 	}
 }

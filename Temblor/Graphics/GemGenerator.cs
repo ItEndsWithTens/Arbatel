@@ -87,6 +87,8 @@ namespace Temblor.Graphics
 				gem.Indices.AddRange(polygon.Indices);
 			}
 
+			gem.Transformability = Transformability;
+
 			return gem;
 		}
 	}

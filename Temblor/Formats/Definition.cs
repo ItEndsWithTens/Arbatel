@@ -141,6 +141,8 @@ namespace Temblor.Formats
 		/// </summary>
 		public Dictionary<RenderableSource, string> RenderableSources;
 
+		public Transformability RenderableTransformability { get; set; }
+
 		public Saveability Saveability { get; set; }
 
 		public Aabb Size;
@@ -153,6 +155,7 @@ namespace Temblor.Formats
 			KeyValsTemplate = new Dictionary<string, Option>();
 			Offset = new Vector3();
 			RenderableSources = new Dictionary<RenderableSource, string>();
+			RenderableTransformability = Transformability.Translate;
 		}
 		public Definition(Definition d)
 		{
@@ -166,6 +169,7 @@ namespace Temblor.Formats
 			KeyValsTemplate = new Dictionary<string, Option>(d.KeyValsTemplate);
 			Offset = new Vector3(d.Offset);
 			RenderableSources = new Dictionary<RenderableSource, string>(d.RenderableSources);
+			RenderableTransformability = d.RenderableTransformability;
 			Saveability = d.Saveability;
 			Size = d.Size != null ? new Aabb(d.Size) : null;
 		}

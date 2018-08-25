@@ -1,0 +1,65 @@
+{
+"classname" "worldspawn"
+"_gamma" "1"
+"_dirtgain" "1"
+"_dirtscale" "1"
+"_dirtdepth" "128"
+"_dirtmode" "0"
+"_minlight_dirt" "-1"
+"_sunlight2_dirt" "-1"
+"_sunlight_dirt" "-1"
+"_dirt" "-1"
+"_anglescale" "0.5"
+"_range" "0.5"
+"_dist" "1"
+"_sunlight3_color" "255 255 255"
+"_sunlight3" "0"
+"_sunlight2_color" "255 255 255"
+"_sunlight2" "0"
+"_sunlight_color" "255 255 255"
+"_sunlight_penumbra" "0"
+"_sun_mangle" "0 -90 0"
+"_sunlight" "0"
+"light" "0"
+"sounds" "1"
+"worldtype" "0"
+"origin" "0 0 0"
+"mapversion" "220"
+"wad" "D:\Projects\Games\Maps\Quake\common\wads\quake.wad"
+"_generator" "J.A.C.K. 1.1.1064 (vpQuake)"
+}
+{
+"classname" "light"
+"_anglescale" "0.5"
+"_softangle" "0"
+"delay" "0"
+"wait" "1"
+"_color" "255 255 255"
+"light" "300"
+"targetname" "has_mangle"
+"mangle" "0 0 0"
+"origin" "128 128 0"
+}
+{
+"classname" "light"
+"_anglescale" "0.5"
+"_softangle" "0"
+"delay" "0"
+"wait" "1"
+"_color" "255 255 255"
+"light" "300"
+"targetname" "no_mangle"
+"origin" "128 -128 0"
+}
+{
+"classname" "func_wall"
+"_phong" "0"
+"_mincolor" "255 255 255"
+{
+( 96 -32 32 ) ( 96 -32 -32 ) ( 96 32 32 ) SWITCH_1 [ 0 1 0 0 ] [ 0 0 -1 0 ] 0 1 1
+( 160 0 32 ) ( 96 -32 32 ) ( 96 32 32 ) SWITCH_1 [ 1 -0 -0 -128 ] [ -0 -1 -0 0 ] 0 1 1
+( 96 -32 32 ) ( 160 0 32 ) ( 96 -32 -32 ) SWITCH_1 [ 0.894427 0.447214 -0 -103.554 ] [ -0 -0 -1 0 ] 0 1 1
+( 96 32 32 ) ( 96 32 -32 ) ( 160 0 32 ) SWITCH_1 [ 0.894427 -0.447214 0 -103.554 ] [ 0 -0 -1 0 ] 0 1 1
+( 96 32 -32 ) ( 96 -32 -32 ) ( 160 0 32 ) SWITCH_1 [ 0.707107 -0 0.707107 -64 ] [ 0 1 0 16 ] 0 1.41421 1.05409
+}
+}

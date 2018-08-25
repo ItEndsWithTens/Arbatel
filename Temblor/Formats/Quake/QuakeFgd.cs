@@ -173,16 +173,19 @@ namespace Temblor.Formats
 						if (type == "pointclass")
 						{
 							def.ClassType = ClassType.Point;
+							def.RenderableTransformability = Transformability.Translate;
 						}
 						else if (type == "solidclass")
 						{
 							def.ClassType = ClassType.Solid;
 							def.RenderableSources.Add(RenderableSource.Solids, "");
+							def.RenderableTransformability = Transformability.All;
 						}
 						else
 						{
 							def.ClassType = ClassType.Base;
 							def.Saveability = Saveability.None;
+							def.RenderableTransformability = Transformability.None;
 						}
 
 						int classnameStart = header.IndexOf("=") + 1;

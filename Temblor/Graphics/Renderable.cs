@@ -25,7 +25,7 @@ namespace Temblor.Graphics
 				var worldVerts = new List<Vertex>();
 				foreach (var vertex in renderable.Vertices)
 				{
-					worldVerts.Add(vertex.ToWorld(renderable.ModelMatrix));
+					worldVerts.Add(vertex.ModelToWorld(renderable.ModelMatrix));
 				}
 
 				world.Vertices = worldVerts;
@@ -42,6 +42,27 @@ namespace Temblor.Graphics
 		View,
 		Projection,
 		Screen
+	}
+
+	/// <summary>
+	/// How a Renderable should be transformed when transforming the MapObject
+	/// it belongs to.
+	/// </summary>
+	public enum Transformability
+	{
+		None = 0x0,
+		Translate = 0x1,
+		Rotate = 0x2,
+		Scale = 0x4,
+		All = Translate | Rotate | Scale
+	}
+
+	public static class EnumExtensions
+	{
+		public static bool Has(this Transformability super, Transformability sub)
+		{
+			return (super & sub) == sub;
+		}
 	}
 
 	public class Buffers
@@ -223,6 +244,11 @@ namespace Temblor.Graphics
 		/// </summary>
 		public TextureCollection TextureCollection;
 
+		/// <summary>
+		/// What transformations this Renderable supports.
+		/// </summary>
+		public Transformability Transformability { get; set; }
+
 		public bool Translucent;
 
 		/// <summary>
@@ -242,6 +268,7 @@ namespace Temblor.Graphics
 			Polygons = new List<Polygon>();
 			ShadingStyleDict = new Dictionary<ShadingStyle, ShadingStyle>().Default();
 			TextureCollection = new TextureCollection();
+			Transformability = Transformability.All;
 			Translucent = false;
 			Vertices = new List<Vertex>();
 		}
@@ -276,7 +303,6 @@ namespace Temblor.Graphics
 			TextureCollection = r.TextureCollection;
 			Translucent = r.Translucent;
 			Vertices = new List<Vertex>(r.Vertices);
-
 		}
 
 		public void Draw(Dictionary<ShadingStyle, Shader> shaders, ShadingStyle style, GLSurface surface, Camera camera)
@@ -337,23 +363,23 @@ namespace Temblor.Graphics
 		}
 		protected void Rotate(float pitch, float yaw, float roll)
 		{
-			for (var i = 0; i < Vertices.Count; i++)
+			if (Transformability.Has(Transformability.Rotate))
 			{
-				Vertices[i] = Vertex.Rotate(Vertices[i], pitch, yaw, roll);
+				for (var i = 0; i < Vertices.Count; i++)
+				{
+					var world = Vertices[i].ModelToWorld(ModelMatrix);
+					var rotated = Vertex.Rotate(world, pitch, yaw, roll);
+					Vertices[i] = rotated.WorldToModel(ModelMatrix);
+				}
+
+				for (var i = 0; i < Polygons.Count; i++)
+				{
+					Polygons[i] = Polygon.Rotate(Polygons[i], pitch, yaw, roll);
+				}
 			}
-
-			for (var i = 0; i < Polygons.Count; i++)
+			else if (Transformability.Has(Transformability.Translate))
 			{
-				Polygons[i] = Polygon.Rotate(Polygons[i], pitch, yaw, roll);
-			}
-
-			if (CoordinateSpace == CoordinateSpace.Model)
-			{
-				Matrix4 rotZ = Matrix4.CreateRotationZ(MathHelper.DegreesToRadians(pitch));
-				Matrix4 rotY = Matrix4.CreateRotationY(MathHelper.DegreesToRadians(yaw));
-				Matrix4 rotX = Matrix4.CreateRotationX(MathHelper.DegreesToRadians(roll));
-
-				ModelMatrix *= rotZ * rotY * rotX;
+				Position = Position.Rotate(pitch, yaw, roll);
 			}
 
 			UpdateBounds();
@@ -370,7 +396,7 @@ namespace Temblor.Graphics
 
 		public void Transform(Vector3 translation, Vector3 rotation, Vector3 scale)
 		{
-			if (scale != null)
+			if (Transformability.Has(Transformability.Scale) && scale != null)
 			{
 				Scale(scale);
 			}
@@ -380,7 +406,7 @@ namespace Temblor.Graphics
 				Rotate(rotation);
 			}
 
-			if (translation != null)
+			if (Transformability.Has(Transformability.Translate) && translation != null)
 			{
 				TranslateRelative(translation);
 			}
