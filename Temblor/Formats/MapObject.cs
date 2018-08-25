@@ -250,7 +250,6 @@ namespace Temblor.Formats
 		{
 			foreach (var child in Children)
 			{
-				// Transform children relative to origin or relative to parent?
 				child.Transform(translation, rotation, scale);
 			}
 

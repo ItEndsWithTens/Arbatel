@@ -81,6 +81,7 @@
     <Compile Include="Formats\Quake\QuakeBlock.cs" />
     <Compile Include="Formats\Quake\QuakeMap.cs" />
     <Compile Include="Graphics\Winding.cs" />
+    <Compile Include="Utilities\Formatting.cs" />
     <Compile Include="Utilities\MathUtilities.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="MainForm.cs" />

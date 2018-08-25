@@ -64,7 +64,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Features\InstanceTest.cs" />
+    <Compile Include="Features\Instance\Rotation.cs" />
+    <Compile Include="Features\Instance\Nesting.cs" />
+    <Compile Include="Features\Instance\SetUp.cs" />
     <Compile Include="GraphicsTest\GraphicsTest.cs" />
     <Compile Include="UtilitiesTest\MathUtilitiesTest.cs" />
     <Compile Include="FormatsTest\BlockTest.cs" />

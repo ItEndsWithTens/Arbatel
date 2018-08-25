@@ -10,13 +10,53 @@ namespace Temblor.Graphics
 {
 	public static class VertexExtensions
 	{
-		public static Vertex ToWorld(this Vertex vertex, Matrix4 modelMatrix)
+		public static Vector3 Rotate(this Vector3 vector, float pitch, float yaw, float roll)
 		{
-			var vec4 = new Vector4(vertex.Position.X, vertex.Position.Z, -vertex.Position.Y, 1.0f);
-			Vector4 world = vec4 * modelMatrix;
-			var vec3 = new Vector3(world.X, -world.Z, world.Y);
+			if (pitch < 0.0f)
+			{
+				pitch = Math.Abs(pitch);
+			}
+			else
+			{
+				pitch = 360.0f - pitch;
+			}
 
-			return new Vertex(vertex) { Position = vec3 };
+			// Assumes that objects are pointing toward +X; thereby pitch
+			// represents rotation around world Y (camera Z), yaw is world
+			// Z (camera Y), and roll is world/camera X.
+			Matrix4 rotZ = Matrix4.CreateRotationZ(MathHelper.DegreesToRadians(pitch));
+			Matrix4 rotY = Matrix4.CreateRotationY(MathHelper.DegreesToRadians(yaw));
+			Matrix4 rotX = Matrix4.CreateRotationX(MathHelper.DegreesToRadians(roll));
+
+			Matrix4 rotation = rotZ * rotY * rotX;
+
+			var yUpRightHand = new Vector4(vector.X, vector.Z, -vector.Y, 1.0f);
+			Vector4 rotated = yUpRightHand * rotation;
+			var zUpLeftHand = new Vector3(rotated.X, -rotated.Z, rotated.Y);
+
+			return zUpLeftHand;
+		}
+
+		public static Vertex ModelToWorld(this Vertex v, Matrix4 modelMatrix)
+		{
+			return ConvertCoordinateSpace(v, modelMatrix);
+		}
+
+		public static Vertex WorldToModel(this Vertex v, Matrix4 modelMatrix)
+		{
+			var inverted = modelMatrix;
+			inverted.Invert();
+
+			return ConvertCoordinateSpace(v, inverted);
+		}
+
+		public static Vertex ConvertCoordinateSpace(Vertex v, Matrix4 matrix)
+		{
+			var vec4 = new Vector4(v.Position.X, v.Position.Z, -v.Position.Y, 1.0f);
+			Vector4 converted = vec4 * matrix;
+			var vec3 = new Vector3(converted.X, -converted.Z, converted.Y);
+
+			return new Vertex(v) { Position = vec3 };
 		}
 	}
 
@@ -55,37 +95,11 @@ namespace Temblor.Graphics
 
 		public static Vertex Rotate(Vertex vertex, float pitch, float yaw, float roll)
 		{
-			if (pitch < 0.0f)
+			return new Vertex(vertex)
 			{
-				pitch = Math.Abs(pitch);
-			}
-			else
-			{
-				pitch = 360.0f - pitch;
-			}
-
-			// Assumes that objects are pointing toward +X; thereby pitch
-			// represents rotation around world Y (camera Z), yaw is world
-			// Z (camera Y), and roll is world/camera X.
-			Matrix4 rotZ = Matrix4.CreateRotationZ(MathHelper.DegreesToRadians(pitch));
-			Matrix4 rotY = Matrix4.CreateRotationY(MathHelper.DegreesToRadians(yaw));
-			Matrix4 rotX = Matrix4.CreateRotationX(MathHelper.DegreesToRadians(roll));
-
-			Matrix4 rotation = rotZ * rotY * rotX;
-
-			var v = new Vertex(vertex) { Position = vertex };
-
-			var yUpRightHand = new Vector4(v.Position.X, v.Position.Z, -v.Position.Y, 1.0f);
-			Vector4 rotated = yUpRightHand * rotation;
-			var zUpLeftHand = new Vector3(rotated.X, -rotated.Z, rotated.Y);
-			v.Position = zUpLeftHand;
-
-			yUpRightHand = new Vector4(v.Normal.X, v.Normal.Z, -v.Normal.Y, 1.0f);
-			rotated = yUpRightHand * rotation;
-			zUpLeftHand = new Vector3(rotated.X, -rotated.Z, rotated.Y);
-			v.Normal = zUpLeftHand;
-
-			return v;
+				Position = vertex.Position.Rotate(pitch, yaw, roll),
+				Normal = vertex.Normal.Rotate(pitch, yaw, roll)
+			};
 		}
 
 		public static Vertex TranslateRelative(Vertex v, Vector3 diff)

@@ -10,37 +10,11 @@ using System.Text;
 using System.Threading.Tasks;
 using Temblor.Formats;
 using Temblor.Formats.Quake;
+using Temblor.Utilities;
 
-namespace TemblorTest.Core.Features
+namespace TemblorTest.Core.Features.Instance
 {
-	public static class Helpers
-	{
-		public static Vector3 StringToVector3(string value)
-		{
-			var vector = new Vector3();
-
-			string[] split = value.Split(' ');
-			float.TryParse(split[0], out vector.X);
-			float.TryParse(split[1], out vector.Y);
-			float.TryParse(split[2], out vector.Z);
-
-			return vector;
-		}
-	}
-
-	[SetUpFixture]
-	public class InitializePlatform
-	{
-		[OneTimeSetUp]
-		public void SetUp()
-		{
-			var platform = Eto.Platform.Detect;
-
-			Eto.Platform.Initialize(platform);
-		}
-	}
-
-	public class InstanceTest
+	public class Nesting
 	{
 		public static char Sep { get; private set; }
 
@@ -55,7 +29,7 @@ namespace TemblorTest.Core.Features
 		public static readonly float Tolerance = 0.001f;
 
 		[SetUpFixture]
-		public class SetUpInstanceTest
+		public class SetUpNested
 		{
 			[OneTimeSetUp]
 			public void SetUp()
@@ -109,15 +83,16 @@ namespace TemblorTest.Core.Features
 			}
 
 			[TestCase]
-			public void WedgeIsPositionedCorrectly()
+			public void WedgePositionIsCorrect()
 			{
 				var wedge = Map.MapObjects[1];
+
+				Assert.That(wedge.Definition.ClassName, Is.EqualTo("func_wall"));
 
 				var expected = new Vector3(256, 0, 64);
 
 				Assert.Multiple(() =>
 				{
-					Assert.That(wedge.Definition.ClassName, Is.EqualTo("func_wall"));
 					Assert.That(wedge.Position.X, Is.EqualTo(expected.X).Within(Tolerance));
 					Assert.That(wedge.Position.Y, Is.EqualTo(expected.Y).Within(Tolerance));
 					Assert.That(wedge.Position.Z, Is.EqualTo(expected.Z).Within(Tolerance));
@@ -125,15 +100,16 @@ namespace TemblorTest.Core.Features
 			}
 
 			[TestCase]
-			public void LightIsPositionedCorrectly()
+			public void LightPositionIsCorrect()
 			{
 				var light = Map.MapObjects[2];
+
+				Assert.That(light.Definition.ClassName, Is.EqualTo("light"));
 
 				var expected = new Vector3(256, 0, 160);
 
 				Assert.Multiple(() =>
 				{
-					Assert.That(light.Definition.ClassName, Is.EqualTo("light"));
 					Assert.That(light.Position.X, Is.EqualTo(expected.X).Within(Tolerance));
 					Assert.That(light.Position.Y, Is.EqualTo(expected.Y).Within(Tolerance));
 					Assert.That(light.Position.Z, Is.EqualTo(expected.Z).Within(Tolerance));
@@ -159,11 +135,12 @@ namespace TemblorTest.Core.Features
 			{
 				var instance = Map.MapObjects[1];
 
+				Assert.That(instance.Definition.ClassName, Is.EqualTo("func_instance"));
+
 				var expected = new Vector3(512, 32, 0);
 
 				Assert.Multiple(() =>
 				{
-					Assert.That(instance.Definition.ClassName, Is.EqualTo("func_instance"));
 					Assert.That(instance.Position.X, Is.EqualTo(expected.X).Within(Tolerance));
 					Assert.That(instance.Position.Y, Is.EqualTo(expected.Y).Within(Tolerance));
 					Assert.That(instance.Position.Z, Is.EqualTo(expected.Z).Within(Tolerance));
@@ -177,11 +154,12 @@ namespace TemblorTest.Core.Features
 
 				var wedge = collapsed.MapObjects[1];
 
+				Assert.That(wedge.Definition.ClassName, Is.EqualTo("func_wall"));
+
 				var expected = new Vector3(512, -224, 64);
 
 				Assert.Multiple(() =>
 				{
-					Assert.That(wedge.Definition.ClassName, Is.EqualTo("func_wall"));
 					Assert.That(wedge.Position.X, Is.EqualTo(expected.X).Within(Tolerance));
 					Assert.That(wedge.Position.Y, Is.EqualTo(expected.Y).Within(Tolerance));
 					Assert.That(wedge.Position.Z, Is.EqualTo(expected.Z).Within(Tolerance));
@@ -195,11 +173,12 @@ namespace TemblorTest.Core.Features
 
 				var light = collapsed.MapObjects[2];
 
+				Assert.That(light.Definition.ClassName, Is.EqualTo("light"));
+
 				var expected = new Vector3(512, -224, 160);
 
 				Assert.Multiple(() =>
 				{
-					Assert.That(light.Definition.ClassName, Is.EqualTo("light"));
 					Assert.That(light.Position.X, Is.EqualTo(expected.X).Within(Tolerance));
 					Assert.That(light.Position.Y, Is.EqualTo(expected.Y).Within(Tolerance));
 					Assert.That(light.Position.Z, Is.EqualTo(expected.Z).Within(Tolerance));
@@ -213,12 +192,13 @@ namespace TemblorTest.Core.Features
 
 				var light = collapsed.MapObjects[2];
 
+				Assert.That(light.Definition.ClassName, Is.EqualTo("light"));
+
 				var expected = new Vector3(512, -224, 160);
-				var actual = Helpers.StringToVector3(light.KeyVals["origin"].Value);
+				var actual = Formatting.StringToVector3(light.KeyVals["origin"].Value);
 
 				Assert.Multiple(() =>
 				{
-					Assert.That(light.Definition.ClassName, Is.EqualTo("light"));
 					Assert.That(actual.X, Is.EqualTo(expected.X).Within(Tolerance));
 					Assert.That(actual.Y, Is.EqualTo(expected.Y).Within(Tolerance));
 					Assert.That(actual.Z, Is.EqualTo(expected.Z).Within(Tolerance));
@@ -244,11 +224,12 @@ namespace TemblorTest.Core.Features
 			{
 				var instance = Map.MapObjects[1];
 
+				Assert.That(instance.Definition.ClassName, Is.EqualTo("func_instance"));
+
 				var expected = new Vector3(128, 128, 128);
 
 				Assert.Multiple(() =>
 				{
-					Assert.That(instance.Definition.ClassName, Is.EqualTo("func_instance"));
 					Assert.That(instance.Position.X, Is.EqualTo(expected.X).Within(Tolerance));
 					Assert.That(instance.Position.Y, Is.EqualTo(expected.Y).Within(Tolerance));
 					Assert.That(instance.Position.Z, Is.EqualTo(expected.Z).Within(Tolerance));
@@ -262,11 +243,12 @@ namespace TemblorTest.Core.Features
 
 				var wedge = collapsed.MapObjects[1];
 
+				Assert.That(wedge.Definition.ClassName, Is.EqualTo("func_wall"));
+
 				var expected = new Vector3(-384, 352, 192);
 
 				Assert.Multiple(() =>
 				{
-					Assert.That(wedge.Definition.ClassName, Is.EqualTo("func_wall"));
 					Assert.That(wedge.Position.X, Is.EqualTo(expected.X).Within(Tolerance));
 					Assert.That(wedge.Position.Y, Is.EqualTo(expected.Y).Within(Tolerance));
 					Assert.That(wedge.Position.Z, Is.EqualTo(expected.Z).Within(Tolerance));
@@ -280,11 +262,12 @@ namespace TemblorTest.Core.Features
 
 				var light = collapsed.MapObjects[2];
 
+				Assert.That(light.Definition.ClassName, Is.EqualTo("light"));
+
 				var expected = new Vector3(-384, 352, 288);
 
 				Assert.Multiple(() =>
 				{
-					Assert.That(light.Definition.ClassName, Is.EqualTo("light"));
 					Assert.That(light.Position.X, Is.EqualTo(expected.X).Within(Tolerance));
 					Assert.That(light.Position.Y, Is.EqualTo(expected.Y).Within(Tolerance));
 					Assert.That(light.Position.Z, Is.EqualTo(expected.Z).Within(Tolerance));
@@ -298,12 +281,13 @@ namespace TemblorTest.Core.Features
 
 				var light = collapsed.MapObjects[2];
 
+				Assert.That(light.Definition.ClassName, Is.EqualTo("light"));
+
 				var expected = new Vector3(-384, 352, 288);
-				var actual = Helpers.StringToVector3(light.KeyVals["origin"].Value);
+				var actual = Formatting.StringToVector3(light.KeyVals["origin"].Value);
 
 				Assert.Multiple(() =>
 				{
-					Assert.That(light.Definition.ClassName, Is.EqualTo("light"));
 					Assert.That(actual.X, Is.EqualTo(expected.X).Within(Tolerance));
 					Assert.That(actual.Y, Is.EqualTo(expected.Y).Within(Tolerance));
 					Assert.That(actual.Z, Is.EqualTo(expected.Z).Within(Tolerance));
