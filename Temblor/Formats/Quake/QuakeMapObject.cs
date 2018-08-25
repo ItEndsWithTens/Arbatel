@@ -73,7 +73,14 @@ namespace Temblor.Formats
 
 			KeyVals = new Dictionary<string, Option>(quakeBlock.KeyVals);
 
-			Definition = definitions[KeyVals["classname"].Value];
+			if (definitions.ContainsKey(KeyVals["classname"].Value))
+			{
+				Definition = definitions[KeyVals["classname"].Value];
+			}
+			else
+			{
+				Definition = new Definition();
+			}
 
 			Saveability = Definition.Saveability;
 

@@ -92,7 +92,8 @@ namespace Temblor.Formats.Quake
 			var oldCwd = Directory.GetCurrentDirectory();
 			Directory.SetCurrentDirectory(Path.GetDirectoryName(AbsolutePath ?? oldCwd));
 
-			string stripped = raw.Replace("\r", String.Empty);
+			string stripped = Regex.Replace(raw, "//.*?[\r\n]", "");
+			stripped = stripped.Replace("\r", String.Empty);
 			stripped = stripped.Replace("\n", String.Empty);
 			stripped = stripped.Replace("\t", String.Empty); // FIXME: Only strip leading tabs! Or just tabs not within a key or value?
 
