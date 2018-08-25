@@ -67,85 +67,163 @@ namespace Temblor.Formats
 			{
 				Parse(sr);
 			}
-
-			var bases = new List<Definition>();
-			var points = new List<Definition>();
-			var solids = new List<Definition>();
-
-			foreach (Definition def in Values)
-			{
-				if (def.ClassType == ClassType.Solid && def.BaseNames.Count > 0)
-				{
-					solids.Add(def);
-				}
-				else if (def.ClassType == ClassType.Point && def.BaseNames.Count > 0)
-				{
-					points.Add(def);
-				}
-				else if (def.BaseNames.Count > 0)
-				{
-					bases.Add(def);
-				}
-			}
-
-			var defs = new List<Definition>();
-			defs.AddRange(bases.OrderBy(d => d.BaseNames.Count).ToList());
-			defs.AddRange(points.OrderBy(d => d.BaseNames.Count).ToList());
-			defs.AddRange(solids.OrderBy(d => d.BaseNames.Count).ToList());
-
-			foreach (var d in defs)
-			{
-				foreach (var name in d.BaseNames)
-				{
-					Definition baseClass = this[name];
-
-					foreach (var flag in baseClass.Flags)
-					{
-						if (!d.Flags.ContainsKey(flag.Key))
-						{
-							d.Flags.Add(flag.Key, flag.Value);
-						}
-					}
-
-					foreach (var keyval in baseClass.KeyValsTemplate)
-					{
-						if (!d.KeyValsTemplate.ContainsKey(keyval.Key))
-						{
-							d.KeyValsTemplate.Add(keyval.Key, keyval.Value);
-						}
-					}
-
-					// This is the easiest way to check whether this entity has
-					// a color defined; checks for null won't work.
-					if (d.Color.R == 0.0f && d.Color.G == 0.0f && d.Color.B == 0.0f && d.Color.A == 0.0f)
-					{
-						var c = baseClass.Color;
-
-						// It is of course possible the base class also has no
-						// color, in which case white will do nicely.
-						if (c.R == 0.0f && c.G == 0.0f && c.B == 0.0f && c.A == 0.0f)
-						{
-							d.Color = new Color4(1.0f, 1.0f, 1.0f, 1.0f);
-						}
-						else
-						{
-							d.Color = baseClass.Color;
-						}
-					}
-
-					d.Offset += baseClass.Offset;
-
-					if (d.Size == null)
-					{
-						d.Size = baseClass.Size;
-					}
-				}
-			}
 		}
 
 		public override void Parse(StreamReader sr)
 		{
 			List<string> raw = Preprocess(sr);
+
+			List<Definition> flat = GetFlatClassList(raw);
+
+			List<Definition> resolved = ResolveClassInheritance(flat);
+
+			foreach (var definition in resolved)
+			{
+				Add(definition.ClassName, definition);
+			}
+		}
+
+		/// <summary>
+		/// Prepare an input FGD for subsequent parsing.
+		/// </summary>
+		/// <param name="sr">The StreamReader to pull input from.</param>
+		/// <returns></returns>
+		public override List<string> Preprocess(StreamReader sr)
+		{
+			string all = sr.ReadToEnd();
+
+			// It's important to strip out comments first, in case they include
+			// any delimiters used in the subsequent split. Waiting until after
+			// splitting would make eliminating them a pain.
+			string noComments = Regex.Replace(all, "//.*?[\r\n]", "");
+
+			// Split on and keep absolutely everything in an FGD that can be
+			// treated as a delimiter. Some things will be reassembled later.
+			var delimiters = "(\\[|\\]|\\r|\\n|\\t|=|:|,|\\(|\\)|\\s)";
+			return Regex.Split(noComments, delimiters).Select(s => s.Trim()).Where(s => s != "").ToList();
+		}
+
+		private List<string> ExtractHeaderProperty(string name, List<string> header)
+		{
+			var values = new List<string>();
+
+			int openParenthesis = header.IndexOf(name) + 1;
+			int closeParenthesis = FindClosingDelimiter(header, openParenthesis);
+
+			for (var i = openParenthesis + 1; i < closeParenthesis; i++)
+			{
+				var value = header[i];
+
+				if (value != ",")
+				{
+					values.Add(header[i]);
+				}
+			}
+
+			return values;
+		}
+
+		/// <summary>
+		/// Given an input list and the index of an opening delimiter, find the
+		/// matching closing delimiter.
+		/// </summary>
+		/// <param name="raw">The list to search.</param>
+		/// <param name="openIndex">The index of the open delimiter to match.</param>
+		/// <returns></returns>
+		private int FindClosingDelimiter(List<string> raw, int openIndex)
+		{
+			string openDelimiter = raw[openIndex];
+			string closeDelimiter;
+			if (openDelimiter == "[")
+			{
+				closeDelimiter = "]";
+			}
+			else if (openDelimiter == "(")
+			{
+				closeDelimiter = ")";
+			}
+			else if (openDelimiter == "{")
+			{
+				closeDelimiter = "}";
+			}
+			else
+			{
+				throw new ArgumentException("Unrecognized open delimiter!");
+			}
+
+			var closeIndex = 0;
+
+			var count = 0;
+
+			for (var i = openIndex; i < raw.Count; i++)
+			{
+				if (raw[i] == openDelimiter)
+				{
+					count++;
+				}
+				else if (raw[i] == closeDelimiter)
+				{
+					count--;
+				}
+
+				if (count == 0)
+				{
+					closeIndex = i;
+					break;
+				}
+			}
+
+			return closeIndex;
+		}
+
+		private int GetBlockLength(List<string> raw, int start)
+		{
+			var length = 0;
+
+			var braces = 0;
+
+			for (var i = start; i < raw.Count; i++)
+			{
+				if (raw[i] == "[")
+				{
+					length++;
+					braces++;
+					break;
+				}
+				else
+				{
+					length++;
+				}
+			}
+
+			for (var i = start + length; i < raw.Count; i++)
+			{
+				if (raw[i] == "[")
+				{
+					braces++;
+				}
+				else if (raw[i] == "]")
+				{
+					braces--;
+				}
+
+				length++;
+
+				if (braces == 0)
+				{
+					break;
+				}
+			}
+
+			return length;
+		}
+
+		/// <summary>
+		/// Build a list of all the classes in an FGD, without resolving inheritance.
+		/// </summary>
+		private List<Definition> GetFlatClassList(List<string> raw)
+		{
+			var flat = new List<Definition>();
 
 			var blockStart = 0;
 			while (blockStart < raw.Count)
@@ -163,9 +241,7 @@ namespace Temblor.Formats
 				var blockOffset = 0;
 				while (blockOffset < block.Count - 1)
 				{
-					var item = block[blockOffset];
-
-					if (item.StartsWith("@"))
+					if (block[blockOffset].StartsWith("@"))
 					{
 						var header = block.GetRange(blockOffset, block.IndexOf("[", blockOffset));
 
@@ -383,7 +459,7 @@ namespace Temblor.Formats
 					{
 						var option = new Option();
 
-						string key = item.ToLower();
+						string key = block[blockOffset].ToLower();
 						blockOffset += 2;
 
 						option.Type = block[blockOffset].ToLower();
@@ -515,149 +591,100 @@ namespace Temblor.Formats
 					def.KeyValsTemplate.Add("classname", new Option());
 				}
 
-				Add(def.ClassName, def);
+				flat.Add(def);
 
 				blockStart += blockLength;
 			}
+
+			return flat;
 		}
 
-		/// <summary>
-		/// Prepare an input FGD for subsequent parsing.
-		/// </summary>
-		/// <param name="sr">The StreamReader to pull input from.</param>
-		/// <returns></returns>
-		public override List<string> Preprocess(StreamReader sr)
+		private List<Definition> ResolveClassInheritance(List<Definition> flat)
 		{
-			string all = sr.ReadToEnd();
+			var resolved = new List<Definition>();
 
-			// It's important to strip out comments first, in case they include
-			// any delimiters used in the subsequent split. Waiting until after
-			// splitting would make eliminating them a pain.
-			string noComments = Regex.Replace(all, "//.*?[\r\n]", "");
+			var bases = new List<Definition>();
+			var points = new List<Definition>();
+			var solids = new List<Definition>();
 
-			// Split on brackets, carriage return, newline, or tab, keeping
-			// those delimiters by surrounding them with a capture group, but
-			// also split on end-of-line comments, discarding them instead.
-			//var delimiters = "(\\[|\\]|\\r|\\n|\\t)|//.*?[\r\n]";
-			//return Regex.Split(sr.ReadToEnd(), delimiters).Select(s => s.Trim()).Where(s => s != "").ToList();
-
-			var delimiters = "(\\[|\\]|\\r|\\n|\\t|=|:|,|\\(|\\)|\\s)";
-			return Regex.Split(noComments, delimiters).Select(s => s.Trim()).Where(s => s != "").ToList();
-		}
-
-		private List<string> ExtractHeaderProperty(string name, List<string> header)
-		{
-			var values = new List<string>();
-
-			int openParenthesis = header.IndexOf(name) + 1;
-			int closeParenthesis = FindClosingDelimiter(header, openParenthesis);
-
-			for (var i = openParenthesis + 1; i < closeParenthesis; i++)
+			foreach (Definition def in flat)
 			{
-				var value = header[i];
-
-				if (value != ",")
+				if (def.ClassType == ClassType.Solid)
 				{
-					values.Add(header[i]);
+					solids.Add(def);
 				}
-			}
-
-			return values;
-		}
-
-		/// <summary>
-		/// Given an input list and the index of an opening delimiter, find the
-		/// matching closing delimiter.
-		/// </summary>
-		/// <param name="raw">The list to search.</param>
-		/// <param name="openIndex">The index of the open delimiter to match.</param>
-		/// <returns></returns>
-		private int FindClosingDelimiter(List<string> raw, int openIndex)
-		{
-			string openDelimiter = raw[openIndex];
-			string closeDelimiter;
-			if (openDelimiter == "[")
-			{
-				closeDelimiter = "]";
-			}
-			else if (openDelimiter == "(")
-			{
-				closeDelimiter = ")";
-			}
-			else if (openDelimiter == "{")
-			{
-				closeDelimiter = "}";
-			}
-			else
-			{
-				throw new ArgumentException("Unrecognized open delimiter!");
-			}
-
-			var closeIndex = 0;
-
-			var count = 0;
-
-			for (var i = openIndex; i < raw.Count; i++)
-			{
-				if (raw[i] == openDelimiter)
+				else if (def.ClassType == ClassType.Point)
 				{
-					count++;
-				}
-				else if (raw[i] == closeDelimiter)
-				{
-					count--;
-				}
-
-				if (count == 0)
-				{
-					closeIndex = i;
-					break;
-				}
-			}
-
-			return closeIndex;
-		}
-
-		private int GetBlockLength(List<string> raw, int start)
-		{
-			var length = 0;
-
-			var braces = 0;
-
-			for (var i = start; i < raw.Count; i++)
-			{
-				if (raw[i] == "[")
-				{
-					length++;
-					braces++;
-					break;
+					points.Add(def);
 				}
 				else
 				{
-					length++;
+					bases.Add(def);
 				}
 			}
 
-			for (var i = start + length; i < raw.Count; i++)
+			resolved.AddRange(bases.OrderBy(d => d.BaseNames.Count).ToList());
+			resolved.AddRange(points.OrderBy(d => d.BaseNames.Count).ToList());
+			resolved.AddRange(solids.OrderBy(d => d.BaseNames.Count).ToList());
+
+			foreach (var def in resolved)
 			{
-				if (raw[i] == "[")
+				foreach (var name in def.BaseNames)
 				{
-					braces++;
-				}
-				else if (raw[i] == "]")
-				{
-					braces--;
-				}
+					Definition baseClass = resolved.Find(d => d.ClassName == name);
 
-				length++;
+					foreach (var flag in baseClass.Flags)
+					{
+						if (!def.Flags.ContainsKey(flag.Key))
+						{
+							def.Flags.Add(flag.Key, flag.Value);
+						}
+					}
 
-				if (braces == 0)
-				{
-					break;
+					foreach (var keyval in baseClass.KeyValsTemplate)
+					{
+						if (!def.KeyValsTemplate.ContainsKey(keyval.Key))
+						{
+							def.KeyValsTemplate.Add(keyval.Key, keyval.Value);
+						}
+					}
+
+					// This is the easiest way to check whether this entity has
+					// a color defined; checks for null won't work.
+					if (def.Color.R == 0.0f && def.Color.G == 0.0f && def.Color.B == 0.0f && def.Color.A == 0.0f)
+					{
+						var c = baseClass.Color;
+
+						// It is of course possible the base class also has no
+						// color, in which case white will do nicely.
+						if (c.R == 0.0f && c.G == 0.0f && c.B == 0.0f && c.A == 0.0f)
+						{
+							def.Color = new Color4(1.0f, 1.0f, 1.0f, 1.0f);
+						}
+						else
+						{
+							def.Color = baseClass.Color;
+						}
+					}
+
+					def.Offset += baseClass.Offset;
+
+					if (def.Size == null)
+					{
+						def.Size = baseClass.Size;
+					}
+
+					foreach (var source in baseClass.RenderableSources)
+					{
+						if (!def.RenderableSources.ContainsKey(source.Key))
+						{
+							def.RenderableSources.Add(source.Key, source.Value);
+						}
+					}
 				}
 			}
 
-			return length;
+			return resolved;
 		}
 	}
 }
