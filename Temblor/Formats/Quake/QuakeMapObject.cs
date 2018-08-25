@@ -162,7 +162,11 @@ namespace Temblor.Formats
 						var oldCwd = Directory.GetCurrentDirectory();
 						var instancePath = oldCwd + Path.DirectorySeparatorChar + path;
 
-						var map = new QuakeMap(instancePath, Definition.DefinitionCollection, TextureCollection);
+						QuakeMap map;
+						using (var stream = new FileStream(instancePath, FileMode.Open, FileAccess.Read))
+						{
+							map = new QuakeMap(stream, Definition.DefinitionCollection, TextureCollection);
+						}	
 						map.Transform(this);
 						UserData = map;
 

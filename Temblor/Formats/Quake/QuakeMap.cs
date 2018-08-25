@@ -63,23 +63,13 @@ namespace Temblor.Formats.Quake
 
 	public class QuakeMap : Map
 	{
-		public List<Wad2> Wads;
-
 		public QuakeMap() : base()
 		{
 		}
 		public QuakeMap(QuakeMap map) : base(map)
 		{
 		}
-		public QuakeMap(string filename, DefinitionDictionary definitions) :
-			this(new FileStream(filename, FileMode.Open, FileAccess.Read), definitions)
-		{
-		}
 		public QuakeMap(Stream stream, DefinitionDictionary definitions) : base(stream, definitions)
-		{
-		}
-		public QuakeMap(string filename, DefinitionDictionary definitions, TextureCollection textures) :
-			this(new FileStream(filename, FileMode.Open, FileAccess.Read), definitions, textures)
 		{
 		}
 		public QuakeMap(Stream stream, DefinitionDictionary definitions, TextureCollection textures) :
@@ -122,7 +112,7 @@ namespace Temblor.Formats.Quake
 				"(" + Regex.Escape(CloseDelimiter) + ")";
 
 			List<string> split = Regex.Split(stripped, delimiters).ToList();
-			split.RemoveAll(s => s.Trim() == "" || s.Trim() == "\"");
+			split.RemoveAll(s => s.Trim().Length == 0 || s.Trim() == "\"");
 
 			// The regex patterns above include capture groups to retain some
 			// delimiters in the output, but they end up in the same item in the
