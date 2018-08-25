@@ -57,10 +57,6 @@ namespace Temblor.Formats
 			MapObjects = new List<MapObject>(map.MapObjects);
 			TextureCollection = new TextureCollection(map.TextureCollection);
 		}
-		public Map(string filename, DefinitionDictionary definitions) :
-			this(new FileStream(filename, FileMode.Open, FileAccess.Read), definitions)
-		{
-		}
 		public Map(Stream stream, DefinitionDictionary definitions)
 		{
 			Aabb = new Aabb();
@@ -78,10 +74,6 @@ namespace Temblor.Formats
 			{
 				Parse(sr.ReadToEnd());
 			}
-		}
-		public Map(string filename, DefinitionDictionary definitions, TextureCollection textures) :
-			this(new FileStream(filename, FileMode.Open, FileAccess.Read), definitions, textures)
-		{
 		}
 		public Map(Stream stream, DefinitionDictionary definitions, TextureCollection textures)
 		{

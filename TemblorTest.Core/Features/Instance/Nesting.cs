@@ -79,7 +79,11 @@ namespace TemblorTest.Core.Features.Instance
 			public void SetUp()
 			{
 				Filename = DataDirectory + "instance" + Sep + "arrow_wedge.map";
-				Map = new QuakeMap(Filename, Fgd, Textures);
+
+				using (var stream = new FileStream(Filename, FileMode.Open, FileAccess.Read))
+				{
+					Map = new QuakeMap(stream, Fgd, Textures);
+				}
 			}
 
 			[TestCase]
@@ -127,7 +131,11 @@ namespace TemblorTest.Core.Features.Instance
 			public void SetUp()
 			{
 				Filename = DataDirectory + "instance" + Sep + "arrow_wedge_holder.map";
-				Map = new QuakeMap(Filename, Fgd, Textures);
+
+				using (var stream = new FileStream(Filename, FileMode.Open, FileAccess.Read))
+				{
+					Map = new QuakeMap(stream, Fgd, Textures);
+				}
 			}
 
 			[TestCase]
@@ -216,7 +224,11 @@ namespace TemblorTest.Core.Features.Instance
 			public void SetUp()
 			{
 				Filename = DataDirectory + "instance_test-arrow_wedge.map";
-				Map = new QuakeMap(Filename, Fgd, Textures);
+
+				using (var stream = new FileStream(Filename, FileMode.Open, FileAccess.Read))
+				{
+					Map = new QuakeMap(stream, Fgd, Textures);
+				}
 			}
 
 			[TestCase]

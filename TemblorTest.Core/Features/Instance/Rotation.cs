@@ -80,7 +80,11 @@ namespace TemblorTest.Core.Features.Instance
 			public void SetUp()
 			{
 				Filename = DataDirectory + "instance" + Sep + "rotation_instance.map";
-				Map = new QuakeMap(Filename, Fgd, Textures);
+
+				using (var stream = new FileStream(Filename, FileMode.Open, FileAccess.Read))
+				{
+					Map = new QuakeMap(stream, Fgd, Textures);
+				}
 			}
 
 			[TestCase]
@@ -147,7 +151,11 @@ namespace TemblorTest.Core.Features.Instance
 			public void SetUp()
 			{
 				Filename = DataDirectory + "instance_test-pitch.map";
-				Map = new QuakeMap(Filename, Fgd, Textures);
+
+				using (var stream = new FileStream(Filename, FileMode.Open, FileAccess.Read))
+				{
+					Map = new QuakeMap(stream, Fgd, Textures);
+				}
 			}
 
 			[TestCase]
@@ -326,7 +334,11 @@ namespace TemblorTest.Core.Features.Instance
 			public void SetUp()
 			{
 				Filename = DataDirectory + "instance" + Sep + "rotation_instance.map";
-				Map = new QuakeMap(Filename, Fgd, Textures);
+
+				using (var stream = new FileStream(Filename, FileMode.Open, FileAccess.Read))
+				{
+					Map = new QuakeMap(stream, Fgd, Textures);
+				}
 			}
 
 			[TestCase]
@@ -393,7 +405,11 @@ namespace TemblorTest.Core.Features.Instance
 			public void SetUp()
 			{
 				Filename = DataDirectory + "instance_test-yaw.map";
-				Map = new QuakeMap(Filename, Fgd, Textures);
+
+				using (var stream = new FileStream(Filename, FileMode.Open, FileAccess.Read))
+				{
+					Map = new QuakeMap(stream, Fgd, Textures);
+				}
 			}
 
 			[TestCase]
@@ -572,7 +588,11 @@ namespace TemblorTest.Core.Features.Instance
 			public void SetUp()
 			{
 				Filename = DataDirectory + "instance" + Sep + "rotation_instance.map";
-				Map = new QuakeMap(Filename, Fgd, Textures);
+
+				using (var stream = new FileStream(Filename, FileMode.Open, FileAccess.Read))
+				{
+					Map = new QuakeMap(stream, Fgd, Textures);
+				}
 			}
 
 			[TestCase]
@@ -639,7 +659,11 @@ namespace TemblorTest.Core.Features.Instance
 			public void SetUp()
 			{
 				Filename = DataDirectory + "instance_test-roll.map";
-				Map = new QuakeMap(Filename, Fgd, Textures);
+
+				using (var stream = new FileStream(Filename, FileMode.Open, FileAccess.Read))
+				{
+					Map = new QuakeMap(stream, Fgd, Textures);
+				}
 			}
 
 			[TestCase]

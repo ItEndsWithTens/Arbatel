@@ -146,7 +146,11 @@ namespace Temblor
 
 			var combined = fgds.Stack();
 
-			var map = new QuakeMap(filename, combined, Wad);
+			QuakeMap map;
+			using (var stream = new FileStream(filename, FileMode.Open, FileAccess.Read))
+			{
+				map = new QuakeMap(stream, combined, Wad);
+			}
 
 			var collapsed = map.Collapse();
 
