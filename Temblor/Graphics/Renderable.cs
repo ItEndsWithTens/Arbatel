@@ -242,7 +242,7 @@ namespace Temblor.Graphics
 		/// <summary>
 		/// The TextureCollection containing this Renderable's textures.
 		/// </summary>
-		public TextureCollection TextureCollection;
+		public TextureDictionary TextureCollection;
 
 		/// <summary>
 		/// What transformations this Renderable supports.
@@ -267,7 +267,7 @@ namespace Temblor.Graphics
 			ModelMatrix = Matrix4.Identity;
 			Polygons = new List<Polygon>();
 			ShadingStyleDict = new Dictionary<ShadingStyle, ShadingStyle>().Default();
-			TextureCollection = new TextureCollection();
+			TextureCollection = new TextureDictionary();
 			Transformability = Transformability.All;
 			Translucent = false;
 			Vertices = new List<Vertex>();

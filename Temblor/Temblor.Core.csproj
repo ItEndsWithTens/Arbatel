@@ -60,7 +60,7 @@
     <Compile Include="Formats\Quake\QuakeSide.cs" />
     <Compile Include="Formats\Side.cs" />
     <Compile Include="Formats\Solid.cs" />
-    <Compile Include="Formats\TextureCollection.cs" />
+    <Compile Include="Formats\TextureDictionary.cs" />
     <Compile Include="Formats\Quake\Wad2.cs" />
     <Compile Include="Graphics\AABB.cs" />
     <Compile Include="Graphics\BoxGenerator.cs" />

@@ -125,7 +125,7 @@ namespace Temblor.Formats
 		/// <summary>
 		/// The TextureCollection containing the textures used by this MapObject.
 		/// </summary>
-		public TextureCollection TextureCollection;
+		public TextureDictionary TextureCollection;
 
 		public bool Translucent;
 
@@ -146,7 +146,7 @@ namespace Temblor.Formats
 		public MapObject(Block block, DefinitionDictionary definitions) : this()
 		{
 		}
-		public MapObject(Block block, DefinitionDictionary definitions, TextureCollection textures) : this()
+		public MapObject(Block block, DefinitionDictionary definitions, TextureDictionary textures) : this()
 		{
 		}
 		public MapObject(MapObject mo)
@@ -159,7 +159,7 @@ namespace Temblor.Formats
 			Position = new Vector3(mo.Position);
 			Renderables = new List<Renderable>(mo.Renderables);
 			Saveability = mo.Saveability;
-			TextureCollection = new TextureCollection(mo.TextureCollection);
+			TextureCollection = new TextureDictionary(mo.TextureCollection);
 			Translucent = mo.Translucent;
 			UserData = mo.UserData;
 		}

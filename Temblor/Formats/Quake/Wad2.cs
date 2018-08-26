@@ -15,17 +15,34 @@ namespace Temblor.Formats.Quake
 	{
 		public static Palette LoadQuakePalette(this Palette palette, string filename)
 		{
-			using (var stream = new FileStream(filename, FileMode.Open, FileAccess.Read))
-			using (var br = new BinaryReader(stream))
+			// See the Visual Studio docs on warning CA2202 for the origin of
+			// this pattern. A little clunky, but avoids calling Dispose twice.
+			Stream stream = null;
+			try
 			{
-				for (var i = 0; i < stream.Length / 3; i++)
-				{
-					var color = new Color() { Ab = 255 };
-					color.Rb = br.ReadByte();
-					color.Gb = br.ReadByte();
-					color.Bb = br.ReadByte();
+				stream = new FileStream(filename, FileMode.Open, FileAccess.Read);
 
-					palette.Add(color);
+				using (var br = new BinaryReader(stream))
+				{
+					var length = stream.Length;
+					stream = null;
+
+					for (var i = 0; i < length / 3; i++)
+					{
+						var color = new Color() { Ab = 255 };
+						color.Rb = br.ReadByte();
+						color.Gb = br.ReadByte();
+						color.Bb = br.ReadByte();
+
+						palette.Add(color);
+					}
+				}
+			}
+			finally
+			{
+				if (stream != null)
+				{
+					stream.Dispose();
 				}
 			}
 
@@ -34,11 +51,11 @@ namespace Temblor.Formats.Quake
 	}
 
 	// TODO: Add the same Blend and Stack methods for WADs that I have for FGDs.
-	public class Wad2 : TextureCollection
+	public class Wad2 : TextureDictionary
 	{
-		public Palette Palette;
+		public Palette Palette { get; }
 
-		public List<string> Translucents;
+		public List<string> Translucents { get; }
 
 		public Wad2() : base()
 		{
@@ -49,13 +66,24 @@ namespace Temblor.Formats.Quake
 				"clip"
 			};
 		}
-		public Wad2(string fileName, Palette palette) : this(new FileStream(fileName, FileMode.Open, FileAccess.Read), palette)
+		public Wad2(string filename, Palette palette) : this()
 		{
+			Palette = palette;
+
+			using (var stream = new FileStream(filename, FileMode.Open, FileAccess.Read))
+			{
+				LoadWad(stream);
+			}
 		}
 		public Wad2(Stream stream, Palette palette) : this()
 		{
 			Palette = palette;
 
+			LoadWad(stream);
+		}
+
+		private void LoadWad(Stream stream)
+		{
 			var bytes = new byte[stream.Length];
 
 			using (var br = new BinaryReader(stream))
@@ -72,9 +100,9 @@ namespace Temblor.Formats.Quake
 			if (type != "WAD2")
 			{
 				string message = "Couldn't find WAD2 header";
-				if (stream is FileStream)
+				if (stream is FileStream s)
 				{
-					message += " in " + (stream as FileStream).Name + "!";
+					message += " in " + s.Name + "!";
 				}
 				else
 				{
@@ -130,7 +158,10 @@ namespace Temblor.Formats.Quake
 				var height = BitConverter.ToInt32(bytes, dataOffset + 20);
 				var fullResOffset = BitConverter.ToInt32(bytes, dataOffset + 24);
 
-				var texture = new Texture(width, height, PixelFormat.Format32bppRgba) { Name = name };
+				var texture = new Texture(width, height, PixelFormat.Format32bppRgba)
+				{
+					Name = name
+				};
 
 				using (BitmapData data = texture.Lock())
 				{
