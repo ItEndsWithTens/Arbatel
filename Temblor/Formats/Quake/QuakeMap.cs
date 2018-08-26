@@ -72,7 +72,7 @@ namespace Temblor.Formats.Quake
 		public QuakeMap(Stream stream, DefinitionDictionary definitions) : base(stream, definitions)
 		{
 		}
-		public QuakeMap(Stream stream, DefinitionDictionary definitions, TextureCollection textures) :
+		public QuakeMap(Stream stream, DefinitionDictionary definitions, TextureDictionary textures) :
 			base(stream, definitions, textures)
 		{
 		}

@@ -54,10 +54,10 @@ namespace Temblor.Formats
 		{
 		}
 		public QuakeMapObject(Block block, DefinitionDictionary definitions) :
-			this(block, definitions, new TextureCollection())
+			this(block, definitions, new TextureDictionary())
 		{
 		}
-		public QuakeMapObject(Block block, DefinitionDictionary definitions, TextureCollection textures) :
+		public QuakeMapObject(Block block, DefinitionDictionary definitions, TextureDictionary textures) :
 			base(block, definitions, textures)
 		{
 			QuakeBlock quakeBlock;

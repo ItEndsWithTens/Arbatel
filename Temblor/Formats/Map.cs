@@ -42,7 +42,7 @@ namespace Temblor.Formats
 
 		public List<MapObject> MapObjects { get; set; } = new List<MapObject>();
 
-		public TextureCollection TextureCollection { get; set; }
+		public TextureDictionary TextureCollection { get; set; }
 
 		public Map()
 		{
@@ -55,7 +55,7 @@ namespace Temblor.Formats
 			CloseDelimiter = map.CloseDelimiter;
 			Definitions = new DefinitionDictionary(map.Definitions);
 			MapObjects = new List<MapObject>(map.MapObjects);
-			TextureCollection = new TextureCollection(map.TextureCollection);
+			TextureCollection = new TextureDictionary(map.TextureCollection);
 		}
 		public Map(Stream stream, DefinitionDictionary definitions)
 		{
@@ -68,14 +68,14 @@ namespace Temblor.Formats
 
 			Definitions = definitions;
 
-			TextureCollection = new TextureCollection();
+			TextureCollection = new TextureDictionary();
 
 			using (StreamReader sr = new StreamReader(stream))
 			{
 				Parse(sr.ReadToEnd());
 			}
 		}
-		public Map(Stream stream, DefinitionDictionary definitions, TextureCollection textures)
+		public Map(Stream stream, DefinitionDictionary definitions, TextureDictionary textures)
 		{
 			Aabb = new Aabb();
 

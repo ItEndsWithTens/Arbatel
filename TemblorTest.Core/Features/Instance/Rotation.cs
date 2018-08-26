@@ -25,7 +25,7 @@ namespace TemblorTest.Core.Features.Instance
 
 		public static DefinitionDictionary Fgd { get; private set; }
 
-		public static TextureCollection Textures { get; private set; }
+		public static TextureDictionary Textures { get; private set; }
 
 		public static readonly float Tolerance = 0.001f;
 
@@ -279,7 +279,7 @@ namespace TemblorTest.Core.Features.Instance
 
 		public static DefinitionDictionary Fgd { get; private set; }
 
-		public static TextureCollection Textures { get; private set; }
+		public static TextureDictionary Textures { get; private set; }
 
 		public static readonly float Tolerance = 0.001f;
 
@@ -533,7 +533,7 @@ namespace TemblorTest.Core.Features.Instance
 
 		public static DefinitionDictionary Fgd { get; private set; }
 
-		public static TextureCollection Textures { get; private set; }
+		public static TextureDictionary Textures { get; private set; }
 
 		public static readonly float Tolerance = 0.001f;
 

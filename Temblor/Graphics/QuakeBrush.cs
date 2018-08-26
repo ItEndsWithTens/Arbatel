@@ -34,7 +34,7 @@ namespace Temblor.Graphics
 
 			_position = AABB.Center;
 		}
-		public QuakeBrush(Solid solid, TextureCollection textures)
+		public QuakeBrush(Solid solid, TextureDictionary textures)
 		{
 			TextureCollection = textures;
 
