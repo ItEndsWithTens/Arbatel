@@ -57,14 +57,6 @@ namespace Temblor.Graphics
 		All = Translate | Rotate | Scale
 	}
 
-	public static class EnumExtensions
-	{
-		public static bool Has(this Transformability super, Transformability sub)
-		{
-			return (super & sub) == sub;
-		}
-	}
-
 	public class Buffers
 	{
 		public int Vao;
@@ -363,7 +355,7 @@ namespace Temblor.Graphics
 		}
 		protected void Rotate(float pitch, float yaw, float roll)
 		{
-			if (Transformability.Has(Transformability.Rotate))
+			if (Transformability.HasFlag(Transformability.Rotate))
 			{
 				for (var i = 0; i < Vertices.Count; i++)
 				{
@@ -377,7 +369,7 @@ namespace Temblor.Graphics
 					Polygons[i] = Polygon.Rotate(Polygons[i], pitch, yaw, roll);
 				}
 			}
-			else if (Transformability.Has(Transformability.Translate))
+			else if (Transformability.HasFlag(Transformability.Translate))
 			{
 				Position = Position.Rotate(pitch, yaw, roll);
 			}
@@ -396,7 +388,7 @@ namespace Temblor.Graphics
 
 		public void Transform(Vector3 translation, Vector3 rotation, Vector3 scale)
 		{
-			if (Transformability.Has(Transformability.Scale) && scale != null)
+			if (Transformability.HasFlag(Transformability.Scale) && scale != null)
 			{
 				Scale(scale);
 			}
@@ -406,7 +398,7 @@ namespace Temblor.Graphics
 				Rotate(rotation);
 			}
 
-			if (Transformability.Has(Transformability.Translate) && translation != null)
+			if (Transformability.HasFlag(Transformability.Translate) && translation != null)
 			{
 				TranslateRelative(translation);
 			}
