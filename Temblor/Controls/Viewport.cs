@@ -35,21 +35,15 @@ namespace Temblor.Controls
 			get { return _view; }
 			set
 			{
-				_view = (value + _viewNames.Count) % _viewNames.Count;
+				// This line of code is duplicated from the ChangeView method
+				// below, but it ensures the DropDown is never given an index
+				// too high or low for its collection size. Calling ChangeView
+				// directly would eliminate the duplicate code, and successfully
+				// change the view, but trying to then change the display value
+				// of DropDown would cause an undesirable loop.
+				int wrapped = (value + _viewNames.Count) % _viewNames.Count;
 
-				var control = Views[_view];
-
-				RemoveAll();
-
-				DropDown.SelectedValue = _viewNames[_view];
-				Add(control, new Point(0, 0));
-				Add(DropDown, new Point(0, 0));
-
-				// Can't do this before using Add, since setting the Size leads
-				// to the View's Refresh method being called, which expects to
-				// have a Parent in order to do its work. The View won't have
-				// said Parent until it's added to the Viewport.
-				control.Size = ClientSize;
+				DropDown.SelectedIndex = wrapped;
 			}
 		}
 
@@ -87,8 +81,12 @@ namespace Temblor.Controls
 			BackgroundColor = Colors.Crimson;
 
 			Label.Text = _viewNames[View];
+
 			DropDown.DataStore = _viewNames.Values;
-			DropDown.SelectedValueChanged += (sender, e) => { View = DropDown.SelectedIndex; };
+			DropDown.SelectedValueChanged += (sender, e) =>
+			{
+				ChangeView(DropDown.SelectedIndex);
+			};
 
 			// To avoid interrupting Tab cycling until users actually want to edit
 			// something, defocus controls by default and focus this Viewport instead.
@@ -116,6 +114,25 @@ namespace Temblor.Controls
 			base.OnSizeChanged(e);
 
 			Views[View].Size = ClientSize;
+		}
+
+		private void ChangeView(int requested)
+		{
+			int wrapped = (requested + _viewNames.Count) % _viewNames.Count;
+
+			var control = Views[wrapped];
+
+			RemoveAll();
+			Add(control, new Point(0, 0));
+			Add(DropDown, new Point(0, 0));
+
+			// Can't do this before using Add, since setting the Size leads
+			// to the View's Refresh method being called, which expects to
+			// have a Parent in order to do its work. The View won't have
+			// said Parent until it's added to the Viewport.
+			control.Size = ClientSize;
+
+			_view = wrapped;
 		}
 
 		private void Viewport_LoadComplete(object sender, EventArgs e)
