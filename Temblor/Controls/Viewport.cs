@@ -16,6 +16,8 @@ namespace Temblor.Controls
 {
 	public class Viewport : PixelLayout
 	{
+		public Backend Backend { get; set; }
+
 		private Dictionary<int, string> _viewNames = new Dictionary<int, string>
 		{
 			{ 0, "Text" },
@@ -68,16 +70,18 @@ namespace Temblor.Controls
 
 				foreach (var view in Views)
 				{
-					if (view.Value is View)
+					if (view.Value is View v)
 					{
-						(view.Value as View).Map = _map;
+						v.Map = _map;
 					}
 				}
 			}
 		}
 
-		public Viewport()
+		public Viewport(Backend backend)
 		{
+			Backend = backend;
+
 			BackgroundColor = Colors.Crimson;
 
 			Label.Text = _viewNames[View];
@@ -96,9 +100,31 @@ namespace Temblor.Controls
 			_viewTree.Shown += (sender, e) => { Focus(); };
 			_viewTree.MouseLeave += (sender, e) => { Focus(); };
 
-			_view3dWire = new View3d() { ClearColor = new Color4(1.0f, 0.0f, 0.0f, 1.0f), ShadingStyle = ShadingStyle.Wireframe };
-			_view3dFlat = new View3d() { ClearColor = new Color4(0.0f, 1.0f, 0.0f, 1.0f), ShadingStyle = ShadingStyle.Flat };
-			_view3dTex = new View3d() { ClearColor = new Color4(0.0f, 0.0f, 1.0f, 1.0f), ShadingStyle = ShadingStyle.Textured };
+			_view3dWire = new View3d()
+			{
+				Backend = Backend,
+				ClearColor = new Color4(1.0f, 0.0f, 0.0f, 1.0f),
+				ShadingStyle = ShadingStyle.Wireframe
+			};
+
+			_view3dFlat = new View3d()
+			{
+				Backend = Backend,
+				ClearColor = new Color4(0.0f, 1.0f, 0.0f, 1.0f),
+				ShadingStyle = ShadingStyle.Flat
+			};
+
+			_view3dTex = new View3d()
+			{
+				Backend = Backend,
+				ClearColor = new Color4(0.0f, 0.0f, 1.0f, 1.0f),
+				ShadingStyle = ShadingStyle.Textured
+			};
+
+			// Initialize OpenGL to avoid a delay when switching to a GL view.
+			_view3dWire.MakeCurrent();
+			_view3dFlat.MakeCurrent();
+			_view3dTex.MakeCurrent();
 
 			Views.Add(0, _viewText);
 			Views.Add(1, _viewTree);
@@ -106,6 +132,7 @@ namespace Temblor.Controls
 			Views.Add(3, _view3dFlat);
 			Views.Add(4, _view3dTex);
 
+			KeyDown += Viewport_KeyDown;
 			LoadComplete += Viewport_LoadComplete;
 		}
 
@@ -133,6 +160,21 @@ namespace Temblor.Controls
 			control.Size = ClientSize;
 
 			_view = wrapped;
+		}
+
+		private void Viewport_KeyDown(object sender, KeyEventArgs e)
+		{
+			if (e.Key == Keys.Tab)
+			{
+				if (e.Modifiers == Keys.Shift)
+				{
+					View--;
+				}
+				else
+				{
+					View++;
+				}
+			}
 		}
 
 		private void Viewport_LoadComplete(object sender, EventArgs e)

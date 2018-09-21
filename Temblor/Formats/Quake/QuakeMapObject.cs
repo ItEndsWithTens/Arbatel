@@ -102,7 +102,7 @@ namespace Temblor.Formats
 
 			UpdateBounds();
 
-			Position = AABB.Center;
+			Position = Aabb.Center;
 
 			if (KeyVals.ContainsKey("origin"))
 			{
@@ -130,7 +130,7 @@ namespace Temblor.Formats
 			{
 				foreach (var solid in b.Solids)
 				{
-					Renderables.Add(new QuakeBrush(solid, TextureCollection));
+					Renderables.Add(new QuakeBrush(solid));
 				}
 			}
 			// Known point entity.
@@ -165,19 +165,13 @@ namespace Temblor.Formats
 						QuakeMap map;
 						using (var stream = new FileStream(instancePath, FileMode.Open, FileAccess.Read))
 						{
-							map = new QuakeMap(stream, Definition.DefinitionCollection, TextureCollection);
-						}	
+							map = new QuakeMap(stream, Definition.DefinitionCollection);//, TextureCollection);
+						}
 						map.Transform(this);
 						UserData = map;
 
 						foreach (var mo in map.MapObjects)
 						{
-							// Since instances are point entities, none of their
-							// Renderables will be written out when saving the
-							// map to disk, so this is safe. Actually collapsing
-							// the instance is accomplished by way of UserData.
-							//Renderables.AddRange(mo.GetAllRenderables());
-
 							var modified = new QuakeMapObject(mo);
 							if (mo.KeyVals["classname"].Value == "worldspawn")
 							{
@@ -210,7 +204,6 @@ namespace Temblor.Formats
 
 					var box = new BoxGenerator(s.Min, s.Max, Definition.Color).Generate();
 
-					//box.CoordinateSpace = CoordinateSpace.World;
 					box.Position = Position;
 
 					Renderables.Add(box);

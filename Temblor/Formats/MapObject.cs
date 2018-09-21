@@ -14,6 +14,7 @@ namespace Temblor.Formats
 	/// <summary>
 	/// What components of a MapObject should be kept when saving a Map.
 	/// </summary>
+	[Flags]
 	public enum Saveability
 	{
 		/// <summary>
@@ -44,7 +45,7 @@ namespace Temblor.Formats
 
 	public class MapObject
 	{
-		public Aabb AABB { get; protected set; }
+		public Aabb Aabb { get; protected set; }
 
 		/// <summary>
 		/// The inclusive, flat list of all MapObjects contained by this one.
@@ -136,7 +137,7 @@ namespace Temblor.Formats
 
 		public MapObject()
 		{
-			AABB = new Aabb();
+			Aabb = new Aabb();
 			Children = new List<MapObject>();
 			Color = new Color4(1.0f, 1.0f, 1.0f, 1.0f);
 			KeyVals = new Dictionary<string, Option>();
@@ -151,7 +152,7 @@ namespace Temblor.Formats
 		}
 		public MapObject(MapObject mo)
 		{
-			AABB = new Aabb(mo.AABB);
+			Aabb = new Aabb(mo.Aabb);
 			Children = new List<MapObject>(mo.Children);
 			Color = new Color4(mo.Color.R, mo.Color.G, mo.Color.B, mo.Color.A);
 			Definition = new Definition(mo.Definition);
@@ -211,8 +212,8 @@ namespace Temblor.Formats
 			{
 				child.Init(shader, surface);
 
-				points.Add(child.AABB.Min);
-				points.Add(child.AABB.Max);
+				points.Add(child.Aabb.Min);
+				points.Add(child.Aabb.Max);
 			}
 
 			foreach (Renderable renderable in Renderables)
@@ -225,7 +226,7 @@ namespace Temblor.Formats
 
 			if (points.Count > 0)
 			{
-				AABB = new Aabb(points);
+				Aabb = new Aabb(points);
 			}
 		}
 
@@ -317,24 +318,37 @@ namespace Temblor.Formats
 		{
 			if (Renderables.Count == 0)
 			{
-				return AABB;
+				return Aabb;
 			}
 
 			Vector3 baseline = Renderables[0].ToWorld().AABB.Center;
-			AABB.Min = new Vector3(baseline);
-			AABB.Max = new Vector3(baseline);
+			Aabb.Min = new Vector3(baseline);
+			Aabb.Max = new Vector3(baseline);
 
 			foreach (var child in Children)
 			{
-				AABB += child.UpdateBounds();
+				Aabb += child.UpdateBounds();
 			}
 
 			foreach (var renderable in Renderables)
 			{
-				AABB += renderable.UpdateBounds();
+				Aabb += renderable.UpdateBounds();
 			}
 
-			return AABB;
+			return Aabb;
+		}
+
+		virtual public void UpdateTextures(TextureDictionary textures)
+		{
+			foreach (var child in Children)
+			{
+				child.UpdateTextures(textures);
+			}
+
+			foreach (var renderable in Renderables)
+			{
+				renderable.UpdateTextures(textures);
+			}
 		}
 
 		virtual public bool UpdateTranslucency(List<string> translucents)

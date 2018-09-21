@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Temblor.UI;
 
 namespace Temblor.Graphics
 {
@@ -182,7 +183,7 @@ namespace Temblor.Graphics
 					SetUniform(LocationTextureWidth, (float)p.Texture.Width);
 					SetUniform(LocationTextureHeight, (float)p.Texture.Height);
 
-					GL.BindTexture(TextureTarget.Texture2D, MainForm.testTextureDict[p.Texture.Name.ToLower()]);
+					GL.BindTexture(TextureTarget.Texture2D, Backend.Textures[p.Texture.Name.ToLower()]);
 
 					// The last parameter of DrawRangeElements is a perhaps poorly
 					// labeled offset into the element buffer.

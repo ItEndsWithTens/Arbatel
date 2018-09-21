@@ -13,7 +13,7 @@ namespace Temblor.Formats
 {
 	public class Map
 	{
-		public Aabb Aabb { get; protected set; }
+		public Aabb Aabb { get; protected set; } = new Aabb();
 
 		public string AbsolutePath { get; protected set; }
 
@@ -38,11 +38,31 @@ namespace Temblor.Formats
 		public string OpenDelimiter { get; set; } = "{";
 		public string CloseDelimiter { get; set; } = "}";
 
-		public DefinitionDictionary Definitions { get; set; }
+		public DefinitionDictionary Definitions { get; }
 
-		public List<MapObject> MapObjects { get; set; } = new List<MapObject>();
+		public List<MapObject> MapObjects { get; } = new List<MapObject>();
 
-		public TextureDictionary TextureCollection { get; set; }
+		/// <summary>
+		/// The texture dictionaries used to produce this map's working texture set.
+		/// </summary>
+		public List<TextureDictionary> TextureDictionaries { get; } = new List<TextureDictionary>();
+
+		private TextureDictionary _textures = new TextureDictionary();
+		/// <summary>
+		/// The set of textures currently available to this map.
+		/// </summary>
+		/// <remarks>Only one TextureDictionary is in use at a time, possibly
+		/// the result of combining a series of dictionaries.</remarks>
+		public TextureDictionary Textures
+		{
+			get { return _textures; }
+			set
+			{
+				_textures = value;
+
+				UpdateTextures(value);
+			}
+		}
 
 		public Map()
 		{
@@ -55,30 +75,19 @@ namespace Temblor.Formats
 			CloseDelimiter = map.CloseDelimiter;
 			Definitions = new DefinitionDictionary(map.Definitions);
 			MapObjects = new List<MapObject>(map.MapObjects);
-			TextureCollection = new TextureDictionary(map.TextureCollection);
+			_textures = new TextureDictionary(map.Textures);
 		}
 		public Map(Stream stream, DefinitionDictionary definitions)
 		{
-			Aabb = new Aabb();
-
 			if (stream is FileStream f)
 			{
 				AbsolutePath = f.Name;
 			}
 
 			Definitions = definitions;
-
-			TextureCollection = new TextureDictionary();
-
-			using (StreamReader sr = new StreamReader(stream))
-			{
-				Parse(sr.ReadToEnd());
-			}
 		}
 		public Map(Stream stream, DefinitionDictionary definitions, TextureDictionary textures)
 		{
-			Aabb = new Aabb();
-
 			if (stream is FileStream f)
 			{
 				AbsolutePath = f.Name;
@@ -86,16 +95,22 @@ namespace Temblor.Formats
 
 			Definitions = definitions;
 
-			TextureCollection = textures;
-
-			using (StreamReader sr = new StreamReader(stream))
-			{
-				Parse(sr.ReadToEnd());
-			}
+			_textures = textures;
 		}
 
-		virtual public void Parse(string raw)
+		virtual public Map Collapse()
 		{
+			return this;
+		}
+
+		virtual public void UpdateTextures(TextureDictionary textures)
+		{
+			foreach (var mo in MapObjects)
+			{
+				mo.UpdateTextures(textures);
+			}
+
+			SortTranslucents();
 		}
 
 		/// <summary>
@@ -147,6 +162,30 @@ namespace Temblor.Formats
 			{
 				mapObject.Transform(translation, rotation, scale);
 			}
+		}
+
+		private void SortTranslucents()
+		{
+			var opaques = new List<MapObject>();
+			var translucents = new List<MapObject>();
+
+			foreach (var mo in MapObjects)
+			{
+				var translucent = mo.UpdateTranslucency(Textures.Translucents);
+
+				if (translucent)
+				{
+					translucents.Add(mo);
+				}
+				else
+				{
+					opaques.Add(mo);
+				}
+			}
+
+			MapObjects.Clear();
+			MapObjects.AddRange(opaques);
+			MapObjects.AddRange(translucents);
 		}
 	}
 }

@@ -297,7 +297,7 @@ namespace Temblor.Graphics
 
 		public bool CanSee(MapObject o)
 		{
-			return Frustum.Contains(o.AABB);
+			return Frustum.Contains(o.Aabb);
 		}
 		public bool CanSee(Renderable r)
 		{

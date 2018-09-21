@@ -183,17 +183,7 @@ namespace Temblor.Graphics
 		/// The coordinate space in which this Renderable's vertices are stored.
 		/// </summary>
 		/// <remarks>Used to set the ModelMatrix for this Renderable.</remarks>
-		private CoordinateSpace _coordinateSpace;
-		public CoordinateSpace CoordinateSpace
-		{
-			get { return _coordinateSpace; }
-			set
-			{
-				_coordinateSpace = value;
-
-				//UpdateModelMatrix();
-			}
-		}
+		public CoordinateSpace CoordinateSpace { get; set; }
 
 		/// <summary>
 		/// The vertex indices of this object, relative to the Vertices list.
@@ -221,8 +211,6 @@ namespace Temblor.Graphics
 			{
 				TranslateRelative(value - _position);
 				_position = value;
-
-				//UpdateModelMatrix();
 			}
 		}
 
@@ -230,11 +218,6 @@ namespace Temblor.Graphics
 		/// A mapping of requested shading style to supported shading style.
 		/// </summary>
 		public Dictionary<ShadingStyle, ShadingStyle> ShadingStyleDict;
-
-		/// <summary>
-		/// The TextureCollection containing this Renderable's textures.
-		/// </summary>
-		public TextureDictionary TextureCollection;
 
 		/// <summary>
 		/// What transformations this Renderable supports.
@@ -259,7 +242,6 @@ namespace Temblor.Graphics
 			ModelMatrix = Matrix4.Identity;
 			Polygons = new List<Polygon>();
 			ShadingStyleDict = new Dictionary<ShadingStyle, ShadingStyle>().Default();
-			TextureCollection = new TextureDictionary();
 			Transformability = Transformability.All;
 			Translucent = false;
 			Vertices = new List<Vertex>();
@@ -292,7 +274,6 @@ namespace Temblor.Graphics
 			Polygons = new List<Polygon>(r.Polygons);
 			_position = r.Position;
 			ShadingStyleDict = new Dictionary<ShadingStyle, ShadingStyle>(r.ShadingStyleDict);
-			TextureCollection = r.TextureCollection;
 			Translucent = r.Translucent;
 			Vertices = new List<Vertex>(r.Vertices);
 		}
@@ -451,6 +432,17 @@ namespace Temblor.Graphics
 			AABB = new Aabb(worldVerts);
 
 			return AABB;
+		}
+
+		public void UpdateTextures(TextureDictionary textures)
+		{
+			foreach (var polygon in Polygons)
+			{
+				if (textures.ContainsKey(polygon.Texture.Name))
+				{
+					polygon.Texture = textures[polygon.Texture.Name];
+				}
+			}
 		}
 
 		public bool UpdateTranslucency(List<string> translucents)

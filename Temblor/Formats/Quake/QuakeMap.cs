@@ -1,4 +1,5 @@
-﻿using OpenTK.Graphics;
+﻿using Eto.Drawing;
+using OpenTK.Graphics;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -17,8 +18,22 @@ namespace Temblor.Formats.Quake
 		Target
 	}
 
-	public static class QuakeMapExtensions
+	public class QuakeMap : Map
 	{
+		public QuakeMap() : base()
+		{
+		}
+		public QuakeMap(QuakeMap map) : base(map)
+		{
+		}
+		public QuakeMap(Stream stream, DefinitionDictionary definitions) : base(stream, definitions)
+		{
+			using (StreamReader sr = new StreamReader(stream))
+			{
+				Parse(sr.ReadToEnd());
+			}
+		}
+
 		/// <summary>
 		/// Update the Saveability of every MapObject in this map, setting
 		/// instance entities to be Saveability.Children.
@@ -26,22 +41,22 @@ namespace Temblor.Formats.Quake
 		/// <param name="map"></param>
 		/// <returns>A copy of the input Map with its MapObjects' Saveability
 		/// updated, in preparation for writing to disk as a string.</returns>
-		public static QuakeMap Collapse(this QuakeMap map)
+		public override Map Collapse()
 		{
-			var collapsed = new QuakeMap(map);
+			var collapsed = new QuakeMap(this);
 			collapsed.MapObjects.Clear();
 
-			int worldspawnIndex = map.MapObjects.FindIndex(o => o.Definition.ClassName == "worldspawn");
+			int worldspawnIndex = MapObjects.FindIndex(o => o.Definition.ClassName == "worldspawn");
 
-			MapObject worldspawn = map.MapObjects[worldspawnIndex];
+			MapObject worldspawn = MapObjects[worldspawnIndex];
 
 			collapsed.MapObjects.Add(worldspawn);
 
-			for (var i = 0; i < map.MapObjects.Count; i++)
+			for (var i = 0; i < MapObjects.Count; i++)
 			{
 				if (i != worldspawnIndex)
 				{
-					var collapsedObject = map.MapObjects[i].Collapse();
+					var collapsedObject = MapObjects[i].Collapse();
 
 					foreach (var co in collapsedObject)
 					{
@@ -59,25 +74,52 @@ namespace Temblor.Formats.Quake
 
 			return collapsed;
 		}
-	}
 
-	public class QuakeMap : Map
-	{
-		public QuakeMap() : base()
+		public override string ToString()
 		{
+			return ToString(QuakeSideFormat.Valve220);
 		}
-		public QuakeMap(QuakeMap map) : base(map)
+		public string ToString(QuakeSideFormat format)
 		{
-		}
-		public QuakeMap(Stream stream, DefinitionDictionary definitions) : base(stream, definitions)
-		{
-		}
-		public QuakeMap(Stream stream, DefinitionDictionary definitions, TextureDictionary textures) :
-			base(stream, definitions, textures)
-		{
+			var sb = new StringBuilder();
+
+			// First build the final worldspawn.
+			int worldspawnIndex = MapObjects.FindIndex(o => o.Definition.ClassName == "worldspawn");
+			MapObject worldspawn = MapObjects[worldspawnIndex];
+			foreach (var mo in AllObjects)
+			{
+				// Only copy solids to worldspawn if that's all this entity
+				// is set to save, otherwise let it get handled later.
+				if (mo.Saveability == Saveability.Solids)
+				{
+					worldspawn.Renderables.AddRange(mo.Renderables);
+				}
+			}
+
+			sb.AppendLine(new QuakeBlock(worldspawn).ToString(format));
+
+			for (var i = 0; i < MapObjects.Count; i++)
+			{
+				if (i == worldspawnIndex)
+				{
+					continue;
+				}
+
+				var mo = MapObjects[i];
+
+				// Avoid saving a null character to the output.
+				if (mo.Saveability == Saveability.None)
+				{
+					continue;
+				}
+
+				sb.AppendLine(new QuakeBlock(mo).ToString(format));
+			}
+
+			return sb.ToString();
 		}
 
-		public sealed override void Parse(string raw)
+		private void Parse(string raw)
 		{
 			var oldCwd = Directory.GetCurrentDirectory();
 			Directory.SetCurrentDirectory(Path.GetDirectoryName(AbsolutePath ?? oldCwd));
@@ -144,61 +186,17 @@ namespace Temblor.Formats.Quake
 				var firstBraceIndex = split.IndexOf("{", i);
 
 				var block = new QuakeBlock(split, firstBraceIndex, Definitions);
-				MapObjects.Add(new QuakeMapObject(block, Definitions, TextureCollection));
+				MapObjects.Add(new QuakeMapObject(block, Definitions, Textures));
 
 				i = firstBraceIndex + block.RawLength;
 			}
 
 			foreach (var mo in MapObjects)
 			{
-				Aabb += mo.AABB;
+				Aabb += mo.Aabb;
 			}
 
 			Directory.SetCurrentDirectory(oldCwd);
-		}
-
-		public override string ToString()
-		{
-			return ToString(QuakeSideFormat.Valve220);
-		}
-		public string ToString(QuakeSideFormat format)
-		{
-			var sb = new StringBuilder();
-
-			// First build the final worldspawn.
-			int worldspawnIndex = MapObjects.FindIndex(o => o.Definition.ClassName == "worldspawn");
-			MapObject worldspawn = MapObjects[worldspawnIndex];
-			foreach (var mo in AllObjects)
-			{
-				// Only copy solids to worldspawn if that's all this entity
-				// is set to save, otherwise let it get handled later.
-				if (mo.Saveability == Saveability.Solids)
-				{
-					worldspawn.Renderables.AddRange(mo.Renderables);
-				}
-			}
-
-			sb.AppendLine(new QuakeBlock(worldspawn).ToString(format));
-
-			for (var i = 0; i < MapObjects.Count; i++)
-			{
-				if (i == worldspawnIndex)
-				{
-					continue;
-				}
-
-				var mo = MapObjects[i];
-
-				// Avoid saving a null character to the output.
-				if (mo.Saveability == Saveability.None)
-				{
-					continue;
-				}
-
-				sb.AppendLine(new QuakeBlock(mo).ToString(format));
-			}
-
-			return sb.ToString();
 		}
 	}
 }

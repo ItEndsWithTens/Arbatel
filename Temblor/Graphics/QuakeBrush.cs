@@ -34,21 +34,6 @@ namespace Temblor.Graphics
 
 			_position = AABB.Center;
 		}
-		public QuakeBrush(Solid solid, TextureDictionary textures)
-		{
-			TextureCollection = textures;
-
-			var random = new Random();
-			var color = new Color4((float)random.NextDouble(), (float)random.NextDouble(), (float)random.NextDouble(), 1.0f);
-
-			CalculateIntersections(solid, color);
-
-			BuildPolygons(solid, this);
-
-			AABB = new Aabb(Vertices);
-
-			_position = AABB.Center;
-		}
 
 		/// <summary>
 		/// Construct polygons for the provided solid, triangulate them, and add
@@ -115,14 +100,7 @@ namespace Temblor.Graphics
 					renderable.Indices.Add(side.Indices[indexC]);
 				}
 
-				if (renderable.TextureCollection != null && renderable.TextureCollection.ContainsKey(side.TextureName.ToLower()))
-				{
-					polygon.Texture = renderable.TextureCollection[side.TextureName.ToLower()];
-				}
-				else
-				{
-					polygon.Texture = new Texture() { Name = side.TextureName.ToLower() };
-				}
+				polygon.Texture = new Texture() { Name = side.TextureName.ToLower() };
 				polygon.BasisS = side.TextureBasis[0];
 				polygon.BasisT = side.TextureBasis[1];
 				polygon.Offset = new Vector2(side.TextureOffset.X, side.TextureOffset.Y);

@@ -82,7 +82,7 @@ namespace TemblorTest.Core.Features.Instance
 
 				using (var stream = new FileStream(Filename, FileMode.Open, FileAccess.Read))
 				{
-					Map = new QuakeMap(stream, Fgd, Textures);
+					Map = new QuakeMap(stream, Fgd);
 				}
 			}
 
@@ -134,7 +134,7 @@ namespace TemblorTest.Core.Features.Instance
 
 				using (var stream = new FileStream(Filename, FileMode.Open, FileAccess.Read))
 				{
-					Map = new QuakeMap(stream, Fgd, Textures);
+					Map = new QuakeMap(stream, Fgd);
 				}
 			}
 
@@ -227,7 +227,7 @@ namespace TemblorTest.Core.Features.Instance
 
 				using (var stream = new FileStream(Filename, FileMode.Open, FileAccess.Read))
 				{
-					Map = new QuakeMap(stream, Fgd, Textures);
+					Map = new QuakeMap(stream, Fgd);
 				}
 			}
 

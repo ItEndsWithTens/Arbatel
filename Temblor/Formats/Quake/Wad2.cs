@@ -55,8 +55,6 @@ namespace Temblor.Formats.Quake
 	{
 		public Palette Palette { get; }
 
-		public List<string> Translucents { get; }
-
 		public Wad2() : base()
 		{
 			Palette = new Palette();

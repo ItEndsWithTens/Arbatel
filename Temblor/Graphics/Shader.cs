@@ -13,6 +13,8 @@ namespace Temblor.Graphics
 {
 	public class Shader
 	{
+		public Backend Backend { get; set; }
+
 		public int Program;
 
 		public string VertexShaderSource;

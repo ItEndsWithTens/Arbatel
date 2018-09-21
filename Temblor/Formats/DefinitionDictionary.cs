@@ -79,18 +79,18 @@ namespace Temblor.Formats
 		/// Combine the provided DefinitionCollections, replacing earlier copies
 		/// of duplicate definitions with later ones.
 		/// </summary>
-		/// <param name="collections">The DefinitionCollections to combine.</param>
-		/// <returns>A new DefinitionCollection built from the input list, with
-		/// every unique definition from each collection present and accounted
+		/// <param name="dictionaries">The dictionaries to combine.</param>
+		/// <returns>A new DefinitionDictionary built from the input list, with
+		/// every unique definition from each dictionary present and accounted
 		/// for, but duplicate definitions represented by whichever copy is
-		/// found in the collection with the highest index in the input list.</returns>
-		public static DefinitionDictionary Stack(this List<DefinitionDictionary> collections)
+		/// found in the dictionary with the highest index in the input list.</returns>
+		public static DefinitionDictionary Stack(this List<DefinitionDictionary> dictionaries)
 		{
 			var stacked = new DefinitionDictionary();
 
-			foreach (var collection in collections)
+			foreach (var dictionary in dictionaries)
 			{
-				foreach (var definition in collection.Values)
+				foreach (var definition in dictionary.Values)
 				{
 					var updated = new Definition(definition)
 					{

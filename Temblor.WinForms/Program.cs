@@ -4,7 +4,10 @@ using Eto.Drawing;
 using Eto.Forms;
 using Eto.Gl;
 using Eto.Gl.Windows;
+using OpenTK;
+using OpenTK.Graphics;
 using Temblor.Controls;
+using Temblor.UI;
 
 namespace Temblor.WinForms
 {
@@ -35,7 +38,20 @@ namespace Temblor.WinForms
 					System.Windows.Forms.Cursor.Clip = new System.Drawing.Rectangle();
 				});
 
-			new Application(platform).Run(new MainForm());
+			var application = new Application(platform);
+
+			var mainForm = new MainForm();
+
+			// For whatever reason, WinForms converts the Control | Oemcomma
+			// shortcut key into the string "Ctrl+Oemcomma" instead of "Ctrl+,",
+			// so it needs to be poked with a stick to look presentable.
+			var editMenu = (ButtonMenuItem)mainForm.Menu.Items[1];
+			MenuItem preferencesItem = editMenu.Items[0];
+			string intendedShortcutText = preferencesItem.Shortcut.ToShortcutString();
+			var native = (System.Windows.Forms.ToolStripMenuItem)preferencesItem.ControlObject;
+			native.ShortcutKeyDisplayString = intendedShortcutText;
+
+			application.Run(mainForm);
 		}
 
 		public static void CaptureCursor(View view)

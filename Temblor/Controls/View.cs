@@ -67,6 +67,11 @@ namespace Temblor.Controls
 		public PolygonMode PolygonMode;
 
 		// -- Temblor
+
+		/// <summary>
+		/// The graphics backend to use when rendering in this View.
+		/// </summary>
+		public Backend Backend { get; set; }
 		public Camera Camera = new Camera();
 		public Controller Controller;
 
@@ -111,11 +116,14 @@ namespace Temblor.Controls
 		{
 			Clear();
 
-			Camera.AspectRatio = (float)Width / (float)Height;
-
-			for (int i = 0; i < Map.MapObjects.Count; i++)
+			if (Map != null)
 			{
-				Map.MapObjects[i].Draw(Shaders, ShadingStyle, this, Camera);
+				Camera.AspectRatio = (float)Width / (float)Height;
+
+				for (int i = 0; i < Map.MapObjects.Count; i++)
+				{
+					Map.MapObjects[i].Draw(Shaders, ShadingStyle, this, Camera);
+				}
 			}
 
 			SwapBuffers();
@@ -227,9 +235,9 @@ namespace Temblor.Controls
 			Shader.GetGlslVersion(out int major, out int minor);
 			Shaders = new Dictionary<ShadingStyle, Shader>
 			{
-				{ ShadingStyle.Wireframe, new Shader() },
-				{ ShadingStyle.Flat, new FlatShader(major, minor) },
-				{ ShadingStyle.Textured, new SingleTextureShader(major, minor) }
+				{ ShadingStyle.Wireframe, new Shader() { Backend = Backend } },
+				{ ShadingStyle.Flat, new FlatShader(major, minor) { Backend = Backend } },
+				{ ShadingStyle.Textured, new SingleTextureShader(major, minor) { Backend = Backend } }
 			};
 
 			// FIXME: Causes InvalidEnum from GL.GetError, at least on my OpenGL 2.1, GLSL 1.2, Intel HD Graphics laptop.

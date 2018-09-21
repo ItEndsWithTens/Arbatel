@@ -83,7 +83,7 @@ namespace TemblorTest.Core.Features.Instance
 
 				using (var stream = new FileStream(Filename, FileMode.Open, FileAccess.Read))
 				{
-					Map = new QuakeMap(stream, Fgd, Textures);
+					Map = new QuakeMap(stream, Fgd);
 				}
 			}
 
@@ -154,7 +154,7 @@ namespace TemblorTest.Core.Features.Instance
 
 				using (var stream = new FileStream(Filename, FileMode.Open, FileAccess.Read))
 				{
-					Map = new QuakeMap(stream, Fgd, Textures);
+					Map = new QuakeMap(stream, Fgd);
 				}
 			}
 
@@ -237,7 +237,7 @@ namespace TemblorTest.Core.Features.Instance
 			[TestCase]
 			public void LightWithoutMangleRenderableVerticesAreCorrectAfterCollapse()
 			{
-				QuakeMap collapsed = Map.Collapse();
+				QuakeMap collapsed = (QuakeMap)Map.Collapse();
 
 				MapObject light = collapsed.MapObjects[2];
 
@@ -337,7 +337,7 @@ namespace TemblorTest.Core.Features.Instance
 
 				using (var stream = new FileStream(Filename, FileMode.Open, FileAccess.Read))
 				{
-					Map = new QuakeMap(stream, Fgd, Textures);
+					Map = new QuakeMap(stream, Fgd);
 				}
 			}
 
@@ -408,7 +408,7 @@ namespace TemblorTest.Core.Features.Instance
 
 				using (var stream = new FileStream(Filename, FileMode.Open, FileAccess.Read))
 				{
-					Map = new QuakeMap(stream, Fgd, Textures);
+					Map = new QuakeMap(stream, Fgd);
 				}
 			}
 
@@ -491,7 +491,7 @@ namespace TemblorTest.Core.Features.Instance
 			[TestCase]
 			public void LightWithoutMangleRenderableVerticesAreCorrectAfterCollapse()
 			{
-				QuakeMap collapsed = Map.Collapse();
+				QuakeMap collapsed = (QuakeMap)Map.Collapse();
 
 				MapObject light = collapsed.MapObjects[2];
 
@@ -591,7 +591,7 @@ namespace TemblorTest.Core.Features.Instance
 
 				using (var stream = new FileStream(Filename, FileMode.Open, FileAccess.Read))
 				{
-					Map = new QuakeMap(stream, Fgd, Textures);
+					Map = new QuakeMap(stream, Fgd);
 				}
 			}
 
@@ -662,7 +662,7 @@ namespace TemblorTest.Core.Features.Instance
 
 				using (var stream = new FileStream(Filename, FileMode.Open, FileAccess.Read))
 				{
-					Map = new QuakeMap(stream, Fgd, Textures);
+					Map = new QuakeMap(stream, Fgd);
 				}
 			}
 
@@ -745,7 +745,7 @@ namespace TemblorTest.Core.Features.Instance
 			[TestCase]
 			public void LightWithoutMangleRenderableVerticesAreCorrectAfterCollapse()
 			{
-				QuakeMap collapsed = Map.Collapse();
+				QuakeMap collapsed = (QuakeMap)Map.Collapse();
 
 				MapObject light = collapsed.MapObjects[2];
 
