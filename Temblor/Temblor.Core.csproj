@@ -104,7 +104,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Graphics\Renderable.cs" />
     <Compile Include="Graphics\Shader.cs" />
-    <Compile Include="Utilities\UI.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

@@ -9,10 +9,10 @@ namespace Temblor.UI.Preferences
 	{
 		private int MasterPadding = 10;
 
-		private string BtnAddFgdName = "btnAddFgd";
-		private string BtnAddWadName = "btnAddWad";
-		private string BtnRemoveFgdName = "btnRemoveFgd";
-		private string BtnRemoveWadName = "btnRemoveWad";
+		private Command CmdAddFgd = new Command();
+		private Command CmdAddWad = new Command();
+		private Command CmdRemoveFgd = new Command();
+		private Command CmdRemoveWad = new Command();
 
 		public string BtnFgdCombineStackName = "btnFgdCombineStack";
 		public string BtnFgdCombineBlendName = "btnFgdCombineBlend";
@@ -34,8 +34,8 @@ namespace Temblor.UI.Preferences
 
 			var lbxFgd = new ListBox() { AllowDrop = true, ID = LbxFgdName };
 
-			var btnAddFgd = new Button { Text = "Add...", ID = BtnAddFgdName };
-			var btnRemoveFgd = new Button { Text = "Remove", ID = BtnRemoveFgdName };
+			var btnAddFgd = new Button { Text = "Add...", Command = CmdAddFgd };
+			var btnRemoveFgd = new Button { Text = "Remove", Command = CmdRemoveFgd };
 
 			var btnFgdCombineStack = new RadioButton { Text = "Stack", Checked = true, ID = BtnFgdCombineStackName };
 			var btnFgdCombineBlend = new RadioButton(btnFgdCombineStack) { Text = "Blend", ID = BtnFgdCombineBlendName };
@@ -85,8 +85,8 @@ namespace Temblor.UI.Preferences
 
 			var lbxWad = new ListBox() { AllowDrop = true, ID = LbxWadName };
 
-			var btnAddWad = new Button { Text = "Add...", ID = BtnAddWadName };
-			var btnRemoveWad = new Button { Text = "Remove", ID = BtnRemoveWadName };
+			var btnAddWad = new Button { Text = "Add...", Command = CmdAddWad };
+			var btnRemoveWad = new Button { Text = "Remove", Command = CmdRemoveWad };
 
 			var tblWadAddRemove = new TableLayout(2, 1)
 			{
