@@ -100,9 +100,12 @@
     <Compile Include="UI\MainForm\MainFormCommands.cs" />
     <Compile Include="UI\MainForm\MainFormLogic.cs" />
     <Compile Include="UI\MainForm\MainFormLayout.eto.cs" />
-    <Compile Include="UI\Preferences\PreferencesDialogCommands.cs" />
-    <Compile Include="UI\Preferences\PreferencesDialogLayout.eto.cs" />
-    <Compile Include="UI\Preferences\PreferencesDialogLogic.cs" />
+    <Compile Include="UI\Preferences\ControlsTab.eto.cs" />
+    <Compile Include="UI\Preferences\DefinitionsTab.eto.cs" />
+    <Compile Include="UI\Preferences\Commands.cs" />
+    <Compile Include="UI\Preferences\PreferencesDialog.eto.cs" />
+    <Compile Include="UI\Preferences\PreferencesDialog.cs" />
+    <Compile Include="UI\Preferences\TexturesTab.eto.cs" />
     <Compile Include="UI\Settings\RoamingSettings.cs" />
     <Compile Include="UI\Settings\LocalSettings.cs" />
     <Compile Include="Utilities\Formatting.cs" />
