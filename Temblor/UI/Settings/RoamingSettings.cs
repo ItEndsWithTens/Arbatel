@@ -13,5 +13,7 @@ namespace Temblor.UI.Settings
 	public class RoamingSettings : JsonSettings
 	{
 		public override string FileName { get; set; }
+
+		public string LastBuiltInPalette { get; set; } = "";
 	}
 }

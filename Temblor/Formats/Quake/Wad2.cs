@@ -8,45 +8,44 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using Temblor.Graphics;
+using Temblor.UI;
 
 namespace Temblor.Formats.Quake
 {
 	public static class PaletteExtensions
 	{
-		public static Palette LoadQuakePalette(this Palette palette, string filename)
+		/// <summary>
+		/// Create an Eto Palette from a packed, unsigned, 8-bit RGB byte array.
+		/// </summary>
+		/// <param name="destination">The Eto Palette to add colors to.</param>
+		/// <param name="source">The stream containing the raw color values.</param>
+		/// <returns></returns>
+		public static Palette LoadQuakePalette(this Palette destination, Stream source)
 		{
-			// See the Visual Studio docs on warning CA2202 for the origin of
-			// this pattern. A little clunky, but avoids calling Dispose twice.
-			Stream stream = null;
-			try
+			var br = new BinaryReader(source);
+
+			var length = source.Length;
+
+			for (var i = 0; i < length / 3; i++)
 			{
-				stream = new FileStream(filename, FileMode.Open, FileAccess.Read);
+				var color = new Color() { Ab = 255 };
+				color.Rb = br.ReadByte();
+				color.Gb = br.ReadByte();
+				color.Bb = br.ReadByte();
 
-				using (var br = new BinaryReader(stream))
-				{
-					var length = stream.Length;
-					stream = null;
-
-					for (var i = 0; i < length / 3; i++)
-					{
-						var color = new Color() { Ab = 255 };
-						color.Rb = br.ReadByte();
-						color.Gb = br.ReadByte();
-						color.Bb = br.ReadByte();
-
-						palette.Add(color);
-					}
-				}
-			}
-			finally
-			{
-				if (stream != null)
-				{
-					stream.Dispose();
-				}
+				destination.Add(color);
 			}
 
-			return palette;
+			return destination;
+		}
+		public static Palette LoadQuakePalette(this Palette destination, string fileName)
+		{
+			using (var fs = new FileStream(fileName, FileMode.Open, FileAccess.Read))
+			{
+				destination.LoadQuakePalette(fs);
+			}
+
+			return destination;
 		}
 	}
 

@@ -1,7 +1,7 @@
 using System;
+using Eto;
 using Eto.Forms;
 using Eto.Drawing;
-using System.Collections.ObjectModel;
 
 namespace Temblor.UI.Preferences
 {
@@ -106,13 +106,75 @@ namespace Temblor.UI.Preferences
 				}
 			};
 
-			var tblWad = new TableLayout(1, 2) { Spacing = new Size(0, MasterPadding) };
+			var btnBuiltInPalette = new RadioButton { Text = "Built-in", Checked = true, ID = "btnBuiltInPalette" };
+			btnBuiltInPalette.CheckedChanged += (sender, e) =>
+			{
+				var drpPalette = FindChild<DropDown>("drpPalette");
+
+				if (btnBuiltInPalette.Checked)
+				{
+					drpPalette.Enabled = true;
+					LocalSettings.UsingCustomPalette = false;
+				}
+				else
+				{
+					drpPalette.Enabled = false;
+					LocalSettings.UsingCustomPalette = true;
+				}
+			};
+
+			var btnCustomPalette = new RadioButton(btnBuiltInPalette) { Text = "Custom", ID = "btnCustomPalette" };
+			btnCustomPalette.CheckedChanged += (sender, e) => 
+			{
+				var fpkPalette = FindChild<FilePicker>("fpkPalette");
+
+				if (btnCustomPalette.Checked)
+				{
+					fpkPalette.Enabled = true;
+					LocalSettings.UsingCustomPalette = true;
+				}
+				else
+				{
+					fpkPalette.Enabled = false;
+					LocalSettings.UsingCustomPalette = false;
+				}
+			};
+
+			var tblBuiltInPalette = new TableLayout(2, 1)
+			{
+				Spacing = new Size(MasterPadding, 0)
+			};
+			tblBuiltInPalette.Add(btnBuiltInPalette, 0, 0);
+			tblBuiltInPalette.Add(new DropDown() { Items = { "Quake" }, SelectedIndex = 0, ID = "drpPalette" }, 1, 0);
+
+			var tblCustomPalette = new TableLayout(2, 1)
+			{
+				Spacing = new Size(MasterPadding, 0)
+			};
+			tblCustomPalette.Add(btnCustomPalette, 0, 0);
+			tblCustomPalette.Add(new FilePicker() { FileAction = FileAction.OpenFile, Enabled = false, ID = "fpkPalette" }, 1, 0);
+
+			var stkPalette = new StackLayout
+			{
+				Orientation = Orientation.Vertical,
+				Spacing = MasterPadding,
+				Items =
+				{
+					new Label {Text = "Palette:" },
+					tblBuiltInPalette,
+					tblCustomPalette
+				}
+			};
+
+			var tblWad = new TableLayout(1, 3) { Spacing = new Size(0, MasterPadding) };
 
 			tblWad.Add(lbxWad, 0, 0);
 			tblWad.Add(stkWad, 0, 1);
+			tblWad.Add(stkPalette, 0, 2);
 
 			tblWad.SetRowScale(0, true);
 			tblWad.SetRowScale(1, false);
+			tblWad.SetRowScale(2, false);
 
 			var gbxWad = new GroupBox
 			{
@@ -130,7 +192,15 @@ namespace Temblor.UI.Preferences
 			tblMaster.SetRowScale(0, true);
 			tblMaster.SetRowScale(1, true);
 
-			Content = tblMaster;
+			Content = new TabControl
+			{
+				BackgroundColor = SystemColors.ControlBackground,
+				Pages =
+				{
+					new TabPage { Padding = MasterPadding, Text = "Resources", Content = tblMaster },
+					new TabPage { Text = "Controls" }
+				}
+			};
 
 			PositiveButtons.Add(new Button { Text = "OK", ID = BtnOKName, Command = CmdOK });
 			NegativeButtons.Add(new Button { Text = "Cancel", ID = BtnCancelName, Command = CmdCancel });

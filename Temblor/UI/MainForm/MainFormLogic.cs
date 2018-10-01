@@ -67,9 +67,12 @@ namespace Temblor.UI
 
 		private void DlgPreferences_Closed(object sender, EventArgs e)
 		{
+			LocalSettings localSettings = DlgPreferences.LocalSettings;
+			RoamingSettings roamingSettings = DlgPreferences.RoamingSettings;
+
 			DefinitionDictionaries.Clear();
 
-			foreach (var path in DlgPreferences.LocalSettings.DefinitionDictionaryPaths)
+			foreach (var path in localSettings.DefinitionDictionaryPaths)
 			{
 				DefinitionDictionaries.Add(path, Loader.LoadDefinitionDictionary(path));
 			}
@@ -85,9 +88,28 @@ namespace Temblor.UI
 
 			TextureDictionaries.Clear();
 
-			foreach (var path in DlgPreferences.LocalSettings.TextureDictionaryPaths)
+			Stream stream = null;
+			if (localSettings.UsingCustomPalette)
 			{
-				TextureDictionaries.Add(path, Loader.LoadTextureDictionary(path));
+				stream = new FileStream(localSettings.LastCustomPalette.LocalPath, FileMode.Open, FileAccess.Read);
+			}
+			else
+			{
+				var assembly = Assembly.GetAssembly(typeof(MainForm));
+				var attribute = (AssemblyProductAttribute)assembly.GetCustomAttribute(typeof(AssemblyProductAttribute));
+
+				var name = $"{attribute.Product}.res.palette-{roamingSettings.LastBuiltInPalette.ToLower()}.lmp";
+				stream = assembly.GetManifestResourceStream(name);
+			}
+
+			using (stream)
+			{
+				var palette = new Palette().LoadQuakePalette(stream);
+
+				foreach (var path in DlgPreferences.LocalSettings.TextureDictionaryPaths)
+				{
+					TextureDictionaries.Add(path, Loader.LoadTextureDictionary(path, palette));
+				}
 			}
 
 			CombinedTextures = TextureDictionaries.Values.ToList().Stack();

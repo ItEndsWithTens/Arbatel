@@ -30,7 +30,7 @@ namespace Temblor.Formats
 			return definitions;
 		}
 
-		public static TextureDictionary LoadTextureDictionary(string fileName)
+		public static TextureDictionary LoadTextureDictionary(string fileName, Palette palette)
 		{
 			TextureDictionary textures;
 
@@ -38,10 +38,6 @@ namespace Temblor.Formats
 
 			if (isWad2)
 			{
-				// TODO: Finalize this!
-				var palettePath = "D:/Development/Temblor/res/palette-quake.lmp";
-				var palette = new Palette().LoadQuakePalette(palettePath);
-
 				textures = new Wad2(fileName, palette);
 			}
 			else
@@ -50,6 +46,15 @@ namespace Temblor.Formats
 			}
 
 			return textures;
+		}
+		public static TextureDictionary LoadTextureDictionary(string fileName, string palettePath)
+		{
+			var paletteStream = new FileStream(palettePath, FileMode.Open, FileAccess.Read);
+
+			// TODO: Accommodate more than just Quake palettes.
+			var palette = new Palette().LoadQuakePalette(paletteStream);
+
+			return LoadTextureDictionary(fileName, palette);
 		}
 	}
 }

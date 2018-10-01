@@ -37,6 +37,28 @@ namespace Temblor.UI.Preferences
 			LocalSettings = JsonSettings.Load<LocalSettings>(Path.Combine(localPath, "LocalSettings.json"));
 			RoamingSettings = JsonSettings.Load<RoamingSettings>(Path.Combine(roamingPath, "RoamingSettings.json"));
 
+			var drpPalette = FindChild<DropDown>("drpPalette");
+			var fpkPalette = FindChild<FilePicker>("fpkPalette");
+
+			if (RoamingSettings.LastBuiltInPalette.Length > 0)
+			{
+				drpPalette.SelectedKey = RoamingSettings.LastBuiltInPalette;
+			}
+
+			if (LocalSettings.LastCustomPalette.LocalPath.Length > 0)
+			{
+				fpkPalette.FilePath = LocalSettings.LastCustomPalette.LocalPath;
+			}
+
+			if (LocalSettings.UsingCustomPalette)
+			{
+				FindChild<RadioButton>("btnCustomPalette").Checked = true;
+			}
+			else
+			{
+				FindChild<RadioButton>("btnBuiltInPalette").Checked = true;
+			}
+
 			RefreshDisplayedDefinitions();
 			RefreshDisplayedTextures();
 
@@ -45,6 +67,22 @@ namespace Temblor.UI.Preferences
 
 		private void CommitChanges()
 		{
+			RoamingSettings.LastBuiltInPalette = FindChild<DropDown>("drpPalette").SelectedKey.ToString();
+
+			var fpkPalette = FindChild<FilePicker>("fpkPalette");
+			if (fpkPalette.Enabled)
+			{
+				if (fpkPalette.FilePath.Length > 0)
+				{
+					LocalSettings.LastCustomPalette = new Uri(fpkPalette.FilePath);
+				}
+				LocalSettings.UsingCustomPalette = true;
+			}
+			else
+			{
+				LocalSettings.UsingCustomPalette = false;
+			}
+
 			RefreshStoredDefinitions();
 			RefreshStoredTextures();
 
