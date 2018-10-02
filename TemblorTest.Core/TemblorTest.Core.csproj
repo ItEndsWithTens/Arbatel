@@ -82,7 +82,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Temblor\Temblor.Core.csproj">
-      <Project>{247630fd-e639-4cc1-a7d4-26edc51a07bf}</Project>
+      <Project>{a5ffc3a4-78ca-44f2-b8a8-f18dadf1690a}</Project>
       <Name>Temblor.Core</Name>
     </ProjectReference>
   </ItemGroup>

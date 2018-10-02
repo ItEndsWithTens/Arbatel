@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.27130.2026
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Temblor.Core", "Temblor\Temblor.Core.csproj", "{247630FD-E639-4CC1-A7D4-26EDC51A07BF}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Temblor.Core", "Temblor\Temblor.Core.csproj", "{A5FFC3A4-78CA-44F2-B8A8-F18DADF1690A}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Temblor.WinForms", "Temblor.WinForms\Temblor.WinForms.csproj", "{4925B6D7-8B10-43D7-8CA9-D7A03B2B622E}"
 EndProject
@@ -17,10 +17,10 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{247630FD-E639-4CC1-A7D4-26EDC51A07BF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{247630FD-E639-4CC1-A7D4-26EDC51A07BF}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{247630FD-E639-4CC1-A7D4-26EDC51A07BF}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{247630FD-E639-4CC1-A7D4-26EDC51A07BF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A5FFC3A4-78CA-44F2-B8A8-F18DADF1690A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A5FFC3A4-78CA-44F2-B8A8-F18DADF1690A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A5FFC3A4-78CA-44F2-B8A8-F18DADF1690A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A5FFC3A4-78CA-44F2-B8A8-F18DADF1690A}.Release|Any CPU.Build.0 = Release|Any CPU
 		{4925B6D7-8B10-43D7-8CA9-D7A03B2B622E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{4925B6D7-8B10-43D7-8CA9-D7A03B2B622E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4925B6D7-8B10-43D7-8CA9-D7A03B2B622E}.Release|Any CPU.ActiveCfg = Release|Any CPU

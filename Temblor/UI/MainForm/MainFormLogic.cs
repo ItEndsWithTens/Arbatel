@@ -95,11 +95,9 @@ namespace Temblor.UI
 			}
 			else
 			{
-				var assembly = Assembly.GetAssembly(typeof(MainForm));
-				var attribute = (AssemblyProductAttribute)assembly.GetCustomAttribute(typeof(AssemblyProductAttribute));
+				var name = $"palette-{roamingSettings.LastBuiltInPalette.ToLower()}.lmp";
 
-				var name = $"{attribute.Product}.res.palette-{roamingSettings.LastBuiltInPalette.ToLower()}.lmp";
-				stream = assembly.GetManifestResourceStream(name);
+				stream = Assembly.GetAssembly(typeof(MainForm)).GetResourceStream(name);
 			}
 
 			using (stream)

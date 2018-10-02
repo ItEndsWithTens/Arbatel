@@ -68,9 +68,6 @@
     <Reference Include="PresentationFramework" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\SharedAssemblyInfo.cs">
-      <Link>SharedAssemblyInfo.cs</Link>
-    </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
@@ -78,12 +75,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Temblor\Temblor.Core.csproj">
-      <Project>{247630fd-e639-4cc1-a7d4-26edc51a07bf}</Project>
-      <Name>Temblor.Core</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Eto.Forms">
@@ -95,6 +86,12 @@
     <PackageReference Include="OpenTK.GLControl">
       <Version>3.0.1</Version>
     </PackageReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Temblor\Temblor.Core.csproj">
+      <Project>{a5ffc3a4-78ca-44f2-b8a8-f18dadf1690a}</Project>
+      <Name>Temblor.Core</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

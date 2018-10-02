@@ -46,15 +46,6 @@
     <Reference Include="System.Windows.Forms" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Temblor\Temblor.Core.csproj">
-      <Project>{247630FD-E639-4CC1-A7D4-26EDC51A07BF}</Project>
-      <Name>Temblor.Core</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="..\SharedAssemblyInfo.cs">
-      <Link>SharedAssemblyInfo.cs</Link>
-    </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -68,6 +59,12 @@
     <PackageReference Include="Eto.Platform.Windows">
       <Version>2.5.0-ci-10015</Version>
     </PackageReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Temblor\Temblor.Core.csproj">
+      <Project>{a5ffc3a4-78ca-44f2-b8a8-f18dadf1690a}</Project>
+      <Name>Temblor.Core</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>

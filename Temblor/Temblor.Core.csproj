@@ -1,129 +1,54 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+<Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{247630FD-E639-4CC1-A7D4-26EDC51A07BF}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <RootNamespace>Temblor</RootNamespace>
-    <AssemblyName>Temblor.Core</AssemblyName>
-    <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>
-    <DoNotCopyLocalIfInGac>true</DoNotCopyLocalIfInGac>
-    <NuGetPackageImportStamp>
-    </NuGetPackageImportStamp>
-    <TargetFrameworkProfile />
+    <Company>Rob Martens</Company>
+    <Product>Temblor</Product>
+    <Copyright>Copyright © 2018</Copyright>
+    <AssemblyVersion>0.1.0</AssemblyVersion>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <RunCodeAnalysis>false</RunCodeAnalysis>
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DefineConstants>TRACE;DEBUG</DefineConstants>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release</OutputPath>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
   </PropertyGroup>
-  <PropertyGroup>
-    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
-  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="OpenTK.dll.config" />
+    <None Remove="res\palette-quake.lmp" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="res\palette-quake.lmp" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="..\OpenTK.dll.config" Link="OpenTK.dll.config">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Eto.Forms" Version="2.5.0-ci-10015" />
+    <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="2.6.2">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="nucs.JsonSettings" Version="1.0.7" />
+    <PackageReference Include="OpenTK" Version="3.0.1" />
+  </ItemGroup>
+
   <ItemGroup>
     <Reference Include="Eto.Gl">
       <HintPath>..\lib\thirdparty\Eto.Gl\Eto.Gl\Debug\Eto.Gl.dll</HintPath>
     </Reference>
-    <Reference Include="System" />
-    <Reference Include="System.Runtime.Serialization" />
-    <Reference Include="System.Windows.Forms" />
   </ItemGroup>
-  <ItemGroup>
-    <Compile Include="..\SharedAssemblyInfo.cs">
-      <Link>SharedAssemblyInfo.cs</Link>
-    </Compile>
-    <Compile Include="Controllers\Controller.cs" />
-    <Compile Include="Controllers\FirstPersonController.cs" />
-    <Compile Include="Formats\DefinitionDictionary.cs" />
-    <Compile Include="Formats\Definition.cs" />
-    <Compile Include="Formats\Loader.cs" />
-    <Compile Include="Formats\Quake\QuakeFgd.cs" />
-    <Compile Include="Formats\MapObject.cs" />
-    <Compile Include="Formats\Quake\QuakeMapObject.cs" />
-    <Compile Include="Formats\Quake\QuakeSide.cs" />
-    <Compile Include="Formats\Side.cs" />
-    <Compile Include="Formats\Solid.cs" />
-    <Compile Include="Formats\TextureDictionary.cs" />
-    <Compile Include="Formats\Quake\Wad2.cs" />
-    <Compile Include="Graphics\Aabb.cs" />
-    <Compile Include="Graphics\BackEnd.cs" />
-    <Compile Include="Graphics\BoxGenerator.cs" />
-    <Compile Include="Graphics\GemGenerator.cs" />
-    <Compile Include="Graphics\OpenGLBackEnd.cs" />
-    <Compile Include="Graphics\Plane.cs" />
-    <Compile Include="Graphics\FlatShader.cs" />
-    <Compile Include="Graphics\QuakeBrush.cs" />
-    <Compile Include="Graphics\RenderableGenerator.cs" />
-    <Compile Include="Graphics\SingleTextureShader.cs" />
-    <Compile Include="Graphics\Texture.cs" />
-    <Compile Include="Graphics\Vertex.cs" />
-    <Compile Include="Graphics\Camera.cs" />
-    <Compile Include="Controls\View.cs" />
-    <Compile Include="Controls\View3d.cs" />
-    <Compile Include="Controls\Viewport.cs" />
-    <Compile Include="Formats\Block.cs" />
-    <Compile Include="Formats\Map.cs" />
-    <Compile Include="Formats\Quake\QuakeBlock.cs" />
-    <Compile Include="Formats\Quake\QuakeMap.cs" />
-    <Compile Include="Graphics\Winding.cs" />
-    <Compile Include="UI\MainForm\MainFormCommands.cs" />
-    <Compile Include="UI\MainForm\MainFormLogic.cs" />
-    <Compile Include="UI\MainForm\MainFormLayout.eto.cs" />
-    <Compile Include="UI\Preferences\ControlsTab.eto.cs" />
-    <Compile Include="UI\Preferences\DefinitionsTab.eto.cs" />
-    <Compile Include="UI\Preferences\Commands.cs" />
-    <Compile Include="UI\Preferences\PreferencesDialog.eto.cs" />
-    <Compile Include="UI\Preferences\PreferencesDialog.cs" />
-    <Compile Include="UI\Preferences\TexturesTab.eto.cs" />
-    <Compile Include="UI\Settings\RoamingSettings.cs" />
-    <Compile Include="UI\Settings\LocalSettings.cs" />
-    <Compile Include="Utilities\Formatting.cs" />
-    <Compile Include="Utilities\MathUtilities.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Graphics\Renderable.cs" />
-    <Compile Include="Graphics\Shader.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="App.config" />
-    <EmbeddedResource Include="res\palette-quake.lmp" />
-    <None Include="OpenTK.dll.config">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-    <CodeAnalysisDictionary Include="..\CustomDictionary.xml">
-      <Link>CustomDictionary.xml</Link>
-    </CodeAnalysisDictionary>
-  </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="Eto.Forms">
-      <Version>2.5.0-ci-10015</Version>
-    </PackageReference>
-    <PackageReference Include="Newtonsoft.Json">
-      <Version>11.0.2</Version>
-    </PackageReference>
-    <PackageReference Include="nucs.JsonSettings">
-      <Version>1.0.7</Version>
-    </PackageReference>
-    <PackageReference Include="OpenTK">
-      <Version>3.0.1</Version>
-    </PackageReference>
-  </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+
 </Project>

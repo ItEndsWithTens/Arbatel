@@ -10,6 +10,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Temblor.Formats;
 using Temblor.Formats.Quake;
+using Temblor.UI;
 using Temblor.Utilities;
 
 namespace TemblorTest.Core.Features.Instance
@@ -61,8 +62,9 @@ namespace TemblorTest.Core.Features.Instance
 
 				Fgd = new List<DefinitionDictionary>() { ericw, instance }.Stack();
 
-				var paletteFilename = ResourceDirectory + "paletteQ.lmp";
-				var palette = new Palette().LoadQuakePalette(paletteFilename);
+				var paletteName = "palette-quake.lmp";
+				var stream = Assembly.GetAssembly(typeof(MainForm)).GetResourceStream(paletteName);
+				var palette = new Palette().LoadQuakePalette(stream);
 
 				var wadFilename = DataDirectory + "test.wad";
 				Textures = new Wad2(wadFilename, palette);
