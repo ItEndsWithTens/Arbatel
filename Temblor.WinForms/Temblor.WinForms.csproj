@@ -61,7 +61,7 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Temblor\Temblor.Core.csproj">
+    <ProjectReference Include="..\Temblor.Core\Temblor.Core.csproj">
       <Project>{a5ffc3a4-78ca-44f2-b8a8-f18dadf1690a}</Project>
       <Name>Temblor.Core</Name>
     </ProjectReference>

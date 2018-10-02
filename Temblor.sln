@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.27130.2026
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Temblor.Core", "Temblor\Temblor.Core.csproj", "{A5FFC3A4-78CA-44F2-B8A8-F18DADF1690A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Temblor.Core", "Temblor.Core\Temblor.Core.csproj", "{A5FFC3A4-78CA-44F2-B8A8-F18DADF1690A}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Temblor.WinForms", "Temblor.WinForms\Temblor.WinForms.csproj", "{4925B6D7-8B10-43D7-8CA9-D7A03B2B622E}"
 EndProject
