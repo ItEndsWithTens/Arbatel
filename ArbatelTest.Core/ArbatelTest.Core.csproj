@@ -8,8 +8,8 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{4B4E25A8-B7D3-420D-8193-1785E0528D5E}</ProjectGuid>
     <OutputType>Library</OutputType>
-    <RootNamespace>TemblorTest.Core</RootNamespace>
-    <AssemblyName>TemblorTest.Core</AssemblyName>
+    <RootNamespace>ArbatelTest.Core</RootNamespace>
+    <AssemblyName>ArbatelTest</AssemblyName>
     <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
@@ -83,7 +83,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Arbatel.Core\Arbatel.Core.csproj">
       <Project>{a5ffc3a4-78ca-44f2-b8a8-f18dadf1690a}</Project>
-      <Name>Temblor.Core</Name>
+      <Name>Arbatel.Core</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
