@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -7,8 +7,11 @@
     <OutputType>WinExe</OutputType>
     <RootNamespace>Temblor.WinForms</RootNamespace>
     <AssemblyName>Temblor</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>
     <DoNotCopyLocalIfInGac>true</DoNotCopyLocalIfInGac>
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
     <DebugSymbols>true</DebugSymbols>
@@ -17,6 +20,7 @@
     <DebugType>full</DebugType>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
+    <!-- TODO: Excuse me, HWAT? See what the hell good this is, and disable it if possible. -->
     <Prefer32Bit>true</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|AnyCPU'">
@@ -27,42 +31,40 @@
     <ErrorReport>prompt</ErrorReport>
     <Prefer32Bit>true</Prefer32Bit>
   </PropertyGroup>
+  <PropertyGroup>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+  </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Eto, Version=2.3.6404.33347, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\Eto\BuildOutput\net45\Debug\Eto.dll</HintPath>
-    </Reference>
     <Reference Include="Eto.Gl">
       <HintPath>..\lib\thirdparty\Eto.Gl\Eto.Gl\Debug\Eto.Gl.dll</HintPath>
     </Reference>
     <Reference Include="Eto.Gl.Windows">
       <HintPath>..\lib\thirdparty\Eto.Gl\Eto.Gl.WinForms\Debug\Eto.Gl.Windows.dll</HintPath>
     </Reference>
-    <Reference Include="Eto.WinForms, Version=2.3.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\Eto\BuildOutput\net45\Debug\Eto.WinForms.dll</HintPath>
-    </Reference>
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Windows.Forms" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Temblor\Temblor.Core.csproj">
-      <Project>{247630FD-E639-4CC1-A7D4-26EDC51A07BF}</Project>
-      <Name>Temblor.Core</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="..\SharedAssemblyInfo.cs">
-      <Link>SharedAssemblyInfo.cs</Link>
-    </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="app.config" />
-    <None Include="packages.config" />
+    <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Eto.Forms">
+      <Version>2.5.0-ci-10015</Version>
+    </PackageReference>
+    <PackageReference Include="Eto.Platform.Windows">
+      <Version>2.5.0-ci-10015</Version>
+    </PackageReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Temblor.Core\Temblor.Core.csproj">
+      <Project>{a5ffc3a4-78ca-44f2-b8a8-f18dadf1690a}</Project>
+      <Name>Temblor.Core</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>

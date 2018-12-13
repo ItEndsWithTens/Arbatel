@@ -1,0 +1,54 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <Company>Rob Martens</Company>
+    <Product>Temblor</Product>
+    <Copyright>Copyright © 2018</Copyright>
+    <AssemblyVersion>0.1.0</AssemblyVersion>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DefineConstants>TRACE;DEBUG</DefineConstants>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DefineConstants>TRACE</DefineConstants>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="OpenTK.dll.config" />
+    <None Remove="res\palette-quake.lmp" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="res\palette-quake.lmp" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="..\OpenTK.dll.config" Link="OpenTK.dll.config">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Eto.Forms" Version="2.5.0-ci-10015" />
+    <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="2.6.2">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="nucs.JsonSettings" Version="1.0.7" />
+    <PackageReference Include="OpenTK" Version="3.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="Eto.Gl">
+      <HintPath>..\lib\thirdparty\Eto.Gl\Eto.Gl\Debug\Eto.Gl.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+</Project>
