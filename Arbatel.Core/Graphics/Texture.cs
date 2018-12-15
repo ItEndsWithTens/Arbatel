@@ -50,39 +50,52 @@ namespace Arbatel.Graphics
 
 			var pitch = Width * components;
 
-			for (var y = 0; y < Height; y++)
+			// Direct access of this Bitmap's data by pointer is safe since Eto
+			// currently only supports 8bpc pixel formats. The component and
+			// pixel offsets are therefore predictable.
+			unsafe
 			{
-				var line = pitch;
-				if (flip)
+				using (BitmapData raw = Lock())
 				{
-					line *= y;
-				}
-				else
-				{
-					line *= Height - 1 - y;
-				}
-
-				for (var x = 0; x < Width; x++)
-				{
-					var color = GetPixel(x, y);
-
-					var pixel = x * components;
-
-					bytes[line + pixel + 0] = Convert.ToByte(color.Rb);
-					bytes[line + pixel + 1] = Convert.ToByte(color.Gb);
-					bytes[line + pixel + 2] = Convert.ToByte(color.Bb);
-					if (format == PixelFormat.Format32bppRgba)
+					for (var y = 0; y < Height; y++)
 					{
-						bytes[line + pixel + 3] = Convert.ToByte(color.Ab);
+						var line = pitch;
+						if (flip)
+						{
+							line *= y;
+						}
+						else
+						{
+							line *= Height - 1 - y;
+						}
+
+						for (var x = 0; x < Width; x++)
+						{
+							var pixel = x * components;
+
+							var ofsR = line + pixel + 0;
+							var ofsG = line + pixel + 1;
+							var ofsB = line + pixel + 2;
+							var ofsA = line + pixel + 3;
+
+							bytes[ofsR] = ((byte*)raw.Data.ToPointer())[ofsR];
+							bytes[ofsG] = ((byte*)raw.Data.ToPointer())[ofsG];
+							bytes[ofsB] = ((byte*)raw.Data.ToPointer())[ofsB];
+
+							if (format == PixelFormat.Format32bppRgba)
+							{
+								bytes[ofsA] = ((byte*)raw.Data.ToPointer())[ofsA];
+							}
+							else if (format == PixelFormat.Format32bppRgb)
+							{
+								bytes[ofsA] = 0;
+							}
+						}
 					}
-					else if (format == PixelFormat.Format32bppRgb)
-					{
-						bytes[line + pixel + 3] = 0;
-					}
+
+					return bytes;
 				}
 			}
-
-			return bytes;
 		}
 	}
 }
