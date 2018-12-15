@@ -315,9 +315,5 @@ $RECYCLE.BIN/
 
 
 
-# Re-include some dependencies this VS gitignore template excluded. Needs to be
-# down here, after the exclusions, to take effect.
-!lib/**
-
-# Then make sure any lingering symbol files get tossed aside.
-*.pdb
+# Re-include debugging symbols for external libraries.
+!lib/**/*.pdb
