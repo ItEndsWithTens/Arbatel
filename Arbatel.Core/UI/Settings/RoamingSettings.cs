@@ -15,5 +15,8 @@ namespace Arbatel.UI.Settings
 		public override string FileName { get; set; }
 
 		public string LastBuiltInPalette { get; set; } = "";
+
+		public bool InvertMouseX { get; set; } = false;
+		public bool InvertMouseY { get; set; } = false;
 	}
 }

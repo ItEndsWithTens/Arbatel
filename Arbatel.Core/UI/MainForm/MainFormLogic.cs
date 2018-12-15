@@ -66,63 +66,25 @@ namespace Arbatel.UI
 
 			DlgPreferences.Closed += DlgPreferences_Closed;
 
-			// A quick, simple way to load definitions and textures on startup.
-			DlgPreferences_Closed(null, null);
+			UpdateDefinitions(DlgPreferences.LocalSettings);
+
+			UpdateTextures(DlgPreferences.LocalSettings, DlgPreferences.RoamingSettings);
 
 			Content = new Viewport(BackEnd) { ID = "viewport" };
+
+			UpdateControls(DlgPreferences.RoamingSettings);
 		}
 
 		private void DlgPreferences_Closed(object sender, EventArgs e)
 		{
-			LocalSettings localSettings = DlgPreferences.LocalSettings;
-			RoamingSettings roamingSettings = DlgPreferences.RoamingSettings;
+			LocalSettings local = DlgPreferences.LocalSettings;
+			RoamingSettings roaming = DlgPreferences.RoamingSettings;
 
-			DefinitionDictionaries.Clear();
+			UpdateControls(roaming);
 
-			foreach (var path in localSettings.DefinitionDictionaryPaths)
-			{
-				DefinitionDictionaries.Add(path, Loader.LoadDefinitionDictionary(path));
-			}
+			UpdateDefinitions(local);
 
-			if (DlgPreferences.FindChild<RadioButton>(DlgPreferences.BtnFgdCombineStackName).Checked)
-			{
-				CombinedDefinitions = DefinitionDictionaries.Values.ToList().Stack();
-			}
-			else
-			{
-				// TODO: Implement blend.
-			}
-
-			TextureDictionaries.Clear();
-
-			Stream stream = null;
-			if (localSettings.UsingCustomPalette)
-			{
-				stream = new FileStream(localSettings.LastCustomPalette.LocalPath, FileMode.Open, FileAccess.Read);
-			}
-			else
-			{
-				var name = $"palette-{roamingSettings.LastBuiltInPalette.ToLower()}.lmp";
-
-				stream = Assembly.GetAssembly(typeof(MainForm)).GetResourceStream(name);
-			}
-
-			using (stream)
-			{
-				var palette = new Palette().LoadQuakePalette(stream);
-
-				foreach (var path in DlgPreferences.LocalSettings.TextureDictionaryPaths)
-				{
-					TextureDictionaries.Add(path, Loader.LoadTextureDictionary(path, palette));
-				}
-			}
-
-			CombinedTextures = TextureDictionaries.Values.ToList().Stack();
-
-			if (Map != null)
-			{
-				Map.Textures = CombinedTextures;
-			}
+			UpdateTextures(local, roaming);
 		}
 
 		private void GetAllThisNonsenseReady()
@@ -139,17 +101,6 @@ namespace Arbatel.UI
 			foreach (var mo in Map.MapObjects)
 			{
 				mo.Init(view3ds);
-			}
-
-
-
-
-			foreach (var view in viewport.Views)
-			{
-				if (view.Value is View)
-				{
-					(view.Value as View).Controller.InvertMouseY = true;
-				}
 			}
 
 			var text = viewport.Views[0] as TextArea;
@@ -180,6 +131,71 @@ namespace Arbatel.UI
 			var collection = new TreeGridItemCollection(items);
 
 			tree.DataStore = collection;
+		}
+
+		private void UpdateControls(RoamingSettings roaming)
+		{
+			foreach (var view in (Content as Viewport).Views.Values)
+			{
+				if (view is View3d v)
+				{
+					v.Controller.InvertMouseX = roaming.InvertMouseX;
+					v.Controller.InvertMouseY = roaming.InvertMouseY;
+				}
+			}
+		}
+
+		private void UpdateDefinitions(LocalSettings local)
+		{
+			DefinitionDictionaries.Clear();
+
+			foreach (var path in local.DefinitionDictionaryPaths)
+			{
+				DefinitionDictionaries.Add(path, Loader.LoadDefinitionDictionary(path));
+			}
+
+			if (DlgPreferences.FindChild<RadioButton>(DlgPreferences.BtnFgdCombineStackName).Checked)
+			{
+				CombinedDefinitions = DefinitionDictionaries.Values.ToList().Stack();
+			}
+			else
+			{
+				// TODO: Implement blend.
+			}
+		}
+
+		private void UpdateTextures(LocalSettings local, RoamingSettings roaming)
+		{
+			TextureDictionaries.Clear();
+
+			Stream stream = null;
+			if (local.UsingCustomPalette)
+			{
+				stream = new FileStream(local.LastCustomPalette.LocalPath, FileMode.Open, FileAccess.Read);
+			}
+			else
+			{
+				var name = $"palette-{roaming.LastBuiltInPalette.ToLower()}.lmp";
+
+				stream = Assembly.GetAssembly(typeof(MainForm)).GetResourceStream(name);
+			}
+
+			using (stream)
+			{
+				var palette = new Palette().LoadQuakePalette(stream);
+
+				foreach (var path in DlgPreferences.LocalSettings.TextureDictionaryPaths)
+				{
+					TextureDictionaries.Add(path, Loader.LoadTextureDictionary(path, palette));
+				}
+			}
+
+			CombinedTextures = TextureDictionaries.Values.ToList().Stack();
+
+			if (Map != null)
+			{
+				Map.Textures = CombinedTextures;
+			}
 		}
 	}
 }

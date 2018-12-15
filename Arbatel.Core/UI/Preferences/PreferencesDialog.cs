@@ -44,6 +44,9 @@ namespace Arbatel.UI.Preferences
 			LocalSettings = JsonSettings.Load<LocalSettings>(localPath, ConfigSettings);
 			RoamingSettings = JsonSettings.Load<RoamingSettings>(roamingPath, ConfigSettings);
 
+			CbxInvertX.Checked = RoamingSettings.InvertMouseX;
+			CbxInvertY.Checked = RoamingSettings.InvertMouseY;
+
 			var drpPalette = FindChild<DropDown>("drpPalette");
 			var fpkPalette = FindChild<FilePicker>("fpkPalette");
 
@@ -75,6 +78,9 @@ namespace Arbatel.UI.Preferences
 		private void CommitChanges()
 		{
 			RoamingSettings.LastBuiltInPalette = FindChild<DropDown>("drpPalette").SelectedKey.ToString();
+
+			RoamingSettings.InvertMouseX = CbxInvertX.Checked ?? false;
+			RoamingSettings.InvertMouseY = CbxInvertY.Checked ?? false;
 
 			var fpkPalette = FindChild<FilePicker>("fpkPalette");
 			if (fpkPalette.Enabled)

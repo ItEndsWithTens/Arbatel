@@ -16,7 +16,7 @@ namespace Arbatel.Controllers
 		// Spotlight: true, true
 		// Goldeneye: false, false
 		public bool InvertMouseX { get; set; } = false;
-		public bool InvertMouseY { get; set; } = true;
+		public bool InvertMouseY { get; set; } = false;
 
 		public float MouseSensitivity { get; set; } = 0.25f;
 
