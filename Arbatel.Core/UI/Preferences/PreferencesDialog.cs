@@ -19,6 +19,13 @@ namespace Arbatel.UI.Preferences
 
 		public RoamingSettings RoamingSettings { get; private set; }
 
+		private static void ConfigSettings(JsonSettings settings)
+		{
+			// Work around a bug in JsonSettings on macOS.
+			settings.BeforeLoad += (ref string destination) => destination = destination.Replace("\\", "/");
+			settings.BeforeSave += (ref string destination) => destination = destination.Replace("\\", "/");
+		}
+
 		public PreferencesDialog()
 		{
 			InitializeComponent();
@@ -31,11 +38,11 @@ namespace Arbatel.UI.Preferences
 			Assembly assembly = Assembly.GetAssembly(typeof(MainForm));
 			var attribute = (AssemblyProductAttribute)assembly.GetCustomAttribute(typeof(AssemblyProductAttribute));
 
-			string localPath = Path.Combine(localAppData, attribute.Product);
-			string roamingPath = Path.Combine(roamingAppData, attribute.Product);
+			string localPath = Path.Combine(localAppData, attribute.Product, "LocalSettings.json");
+			string roamingPath = Path.Combine(roamingAppData, attribute.Product, "RoamingSettings.json");
 
-			LocalSettings = JsonSettings.Load<LocalSettings>(Path.Combine(localPath, "LocalSettings.json"));
-			RoamingSettings = JsonSettings.Load<RoamingSettings>(Path.Combine(roamingPath, "RoamingSettings.json"));
+			LocalSettings = JsonSettings.Load<LocalSettings>(localPath, ConfigSettings);
+			RoamingSettings = JsonSettings.Load<RoamingSettings>(roamingPath, ConfigSettings);
 
 			var drpPalette = FindChild<DropDown>("drpPalette");
 			var fpkPalette = FindChild<FilePicker>("fpkPalette");
@@ -45,7 +52,7 @@ namespace Arbatel.UI.Preferences
 				drpPalette.SelectedKey = RoamingSettings.LastBuiltInPalette;
 			}
 
-			if (LocalSettings.LastCustomPalette.LocalPath.Length > 0)
+			if (LocalSettings.LastCustomPalette?.LocalPath.Length > 0)
 			{
 				fpkPalette.FilePath = LocalSettings.LastCustomPalette.LocalPath;
 			}
