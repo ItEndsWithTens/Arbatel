@@ -54,42 +54,44 @@ namespace Arbatel.Controllers
 			}
 		}
 
+		private OpenTK.Input.MouseState CurrentMouseState;
+		private OpenTK.Input.MouseState PreviousMouseState;
+		private Vector2 MouseDelta = new Vector2();
+
 		public override void MouseMove(object sender, MouseEventArgs e)
 		{
+			CurrentMouseState = OpenTK.Input.Mouse.GetState();
+
 			if (MouseLook)
 			{
-				var view = sender as View;
-
-				var centerScreen = new Point(view.PointToScreen(view.Bounds.Center));
-				var locationScreen = view.PointToScreen(e.Location);
-
-				var delta = (locationScreen - centerScreen) * MouseSensitivity;
-
-				if (delta.X == 0.0f && delta.Y == 0.0f)
+				if (CurrentMouseState != PreviousMouseState)
 				{
-					return;
-				}
+					MouseDelta.X = CurrentMouseState.X - PreviousMouseState.X;
+					MouseDelta.Y = CurrentMouseState.Y - PreviousMouseState.Y;
 
-				if (InvertMouseX)
-				{
-					Camera.Yaw -= delta.X;
-				}
-				else
-				{
-					Camera.Yaw += delta.X;
-				}
+					MouseDelta *= MouseSensitivity;
 
-				if (InvertMouseY)
-				{
-					Camera.Pitch += delta.Y;
-				}
-				else
-				{
-					Camera.Pitch -= delta.Y;
-				}
+					if (InvertMouseX)
+					{
+						Camera.Yaw -= MouseDelta.X;
+					}
+					else
+					{
+						Camera.Yaw += MouseDelta.X;
+					}
 
-				OpenTK.Input.Mouse.SetPosition(centerScreen.X, centerScreen.Y);
+					if (InvertMouseY)
+					{
+						Camera.Pitch += MouseDelta.Y;
+					}
+					else
+					{
+						Camera.Pitch -= MouseDelta.Y;
+					}
+				}
 			}
+
+			PreviousMouseState = CurrentMouseState;
 		}
 	}
 }

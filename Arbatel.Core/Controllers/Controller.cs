@@ -29,81 +29,62 @@ namespace Arbatel.Controllers
 		protected bool Up { get; set; } = false;
 		protected bool Down { get; set; } = false;
 
-		virtual public void KeyEvent(object sender, KeyEventArgs e)
+		virtual public void KeyDown(object sender, KeyEventArgs e)
 		{
-			if (e.Modifiers == Keys.None)
+			// If a modifier is pressed, a view Controller isn't the intended
+			// recipient of the key event.
+			if (e.Modifiers != Keys.None)
 			{
-				if (e.IsKeyDown(Keys.Z))
+				return;
+			}
+
+			if (e.Key == Keys.Z)
+			{
+				if (sender is View v)
 				{
-					if (sender is View v)
+					if (MouseLook == false)
 					{
-						if (MouseLook == false)
-						{
-							MouseLook = true;
-							v.Style = "hidecursor";
-						}
-						else
-						{
-							MouseLook = false;
-							v.Style = "showcursor";
-						}
+						MouseLook = true;
+						v.Style = "hidecursor";
 					}
-				}
+					else
+					{
+						MouseLook = false;
+						v.Style = "showcursor";
+					}
 
-				if (e.IsKeyDown(Keys.W))
-				{
-					Forward = true;
-				}
-				else if (e.IsKeyUp(Keys.W))
-				{
-					Forward = false;
-				}
-
-				if (e.IsKeyDown(Keys.S))
-				{
-					Backward = true;
-				}
-				else if (e.IsKeyUp(Keys.S))
-				{
-					Backward = false;
-				}
-
-				if (e.IsKeyDown(Keys.A))
-				{
-					Left = true;
-				}
-				else if (e.IsKeyUp(Keys.A))
-				{
-					Left = false;
-				}
-
-				if (e.IsKeyDown(Keys.D))
-				{
-					Right = true;
-				}
-				else if (e.IsKeyUp(Keys.D))
-				{
-					Right = false;
-				}
-
-				if (e.IsKeyDown(Keys.E))
-				{
-					Up = true;
-				}
-				else if (e.IsKeyUp(Keys.E))
-				{
-					Up = false;
-				}
-
-				if (e.IsKeyDown(Keys.Q))
-				{
-					Down = true;
-				}
-				else if (e.IsKeyUp(Keys.Q))
-				{
-					Down = false;
+					e.Handled = true;
 				}
 			}
+
+			// Set each direction boolean true if the event represents the
+			// appropriate key. The bitwise OR is less immediately clear than
+			// the alternative set of if blocks, but makes the code cleaner.
+			Forward |= e.Key == Keys.W;
+			Backward |= e.Key == Keys.S;
+			Left |= e.Key == Keys.A;
+			Right |= e.Key == Keys.D;
+			Up |= e.Key == Keys.E;
+			Down |= e.Key == Keys.Q;
+
+			e.Handled = true;
+		}
+
+		virtual public void KeyUp(object sender, KeyEventArgs e)
+		{
+			if (e.Modifiers != Keys.None)
+			{
+				return;
+			}
+
+			Forward &= e.Key != Keys.W;
+			Backward &= e.Key != Keys.S;
+			Left &= e.Key != Keys.A;
+			Right &= e.Key != Keys.D;
+			Up &= e.Key != Keys.E;
+			Down &= e.Key != Keys.Q;
+
+			e.Handled = true;
 		}
 
 		virtual public void MouseMove(object sender, MouseEventArgs e)

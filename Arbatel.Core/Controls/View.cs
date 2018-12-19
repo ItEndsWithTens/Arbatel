@@ -177,11 +177,11 @@ namespace Arbatel.Controls
 
 		protected override void OnKeyDown(KeyEventArgs e)
 		{
-			Controller.KeyEvent(this, e);
+			Controller.KeyDown(this, e);
 		}
 		protected override void OnKeyUp(KeyEventArgs e)
 		{
-			Controller.KeyEvent(this, e);
+			Controller.KeyUp(this, e);
 		}
 
 		protected override void OnMouseEnter(MouseEventArgs e)
