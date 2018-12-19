@@ -87,11 +87,15 @@ namespace Arbatel.Controllers
 			e.Handled = true;
 		}
 
-		virtual public void MouseMove(object sender, MouseEventArgs e)
+		virtual public void Update()
 		{
 		}
 
-		virtual public void Move()
+		virtual public void UpdateKeyboard()
+		{
+		}
+
+		virtual public void UpdateMouse()
 		{
 		}
 	}

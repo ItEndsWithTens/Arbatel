@@ -54,12 +54,13 @@ namespace Arbatel.Controls
 			set
 			{
 				_fps = value;
-				Clock.Interval = 1.0 / value;
+				GraphicsClock.Interval = 1.0 / value;
 			}
 		}
 
 		// -- Eto
-		public UITimer Clock = new UITimer();
+		public UITimer GraphicsClock = new UITimer();
+		public UITimer InputClock = new UITimer();
 		public Label Label = new Label();
 
 		// -- OpenTK
@@ -92,6 +93,7 @@ namespace Arbatel.Controls
 			base(_mode, _major, _minor, _flags)
 		{
 			Fps = 60.0f;
+			InputClock.Interval = 1.0 / (Fps * 2.0);
 
 			ShadingStyle = ShadingStyle.Wireframe;
 
@@ -99,9 +101,9 @@ namespace Arbatel.Controls
 			Label.BackgroundColor = Eto.Drawing.Colors.Black;
 			Label.TextColor = Eto.Drawing.Colors.White;
 
-			Clock.Elapsed += Clock_Elapsed;
+			GraphicsClock.Elapsed += GraphicsClock_Elapsed;
+			InputClock.Elapsed += InputClock_Elapsed;
 			GLInitalized += View_GLInitialized;
-			MouseMove += View_MouseMove;
 		}
 
 		// -- Methods
@@ -148,7 +150,8 @@ namespace Arbatel.Controls
 		{
 			base.OnGotFocus(e);
 
-			Clock.Interval = 1.0 / Fps;
+			GraphicsClock.Interval = 1.0 / Fps;
+			InputClock.Start();
 		}
 		protected override void OnLostFocus(EventArgs e)
 		{
@@ -156,20 +159,21 @@ namespace Arbatel.Controls
 
 			// A perhaps-unnecessary performance thing; would love to allow full framerate
 			// for all visible views, so editing objects is visually smooth everywhere at once.
-			Clock.Interval = 1.0 / (Fps / 4.0);
+			GraphicsClock.Interval = 1.0 / (Fps / 4.0);
+			InputClock.Stop();
 		}
 
 		protected override void OnLoad(EventArgs e)
 		{
 			base.OnLoad(e);
 
-			Clock.Start();
+			GraphicsClock.Start();
 		}
 		protected override void OnUnLoad(EventArgs e)
 		{
 			base.OnUnLoad(e);
 
-			Clock.Stop();
+			GraphicsClock.Stop();
 
 			Controller.MouseLook = false;
 			Style = "showcursor";
@@ -192,27 +196,14 @@ namespace Arbatel.Controls
 		}
 
 		// -- Event handlers
-		private void Clock_Elapsed(object sender, EventArgs e)
+		private void GraphicsClock_Elapsed(object sender, EventArgs e)
 		{
-			var sw = Stopwatch.StartNew();
-			Controller.Move();
-			sw.Stop();
-
-			var elapsedMsMove = sw.ElapsedMilliseconds;
-
-			sw.Reset();
-			sw.Start();
 			Refresh();
-			sw.Stop();
+		}
 
-			var elapsedMsRefresh = sw.ElapsedMilliseconds;
-
-			if (ParentWindow != null)
-			{
-				//ParentWindow.Title = MainForm.triangleCount.ToString();
-				//ParentWindow.Title = "Tris: "  + MainForm.triangleCount.ToString() + " Move ms: " + elapsedMsMove.ToString() + " Refresh ms: " + elapsedMsRefresh.ToString();
-				ParentWindow.Title = "Move ms: " + elapsedMsMove.ToString() + " Refresh ms: " + elapsedMsRefresh.ToString();
-			}
+		private void InputClock_Elapsed(object sender, EventArgs e)
+		{
+			Controller.Update();
 		}
 
 		private void View_GLInitialized(object sender, EventArgs e)
@@ -246,11 +237,6 @@ namespace Arbatel.Controls
 			// TEST. Also remember to switch Camera to use left-handed, Z-up position at some point.
 			Camera.Position = new Vector3(256.0f, 1024.0f, 1024.0f);
 			Camera.Pitch = -30.0f;
-		}
-
-		private void View_MouseMove(object sender, MouseEventArgs e)
-		{
-			Controller.MouseMove(sender, e);
 		}
 	}
 }

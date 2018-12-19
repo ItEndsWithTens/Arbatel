@@ -23,7 +23,14 @@ namespace Arbatel.Controllers
 			Camera.MinPitch = -89.0f;
 		}
 
-		public override void Move()
+		public override void Update()
+		{
+			UpdateKeyboard();
+
+			UpdateMouse();
+		}
+
+		public override void UpdateKeyboard()
 		{
 			if (Forward)
 			{
@@ -58,7 +65,7 @@ namespace Arbatel.Controllers
 		private OpenTK.Input.MouseState PreviousMouseState;
 		private Vector2 MouseDelta = new Vector2();
 
-		public override void MouseMove(object sender, MouseEventArgs e)
+		public override void UpdateMouse()
 		{
 			CurrentMouseState = OpenTK.Input.Mouse.GetState();
 
