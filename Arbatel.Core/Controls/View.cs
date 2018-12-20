@@ -61,7 +61,31 @@ namespace Arbatel.Controls
 		// -- Eto
 		public UITimer GraphicsClock = new UITimer();
 		public UITimer InputClock = new UITimer();
-		public Label Label = new Label();
+
+		// This was previously accomplished by overriding OnEnabledChanged, but
+		// Eto.Gl is currently built against Eto 2.4.0, whose MacView class, the
+		// base for GLSurface and in turn View, doesn't support that event.
+		public override bool Enabled
+		{
+			get { return base.Enabled; }
+			set
+			{
+				base.Enabled = value;
+
+				if (value == true)
+				{
+					GraphicsClock.Start();
+				}
+				else
+				{
+					GraphicsClock.Stop();
+					InputClock.Stop();
+
+					Controller.MouseLook = false;
+					Style = "showcursor";
+				}
+			}
+		}
 
 		// -- OpenTK
 		public Color4 ClearColor;
@@ -96,10 +120,6 @@ namespace Arbatel.Controls
 			InputClock.Interval = 1.0 / (Fps * 2.0);
 
 			ShadingStyle = ShadingStyle.Wireframe;
-
-			Label.Text = "View";
-			Label.BackgroundColor = Eto.Drawing.Colors.Black;
-			Label.TextColor = Eto.Drawing.Colors.White;
 
 			GraphicsClock.Elapsed += GraphicsClock_Elapsed;
 			InputClock.Elapsed += InputClock_Elapsed;
@@ -161,22 +181,6 @@ namespace Arbatel.Controls
 			// for all visible views, so editing objects is visually smooth everywhere at once.
 			GraphicsClock.Interval = 1.0 / (Fps / 4.0);
 			InputClock.Stop();
-		}
-
-		protected override void OnEnabledChanged(EventArgs e)
-		{
-			if (Enabled)
-			{
-				GraphicsClock.Start();
-			}
-			else
-			{
-				GraphicsClock.Stop();
-				InputClock.Stop();
-
-				Controller.MouseLook = false;
-				Style = "showcursor";
-			}
 		}
 
 		protected override void OnKeyDown(KeyEventArgs e)
