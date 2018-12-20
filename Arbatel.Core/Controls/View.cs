@@ -163,20 +163,20 @@ namespace Arbatel.Controls
 			InputClock.Stop();
 		}
 
-		protected override void OnLoad(EventArgs e)
+		protected override void OnEnabledChanged(EventArgs e)
 		{
-			base.OnLoad(e);
+			if (Enabled)
+			{
+				GraphicsClock.Start();
+			}
+			else
+			{
+				GraphicsClock.Stop();
+				InputClock.Stop();
 
-			GraphicsClock.Start();
-		}
-		protected override void OnUnLoad(EventArgs e)
-		{
-			base.OnUnLoad(e);
-
-			GraphicsClock.Stop();
-
-			Controller.MouseLook = false;
-			Style = "showcursor";
+				Controller.MouseLook = false;
+				Style = "showcursor";
+			}
 		}
 
 		protected override void OnKeyDown(KeyEventArgs e)

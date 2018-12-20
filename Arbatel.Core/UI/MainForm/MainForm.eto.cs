@@ -3,6 +3,7 @@ using Eto.Forms;
 using Eto.Drawing;
 using Arbatel.UI.Preferences;
 using System.Reflection;
+using System.Runtime.InteropServices;
 
 namespace Arbatel.UI
 {
@@ -16,8 +17,10 @@ namespace Arbatel.UI
 			var attribute = (AssemblyProductAttribute)assembly.GetCustomAttribute(typeof(AssemblyProductAttribute));
 			Title = attribute.Product;
 
-			Size = (Size)(Screen.PrimaryScreen.Bounds.Size / 1.5f);
-			Location = (Point)(Screen.WorkingArea.Center - (Size / 2));
+			var screen = Screen.PrimaryScreen;
+
+			Size = (Size)(screen.Bounds.Size / 1.5f);
+			Location = (Point)(screen.WorkingArea.Center - (Size / 2));
 
 			var instanceHidden = new RadioMenuItem { Text = "Hidden" };
 			var instanceTinted = new RadioMenuItem(instanceHidden) { Text = "Tinted", Checked = true };

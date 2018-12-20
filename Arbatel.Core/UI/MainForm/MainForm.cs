@@ -70,7 +70,16 @@ namespace Arbatel.UI
 
 			UpdateTextures(DlgPreferences.LocalSettings, DlgPreferences.RoamingSettings);
 
-			Content = new Viewport(BackEnd) { ID = "viewport" };
+			var viewport = new Viewport(BackEnd) { ID = "viewport" };
+
+			ButtonMenuItem viewMenu = Menu.Items.GetSubmenu("View");
+			foreach (var command in viewport.ViewCommands)
+			{
+				viewMenu.Items.Insert(command.Key, command.Value);
+			}
+			viewMenu.Items.Insert(viewport.ViewCommands.Count, new SeparatorMenuItem());
+
+			Content = viewport;
 
 			UpdateControls(DlgPreferences.RoamingSettings);
 		}
@@ -102,19 +111,6 @@ namespace Arbatel.UI
 			{
 				mo.Init(view3ds);
 			}
-
-			var text = viewport.Views[0] as TextArea;
-
-			// Instead of making the text view mode vertically shorter, just add some phantom
-			// line breaks to push the text down, and make sure to keep the cursor below them.
-			text.Text = "\n\n" + Map.ToString();
-			text.CaretIndex = 2;
-			text.CaretIndexChanged += (sender, e) =>
-			{
-				Title = text.CaretIndex.ToString();
-				text.CaretIndex = text.CaretIndex < 2 ? 2 : text.CaretIndex;
-
-			};
 
 			var tree = viewport.Views[1] as TreeGridView;
 			tree.Columns.Add(new GridColumn() { HeaderText = "Column 1", DataCell = new TextBoxCell(0) });
