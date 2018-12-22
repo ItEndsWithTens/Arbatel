@@ -58,8 +58,25 @@ namespace Arbatel.Controls
 			}
 		}
 
+		private bool _openGLReady = false;
+		public bool OpenGLReady
+		{
+			get { return _openGLReady; }
+			protected set
+			{
+				_openGLReady = value;
+
+				// If Enabled was set true before OpenGL was initialized, the
+				// GraphicsClock didn't start, so give it a nudge if it's time.
+				if (value && Enabled)
+				{
+					Enabled = true;
+				}
+			}
+		}
+
 		// -- Eto
-		public UITimer GraphicsClock = new UITimer();
+		UITimer GraphicsClock = new UITimer();
 		public UITimer InputClock = new UITimer();
 
 		// This was previously accomplished by overriding OnEnabledChanged, but
@@ -72,7 +89,7 @@ namespace Arbatel.Controls
 			{
 				base.Enabled = value;
 
-				if (value == true)
+				if (OpenGLReady && value == true)
 				{
 					GraphicsClock.Start();
 				}
@@ -110,11 +127,10 @@ namespace Arbatel.Controls
 		private static GraphicsMode _mode = new GraphicsMode(new ColorFormat(32), 8, 8, 8);
 
 		// -- Constructors
-		public View() : this(_mode, 3, 3, GraphicsContextFlags.Default)
+		public View() : this(_mode)
 		{
 		}
-		public View(GraphicsMode _mode, int _major, int _minor, GraphicsContextFlags _flags) :
-			base(_mode, _major, _minor, _flags)
+		public View(GraphicsMode _mode) : base(_mode)
 		{
 			Fps = 60.0f;
 			InputClock.Interval = 1.0 / (Fps * 2.0);
@@ -153,8 +169,8 @@ namespace Arbatel.Controls
 
 		// -- Overrides
 		protected override void OnDraw(EventArgs e)
-		{
-			base.OnDraw(e);
+        {
+            base.OnDraw(e);
 
 			// OnDraw only gets called in certain circumstances, for example
 			// when the application window is resized. During such an event,
@@ -212,6 +228,8 @@ namespace Arbatel.Controls
 
 		private void View_GLInitialized(object sender, EventArgs e)
 		{
+			var version = GL.GetString(StringName.Version);
+
 			GL.Enable(EnableCap.DepthTest);
 
 			GL.Enable(EnableCap.CullFace);
@@ -241,6 +259,8 @@ namespace Arbatel.Controls
 			// TEST. Also remember to switch Camera to use left-handed, Z-up position at some point.
 			Camera.Position = new Vector3(256.0f, 1024.0f, 1024.0f);
 			Camera.Pitch = -30.0f;
+
+			OpenGLReady = true;
 		}
 	}
 }

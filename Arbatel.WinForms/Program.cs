@@ -1,13 +1,12 @@
 ﻿using System;
+using Arbatel.Controls;
+using Arbatel.UI;
 using Eto;
 using Eto.Drawing;
 using Eto.Forms;
 using Eto.Gl;
 using Eto.Gl.Windows;
 using OpenTK;
-using OpenTK.Graphics;
-using Arbatel.Controls;
-using Arbatel.UI;
 
 namespace Arbatel.WinForms
 {
@@ -16,6 +15,8 @@ namespace Arbatel.WinForms
 		[STAThread]
 		public static void Main(string[] args)
 		{
+			Toolkit opentk = Startup.InitOpenTK();
+
 			var platform = Platform.Detect;
 
 			platform.Add<GLSurface.IHandler>(() => new WinGLSurfaceHandler());
@@ -51,7 +52,10 @@ namespace Arbatel.WinForms
 			var native = (System.Windows.Forms.ToolStripMenuItem)preferencesItem.ControlObject;
 			native.ShortcutKeyDisplayString = intendedShortcutText;
 
-			application.Run(mainForm);
+			using (opentk)
+			{
+				application.Run(mainForm);
+			}
 		}
 
 		public static void CaptureCursor(View view)

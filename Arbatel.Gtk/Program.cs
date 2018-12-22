@@ -1,10 +1,11 @@
 ﻿using System;
+using Arbatel.Controls;
+using Arbatel.UI;
 using Eto;
 using Eto.Forms;
 using Eto.Gl;
 using Eto.Gl.Gtk;
-using Arbatel.UI;
-using Arbatel.Controls;
+using OpenTK;
 
 namespace Arbatel.Gtk
 {
@@ -13,6 +14,8 @@ namespace Arbatel.Gtk
 		[STAThread]
 		public static void Main(string[] args)
 		{
+			Toolkit opentk = Startup.InitOpenTK();
+
 			var platform = new Eto.GtkSharp.Platform();
 
 			platform.Add<GLSurface.IHandler>(() => new GtkGlSurfaceHandler());
@@ -40,7 +43,10 @@ namespace Arbatel.Gtk
 					Gdk.Pointer.Ungrab(0);
 				});
 
-			new Application(platform).Run(new MainForm());
+			using (opentk)
+			{
+				new Application(platform).Run(new MainForm());
+			}
 		}
 	}
 }

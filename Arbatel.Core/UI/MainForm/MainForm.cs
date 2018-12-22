@@ -53,13 +53,6 @@ namespace Arbatel.UI
 
 		public MainForm()
 		{
-			// Prevent OpenTK from using SDL2 when it's available. The toolkit
-			// tries to initialize that first, by default, not caring that it
-			// doesn't support GLControl. Stepping through the code showed that
-			// OpenTK.Configuration.RunningOnSdl2 was true. A simple search then
-			// revealed the answer: https://github.com/opentk/opentk/issues/266
-			Toolkit.Init(new ToolkitOptions() { Backend = PlatformBackend.PreferNative });
-
 			InitializeComponent();
 
 			InitializeCommands();

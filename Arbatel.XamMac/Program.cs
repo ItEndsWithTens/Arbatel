@@ -4,6 +4,7 @@ using Eto;
 using Eto.Forms;
 using Eto.Gl;
 using Eto.Gl.XamMac;
+using OpenTK;
 using System;
 using System.Runtime.InteropServices;
 
@@ -67,6 +68,8 @@ namespace Arbatel.XamMac
 		[STAThread]
 		public static void Main(string[] args)
 		{
+			Toolkit opentk = Startup.InitOpenTK();
+
 			var platform = new Eto.Mac.Platform();
 
 			platform.Add<GLSurface.IHandler>(() => new MacGLSurfaceHandler());
@@ -87,7 +90,10 @@ namespace Arbatel.XamMac
 					CG.DisplayShowCursor((CGDirectDisplayID)0);
 				});
 
-			new Application(platform).Run(new MainForm());
+			using (opentk)
+			{
+				new Application(platform).Run(new MainForm());
+			}
 		}
 	}
 }
