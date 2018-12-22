@@ -262,6 +262,9 @@ paket-files/
 .idea/
 *.sln.iml
 
+# Re-include dependencies otherwise excluded by the above.
+!lib/**
+
 # =========================
 # Operating System Files
 # =========================
@@ -312,8 +315,3 @@ $RECYCLE.BIN/
 
 # Windows shortcuts
 *.lnk
-
-
-
-# Re-include debugging symbols for external libraries.
-!lib/**/*.pdb
