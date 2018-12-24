@@ -1,8 +1,10 @@
-﻿using OpenTK;
+﻿using Eto;
+using Eto.Forms;
+using OpenTK;
 
 namespace Arbatel
 {
-	public static class Startup
+	public static partial class Core
 	{
 		public static Toolkit InitOpenTK()
 		{
@@ -19,6 +21,19 @@ namespace Arbatel
 			// later can cause issues that are hard to trace, e.g. the program
 			// crashing when first adding a menu with text to a MenuBar.
 			return Toolkit.Init(options);
+		}
+
+		public static void UnhandledExceptionHandler(object sender, UnhandledExceptionEventArgs e)
+		{
+			if (e.ExceptionObject is GraphicsException ge)
+			{
+				MessageBox.Show(ge.Message);
+			}
+
+			if (sender is Application a && a.QuitIsSupported)
+			{
+				a.Quit();
+			}
 		}
 	}
 }

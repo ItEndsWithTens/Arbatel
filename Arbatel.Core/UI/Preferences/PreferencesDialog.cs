@@ -35,11 +35,8 @@ namespace Arbatel.UI.Preferences
 			string localAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
 			string roamingAppData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
 
-			Assembly assembly = Assembly.GetAssembly(typeof(MainForm));
-			var attribute = (AssemblyProductAttribute)assembly.GetCustomAttribute(typeof(AssemblyProductAttribute));
-
-			string localPath = Path.Combine(localAppData, attribute.Product, "LocalSettings.json");
-			string roamingPath = Path.Combine(roamingAppData, attribute.Product, "RoamingSettings.json");
+			string localPath = Path.Combine(localAppData, Core.Name, "LocalSettings.json");
+			string roamingPath = Path.Combine(roamingAppData, Core.Name, "RoamingSettings.json");
 
 			LocalSettings = JsonSettings.Load<LocalSettings>(localPath, ConfigSettings);
 			RoamingSettings = JsonSettings.Load<RoamingSettings>(roamingPath, ConfigSettings);

@@ -1,12 +1,12 @@
-﻿using System;
-using System.Runtime.InteropServices;
-using Arbatel.Controls;
+﻿using Arbatel.Controls;
 using Arbatel.UI;
 using Eto;
 using Eto.Forms;
 using Eto.Gl;
 using Eto.Gl.Mac;
 using OpenTK;
+using System;
+using System.Runtime.InteropServices;
 
 namespace Arbatel.Mac
 {
@@ -68,7 +68,7 @@ namespace Arbatel.Mac
 		[STAThread]
 		public static void Main(string[] args)
 		{
-			Toolkit opentk = Startup.InitOpenTK();
+			Toolkit opentk = Core.InitOpenTK();
 
 			var platform = Platform.Detect;
 
@@ -90,9 +90,12 @@ namespace Arbatel.Mac
 					CG.DisplayShowCursor((CGDirectDisplayID)0);
 				});
 
+			var application = new Application(platform);
+			application.UnhandledException += Core.UnhandledExceptionHandler;
+
 			using (opentk)
 			{
-				new Application(platform).Run(new MainForm());
+				application.Run(new MainForm());
 			}
 		}
 	}

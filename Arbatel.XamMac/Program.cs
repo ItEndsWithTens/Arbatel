@@ -68,7 +68,7 @@ namespace Arbatel.XamMac
 		[STAThread]
 		public static void Main(string[] args)
 		{
-			Toolkit opentk = Startup.InitOpenTK();
+			Toolkit opentk = Core.InitOpenTK();
 
 			var platform = new Eto.Mac.Platform();
 
@@ -90,9 +90,12 @@ namespace Arbatel.XamMac
 					CG.DisplayShowCursor((CGDirectDisplayID)0);
 				});
 
+			var application = new Application(platform);
+			application.UnhandledException += Core.UnhandledExceptionHandler;
+
 			using (opentk)
 			{
-				new Application(platform).Run(new MainForm());
+				application.Run(new MainForm());
 			}
 		}
 	}

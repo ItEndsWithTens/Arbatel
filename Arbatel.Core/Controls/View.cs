@@ -1,4 +1,7 @@
-﻿using Eto;
+﻿using Arbatel.Controllers;
+using Arbatel.Formats;
+using Arbatel.Graphics;
+using Eto;
 using Eto.Forms;
 using Eto.Gl;
 using OpenTK;
@@ -6,10 +9,7 @@ using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL4;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using Arbatel.Controllers;
-using Arbatel.Formats;
-using Arbatel.Graphics;
+using System.Collections.ObjectModel;
 
 namespace Arbatel.Controls
 {
@@ -42,6 +42,24 @@ namespace Arbatel.Controls
 
 	public class View : GLSurface
 	{
+		// OpenGL 3.0 is the lowest version that has all the features this
+		// project needs built in. Vertex array objects are actually the only
+		// feature this project currently uses that's not available in 2.X, but
+		// with the appropriate extension, everything works fine. Unfortunately,
+		// requesting a context of less than 3.2 in macOS will produce a 2.1
+		// context without said extension.
+		public static int GLMajor { get; } = EtoEnvironment.Platform.IsMac ? 3 : 2;
+		public static int GLMinor { get; } = EtoEnvironment.Platform.IsMac ? 2 : 0;
+
+		/// <summary>
+		/// Extensions required to run under OpenGL versions below 3.0.
+		/// </summary>
+		public static ReadOnlyCollection<string> RequiredGLExtensions { get; } =
+			new List<string>
+			{
+				"ARB_vertex_array_object"
+			}.AsReadOnly();
+
 		// -- System types
 		private float _fps;
 		public float Fps
@@ -130,7 +148,7 @@ namespace Arbatel.Controls
 		public View() : this(_mode)
 		{
 		}
-		public View(GraphicsMode _mode) : base(_mode)
+		public View(GraphicsMode _mode) : base(_mode, GLMajor, GLMinor, GraphicsContextFlags.ForwardCompatible)
 		{
 			Fps = 60.0f;
 			InputClock.Interval = 1.0 / (Fps * 2.0);
@@ -228,7 +246,42 @@ namespace Arbatel.Controls
 
 		private void View_GLInitialized(object sender, EventArgs e)
 		{
-			var version = GL.GetString(StringName.Version);
+			string version = GL.GetString(StringName.Version);
+
+			string[] split = version.Split('.', ' ');
+
+			bool gotMajor = int.TryParse(split[0], out int glMajor);
+			bool gotMinor = int.TryParse(split[1], out int glMinor);
+
+			if (gotMajor && gotMinor)
+			{
+				if (glMajor < 3)
+				{
+					string extensions = GL.GetString(StringName.Extensions);
+
+					var missing = new List<string>();
+
+					foreach (string extension in RequiredGLExtensions)
+					{
+						if (!extensions.Contains(extension))
+						{
+							missing.Add(extension);
+						}
+					}
+
+					if (missing.Count > 0)
+					{
+						string message = $"{Core.Name} needs at least OpenGL 3.0, or these missing extensions:\n\n";
+						message += String.Join("\n", missing.ToArray());
+
+						throw new GraphicsException(message);
+					}
+				}
+			}
+			else
+			{
+				throw new GraphicsException("Couldn't parse OpenGL version string!");
+			}
 
 			GL.Enable(EnableCap.DepthTest);
 
@@ -245,12 +298,12 @@ namespace Arbatel.Controls
 			// float signature therefore avoids an unnecessary System.Drawing reference.
 			GL.ClearColor(ClearColor.R, ClearColor.G, ClearColor.B, ClearColor.A);
 
-			Shader.GetGlslVersion(out int major, out int minor);
+			Shader.GetGlslVersion(out int glslMajor, out int glslMinor);
 			Shaders = new Dictionary<ShadingStyle, Shader>
 			{
 				{ ShadingStyle.Wireframe, new Shader() { Backend = Backend } },
-				{ ShadingStyle.Flat, new FlatShader(major, minor) { Backend = Backend } },
-				{ ShadingStyle.Textured, new SingleTextureShader(major, minor) { Backend = Backend } }
+				{ ShadingStyle.Flat, new FlatShader(glslMajor, glslMinor) { Backend = Backend } },
+				{ ShadingStyle.Textured, new SingleTextureShader(glslMajor, glslMinor) { Backend = Backend } }
 			};
 
 			// FIXME: Causes InvalidEnum from GL.GetError, at least on my OpenGL 2.1, GLSL 1.2, Intel HD Graphics laptop.
