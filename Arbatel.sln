@@ -1,9 +1,8 @@
-
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.27130.2026
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Arbatel.Core", "Arbatel.Core\Arbatel.Core.csproj", "{A5FFC3A4-78CA-44F2-B8A8-F18DADF1690A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Arbatel.Core", "Arbatel.Core\Arbatel.Core.csproj", "{A5FFC3A4-78CA-44F2-B8A8-F18DADF1690A}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Arbatel.WinForms", "Arbatel.WinForms\Arbatel.WinForms.csproj", "{4925B6D7-8B10-43D7-8CA9-D7A03B2B622E}"
 EndProject
@@ -11,11 +10,16 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ArbatelTest.Core", "Arbatel
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Arbatel.Wpf", "Arbatel.Wpf\Arbatel.Wpf.csproj", "{63B65D5D-D3F6-4C18-B4B4-75A0DFEEE635}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Arbatel.Mac", "Arbatel.Mac\Arbatel.Mac.csproj", "{82126DF9-6E7A-4DB4-8C78-7406786CC70C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Arbatel.Mac", "Arbatel.Mac\Arbatel.Mac.csproj", "{82126DF9-6E7A-4DB4-8C78-7406786CC70C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Arbatel.Gtk", "Arbatel.Gtk\Arbatel.Gtk.csproj", "{94AE77B4-896E-4184-B351-A2E35F98535E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Arbatel.Gtk", "Arbatel.Gtk\Arbatel.Gtk.csproj", "{94AE77B4-896E-4184-B351-A2E35F98535E}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Arbatel.XamMac", "Arbatel.XamMac\Arbatel.XamMac.csproj", "{73F11BF1-A18D-4091-B451-C884FDDD922F}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{16A799F0-6BE4-430B-9D9C-2645193C7ED3}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
