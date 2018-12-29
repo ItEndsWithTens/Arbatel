@@ -17,7 +17,7 @@ namespace Arbatel.WinForms
 		{
 			Toolkit opentk = Core.InitOpenTK();
 
-			var platform = Platform.Detect;
+			Platform platform = Platform.Detect;
 
 			platform.Add<GLSurface.IHandler>(() => new WinGLSurfaceHandler());
 

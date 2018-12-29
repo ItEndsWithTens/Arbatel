@@ -1,0 +1,20 @@
+﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+  <!--  
+  <Target Name="Clean">
+    <RemoveDir Directories="$(OutputPath)" />
+  </Target>
+
+  <ItemGroup>
+    <Blobus Include="$(OutputPath)\*" />
+  </ItemGroup>
+  
+  <Target Name="Package">
+    <Message Text="$(MSBuildThisFileDirectory)" />
+    <Zip
+      Files="@(Blobus)"
+      WorkingDirectory="$(OutputPath)"
+      ZipFileName="$(OutputPath)\CrystalsOfGringief.zip" />
+  </Target>-->
+
+</Project>

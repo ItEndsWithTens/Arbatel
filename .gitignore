@@ -5,6 +5,8 @@ MigrationBackup/
 # design plans, a todo list, and general notes. Useful, but not for the repo.
 scratch/
 
+staging/
+
 # J.A.C.K. backups of .map files
 *.max
 
@@ -264,6 +266,9 @@ paket-files/
 
 # Re-include dependencies otherwise excluded by the above.
 !lib/**
+
+tools/*
+!tools/packages.config
 
 # =========================
 # Operating System Files

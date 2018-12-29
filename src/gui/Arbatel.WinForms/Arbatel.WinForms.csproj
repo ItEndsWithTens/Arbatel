@@ -7,7 +7,7 @@
     <OutputType>WinExe</OutputType>
     <RootNamespace>Arbatel.WinForms</RootNamespace>
     <AssemblyName>Arbatel</AssemblyName>
-    <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <DoNotCopyLocalIfInGac>true</DoNotCopyLocalIfInGac>
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
@@ -36,10 +36,10 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Eto.Gl">
-      <HintPath>..\lib\thirdparty\Eto.Gl\Eto.Gl\Debug\Eto.Gl.dll</HintPath>
+      <HintPath>..\..\..\lib\thirdparty\Eto.Gl\Eto.Gl\Debug\Eto.Gl.dll</HintPath>
     </Reference>
     <Reference Include="Eto.Gl.Windows">
-      <HintPath>..\lib\thirdparty\Eto.Gl\Eto.Gl.WinForms\Debug\Eto.Gl.Windows.dll</HintPath>
+      <HintPath>..\..\..\lib\thirdparty\Eto.Gl\Eto.Gl.WinForms\Debug\Eto.Gl.Windows.dll</HintPath>
     </Reference>
     <Reference Include="System.Drawing" />
     <Reference Include="System.Runtime.Serialization" />
@@ -53,18 +53,15 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Eto.Forms">
-      <Version>2.5.0-ci-10063</Version>
-    </PackageReference>
-    <PackageReference Include="Eto.Platform.Windows">
-      <Version>2.5.0-ci-10063</Version>
-    </PackageReference>
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Arbatel.Core\Arbatel.Core.csproj">
+    <ProjectReference Include="..\..\Arbatel.Core\Arbatel.Core.csproj">
       <Project>{a5ffc3a4-78ca-44f2-b8a8-f18dadf1690a}</Project>
       <Name>Arbatel.Core</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Eto.Platform.Windows">
+      <Version>2.5.0-ci-10063</Version>
+    </PackageReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>

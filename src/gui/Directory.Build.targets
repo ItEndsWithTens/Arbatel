@@ -1,0 +1,22 @@
+﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+  <!-- The output GUI executables' config files are hideous enough, the -->
+  <!-- least a build process could do is keep this project's various -->
+  <!-- dependencies organized. This, in combination with the App.config -->
+  <!-- files and their 'probing' element's 'privatePath' parameter, will -->
+  <!-- make the directory structure as clean and presentable as possible. -->
+  <Target Name="NeatenizeLibraries" AfterTargets="Build">
+    <ItemGroup>
+      <Uglies Include="$(OutputPath)*" />
+      <Uglies Remove="$(OutputPath)$(AssemblyName).exe" />
+      <Uglies Remove="$(OutputPath)$(AssemblyName).exe.config" />
+      <Uglies Remove="$(OutputPath)$(AssemblyName).pdb" />
+    </ItemGroup>
+    <Move SourceFiles="@(Uglies)" DestinationFolder="$(OutputPath)lib" />
+  </Target>
+
+  <Target Name="RemoveLibDirectory" AfterTargets="Clean" BeforeTargets="Build">
+    <RemoveDir Directories="$(OutputPath)lib" />
+  </Target>
+
+</Project>

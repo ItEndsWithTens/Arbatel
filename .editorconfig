@@ -58,7 +58,7 @@ dotnet_style_prefer_auto_properties = true
 dotnet_style_coalesce_expression = true
 dotnet_style_null_propagation = true
 
-[*.csproj]
+[*.{csproj,props,targets}]
 
 indent_style = space
 indent_size = 2
