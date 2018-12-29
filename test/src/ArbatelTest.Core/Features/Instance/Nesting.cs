@@ -1,27 +1,21 @@
-﻿using Eto.Drawing;
+﻿using Arbatel.Formats;
+using Arbatel.Formats.Quake;
+using Arbatel.UI;
+using Arbatel.Utilities;
+using Eto.Drawing;
 using NUnit.Framework;
 using OpenTK;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
-using Arbatel.Formats;
-using Arbatel.Formats.Quake;
-using Arbatel.UI;
-using Arbatel.Utilities;
 
 namespace ArbatelTest.Core.Features.Instance
 {
 	public class Nesting
 	{
-		public static char Sep { get; private set; }
-
 		public static string DataDirectory { get; private set; }
 		public static string FgdDirectory { get; private set; }
-		public static string ResourceDirectory { get; private set; }
 
 		public static DefinitionDictionary Fgd { get; private set; }
 
@@ -36,37 +30,24 @@ namespace ArbatelTest.Core.Features.Instance
 			public void SetUp()
 			{
 				Assembly assembly = Assembly.GetExecutingAssembly();
+				string location = Path.GetDirectoryName(assembly.Location);
 
-				Sep = Path.DirectorySeparatorChar;
+				DataDirectory = Path.Combine(location, "..", "..", "..", "..", "data");
+				FgdDirectory = Path.Combine(location, "..", "..", "..", "..", "..", "extras");
 
-				DataDirectory =
-					Path.GetDirectoryName(assembly.Location) + Sep
-					+ ".." + Sep + ".." + Sep
-					+ "data" + Sep;
-
-				FgdDirectory =
-					Path.GetDirectoryName(assembly.Location) + Sep
-					+ ".." + Sep + ".." + Sep + ".." + Sep
-					+ "extras" + Sep;
-
-				ResourceDirectory =
-					Path.GetDirectoryName(assembly.Location) + Sep
-					+ ".." + Sep + ".." + Sep + ".." + Sep
-					+ "res" + Sep;
-
-				var ericwFilename = FgdDirectory + "quake4ericwTools.fgd";
+				string ericwFilename = Path.Combine(FgdDirectory, "quake4ericwTools.fgd");
 				var ericw = new QuakeFgd(ericwFilename);
 
-				var instanceFilename = FgdDirectory + "func_instance.fgd";
+				string instanceFilename = Path.Combine(FgdDirectory, "func_instance.fgd");
 				var instance = new QuakeFgd(instanceFilename);
 
 				Fgd = new List<DefinitionDictionary>() { ericw, instance }.Stack();
 
-				var paletteName = "palette-quake.lmp";
-				var stream = Assembly.GetAssembly(typeof(MainForm)).GetResourceStream(paletteName);
-				var palette = new Palette().LoadQuakePalette(stream);
+				string paletteName = "palette-quake.lmp";
+				Stream stream = Assembly.GetAssembly(typeof(MainForm)).GetResourceStream(paletteName);
+				Palette palette = new Palette().LoadQuakePalette(stream);
 
-				var wadFilename = DataDirectory + "test.wad";
+				string wadFilename = Path.Combine(DataDirectory, "test.wad");
 				Textures = new Wad2(wadFilename, palette);
 			}
 		}
@@ -80,7 +61,7 @@ namespace ArbatelTest.Core.Features.Instance
 			[SetUp]
 			public void SetUp()
 			{
-				Filename = DataDirectory + "instance" + Sep + "arrow_wedge.map";
+				Filename = Path.Combine(DataDirectory, "instance", "arrow_wedge.map");
 
 				using (var stream = new FileStream(Filename, FileMode.Open, FileAccess.Read))
 				{
@@ -91,7 +72,7 @@ namespace ArbatelTest.Core.Features.Instance
 			[TestCase]
 			public void WedgePositionIsCorrect()
 			{
-				var wedge = Map.MapObjects[1];
+				MapObject wedge = Map.MapObjects[1];
 
 				Assert.That(wedge.Definition.ClassName, Is.EqualTo("func_wall"));
 
@@ -108,7 +89,7 @@ namespace ArbatelTest.Core.Features.Instance
 			[TestCase]
 			public void LightPositionIsCorrect()
 			{
-				var light = Map.MapObjects[2];
+				MapObject light = Map.MapObjects[2];
 
 				Assert.That(light.Definition.ClassName, Is.EqualTo("light"));
 
@@ -132,7 +113,7 @@ namespace ArbatelTest.Core.Features.Instance
 			[SetUp]
 			public void SetUp()
 			{
-				Filename = DataDirectory + "instance" + Sep + "arrow_wedge_holder.map";
+				Filename = Path.Combine(DataDirectory, "instance", "arrow_wedge_holder.map");
 
 				using (var stream = new FileStream(Filename, FileMode.Open, FileAccess.Read))
 				{
@@ -143,7 +124,7 @@ namespace ArbatelTest.Core.Features.Instance
 			[TestCase]
 			public void InstancePositionIsCorrectBeforeCollapse()
 			{
-				var instance = Map.MapObjects[1];
+				MapObject instance = Map.MapObjects[1];
 
 				Assert.That(instance.Definition.ClassName, Is.EqualTo("func_instance"));
 
@@ -160,9 +141,9 @@ namespace ArbatelTest.Core.Features.Instance
 			[TestCase]
 			public void WedgePositionIsCorrectAfterCollapse()
 			{
-				var collapsed = Map.Collapse();
+				Map collapsed = Map.Collapse();
 
-				var wedge = collapsed.MapObjects[1];
+				MapObject wedge = collapsed.MapObjects[1];
 
 				Assert.That(wedge.Definition.ClassName, Is.EqualTo("func_wall"));
 
@@ -179,9 +160,9 @@ namespace ArbatelTest.Core.Features.Instance
 			[TestCase]
 			public void LightPositionIsCorrectAfterCollapse()
 			{
-				var collapsed = Map.Collapse();
+				Map collapsed = Map.Collapse();
 
-				var light = collapsed.MapObjects[2];
+				MapObject light = collapsed.MapObjects[2];
 
 				Assert.That(light.Definition.ClassName, Is.EqualTo("light"));
 
@@ -198,14 +179,14 @@ namespace ArbatelTest.Core.Features.Instance
 			[TestCase]
 			public void LightOriginKeyIsCorrectAfterCollapse()
 			{
-				var collapsed = Map.Collapse();
+				Map collapsed = Map.Collapse();
 
-				var light = collapsed.MapObjects[2];
+				MapObject light = collapsed.MapObjects[2];
 
 				Assert.That(light.Definition.ClassName, Is.EqualTo("light"));
 
 				var expected = new Vector3(512, -224, 160);
-				var actual = Formatting.StringToVector3(light.KeyVals["origin"].Value);
+				Vector3 actual = Formatting.StringToVector3(light.KeyVals["origin"].Value);
 
 				Assert.Multiple(() =>
 				{
@@ -225,7 +206,7 @@ namespace ArbatelTest.Core.Features.Instance
 			[SetUp]
 			public void SetUp()
 			{
-				Filename = DataDirectory + "instance_test-arrow_wedge.map";
+				Filename = Path.Combine(DataDirectory, "instance_test-arrow_wedge.map");
 
 				using (var stream = new FileStream(Filename, FileMode.Open, FileAccess.Read))
 				{
@@ -236,7 +217,7 @@ namespace ArbatelTest.Core.Features.Instance
 			[TestCase]
 			public void InstancePositionIsCorrectBeforeCollapse()
 			{
-				var instance = Map.MapObjects[1];
+				MapObject instance = Map.MapObjects[1];
 
 				Assert.That(instance.Definition.ClassName, Is.EqualTo("func_instance"));
 
@@ -253,9 +234,9 @@ namespace ArbatelTest.Core.Features.Instance
 			[TestCase]
 			public void WedgePositionIsCorrectAfterCollapse()
 			{
-				var collapsed = Map.Collapse();
+				Map collapsed = Map.Collapse();
 
-				var wedge = collapsed.MapObjects[1];
+				MapObject wedge = collapsed.MapObjects[1];
 
 				Assert.That(wedge.Definition.ClassName, Is.EqualTo("func_wall"));
 
@@ -272,9 +253,9 @@ namespace ArbatelTest.Core.Features.Instance
 			[TestCase]
 			public void LightPositionIsCorrectAfterCollapse()
 			{
-				var collapsed = Map.Collapse();
+				Map collapsed = Map.Collapse();
 
-				var light = collapsed.MapObjects[2];
+				MapObject light = collapsed.MapObjects[2];
 
 				Assert.That(light.Definition.ClassName, Is.EqualTo("light"));
 
@@ -291,14 +272,14 @@ namespace ArbatelTest.Core.Features.Instance
 			[TestCase]
 			public void LightOriginKeyIsCorrectAfterCollapse()
 			{
-				var collapsed = Map.Collapse();
+				Map collapsed = Map.Collapse();
 
-				var light = collapsed.MapObjects[2];
+				MapObject light = collapsed.MapObjects[2];
 
 				Assert.That(light.Definition.ClassName, Is.EqualTo("light"));
 
 				var expected = new Vector3(-384, 352, 288);
-				var actual = Formatting.StringToVector3(light.KeyVals["origin"].Value);
+				Vector3 actual = Formatting.StringToVector3(light.KeyVals["origin"].Value);
 
 				Assert.Multiple(() =>
 				{

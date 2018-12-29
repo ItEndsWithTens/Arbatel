@@ -12,6 +12,7 @@ using SharpCompress.Compressors.Deflate;
 using SharpCompress.Writers;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Text;
@@ -23,13 +24,56 @@ using static Nuke.Common.Tools.Nunit.NunitTasks;
 
 class Build : NukeBuild
 {
+	const string ProjectName = "Arbatel";
+
+	AbsolutePath ArtifactsDirectory => RootDirectory / "artifacts";
+	AbsolutePath SourceDirectory => RootDirectory / "src";
+	AbsolutePath StagingDirectory => RootDirectory / "staging";
+	AbsolutePath TestSourceDirectory => RootDirectory / "test" / "src";
+
+	[Parameter("Configuration to build - Default is 'Debug' (local) or 'Release' (server)")]
+	readonly string Configuration = IsLocalBuild ? "Debug" : "Release";
+
+	[Solution(ProjectName + ".sln")]
+	readonly Solution Solution;
+
+	[GitRepository]
+	readonly GitRepository GitRepository;
+
+	[GitVersion]
+	readonly GitVersion GitVersion;
+
+	public static Dictionary<PlatformFamily, string> OsFriendlyName = new Dictionary<PlatformFamily, string>
+	{
+		{ PlatformFamily.Unknown, "" },
+		{ PlatformFamily.Windows, "Windows" },
+		{ PlatformFamily.Linux, "Linux" },
+		{ PlatformFamily.OSX, "macOS" },
+	};
+
+	/// <summary>
+	/// Find the full path of a copy of MSBuild, as installed by Visual Studio
+	/// 2017 on a Windows system. Assumes VS2017 Update 2 or newer is installed.
+	/// </summary>
+	/// <returns></returns>
 	public static string GetMsBuildPath()
 	{
 		// Visual Studio 2017 Update 2 and newer install vswhere by default.
 		return GetMsBuildPath("vswhere.exe");
 	}
+	/// <summary>
+	/// Find the full path of a copy of MSBuild, as installed by Visual Studio
+	/// 2017 on a Windows system.
+	/// </summary>
+	/// <param name="vswherePath">The path to a copy of Microsoft's "vswhere" utility.</param>
+	/// <returns>The full path to MSBuild.exe</returns>
 	public static string GetMsBuildPath(string vswherePath)
 	{
+		if (!EnvironmentInfo.IsWin)
+		{
+			throw new PlatformNotSupportedException("GetMsBuildPath only works in Windows!");
+		}
+
 		string args = "-latest -products * -requires Microsoft.Component.MSBuild";
 
 		var vswhere = new Process();
@@ -69,24 +113,6 @@ class Build : NukeBuild
 		return Execute<Build>(x => x.PackageWindows);
 	}
 
-	[Parameter("Configuration to build - Default is 'Debug' (local) or 'Release' (server)")]
-	readonly string Configuration = IsLocalBuild ? "Debug" : "Release";
-
-	const string ProjectName = "Arbatel";
-
-	[Solution(ProjectName + ".sln")]
-	readonly Solution Solution;
-
-	[GitRepository]
-	readonly GitRepository GitRepository;
-
-	[GitVersion]
-	readonly GitVersion GitVersion;
-
-	AbsolutePath ArtifactsDirectory => RootDirectory / "artifacts";
-	AbsolutePath StagingDirectory => RootDirectory / "staging";
-	AbsolutePath SourceDirectory => RootDirectory / "src";
-
 	Target Clean => _ => _
 		.Executes(() =>
 		{
@@ -101,13 +127,19 @@ class Build : NukeBuild
 			// trigger an incremental build. The core will have been built anew,
 			// and no time will be wasted rebuilding it for every GUI app.
 
+			var files = new List<string>();
+			files.AddRange(GlobFiles(SourceDirectory, "**/bin/**/*", "**/obj/**/*"));
+			files.AddRange(GlobFiles(TestSourceDirectory, "**/bin/**/*", "**/obj/**/*"));
+
 			// Make sure all files are gone first; can't remove empty folders.
-			foreach (string file in GlobFiles(SourceDirectory, "**/bin/**/*", "**/obj/**/*"))
+			foreach (string file in files)
 			{
 				DeleteFile(file);
 			}
 
-			IEnumerable<string> directories = GlobDirectories(SourceDirectory, "**/bin/**", "**/obj/**");
+			var directories = new List<string>();
+			directories.AddRange(GlobDirectories(SourceDirectory, "**/bin/**", "**/obj/**"));
+			directories.AddRange(GlobDirectories(TestSourceDirectory, "**/bin/**", "**/obj/**"));
 
 			// Sort paths by length, and reverse to delete the deepest first;
 			// the parent levels will then be empty and cleanly deletable.
@@ -123,19 +155,25 @@ class Build : NukeBuild
 		.DependsOn(Clean)
 		.Executes(() =>
 		{
-			string msbuildPath = GetMsBuildPath();
-
 			AbsolutePath projectDir = RootDirectory / "src" / $"{ProjectName}.Core";
 			AbsolutePath project = projectDir / $"{ProjectName}.Core.csproj";
 
-			MSBuildProject parsed = MSBuildParseProject(project, s => s.SetToolPath(msbuildPath));
+			// Windows developers with Visual Studio installed to a directory
+			// other than System.Environment.SpecialFolder.ProgramFilesX86 need
+			// to tell Nuke the path to MSBuild.exe themselves.
+			var settings = new MSBuildSettings();
+			if (EnvironmentInfo.IsWin)
+			{
+				settings = settings.SetToolPath(GetMsBuildPath());
+			}
+
+			MSBuildProject parsed = MSBuildParseProject(project, s => settings);
 
 			AbsolutePath buildDir = projectDir / parsed.Properties["OutputPath"];
 
 			NuGetRestore(project);
 
-			MSBuild(s => new MSBuildSettings()
-				.SetToolPath(msbuildPath)
+			MSBuild(s => settings
 				.SetProjectFile(project)
 				.SetTargets("Build")
 				.SetConfiguration(Configuration)
@@ -150,22 +188,24 @@ class Build : NukeBuild
 		.DependsOn(CompileCore)
 		.Executes(() =>
 		{
-			// Currently, Nuke can only find C drive installations of VS.
-			string msbuildPath = GetMsBuildPath();
-
-			foreach (string platform in new string[] { "WinForms" })//, "Wpf" })
+			foreach (string etoPlatform in new string[] { "WinForms", "Wpf" })
 			{
-				AbsolutePath projectDir = RootDirectory / "src" / "gui" / $"{ProjectName}.{platform}";
-				AbsolutePath project = projectDir / $"{ProjectName}.{platform}.csproj";
+				AbsolutePath projectDir = RootDirectory / "src" / "gui" / $"{ProjectName}.{etoPlatform}";
+				AbsolutePath project = projectDir / $"{ProjectName}.{etoPlatform}.csproj";
 
-				MSBuildProject parsed = MSBuildParseProject(project, s => s.SetToolPath(msbuildPath));
+				var settings = new MSBuildSettings();
+				if (EnvironmentInfo.IsWin)
+				{
+					settings = settings.SetToolPath(GetMsBuildPath());
+				}
+
+				MSBuildProject parsed = MSBuildParseProject(project, s => settings);
 
 				AbsolutePath buildDir = projectDir / parsed.Properties["OutputPath"];
 
 				NuGetRestore(project);
 
-				MSBuild(s => new MSBuildSettings()
-					.SetToolPath(msbuildPath)
+				MSBuild(s => settings
 					.SetProjectFile(project)
 					.SetTargets("Build")
 					.SetConfiguration(Configuration)
@@ -175,7 +215,7 @@ class Build : NukeBuild
 					.SetMaxCpuCount(Environment.ProcessorCount)
 					.SetNodeReuse(IsLocalBuild));
 
-				CopyDirectoryRecursively(buildDir, StagingDirectory);
+				CopyDirectoryRecursively(buildDir, StagingDirectory / $"{etoPlatform}");
 			}
 		});
 
@@ -187,22 +227,21 @@ class Build : NukeBuild
 
 			NuGetRestore(project);
 
-			MSBuildSettings settings = new MSBuildSettings()
-				.SetProjectFile(project)
-				.SetTargets("Rebuild")
-				.SetConfiguration(Configuration)
-				.SetAssemblyVersion(GitVersion.GetNormalizedAssemblyVersion())
-				.SetFileVersion(GitVersion.GetNormalizedFileVersion())
-				.SetInformationalVersion(GitVersion.InformationalVersion)
-				.SetMaxCpuCount(Environment.ProcessorCount)
-				.SetNodeReuse(IsLocalBuild);
-
+			var settings = new MSBuildSettings();
 			if (EnvironmentInfo.IsWin)
 			{
 				settings = settings.SetToolPath(GetMsBuildPath());
 			}
 
-			MSBuild(s => settings);
+			MSBuild(s => settings
+				.SetProjectFile(project)
+				.SetTargets("Build")
+				.SetConfiguration(Configuration)
+				.SetAssemblyVersion(GitVersion.GetNormalizedAssemblyVersion())
+				.SetFileVersion(GitVersion.GetNormalizedFileVersion())
+				.SetInformationalVersion(GitVersion.InformationalVersion)
+				.SetMaxCpuCount(Environment.ProcessorCount)
+				.SetNodeReuse(IsLocalBuild));
 		});
 
 	Target TestWindows => _ => _
@@ -210,23 +249,27 @@ class Build : NukeBuild
 		.Executes(() =>
 		 {
 			 Nunit3(s => new Nunit3Settings()
-				.SetInputFiles(RootDirectory / "test" / $"{ProjectName}Test.Core" / ".csproj"));
+				.SetInputFiles(RootDirectory / "test" / "src" / $"{ProjectName}Test.Core" / $"{ProjectName}Test.Core.csproj"));
 		 });
 
 	Target PackageWindows => _ => _
-		//.DependsOn(TestWindows)
-		.DependsOn(CompileWindows)
+		.DependsOn(TestWindows)
 		.Executes(() =>
 		{
-			EnsureExistingDirectory(ArtifactsDirectory);
-
-			using (var archive = ZipArchive.Create())
+			foreach (string etoPlatform in new string[] { "WinForms", "Wpf" })
 			{
-				archive.DeflateCompressionLevel = CompressionLevel.BestCompression;
-				archive.AddAllFromDirectory(StagingDirectory);
+				AbsolutePath subDir = ArtifactsDirectory / etoPlatform;
 
-				string name = String.Join('-', ProjectName, GitVersion.SemVer, EnvironmentInfo.Platform);
-				archive.SaveTo(ArtifactsDirectory / name + ".zip", new WriterOptions(CompressionType.Deflate));
+				EnsureExistingDirectory(subDir);
+
+				using (var archive = ZipArchive.Create())
+				{
+					archive.DeflateCompressionLevel = CompressionLevel.BestCompression;
+					archive.AddAllFromDirectory(StagingDirectory / etoPlatform);
+
+					string name = String.Join('-', ProjectName, GitVersion.MajorMinorPatch, OsFriendlyName[EnvironmentInfo.Platform]);
+					archive.SaveTo(subDir / name + ".zip", new WriterOptions(CompressionType.Deflate));
+				}
 			}
 		});
 }

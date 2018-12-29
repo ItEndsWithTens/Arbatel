@@ -1,12 +1,8 @@
-﻿using OpenTK;
+﻿using Arbatel.Graphics;
 using NUnit.Framework;
+using OpenTK;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Arbatel;
-using Arbatel.Graphics;
 
 namespace ArbatelTest.Core.GraphicsTest
 {
@@ -36,7 +32,7 @@ namespace ArbatelTest.Core.GraphicsTest
 				[TestCase]
 				public void PositiveDistanceFacingAwayFromOriginCcw()
 				{
-					var a = new Vector3(256, 256, 0); 
+					var a = new Vector3(256, 256, 0);
 					var b = new Vector3(256, 0, 256);
 					var c = new Vector3(256, 0, 0);
 					var plane = new Plane(a, b, c, Winding.Ccw);
@@ -81,7 +77,7 @@ namespace ArbatelTest.Core.GraphicsTest
 				[TestCase]
 				public void NegativeDistanceFacingAwayFromOriginCw()
 				{
-					var a = new Vector3(-256, 256, 0); 
+					var a = new Vector3(-256, 256, 0);
 					var b = new Vector3(-256, 0, 256);
 					var c = new Vector3(-256, 0, 0);
 					var plane = new Plane(a, b, c, Winding.Cw);
@@ -111,7 +107,7 @@ namespace ArbatelTest.Core.GraphicsTest
 			public class IntersectionTest
 			{
 				// With apologies to Bruce Dawson.
-				const float Tolerance = 0.01f;
+				private const float Tolerance = 0.02f;
 
 				[TestCase]
 				public void PlanesDoNotIntersect()
@@ -133,9 +129,9 @@ namespace ArbatelTest.Core.GraphicsTest
 
 					Vector3 intersection = Plane.Intersect(planeA, planeB, planeC);
 
-					Assert.That(intersection.X, Is.EqualTo(float.NaN));
-					Assert.That(intersection.Y, Is.EqualTo(float.NaN));
-					Assert.That(intersection.Z, Is.EqualTo(float.NaN));
+					Assert.That(intersection.X, Is.EqualTo(Single.NaN));
+					Assert.That(intersection.Y, Is.EqualTo(Single.NaN));
+					Assert.That(intersection.Z, Is.EqualTo(Single.NaN));
 				}
 
 				[TestCase]
@@ -191,17 +187,17 @@ namespace ArbatelTest.Core.GraphicsTest
 				[TestCase]
 				public void PlanesIntersectCw()
 				{
-					var a = new Vector3(-256.0f, 512.0f, 512.0f); 
+					var a = new Vector3(-256.0f, 512.0f, 512.0f);
 					var b = new Vector3(-256.0f, 512.0f, 0.0f);
 					var c = new Vector3(-256.0f, 0.0f, 0.0f);
 					var planeA = new Plane(a, b, c, Winding.Cw);
 
-					a = new Vector3(-768.0f, 512.0f, 512.0f); 
+					a = new Vector3(-768.0f, 512.0f, 512.0f);
 					b = new Vector3(-256.0f, 512.0f, 512.0f);
 					c = new Vector3(-256.0f, 0.0f, 512.0f);
 					var planeB = new Plane(a, b, c, Winding.Cw);
 
-					a = new Vector3(-256.0f, 0.0f, 512.0f); 
+					a = new Vector3(-256.0f, 0.0f, 512.0f);
 					b = new Vector3(-768.0f, 0.0f, 0.0f);
 					c = new Vector3(-768.0f, 0.0f, 512.0f);
 					var planeC = new Plane(a, b, c, Winding.Cw);

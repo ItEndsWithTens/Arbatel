@@ -1,9 +1,5 @@
-﻿using NUnit.Framework;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Eto;
+using NUnit.Framework;
 
 namespace ArbatelTest.Core.Features.Instance
 {
@@ -13,9 +9,9 @@ namespace ArbatelTest.Core.Features.Instance
 		[OneTimeSetUp]
 		public void SetUp()
 		{
-			var platform = Eto.Platform.Detect;
+			Platform platform = Platform.Detect;
 
-			Eto.Platform.Initialize(platform);
+			Platform.Initialize(platform);
 		}
 	}
 }

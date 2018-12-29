@@ -1,28 +1,21 @@
-﻿using Eto.Drawing;
-using NUnit.Framework;
-using OpenTK;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
-using Arbatel.Formats;
+﻿using Arbatel.Formats;
 using Arbatel.Formats.Quake;
 using Arbatel.Graphics;
 using Arbatel.UI;
 using Arbatel.Utilities;
+using Eto.Drawing;
+using NUnit.Framework;
+using OpenTK;
+using System.Collections.Generic;
+using System.IO;
+using System.Reflection;
 
 namespace ArbatelTest.Core.Features.Instance
 {
 	public class Pitch
 	{
-		public static char Sep { get; private set; }
-
 		public static string DataDirectory { get; private set; }
 		public static string FgdDirectory { get; private set; }
-		public static string ResourceDirectory { get; private set; }
 
 		public static DefinitionDictionary Fgd { get; private set; }
 
@@ -37,37 +30,24 @@ namespace ArbatelTest.Core.Features.Instance
 			public void SetUp()
 			{
 				Assembly assembly = Assembly.GetExecutingAssembly();
+				string location = Path.GetDirectoryName(assembly.Location);
 
-				Sep = Path.DirectorySeparatorChar;
+				DataDirectory = Path.Combine(location, "..", "..", "..", "..", "data");
+				FgdDirectory = Path.Combine(location, "..", "..", "..", "..", "..", "extras");
 
-				DataDirectory =
-					Path.GetDirectoryName(assembly.Location) + Sep
-					+ ".." + Sep + ".." + Sep
-					+ "data" + Sep;
-
-				FgdDirectory =
-					Path.GetDirectoryName(assembly.Location) + Sep
-					+ ".." + Sep + ".." + Sep + ".." + Sep
-					+ "extras" + Sep;
-
-				ResourceDirectory =
-					Path.GetDirectoryName(assembly.Location) + Sep
-					+ ".." + Sep + ".." + Sep + ".." + Sep
-					+ "res" + Sep;
-
-				var ericwFilename = FgdDirectory + "quake4ericwTools.fgd";
+				string ericwFilename = Path.Combine(FgdDirectory, "quake4ericwTools.fgd");
 				var ericw = new QuakeFgd(ericwFilename);
 
-				var instanceFilename = FgdDirectory + "func_instance.fgd";
+				string instanceFilename = Path.Combine(FgdDirectory, "func_instance.fgd");
 				var instance = new QuakeFgd(instanceFilename);
 
 				Fgd = new List<DefinitionDictionary>() { ericw, instance }.Stack();
 
-				var paletteName = "palette-quake.lmp";
-				var stream = Assembly.GetAssembly(typeof(MainForm)).GetResourceStream(paletteName);
-				var palette = new Palette().LoadQuakePalette(stream);
+				string paletteName = "palette-quake.lmp";
+				Stream stream = Assembly.GetAssembly(typeof(MainForm)).GetResourceStream(paletteName);
+				Palette palette = new Palette().LoadQuakePalette(stream);
 
-				var wadFilename = DataDirectory + "test.wad";
+				string wadFilename = Path.Combine(DataDirectory, "test.wad");
 				Textures = new Wad2(wadFilename, palette);
 			}
 		}
@@ -81,7 +61,7 @@ namespace ArbatelTest.Core.Features.Instance
 			[SetUp]
 			public void SetUp()
 			{
-				Filename = DataDirectory + "instance" + Sep + "rotation_instance.map";
+				Filename = Path.Combine(DataDirectory, "instance", "rotation_instance.map");
 
 				using (var stream = new FileStream(Filename, FileMode.Open, FileAccess.Read))
 				{
@@ -92,7 +72,7 @@ namespace ArbatelTest.Core.Features.Instance
 			[TestCase]
 			public void WedgePositionIsCorrect()
 			{
-				var wedge = Map.MapObjects[3];
+				MapObject wedge = Map.MapObjects[3];
 
 				Assert.That(wedge.Definition.ClassName, Is.EqualTo("func_wall"));
 
@@ -109,7 +89,7 @@ namespace ArbatelTest.Core.Features.Instance
 			[TestCase]
 			public void LightWithManglePositionIsCorrect()
 			{
-				var light = Map.MapObjects[1];
+				MapObject light = Map.MapObjects[1];
 
 				Assert.That(light.Definition.ClassName, Is.EqualTo("light"));
 				Assert.That(light.KeyVals["targetname"].Value, Is.EqualTo("has_mangle"));
@@ -127,7 +107,7 @@ namespace ArbatelTest.Core.Features.Instance
 			[TestCase]
 			public void LightWithoutManglePositionIsCorrect()
 			{
-				var light = Map.MapObjects[2];
+				MapObject light = Map.MapObjects[2];
 
 				Assert.That(light.Definition.ClassName, Is.EqualTo("light"));
 				Assert.That(light.KeyVals["targetname"].Value, Is.EqualTo("no_mangle"));
@@ -152,7 +132,7 @@ namespace ArbatelTest.Core.Features.Instance
 			[SetUp]
 			public void SetUp()
 			{
-				Filename = DataDirectory + "instance_test-pitch.map";
+				Filename = Path.Combine(DataDirectory, "instance_test-pitch.map");
 
 				using (var stream = new FileStream(Filename, FileMode.Open, FileAccess.Read))
 				{
@@ -163,7 +143,7 @@ namespace ArbatelTest.Core.Features.Instance
 			[TestCase]
 			public void InstancePositionIsCorrectBeforeCollapse()
 			{
-				var instance = Map.MapObjects[1];
+				MapObject instance = Map.MapObjects[1];
 
 				Assert.That(instance.Definition.ClassName, Is.EqualTo("func_instance"));
 
@@ -180,9 +160,9 @@ namespace ArbatelTest.Core.Features.Instance
 			[TestCase]
 			public void WedgePositionIsCorrectAfterCollapse()
 			{
-				var collapsed = Map.Collapse();
+				Map collapsed = Map.Collapse();
 
-				var wedge = collapsed.MapObjects[3];
+				MapObject wedge = collapsed.MapObjects[3];
 
 				Assert.That(wedge.Definition.ClassName, Is.EqualTo("func_wall"));
 
@@ -199,9 +179,9 @@ namespace ArbatelTest.Core.Features.Instance
 			[TestCase]
 			public void LightWithManglePositionIsCorrectAfterCollapse()
 			{
-				var collapsed = Map.Collapse();
+				Map collapsed = Map.Collapse();
 
-				var light = collapsed.MapObjects[1];
+				MapObject light = collapsed.MapObjects[1];
 
 				Assert.That(light.Definition.ClassName, Is.EqualTo("light"));
 				Assert.That(light.KeyVals["targetname"].Value, Is.EqualTo("has_mangle"));
@@ -219,9 +199,9 @@ namespace ArbatelTest.Core.Features.Instance
 			[TestCase]
 			public void LightWithoutManglePositionIsCorrectAfterCollapse()
 			{
-				var collapsed = Map.Collapse();
+				Map collapsed = Map.Collapse();
 
-				var light = collapsed.MapObjects[2];
+				MapObject light = collapsed.MapObjects[2];
 
 				Assert.That(light.Definition.ClassName, Is.EqualTo("light"));
 				Assert.That(light.KeyVals["targetname"].Value, Is.EqualTo("no_mangle"));
@@ -239,7 +219,7 @@ namespace ArbatelTest.Core.Features.Instance
 			[TestCase]
 			public void LightWithoutMangleRenderableVerticesAreCorrectAfterCollapse()
 			{
-				QuakeMap collapsed = (QuakeMap)Map.Collapse();
+				var collapsed = (QuakeMap)Map.Collapse();
 
 				MapObject light = collapsed.MapObjects[2];
 
@@ -273,11 +253,8 @@ namespace ArbatelTest.Core.Features.Instance
 
 	public class Yaw
 	{
-		public static char Sep { get; private set; }
-
 		public static string DataDirectory { get; private set; }
 		public static string FgdDirectory { get; private set; }
-		public static string ResourceDirectory { get; private set; }
 
 		public static DefinitionDictionary Fgd { get; private set; }
 
@@ -292,37 +269,24 @@ namespace ArbatelTest.Core.Features.Instance
 			public void SetUp()
 			{
 				Assembly assembly = Assembly.GetExecutingAssembly();
+				string location = Path.GetDirectoryName(assembly.Location);
 
-				Sep = Path.DirectorySeparatorChar;
+				DataDirectory = Path.Combine(location, "..", "..", "..", "..", "data");
+				FgdDirectory = Path.Combine(location, "..", "..", "..", "..", "..", "extras");
 
-				DataDirectory =
-					Path.GetDirectoryName(assembly.Location) + Sep
-					+ ".." + Sep + ".." + Sep
-					+ "data" + Sep;
-
-				FgdDirectory =
-					Path.GetDirectoryName(assembly.Location) + Sep
-					+ ".." + Sep + ".." + Sep + ".." + Sep
-					+ "extras" + Sep;
-
-				ResourceDirectory =
-					Path.GetDirectoryName(assembly.Location) + Sep
-					+ ".." + Sep + ".." + Sep + ".." + Sep
-					+ "res" + Sep;
-
-				var ericwFilename = FgdDirectory + "quake4ericwTools.fgd";
+				string ericwFilename = Path.Combine(FgdDirectory, "quake4ericwTools.fgd");
 				var ericw = new QuakeFgd(ericwFilename);
 
-				var instanceFilename = FgdDirectory + "func_instance.fgd";
+				string instanceFilename = Path.Combine(FgdDirectory, "func_instance.fgd");
 				var instance = new QuakeFgd(instanceFilename);
 
 				Fgd = new List<DefinitionDictionary>() { ericw, instance }.Stack();
 
-				var paletteName = "palette-quake.lmp";
-				var stream = Assembly.GetAssembly(typeof(MainForm)).GetResourceStream(paletteName);
-				var palette = new Palette().LoadQuakePalette(stream);
+				string paletteName = "palette-quake.lmp";
+				Stream stream = Assembly.GetAssembly(typeof(MainForm)).GetResourceStream(paletteName);
+				Palette palette = new Palette().LoadQuakePalette(stream);
 
-				var wadFilename = DataDirectory + "test.wad";
+				string wadFilename = Path.Combine(DataDirectory, "test.wad");
 				Textures = new Wad2(wadFilename, palette);
 			}
 		}
@@ -336,7 +300,7 @@ namespace ArbatelTest.Core.Features.Instance
 			[SetUp]
 			public void SetUp()
 			{
-				Filename = DataDirectory + "instance" + Sep + "rotation_instance.map";
+				Filename = Path.Combine(DataDirectory, "instance", "rotation_instance.map");
 
 				using (var stream = new FileStream(Filename, FileMode.Open, FileAccess.Read))
 				{
@@ -347,7 +311,7 @@ namespace ArbatelTest.Core.Features.Instance
 			[TestCase]
 			public void WedgePositionIsCorrect()
 			{
-				var wedge = Map.MapObjects[3];
+				MapObject wedge = Map.MapObjects[3];
 
 				Assert.That(wedge.Definition.ClassName, Is.EqualTo("func_wall"));
 
@@ -364,7 +328,7 @@ namespace ArbatelTest.Core.Features.Instance
 			[TestCase]
 			public void LightWithManglePositionIsCorrect()
 			{
-				var light = Map.MapObjects[1];
+				MapObject light = Map.MapObjects[1];
 
 				Assert.That(light.Definition.ClassName, Is.EqualTo("light"));
 				Assert.That(light.KeyVals["targetname"].Value, Is.EqualTo("has_mangle"));
@@ -382,7 +346,7 @@ namespace ArbatelTest.Core.Features.Instance
 			[TestCase]
 			public void LightWithoutManglePositionIsCorrect()
 			{
-				var light = Map.MapObjects[2];
+				MapObject light = Map.MapObjects[2];
 
 				Assert.That(light.Definition.ClassName, Is.EqualTo("light"));
 				Assert.That(light.KeyVals["targetname"].Value, Is.EqualTo("no_mangle"));
@@ -407,7 +371,7 @@ namespace ArbatelTest.Core.Features.Instance
 			[SetUp]
 			public void SetUp()
 			{
-				Filename = DataDirectory + "instance_test-yaw.map";
+				Filename = Path.Combine(DataDirectory, "instance_test-yaw.map");
 
 				using (var stream = new FileStream(Filename, FileMode.Open, FileAccess.Read))
 				{
@@ -418,7 +382,7 @@ namespace ArbatelTest.Core.Features.Instance
 			[TestCase]
 			public void InstancePositionIsCorrectBeforeCollapse()
 			{
-				var instance = Map.MapObjects[1];
+				MapObject instance = Map.MapObjects[1];
 
 				Assert.That(instance.Definition.ClassName, Is.EqualTo("func_instance"));
 
@@ -435,9 +399,9 @@ namespace ArbatelTest.Core.Features.Instance
 			[TestCase]
 			public void WedgePositionIsCorrectAfterCollapse()
 			{
-				var collapsed = Map.Collapse();
+				Map collapsed = Map.Collapse();
 
-				var wedge = collapsed.MapObjects[3];
+				MapObject wedge = collapsed.MapObjects[3];
 
 				Assert.That(wedge.Definition.ClassName, Is.EqualTo("func_wall"));
 
@@ -454,9 +418,9 @@ namespace ArbatelTest.Core.Features.Instance
 			[TestCase]
 			public void LightWithManglePositionIsCorrectAfterCollapse()
 			{
-				var collapsed = Map.Collapse();
+				Map collapsed = Map.Collapse();
 
-				var light = collapsed.MapObjects[1];
+				MapObject light = collapsed.MapObjects[1];
 
 				Assert.That(light.Definition.ClassName, Is.EqualTo("light"));
 				Assert.That(light.KeyVals["targetname"].Value, Is.EqualTo("has_mangle"));
@@ -474,9 +438,9 @@ namespace ArbatelTest.Core.Features.Instance
 			[TestCase]
 			public void LightWithoutManglePositionIsCorrectAfterCollapse()
 			{
-				var collapsed = Map.Collapse();
+				Map collapsed = Map.Collapse();
 
-				var light = collapsed.MapObjects[2];
+				MapObject light = collapsed.MapObjects[2];
 
 				Assert.That(light.Definition.ClassName, Is.EqualTo("light"));
 				Assert.That(light.KeyVals["targetname"].Value, Is.EqualTo("no_mangle"));
@@ -494,7 +458,7 @@ namespace ArbatelTest.Core.Features.Instance
 			[TestCase]
 			public void LightWithoutMangleRenderableVerticesAreCorrectAfterCollapse()
 			{
-				QuakeMap collapsed = (QuakeMap)Map.Collapse();
+				var collapsed = (QuakeMap)Map.Collapse();
 
 				MapObject light = collapsed.MapObjects[2];
 
@@ -528,11 +492,8 @@ namespace ArbatelTest.Core.Features.Instance
 
 	public class Roll
 	{
-		public static char Sep { get; private set; }
-
 		public static string DataDirectory { get; private set; }
 		public static string FgdDirectory { get; private set; }
-		public static string ResourceDirectory { get; private set; }
 
 		public static DefinitionDictionary Fgd { get; private set; }
 
@@ -547,37 +508,24 @@ namespace ArbatelTest.Core.Features.Instance
 			public void SetUp()
 			{
 				Assembly assembly = Assembly.GetExecutingAssembly();
+				string location = Path.GetDirectoryName(assembly.Location);
 
-				Sep = Path.DirectorySeparatorChar;
+				DataDirectory = Path.Combine(location, "..", "..", "..", "..", "data");
+				FgdDirectory = Path.Combine(location, "..", "..", "..", "..", "..", "extras");
 
-				DataDirectory =
-					Path.GetDirectoryName(assembly.Location) + Sep
-					+ ".." + Sep + ".." + Sep
-					+ "data" + Sep;
-
-				FgdDirectory =
-					Path.GetDirectoryName(assembly.Location) + Sep
-					+ ".." + Sep + ".." + Sep + ".." + Sep
-					+ "extras" + Sep;
-
-				ResourceDirectory =
-					Path.GetDirectoryName(assembly.Location) + Sep
-					+ ".." + Sep + ".." + Sep + ".." + Sep
-					+ "res" + Sep;
-
-				var ericwFilename = FgdDirectory + "quake4ericwTools.fgd";
+				string ericwFilename = Path.Combine(FgdDirectory, "quake4ericwTools.fgd");
 				var ericw = new QuakeFgd(ericwFilename);
 
-				var instanceFilename = FgdDirectory + "func_instance.fgd";
+				string instanceFilename = Path.Combine(FgdDirectory, "func_instance.fgd");
 				var instance = new QuakeFgd(instanceFilename);
 
 				Fgd = new List<DefinitionDictionary>() { ericw, instance }.Stack();
 
-				var paletteName = "palette-quake.lmp";
-				var stream = Assembly.GetAssembly(typeof(MainForm)).GetResourceStream(paletteName);
-				var palette = new Palette().LoadQuakePalette(stream);
+				string paletteName = "palette-quake.lmp";
+				Stream stream = Assembly.GetAssembly(typeof(MainForm)).GetResourceStream(paletteName);
+				Palette palette = new Palette().LoadQuakePalette(stream);
 
-				var wadFilename = DataDirectory + "test.wad";
+				string wadFilename = Path.Combine(DataDirectory, "test.wad");
 				Textures = new Wad2(wadFilename, palette);
 			}
 		}
@@ -591,7 +539,7 @@ namespace ArbatelTest.Core.Features.Instance
 			[SetUp]
 			public void SetUp()
 			{
-				Filename = DataDirectory + "instance" + Sep + "rotation_instance.map";
+				Filename = Path.Combine(DataDirectory, "instance", "rotation_instance.map");
 
 				using (var stream = new FileStream(Filename, FileMode.Open, FileAccess.Read))
 				{
@@ -602,7 +550,7 @@ namespace ArbatelTest.Core.Features.Instance
 			[TestCase]
 			public void WedgePositionIsCorrect()
 			{
-				var wedge = Map.MapObjects[3];
+				MapObject wedge = Map.MapObjects[3];
 
 				Assert.That(wedge.Definition.ClassName, Is.EqualTo("func_wall"));
 
@@ -619,7 +567,7 @@ namespace ArbatelTest.Core.Features.Instance
 			[TestCase]
 			public void LightWithManglePositionIsCorrect()
 			{
-				var light = Map.MapObjects[1];
+				MapObject light = Map.MapObjects[1];
 
 				Assert.That(light.Definition.ClassName, Is.EqualTo("light"));
 				Assert.That(light.KeyVals["targetname"].Value, Is.EqualTo("has_mangle"));
@@ -637,7 +585,7 @@ namespace ArbatelTest.Core.Features.Instance
 			[TestCase]
 			public void LightWithoutManglePositionIsCorrect()
 			{
-				var light = Map.MapObjects[2];
+				MapObject light = Map.MapObjects[2];
 
 				Assert.That(light.Definition.ClassName, Is.EqualTo("light"));
 				Assert.That(light.KeyVals["targetname"].Value, Is.EqualTo("no_mangle"));
@@ -662,7 +610,7 @@ namespace ArbatelTest.Core.Features.Instance
 			[SetUp]
 			public void SetUp()
 			{
-				Filename = DataDirectory + "instance_test-roll.map";
+				Filename = Path.Combine(DataDirectory, "instance_test-roll.map");
 
 				using (var stream = new FileStream(Filename, FileMode.Open, FileAccess.Read))
 				{
@@ -673,7 +621,7 @@ namespace ArbatelTest.Core.Features.Instance
 			[TestCase]
 			public void InstancePositionIsCorrectBeforeCollapse()
 			{
-				var instance = Map.MapObjects[1];
+				MapObject instance = Map.MapObjects[1];
 
 				Assert.That(instance.Definition.ClassName, Is.EqualTo("func_instance"));
 
@@ -690,9 +638,9 @@ namespace ArbatelTest.Core.Features.Instance
 			[TestCase]
 			public void WedgePositionIsCorrectAfterCollapse()
 			{
-				var collapsed = Map.Collapse();
+				Map collapsed = Map.Collapse();
 
-				var wedge = collapsed.MapObjects[3];
+				MapObject wedge = collapsed.MapObjects[3];
 
 				Assert.That(wedge.Definition.ClassName, Is.EqualTo("func_wall"));
 
@@ -709,9 +657,9 @@ namespace ArbatelTest.Core.Features.Instance
 			[TestCase]
 			public void LightWithManglePositionIsCorrectAfterCollapse()
 			{
-				var collapsed = Map.Collapse();
+				Map collapsed = Map.Collapse();
 
-				var light = collapsed.MapObjects[1];
+				MapObject light = collapsed.MapObjects[1];
 
 				Assert.That(light.Definition.ClassName, Is.EqualTo("light"));
 				Assert.That(light.KeyVals["targetname"].Value, Is.EqualTo("has_mangle"));
@@ -729,9 +677,9 @@ namespace ArbatelTest.Core.Features.Instance
 			[TestCase]
 			public void LightWithoutManglePositionIsCorrectAfterCollapse()
 			{
-				var collapsed = Map.Collapse();
+				Map collapsed = Map.Collapse();
 
-				var light = collapsed.MapObjects[2];
+				MapObject light = collapsed.MapObjects[2];
 
 				Assert.That(light.Definition.ClassName, Is.EqualTo("light"));
 				Assert.That(light.KeyVals["targetname"].Value, Is.EqualTo("no_mangle"));
@@ -749,7 +697,7 @@ namespace ArbatelTest.Core.Features.Instance
 			[TestCase]
 			public void LightWithoutMangleRenderableVerticesAreCorrectAfterCollapse()
 			{
-				QuakeMap collapsed = (QuakeMap)Map.Collapse();
+				var collapsed = (QuakeMap)Map.Collapse();
 
 				MapObject light = collapsed.MapObjects[2];
 
