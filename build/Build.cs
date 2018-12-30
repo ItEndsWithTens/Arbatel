@@ -7,6 +7,8 @@ using Nuke.Common.Tools.MSBuild;
 using Nuke.Common.Tools.Nunit;
 using SharpCompress.Archives;
 using SharpCompress.Archives.Zip;
+using SharpCompress.Archives.Tar;
+using SharpCompress.Archives.GZip;
 using SharpCompress.Common;
 using SharpCompress.Compressors.Deflate;
 using SharpCompress.Writers;
@@ -21,6 +23,8 @@ using static Nuke.Common.IO.PathConstruction;
 using static Nuke.Common.Tools.MSBuild.MSBuildTasks;
 using static Nuke.Common.Tools.NuGet.NuGetTasks;
 using static Nuke.Common.Tools.Nunit.NunitTasks;
+using SharpCompress.Writers;
+using SharpCompress.Writers.GZip;
 
 class Build : NukeBuild
 {
@@ -110,7 +114,14 @@ class Build : NukeBuild
 
 	public static int Main()
 	{
-		return Execute<Build>(x => x.PackageWindows);
+		if (EnvironmentInfo.IsOsx)
+		{
+			return Execute<Build>(x => x.PackageMac);
+		}
+		else
+		{
+			return Execute<Build>(x => x.PackageWindows);
+		}
 	}
 
 	Target Clean => _ => _
@@ -219,6 +230,41 @@ class Build : NukeBuild
 			}
 		});
 
+	Target CompileMac => _ => _
+		.DependsOn(CompileCore)
+		.Executes(() =>
+		{
+			foreach (string etoPlatform in new string[] { "Mac", "XamMac" })
+			{
+				AbsolutePath projectDir = RootDirectory / "src" / "gui" / $"{ProjectName}.{etoPlatform}";
+				AbsolutePath project = projectDir / $"{ProjectName}.{etoPlatform}.csproj";
+
+				var settings = new MSBuildSettings();
+				if (EnvironmentInfo.IsWin)
+				{
+					settings = settings.SetToolPath(GetMsBuildPath());
+				}
+
+				MSBuildProject parsed = MSBuildParseProject(project, s => settings);
+
+				AbsolutePath buildDir = projectDir / parsed.Properties["OutputPath"];
+
+				NuGetRestore(project);
+
+				MSBuild(s => settings
+					.SetProjectFile(project)
+					.SetTargets("Build")
+					.SetConfiguration(Configuration)
+					.SetAssemblyVersion(GitVersion.GetNormalizedAssemblyVersion())
+					.SetFileVersion(GitVersion.GetNormalizedFileVersion())
+					.SetInformationalVersion(GitVersion.InformationalVersion)
+					.SetMaxCpuCount(Environment.ProcessorCount)
+					.SetNodeReuse(IsLocalBuild));
+
+				CopyDirectoryRecursively(buildDir, StagingDirectory / $"{etoPlatform}");
+			}
+		});
+
 	Target CompileTests => _ => _
 		.DependsOn(CompileCore)
 		.Executes(() =>
@@ -252,15 +298,23 @@ class Build : NukeBuild
 				.SetInputFiles(RootDirectory / "test" / "src" / $"{ProjectName}Test.Core" / $"{ProjectName}Test.Core.csproj"));
 		 });
 
+	Target TestMac => _ => _
+		.DependsOn(CompileMac, CompileTests)
+		.Executes(() =>
+		{
+			//Nunit3(s => new Nunit3Settings()
+			   //.SetInputFiles(RootDirectory / "test" / "src" / $"{ProjectName}Test.Core" / $"{ProjectName}Test.Core.csproj"));
+		});
+
 	Target PackageWindows => _ => _
 		.DependsOn(TestWindows)
 		.Executes(() =>
 		{
 			foreach (string etoPlatform in new string[] { "WinForms", "Wpf" })
 			{
-				AbsolutePath subDir = ArtifactsDirectory / etoPlatform;
+				AbsolutePath finalDir = ArtifactsDirectory / etoPlatform;
 
-				EnsureExistingDirectory(subDir);
+				EnsureExistingDirectory(finalDir);
 
 				using (var archive = ZipArchive.Create())
 				{
@@ -268,8 +322,28 @@ class Build : NukeBuild
 					archive.AddAllFromDirectory(StagingDirectory / etoPlatform);
 
 					string name = String.Join('-', ProjectName, GitVersion.MajorMinorPatch, OsFriendlyName[EnvironmentInfo.Platform]);
-					archive.SaveTo(subDir / name + ".zip", new WriterOptions(CompressionType.Deflate));
+					archive.SaveTo(finalDir / name + ".zip", new WriterOptions(CompressionType.Deflate));
 				}
+			}
+		});
+
+	Target PackageMac => _ => _
+		.DependsOn(TestMac)
+		.Executes(() =>
+		{
+			foreach (string etoPlatform in new string[] { "Mac", "XamMac" })
+			{
+				AbsolutePath finalDir = ArtifactsDirectory / etoPlatform;
+
+				EnsureExistingDirectory(finalDir);
+
+				string name = String.Join('-', ProjectName, GitVersion.MajorMinorPatch, OsFriendlyName[EnvironmentInfo.Platform]);
+
+				var tarball = TarArchive.Create();
+
+				// Remember that macOS .app bundles are directories, not files.
+				tarball.AddAllFromDirectory(StagingDirectory / etoPlatform, $"{ProjectName}.{etoPlatform}.app/*", SearchOption.AllDirectories);
+				tarball.SaveTo(finalDir / name + ".tar.gz", new WriterOptions(CompressionType.GZip));
 			}
 		});
 }

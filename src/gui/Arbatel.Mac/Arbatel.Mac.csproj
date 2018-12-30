@@ -1,10 +1,10 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-	
+
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>net461</TargetFramework>
+    <TargetFramework>net471</TargetFramework>
   </PropertyGroup>
-	
+
   <ItemGroup>
     <PackageReference Include="Eto.Platform.Mac64" Version="2.5.0-ci-10063" />
   </ItemGroup>

@@ -8,8 +8,9 @@
     <OutputType>Exe</OutputType>
     <RootNamespace>Arbatel.XamMac</RootNamespace>
     <AssemblyName>Arbatel.XamMac</AssemblyName>
-    <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.7.1</TargetFrameworkVersion>
     <MonoMacResourcePrefix>Resources</MonoMacResourcePrefix>
+    <UseXamMacFullFramework>false</UseXamMacFullFramework>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -87,21 +88,24 @@
     <Compile Include="Program.cs" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="Eto.Platform.XamMac2">
+      <Version>2.5.0-ci-10063</Version>
+    </PackageReference>
+    <PackageReference Include="OpenTK">
+      <Version>3.0.1</Version>
+    </PackageReference>
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\..\Arbatel.Core\Arbatel.Core.csproj">
       <Project>{A5FFC3A4-78CA-44F2-B8A8-F18DADF1690A}</Project>
       <Name>Arbatel.Core</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="Eto.Platform.XamMac2">
-      <Version>2.5.0-ci-10063</Version>
-    </PackageReference>
-  </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Mac\Xamarin.Mac.CSharp.targets" />
   <Target Name="ReplaceOpenTK" AfterTargets="Build">
     <!-- Swap out the busted old version of OpenTK that Xamarin insists on. -->
     <ItemGroup>
-      <OpenTK Include="$(TargetDir)\OpenTK.*" />
+      <OpenTK Include="$(TargetDir)\lib\OpenTK.*" />
     </ItemGroup>
     <Copy SourceFiles="@(OpenTK)" DestinationFolder="$(OutputAppPath)\Contents\MonoBundle" />
   </Target>
