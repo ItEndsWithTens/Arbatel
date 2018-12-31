@@ -6,15 +6,13 @@ using Nuke.Common.Tools.GitVersion;
 using Nuke.Common.Tools.MSBuild;
 using Nuke.Common.Tools.Nunit;
 using SharpCompress.Archives;
-using SharpCompress.Archives.Zip;
 using SharpCompress.Archives.Tar;
-using SharpCompress.Archives.GZip;
+using SharpCompress.Archives.Zip;
 using SharpCompress.Common;
 using SharpCompress.Compressors.Deflate;
 using SharpCompress.Writers;
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Text;
@@ -23,8 +21,6 @@ using static Nuke.Common.IO.PathConstruction;
 using static Nuke.Common.Tools.MSBuild.MSBuildTasks;
 using static Nuke.Common.Tools.NuGet.NuGetTasks;
 using static Nuke.Common.Tools.Nunit.NunitTasks;
-using SharpCompress.Writers;
-using SharpCompress.Writers.GZip;
 
 class Build : NukeBuild
 {
@@ -182,9 +178,8 @@ class Build : NukeBuild
 
 			AbsolutePath buildDir = projectDir / parsed.Properties["OutputPath"];
 
-			NuGetRestore(project);
-
 			MSBuild(s => settings
+				.EnableRestore()
 				.SetProjectFile(project)
 				.SetTargets("Build")
 				.SetConfiguration(Configuration)
@@ -214,9 +209,8 @@ class Build : NukeBuild
 
 				AbsolutePath buildDir = projectDir / parsed.Properties["OutputPath"];
 
-				NuGetRestore(project);
-
 				MSBuild(s => settings
+					.EnableRestore()
 					.SetProjectFile(project)
 					.SetTargets("Build")
 					.SetConfiguration(Configuration)
@@ -249,9 +243,8 @@ class Build : NukeBuild
 
 				AbsolutePath buildDir = projectDir / parsed.Properties["OutputPath"];
 
-				NuGetRestore(project);
-
 				MSBuild(s => settings
+					.EnableRestore()
 					.SetProjectFile(project)
 					.SetTargets("Build")
 					.SetConfiguration(Configuration)
@@ -271,8 +264,6 @@ class Build : NukeBuild
 		{
 			string project = RootDirectory / "test" / "src" / $"{ProjectName}Test.Core" / $"{ProjectName}Test.Core.csproj";
 
-			NuGetRestore(project);
-
 			var settings = new MSBuildSettings();
 			if (EnvironmentInfo.IsWin)
 			{
@@ -280,6 +271,7 @@ class Build : NukeBuild
 			}
 
 			MSBuild(s => settings
+				.EnableRestore()
 				.SetProjectFile(project)
 				.SetTargets("Build")
 				.SetConfiguration(Configuration)
