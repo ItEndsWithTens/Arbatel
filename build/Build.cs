@@ -55,7 +55,7 @@ class Build : NukeBuild
 	/// Find the full path of a copy of MSBuild, as installed by Visual Studio
 	/// 2017 on a Windows system. Assumes VS2017 Update 2 or newer is installed.
 	/// </summary>
-	/// <returns></returns>
+	/// <returns>The full path to MSBuild.exe</returns>
 	public static string GetMsBuildPath()
 	{
 		// Visual Studio 2017 Update 2 and newer install vswhere by default.
@@ -113,6 +113,10 @@ class Build : NukeBuild
 		if (EnvironmentInfo.IsOsx)
 		{
 			return Execute<Build>(x => x.PackageMac);
+		}
+		else if (EnvironmentInfo.IsLinux)
+		{
+			return Execute<Build>(x => x.PackageLinux);
 		}
 		else
 		{
@@ -224,6 +228,38 @@ class Build : NukeBuild
 			}
 		});
 
+	Target CompileLinux => _ => _
+		.DependsOn(CompileCore)
+		.Executes(() =>
+		{
+			string etoPlatform = "Gtk";
+
+			Project project = Solution.GetProject($"{ProjectName}.{etoPlatform}");
+
+			var settings = new MSBuildSettings();
+			if (EnvironmentInfo.IsWin)
+			{
+				settings = settings.SetToolPath(GetMsBuildPath());
+			}
+
+			MSBuildProject parsed = MSBuildParseProject(project, s => settings);
+
+			AbsolutePath buildDir = project.Directory / parsed.Properties["OutputPath"];
+
+			MSBuild(s => settings
+				.EnableRestore()
+				.SetProjectFile(project)
+				.SetTargets("Build")
+				.SetConfiguration(Configuration)
+				.SetAssemblyVersion(GitVersion.GetNormalizedAssemblyVersion())
+				.SetFileVersion(GitVersion.GetNormalizedFileVersion())
+				.SetInformationalVersion(GitVersion.InformationalVersion)
+				.SetMaxCpuCount(Environment.ProcessorCount)
+				.SetNodeReuse(IsLocalBuild));
+
+			CopyDirectoryRecursively(buildDir, StagingDirectory / $"{etoPlatform}");
+		});
+
 	Target CompileMac => _ => _
 		.DependsOn(CompileCore)
 		.Executes(() =>
@@ -290,12 +326,20 @@ class Build : NukeBuild
 				.SetInputFiles(RootDirectory / "test" / "src" / $"{ProjectName}Test.Core" / $"{ProjectName}Test.Core.csproj"));
 		 });
 
+	Target TestLinux => _ => _
+		.DependsOn(CompileLinux, CompileTests)
+		.Executes(() =>
+		{
+			//Nunit3(s => new Nunit3Settings()
+				//.SetInputFiles(Solution.GetProject($"{ProjectName}Test.Core")));
+		});
+
 	Target TestMac => _ => _
 		.DependsOn(CompileMac, CompileTests)
 		.Executes(() =>
 		{
 			//Nunit3(s => new Nunit3Settings()
-			   //.SetInputFiles(RootDirectory / "test" / "src" / $"{ProjectName}Test.Core" / $"{ProjectName}Test.Core.csproj"));
+				//.SetInputFiles(RootDirectory / "test" / "src" / $"{ProjectName}Test.Core" / $"{ProjectName}Test.Core.csproj"));
 		});
 
 	Target PackageWindows => _ => _
@@ -317,6 +361,24 @@ class Build : NukeBuild
 					archive.SaveTo(finalDir / name + ".zip", new WriterOptions(CompressionType.Deflate));
 				}
 			}
+		});
+
+	Target PackageLinux => _ => _
+		.DependsOn(TestLinux)
+		.Executes(() =>
+		{
+			string etoPlatform = "Gtk";
+
+			AbsolutePath finalDir = ArtifactsDirectory / etoPlatform;
+
+			EnsureExistingDirectory(finalDir);
+
+			string name = String.Join('-', ProjectName, GitVersion.MajorMinorPatch, OsFriendlyName[EnvironmentInfo.Platform]);
+
+			var tarball = TarArchive.Create();
+
+			tarball.AddAllFromDirectory(StagingDirectory / etoPlatform);
+			tarball.SaveTo(finalDir / name + ".tar.gz", new WriterOptions(CompressionType.GZip));
 		});
 
 	Target PackageMac => _ => _
