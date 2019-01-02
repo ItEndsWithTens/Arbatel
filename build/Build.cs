@@ -393,11 +393,19 @@ class Build : NukeBuild
 
 				string name = String.Join('-', ProjectName, GitVersion.MajorMinorPatch, OsFriendlyName[EnvironmentInfo.Platform]);
 
-				var tarball = TarArchive.Create();
+				var dmgbuild = new Process();
+				dmgbuild.StartInfo.FileName = "dmgbuild";
+				dmgbuild.StartInfo.Arguments =
+					$"-s " + BuildProjectDirectory / "dmgbuild-settings.py" +
+					" -D app=" + StagingDirectory / etoPlatform / $"{ProjectName}.{etoPlatform}.app" +
+					$" {ProjectName} " +
+					finalDir / name + ".dmg";
 
-				// Remember that macOS .app bundles are directories, not files.
-				tarball.AddAllFromDirectory(StagingDirectory / etoPlatform, $"{ProjectName}.{etoPlatform}.app/*", SearchOption.AllDirectories);
-				tarball.SaveTo(finalDir / name + ".tar.gz", new WriterOptions(CompressionType.GZip));
+				dmgbuild.StartInfo.UseShellExecute = false;
+				dmgbuild.StartInfo.CreateNoWindow = true;
+
+				dmgbuild.Start();
+				dmgbuild.WaitForExit();
 			}
 		});
 }
