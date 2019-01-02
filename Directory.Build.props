@@ -8,7 +8,7 @@
 
   <PropertyGroup>
     <AssemblyVersion>0.1.0</AssemblyVersion>
-    <Company>Big Dumb Idiot</Company>
+    <Company>Rob Martens</Company>
     <Copyright>Copyright © 2018</Copyright>
     <Product>Arbatel</Product>
   </PropertyGroup>
