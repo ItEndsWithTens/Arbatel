@@ -1,9 +1,7 @@
-using System;
-using Eto.Forms;
-using Eto.Drawing;
 using Arbatel.UI.Preferences;
+using Eto.Drawing;
+using Eto.Forms;
 using System.Reflection;
-using System.Runtime.InteropServices;
 
 namespace Arbatel.UI
 {
@@ -17,7 +15,7 @@ namespace Arbatel.UI
 			var attribute = (AssemblyProductAttribute)assembly.GetCustomAttribute(typeof(AssemblyProductAttribute));
 			Title = attribute.Product;
 
-			var screen = Screen.PrimaryScreen;
+			Screen screen = Screen.PrimaryScreen;
 
 			Size = (Size)(screen.Bounds.Size / 1.5f);
 			Location = (Point)(screen.WorkingArea.Center - (Size / 2));
@@ -30,6 +28,7 @@ namespace Arbatel.UI
 			{
 				Items =
 				{
+					new ButtonMenuItem { Text = "&File", Items = { CmdOpen } },
 					new ButtonMenuItem { Text = "&Edit", Items = { CmdPreferences } },
 					new ButtonMenuItem { Text = "&View", Items = { CmdFullScreen } },
 					new ButtonMenuItem
@@ -51,10 +50,6 @@ namespace Arbatel.UI
 							CmdSaveCollapsedAs
 						}
 					}
-				},
-				ApplicationItems =
-				{
-					CmdOpen
 				},
 				QuitItem = CmdQuit,
 				AboutItem = CmdAbout
