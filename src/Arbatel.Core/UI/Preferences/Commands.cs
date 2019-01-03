@@ -43,7 +43,6 @@ namespace Arbatel.UI.Preferences
 			}
 
 			Settings.Local.LastFgdDirectory = new Uri(Path.GetDirectoryName(dlgAddFgd.FileName));
-			Settings.Local.Save();
 		}
 
 		private void CmdAddWad_Executed(object sender, EventArgs e)
@@ -65,7 +64,6 @@ namespace Arbatel.UI.Preferences
 			}
 
 			Settings.Local.LastWadDirectory = new Uri(Path.GetDirectoryName(dlgAddWad.FileName));
-			Settings.Local.Save();
 		}
 
 		private void CmdCancel_Executed(object sender, EventArgs e)

@@ -18,7 +18,7 @@ namespace Arbatel
 		/// <summary>
 		/// Any objects that may be affected by these settings.
 		/// </summary>
-		public List<IUpdateFromSettings> Updatables { get; private set; } = new List<IUpdateFromSettings>();
+		public List<IUpdateFromSettings> Updatables { get; } = new List<IUpdateFromSettings>();
 
 		private static void ConfigSettings(JsonSettings settings)
 		{
@@ -37,21 +37,13 @@ namespace Arbatel
 
 			Local = JsonSettings.Load<LocalSettings>(localPath, ConfigSettings);
 			Roaming = JsonSettings.Load<RoamingSettings>(roamingPath, ConfigSettings);
-
-			Local.AfterSave += Local_AfterSave;
-			Roaming.AfterSave += Roaming_AfterSave;
 		}
 
-		private void Local_AfterSave(string destinition)
+		public void Save()
 		{
-			foreach (IUpdateFromSettings updatable in Updatables)
-			{
-				updatable.UpdateFromSettings(this);
-			}
-		}
+			Local.Save();
+			Roaming.Save();
 
-		private void Roaming_AfterSave(string destinition)
-		{
 			foreach (IUpdateFromSettings updatable in Updatables)
 			{
 				updatable.UpdateFromSettings(this);

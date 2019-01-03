@@ -42,13 +42,11 @@ namespace Arbatel.UI.Preferences
 
 			RefreshDisplayedDefinitions();
 			RefreshDisplayedTextures();
-
-			CommitChanges();
 		}
 
 		private void CommitChanges()
 		{
-			Settings.Roaming.LastBuiltInPalette = FindChild<DropDown>("drpPalette").SelectedKey.ToString();
+			Settings.Roaming.LastBuiltInPalette = FindChild<DropDown>("drpPalette").SelectedKey;
 
 			Settings.Roaming.InvertMouseX = CbxInvertX.Checked ?? false;
 			Settings.Roaming.InvertMouseY = CbxInvertY.Checked ?? false;
@@ -70,8 +68,7 @@ namespace Arbatel.UI.Preferences
 			RefreshStoredDefinitions();
 			RefreshStoredTextures();
 
-			Settings.Local.Save();
-			Settings.Roaming.Save();
+			Settings.Save();
 
 			ShouldCommitChanges = false;
 		}

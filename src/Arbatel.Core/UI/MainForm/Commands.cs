@@ -129,7 +129,6 @@ namespace Arbatel.UI
 			}
 
 			Settings.Local.LastMapDirectory = new Uri(Path.GetDirectoryName(dlgOpenFile.FileName));
-			Settings.Local.Save();
 
 			using (FileStream stream = File.OpenRead(dlgOpenFile.FileName))
 			{
@@ -151,8 +150,7 @@ namespace Arbatel.UI
 			}
 
 			Settings.Updatables.Add(Map);
-
-			Map.UpdateFromSettings(Settings);
+			Settings.Save();
 
 			BackEnd.InitTextures(Map.Textures);
 
