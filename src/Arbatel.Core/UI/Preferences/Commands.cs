@@ -1,13 +1,7 @@
 ﻿using Eto.Forms;
 using System;
-using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Arbatel.Formats;
-using Arbatel.Utilities;
 
 namespace Arbatel.UI.Preferences
 {
@@ -29,7 +23,7 @@ namespace Arbatel.UI.Preferences
 
 		private void CmdAddFgd_Executed(object sender, EventArgs e)
 		{
-			var dlgAddFgd = new OpenFileDialog() { Directory = LocalSettings.LastFgdDirectory };
+			var dlgAddFgd = new OpenFileDialog() { Directory = Settings.Local.LastFgdDirectory };
 			dlgAddFgd.Filters.Add(new FileFilter("Quake FGD", ".fgd"));
 			dlgAddFgd.Filters.Add(new FileFilter("All files", ".*"));
 			dlgAddFgd.CurrentFilterIndex = 0;
@@ -41,20 +35,20 @@ namespace Arbatel.UI.Preferences
 				return;
 			}
 
-			var lbxFgd = FindChild<ListBox>(LbxFgdName);
+			ListBox lbxFgd = FindChild<ListBox>(LbxFgdName);
 
 			if (!lbxFgd.Items.Any(item => item.Text == dlgAddFgd.FileName))
 			{
 				lbxFgd.Items.Add(dlgAddFgd.FileName);
 			}
 
-			LocalSettings.LastFgdDirectory = new Uri(Path.GetDirectoryName(dlgAddFgd.FileName));
-			LocalSettings.Save();
+			Settings.Local.LastFgdDirectory = new Uri(Path.GetDirectoryName(dlgAddFgd.FileName));
+			Settings.Local.Save();
 		}
 
 		private void CmdAddWad_Executed(object sender, EventArgs e)
 		{
-			var dlgAddWad = new OpenFileDialog() { Directory = LocalSettings.LastWadDirectory };
+			var dlgAddWad = new OpenFileDialog() { Directory = Settings.Local.LastWadDirectory };
 
 			dlgAddWad.ShowDialog(this);
 
@@ -63,15 +57,15 @@ namespace Arbatel.UI.Preferences
 				return;
 			}
 
-			var lbxWad = FindChild<ListBox>(LbxWadName);
+			ListBox lbxWad = FindChild<ListBox>(LbxWadName);
 
 			if (!lbxWad.Items.Any(item => item.Text == dlgAddWad.FileName))
 			{
 				lbxWad.Items.Add(dlgAddWad.FileName);
 			}
 
-			LocalSettings.LastWadDirectory = new Uri(Path.GetDirectoryName(dlgAddWad.FileName));
-			LocalSettings.Save();
+			Settings.Local.LastWadDirectory = new Uri(Path.GetDirectoryName(dlgAddWad.FileName));
+			Settings.Local.Save();
 		}
 
 		private void CmdCancel_Executed(object sender, EventArgs e)
@@ -90,7 +84,7 @@ namespace Arbatel.UI.Preferences
 
 		private void CmdRemoveFgd_Executed(object sender, EventArgs e)
 		{
-			var lbxFgd = FindChild<ListBox>(LbxFgdName);
+			ListBox lbxFgd = FindChild<ListBox>(LbxFgdName);
 
 			if (lbxFgd.Items.Count > 0)
 			{
@@ -105,7 +99,7 @@ namespace Arbatel.UI.Preferences
 
 		private void CmdRemoveWad_Executed(object sender, EventArgs e)
 		{
-			var lbxWad = FindChild<ListBox>(LbxWadName);
+			ListBox lbxWad = FindChild<ListBox>(LbxWadName);
 
 			if (lbxWad.Items.Count > 0)
 			{

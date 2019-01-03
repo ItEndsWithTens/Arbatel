@@ -1,11 +1,6 @@
 ﻿using nucs.JsonSettings;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace Arbatel.UI.Settings
+namespace Arbatel
 {
 	/// <summary>
 	/// Settings that are per-user and machine independent.

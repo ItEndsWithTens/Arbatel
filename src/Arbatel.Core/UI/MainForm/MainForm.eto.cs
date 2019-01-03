@@ -7,8 +7,6 @@ namespace Arbatel.UI
 {
 	public partial class MainForm : Form
 	{
-		private PreferencesDialog DlgPreferences = new PreferencesDialog();
-
 		void InitializeComponent()
 		{
 			Assembly assembly = Assembly.GetAssembly(typeof(MainForm));

@@ -1,17 +1,12 @@
-﻿using OpenTK;
+﻿using Arbatel.Graphics;
+using OpenTK;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Arbatel.Formats;
-using Arbatel.Formats.Quake;
-using Arbatel.Graphics;
 
 namespace Arbatel.Formats
 {
-	public class Map
+	public class Map : IUpdateFromSettings
 	{
 		public Aabb Aabb { get; protected set; } = new Aabb();
 
@@ -26,7 +21,7 @@ namespace Arbatel.Formats
 			{
 				var all = new List<MapObject>();
 
-				foreach (var mo in MapObjects)
+				foreach (MapObject mo in MapObjects)
 				{
 					all.AddRange(mo.AllObjects);
 				}
@@ -98,14 +93,14 @@ namespace Arbatel.Formats
 			_textures = textures;
 		}
 
-		virtual public Map Collapse()
+		public virtual Map Collapse()
 		{
 			return this;
 		}
 
-		virtual public void UpdateTextures(TextureDictionary textures)
+		public virtual void UpdateTextures(TextureDictionary textures)
 		{
-			foreach (var mo in MapObjects)
+			foreach (MapObject mo in MapObjects)
 			{
 				mo.UpdateTextures(textures);
 			}
@@ -137,9 +132,9 @@ namespace Arbatel.Formats
 
 				// Remember the orientation of instance objects, pointing toward
 				// +X in a Z-up, left-handed coordinate space.
-				float.TryParse(angles[0], out rotation.Y); // Pitch
-				float.TryParse(angles[1], out rotation.Z); // Yaw
-				float.TryParse(angles[2], out rotation.X); // Roll
+				Single.TryParse(angles[0], out rotation.Y); // Pitch
+				Single.TryParse(angles[1], out rotation.Z); // Yaw
+				Single.TryParse(angles[2], out rotation.X); // Roll
 			}
 
 			// TODO: Implement scale.
@@ -158,7 +153,7 @@ namespace Arbatel.Formats
 		/// <param name="scale">The scale to apply.</param>
 		public void Transform(Vector3 translation, Vector3 rotation, Vector3 scale)
 		{
-			foreach (var mapObject in MapObjects)
+			foreach (MapObject mapObject in MapObjects)
 			{
 				mapObject.Transform(translation, rotation, scale);
 			}
@@ -169,9 +164,9 @@ namespace Arbatel.Formats
 			var opaques = new List<MapObject>();
 			var translucents = new List<MapObject>();
 
-			foreach (var mo in MapObjects)
+			foreach (MapObject mo in MapObjects)
 			{
-				var translucent = mo.UpdateTranslucency(Textures.Translucents);
+				bool translucent = mo.UpdateTranslucency(Textures.Translucents);
 
 				if (translucent)
 				{
@@ -186,6 +181,10 @@ namespace Arbatel.Formats
 			MapObjects.Clear();
 			MapObjects.AddRange(opaques);
 			MapObjects.AddRange(translucents);
+		}
+
+		public virtual void UpdateFromSettings(Settings settings)
+		{
 		}
 	}
 }

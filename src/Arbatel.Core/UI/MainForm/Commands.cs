@@ -1,16 +1,14 @@
-﻿using Eto.Drawing;
+﻿using Arbatel.Controls;
+using Arbatel.Formats;
+using Arbatel.Formats.Quake;
+using Arbatel.UI.Preferences;
+using Eto.Drawing;
 using Eto.Forms;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
-using Arbatel.Controls;
-using Arbatel.Formats;
-using Arbatel.Formats.Quake;
-using Arbatel.UI.Preferences;
 
 namespace Arbatel.UI
 {
@@ -120,7 +118,7 @@ namespace Arbatel.UI
 			var dlgOpenFile = new OpenFileDialog()
 			{
 				MultiSelect = false,
-				Directory = DlgPreferences.LocalSettings.LastMapDirectory
+				Directory = Settings.Local.LastMapDirectory
 			};
 
 			dlgOpenFile.ShowDialog(this);
@@ -130,39 +128,50 @@ namespace Arbatel.UI
 				return;
 			}
 
-			using (var stream = new FileStream(dlgOpenFile.FileName, FileMode.Open, FileAccess.Read))
+			Settings.Local.LastMapDirectory = new Uri(Path.GetDirectoryName(dlgOpenFile.FileName));
+			Settings.Local.Save();
+
+			using (FileStream stream = File.OpenRead(dlgOpenFile.FileName))
 			{
 				string ext = Path.GetExtension(dlgOpenFile.FileName);
 
-				if (ext.ToLower() == ".map")
-				{
-					Map = new QuakeMap(stream, CombinedDefinitions);
-				}
-				else
+				if (ext.ToLower() != ".map")
 				{
 					throw new InvalidDataException("Unrecognized map format!");
 				}
+
+				var definitions = new Dictionary<string, DefinitionDictionary>();
+
+				foreach (string path in Settings.Local.DefinitionDictionaryPaths)
+				{
+					definitions.Add(path, Loader.LoadDefinitionDictionary(path));
+				}
+
+				Map = new QuakeMap(stream, definitions.Values.ToList().Stack());
 			}
 
-			Map.Textures = CombinedTextures;
+			Settings.Updatables.Add(Map);
+
+			Map.UpdateFromSettings(Settings);
+
 			BackEnd.InitTextures(Map.Textures);
 
 			GetAllThisNonsenseReady();
-
-			DlgPreferences.LocalSettings.LastMapDirectory = new Uri(Path.GetDirectoryName(dlgOpenFile.FileName));
-			DlgPreferences.LocalSettings.Save();
 		}
 
 		private void CmdPreferences_Executed(object sender, EventArgs e)
 		{
-			DlgPreferences.ShowModal(this);
+			using (var dialog = new PreferencesDialog(Settings))
+			{
+				dialog.ShowModal(this);
+			}
 		}
 
 		private void CmdSaveCollapsedAs_Executed(object sender, EventArgs e)
 		{
 			var dlgSaveCollapsedAs = new SaveFileDialog()
 			{
-				Directory = DlgPreferences.LocalSettings.LastSaveCollapsedAsDirectory
+				Directory = Settings.Local.LastSaveCollapsedAsDirectory
 			};
 
 			dlgSaveCollapsedAs.ShowDialog(this);
@@ -191,8 +200,8 @@ namespace Arbatel.UI
 				sw.Write(Map.Collapse().ToString());
 			}
 
-			DlgPreferences.LocalSettings.LastSaveCollapsedAsDirectory = new Uri(Path.GetDirectoryName(dlgSaveCollapsedAs.FileName));
-			DlgPreferences.LocalSettings.Save();
+			Settings.Local.LastSaveCollapsedAsDirectory = new Uri(Path.GetDirectoryName(dlgSaveCollapsedAs.FileName));
+			Settings.Local.Save();
 		}
 	}
 }

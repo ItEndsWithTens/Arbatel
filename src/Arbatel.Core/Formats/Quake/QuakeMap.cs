@@ -1,13 +1,13 @@
-﻿using Eto.Drawing;
-using OpenTK.Graphics;
+﻿using Arbatel.UI;
+using Arbatel.Utilities;
+using Eto.Drawing;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
-using Arbatel.Graphics;
 
 namespace Arbatel.Formats.Quake
 {
@@ -28,7 +28,7 @@ namespace Arbatel.Formats.Quake
 		}
 		public QuakeMap(Stream stream, DefinitionDictionary definitions) : base(stream, definitions)
 		{
-			using (StreamReader sr = new StreamReader(stream))
+			using (var sr = new StreamReader(stream))
 			{
 				Parse(sr.ReadToEnd());
 			}
@@ -52,13 +52,13 @@ namespace Arbatel.Formats.Quake
 
 			collapsed.MapObjects.Add(worldspawn);
 
-			for (var i = 0; i < MapObjects.Count; i++)
+			for (int i = 0; i < MapObjects.Count; i++)
 			{
 				if (i != worldspawnIndex)
 				{
-					var collapsedObject = MapObjects[i].Collapse();
+					List<MapObject> collapsedObject = MapObjects[i].Collapse();
 
-					foreach (var co in collapsedObject)
+					foreach (MapObject co in collapsedObject)
 					{
 						if (co.Definition.ClassName == "worldspawn")
 						{
@@ -86,7 +86,7 @@ namespace Arbatel.Formats.Quake
 			// First build the final worldspawn.
 			int worldspawnIndex = MapObjects.FindIndex(o => o.Definition.ClassName == "worldspawn");
 			MapObject worldspawn = MapObjects[worldspawnIndex];
-			foreach (var mo in AllObjects)
+			foreach (MapObject mo in AllObjects)
 			{
 				// Only copy solids to worldspawn if that's all this entity
 				// is set to save, otherwise let it get handled later.
@@ -98,14 +98,14 @@ namespace Arbatel.Formats.Quake
 
 			sb.AppendLine(new QuakeBlock(worldspawn).ToString(format));
 
-			for (var i = 0; i < MapObjects.Count; i++)
+			for (int i = 0; i < MapObjects.Count; i++)
 			{
 				if (i == worldspawnIndex)
 				{
 					continue;
 				}
 
-				var mo = MapObjects[i];
+				MapObject mo = MapObjects[i];
 
 				// Avoid saving a null character to the output.
 				if (mo.Saveability == Saveability.None)
@@ -121,7 +121,7 @@ namespace Arbatel.Formats.Quake
 
 		private void Parse(string raw)
 		{
-			var oldCwd = Directory.GetCurrentDirectory();
+			string oldCwd = Directory.GetCurrentDirectory();
 			Directory.SetCurrentDirectory(Path.GetDirectoryName(AbsolutePath ?? oldCwd));
 
 			string stripped = Regex.Replace(raw, "//.*?[\r\n]", "");
@@ -153,13 +153,13 @@ namespace Arbatel.Formats.Quake
 				quoteAfter + "|" +
 				"(" + Regex.Escape(CloseDelimiter) + ")";
 
-			List<string> split = Regex.Split(stripped, delimiters).ToList();
+			var split = Regex.Split(stripped, delimiters).ToList();
 			split.RemoveAll(s => s.Trim().Length == 0 || s.Trim() == "\"");
 
 			// The regex patterns above include capture groups to retain some
 			// delimiters in the output, but they end up in the same item in the
 			// list resulting from Split. This ugly loop fixes that.
-			var item = 0;
+			int item = 0;
 			while (item < split.Count)
 			{
 				if (split[item] == "{(")
@@ -180,10 +180,10 @@ namespace Arbatel.Formats.Quake
 				}
 			}
 
-			var i = 0;
+			int i = 0;
 			while (i < split.Count)
 			{
-				var firstBraceIndex = split.IndexOf("{", i);
+				int firstBraceIndex = split.IndexOf("{", i);
 
 				var block = new QuakeBlock(split, firstBraceIndex, Definitions);
 				MapObjects.Add(new QuakeMapObject(block, Definitions, Textures));
@@ -194,12 +194,45 @@ namespace Arbatel.Formats.Quake
 			// First build the final worldspawn.
 			int worldspawnIndex = MapObjects.FindIndex(o => o.Definition.ClassName == "worldspawn");
 			MapObject worldspawn = MapObjects[worldspawnIndex];
-			foreach (var mo in AllObjects)
+			foreach (MapObject mo in AllObjects)
 			{
 				Aabb += mo.Aabb;
 			}
 
 			Directory.SetCurrentDirectory(oldCwd);
+		}
+
+		public override void UpdateFromSettings(Settings settings)
+		{
+			// TODO: Update entity definitions too. Will probably require
+			// hanging on to a copy of the input map's raw string for reparsing,
+			// or at least the path to the original file.
+
+			var textures = new Dictionary<string, TextureDictionary>();
+
+			Stream stream = null;
+			if (settings.Local.UsingCustomPalette)
+			{
+				stream = File.OpenRead(settings.Local.LastCustomPalette.LocalPath);
+			}
+			else
+			{
+				string name = $"palette-{settings.Roaming.LastBuiltInPalette.ToLower()}.lmp";
+
+				stream = Assembly.GetAssembly(typeof(MainForm)).GetResourceStream(name);
+			}
+
+			using (stream)
+			{
+				Palette palette = new Palette().LoadQuakePalette(stream);
+
+				foreach (string path in settings.Local.TextureDictionaryPaths)
+				{
+					textures.Add(path, Loader.LoadTextureDictionary(path, palette));
+				}
+			}
+
+			Textures = textures.Values.ToList().Stack();
 		}
 	}
 }

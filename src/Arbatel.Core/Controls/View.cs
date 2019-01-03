@@ -24,7 +24,7 @@ namespace Arbatel.Controls
 	{
 		public static Dictionary<ShadingStyle, ShadingStyle> Capped(this Dictionary<ShadingStyle, ShadingStyle> dict, ShadingStyle max)
 		{
-			foreach (var style in (ShadingStyle[])Enum.GetValues(typeof(ShadingStyle)))
+			foreach (ShadingStyle style in (ShadingStyle[])Enum.GetValues(typeof(ShadingStyle)))
 			{
 				dict.Add(style, style > max ? max : style);
 			}
@@ -40,7 +40,7 @@ namespace Arbatel.Controls
 		}
 	}
 
-	public class View : GLSurface
+	public class View : GLSurface, IUpdateFromSettings
 	{
 		// OpenGL 3.0 is the lowest version that has all the features this
 		// project needs built in. Vertex array objects are actually the only
@@ -94,7 +94,7 @@ namespace Arbatel.Controls
 		}
 
 		// -- Eto
-		UITimer GraphicsClock = new UITimer();
+		private UITimer GraphicsClock = new UITimer();
 		public UITimer InputClock = new UITimer();
 
 		// This was previously accomplished by overriding OnEnabledChanged, but
@@ -187,8 +187,8 @@ namespace Arbatel.Controls
 
 		// -- Overrides
 		protected override void OnDraw(EventArgs e)
-        {
-            base.OnDraw(e);
+		{
+			base.OnDraw(e);
 
 			// OnDraw only gets called in certain circumstances, for example
 			// when the application window is resized. During such an event,
@@ -250,8 +250,8 @@ namespace Arbatel.Controls
 
 			string[] split = version.Split('.', ' ');
 
-			bool gotMajor = int.TryParse(split[0], out int glMajor);
-			bool gotMinor = int.TryParse(split[1], out int glMinor);
+			bool gotMajor = Int32.TryParse(split[0], out int glMajor);
+			bool gotMinor = Int32.TryParse(split[1], out int glMinor);
 
 			if (gotMajor && gotMinor)
 			{
@@ -314,6 +314,16 @@ namespace Arbatel.Controls
 			Camera.Pitch = -30.0f;
 
 			OpenGLReady = true;
+		}
+
+		// -- Interfaces
+		public void UpdateFromSettings(Settings settings)
+		{
+			if (this is View3d v)
+			{
+				v.Controller.InvertMouseX = settings.Roaming.InvertMouseX;
+				v.Controller.InvertMouseY = settings.Roaming.InvertMouseY;
+			}
 		}
 	}
 }

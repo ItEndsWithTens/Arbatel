@@ -1,17 +1,10 @@
-﻿using Eto.Drawing;
-using Newtonsoft.Json;
+﻿using Arbatel.UI;
 using nucs.JsonSettings;
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.IO;
-using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
-using Arbatel.Formats;
 
-namespace Arbatel.UI.Settings
+namespace Arbatel
 {
 	/// <summary>
 	/// Settings that are per-user, but machine dependent.
@@ -20,7 +13,7 @@ namespace Arbatel.UI.Settings
 	{
 		public override string FileName { get; set; }
 
-		public List<string> DefinitionDictionaryPaths { get; set; } = new List<string>();
+		public List<string> DefinitionDictionaryPaths { get; } = new List<string>();
 		public List<string> TextureDictionaryPaths { get; } = new List<string>();
 
 		public Uri LastCustomPalette { get; set; }

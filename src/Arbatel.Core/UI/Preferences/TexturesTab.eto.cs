@@ -44,12 +44,12 @@ namespace Arbatel.UI.Preferences
 				if (btnBuiltInPalette.Checked)
 				{
 					drpPalette.Enabled = true;
-					LocalSettings.UsingCustomPalette = false;
+					Settings.Local.UsingCustomPalette = false;
 				}
 				else
 				{
 					drpPalette.Enabled = false;
-					LocalSettings.UsingCustomPalette = true;
+					Settings.Local.UsingCustomPalette = true;
 				}
 			};
 
@@ -61,12 +61,12 @@ namespace Arbatel.UI.Preferences
 				if (btnCustomPalette.Checked)
 				{
 					fpkPalette.Enabled = true;
-					LocalSettings.UsingCustomPalette = true;
+					Settings.Local.UsingCustomPalette = true;
 				}
 				else
 				{
 					fpkPalette.Enabled = false;
-					LocalSettings.UsingCustomPalette = false;
+					Settings.Local.UsingCustomPalette = false;
 				}
 			};
 
