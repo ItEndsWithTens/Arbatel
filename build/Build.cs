@@ -24,7 +24,7 @@ using static Nuke.Common.Tools.Nunit.NunitTasks;
 
 class Build : NukeBuild
 {
-	const string ProjectName = "Arbatel";
+	const string ProductName = "Arbatel";
 
 	AbsolutePath ArtifactsDirectory => RootDirectory / "artifacts";
 	AbsolutePath SourceDirectory => RootDirectory / "src";
@@ -34,7 +34,7 @@ class Build : NukeBuild
 	[Parameter("Configuration to build - Default is 'Debug' (local) or 'Release' (server)")]
 	readonly string Configuration = IsLocalBuild ? "Debug" : "Release";
 
-	[Solution(ProjectName + ".sln")]
+	[Solution(ProductName + ".sln")]
 	readonly Solution Solution;
 
 	[GitRepository]
@@ -166,8 +166,8 @@ class Build : NukeBuild
 		.DependsOn(Clean)
 		.Executes(() =>
 		{
-			AbsolutePath projectDir = RootDirectory / "src" / $"{ProjectName}.Core";
-			AbsolutePath project = projectDir / $"{ProjectName}.Core.csproj";
+			AbsolutePath projectDir = RootDirectory / "src" / $"{ProductName}.Core";
+			AbsolutePath project = projectDir / $"{ProductName}.Core.csproj";
 
 			// Windows developers with Visual Studio installed to a directory
 			// other than System.Environment.SpecialFolder.ProgramFilesX86 need
@@ -200,8 +200,8 @@ class Build : NukeBuild
 		{
 			foreach (string etoPlatform in new string[] { "WinForms", "Wpf" })
 			{
-				AbsolutePath projectDir = RootDirectory / "src" / "gui" / $"{ProjectName}.{etoPlatform}";
-				AbsolutePath project = projectDir / $"{ProjectName}.{etoPlatform}.csproj";
+				AbsolutePath projectDir = RootDirectory / "src" / "gui" / $"{ProductName}.{etoPlatform}";
+				AbsolutePath project = projectDir / $"{ProductName}.{etoPlatform}.csproj";
 
 				var settings = new MSBuildSettings();
 				if (EnvironmentInfo.IsWin)
@@ -234,7 +234,7 @@ class Build : NukeBuild
 		{
 			string etoPlatform = "Gtk";
 
-			Project project = Solution.GetProject($"{ProjectName}.{etoPlatform}");
+			Project project = Solution.GetProject($"{ProductName}.{etoPlatform}");
 
 			var settings = new MSBuildSettings();
 			if (EnvironmentInfo.IsWin)
@@ -266,8 +266,8 @@ class Build : NukeBuild
 		{
 			foreach (string etoPlatform in new string[] { "Mac", "XamMac" })
 			{
-				AbsolutePath projectDir = RootDirectory / "src" / "gui" / $"{ProjectName}.{etoPlatform}";
-				AbsolutePath project = projectDir / $"{ProjectName}.{etoPlatform}.csproj";
+				AbsolutePath projectDir = RootDirectory / "src" / "gui" / $"{ProductName}.{etoPlatform}";
+				AbsolutePath project = projectDir / $"{ProductName}.{etoPlatform}.csproj";
 
 				var settings = new MSBuildSettings();
 				if (EnvironmentInfo.IsWin)
@@ -298,13 +298,17 @@ class Build : NukeBuild
 		.DependsOn(CompileCore)
 		.Executes(() =>
 		{
-			string project = RootDirectory / "test" / "src" / $"{ProjectName}Test.Core" / $"{ProjectName}Test.Core.csproj";
+			Project project = Solution.GetProject($"{ProductName}Test.Core");
 
 			var settings = new MSBuildSettings();
 			if (EnvironmentInfo.IsWin)
 			{
 				settings = settings.SetToolPath(GetMsBuildPath());
 			}
+
+			MSBuildProject parsed = MSBuildParseProject(project, s => settings);
+
+			AbsolutePath buildDir = project.Directory / parsed.Properties["OutputPath"];
 
 			MSBuild(s => settings
 				.EnableRestore()
@@ -316,30 +320,39 @@ class Build : NukeBuild
 				.SetInformationalVersion(GitVersion.InformationalVersion)
 				.SetMaxCpuCount(Environment.ProcessorCount)
 				.SetNodeReuse(IsLocalBuild));
+
+			CopyDirectoryRecursively(buildDir, StagingDirectory / project.Name);
 		});
+
+	private void Test(string executable)
+	{
+		Project project = Solution.GetProject($"{ProductName}Test.Core");
+
+		Nunit3(s => new Nunit3Settings()
+			.SetToolPath(StagingDirectory / $"{project.Name}" / executable)
+			.AddParameter("dataDirectory", RootDirectory / "test/data")
+			.AddParameter("fgdDirectory", RootDirectory / "extras"));
+	}
 
 	Target TestWindows => _ => _
 		.DependsOn(CompileWindows, CompileTests)
 		.Executes(() =>
-		 {
-			 Nunit3(s => new Nunit3Settings()
-				.SetInputFiles(RootDirectory / "test" / "src" / $"{ProjectName}Test.Core" / $"{ProjectName}Test.Core.csproj"));
-		 });
+		{
+			Test($"{ProductName}Test.Core.exe");
+		});
 
 	Target TestLinux => _ => _
 		.DependsOn(CompileLinux, CompileTests)
 		.Executes(() =>
 		{
-			//Nunit3(s => new Nunit3Settings()
-				//.SetInputFiles(Solution.GetProject($"{ProjectName}Test.Core")));
+			Test($"{ProductName}Test.Core.exe");
 		});
 
 	Target TestMac => _ => _
 		.DependsOn(CompileMac, CompileTests)
 		.Executes(() =>
 		{
-			//Nunit3(s => new Nunit3Settings()
-				//.SetInputFiles(RootDirectory / "test" / "src" / $"{ProjectName}Test.Core" / $"{ProjectName}Test.Core.csproj"));
+			Test($"{ProductName}Test.Core.app/Contents/MacOS/{ProductName}Test.Core");
 		});
 
 	Target PackageWindows => _ => _
@@ -357,7 +370,7 @@ class Build : NukeBuild
 					archive.DeflateCompressionLevel = CompressionLevel.BestCompression;
 					archive.AddAllFromDirectory(StagingDirectory / etoPlatform);
 
-					string name = String.Join('-', ProjectName, GitVersion.MajorMinorPatch, OsFriendlyName[EnvironmentInfo.Platform]);
+					string name = String.Join('-', ProductName, GitVersion.MajorMinorPatch, OsFriendlyName[EnvironmentInfo.Platform]);
 					archive.SaveTo(finalDir / name + ".zip", new WriterOptions(CompressionType.Deflate));
 				}
 			}
@@ -373,7 +386,7 @@ class Build : NukeBuild
 
 			EnsureExistingDirectory(finalDir);
 
-			string name = String.Join('-', ProjectName, GitVersion.MajorMinorPatch, OsFriendlyName[EnvironmentInfo.Platform]);
+			string name = String.Join('-', ProductName, GitVersion.MajorMinorPatch, OsFriendlyName[EnvironmentInfo.Platform]);
 
 			var tarball = TarArchive.Create();
 
@@ -391,14 +404,14 @@ class Build : NukeBuild
 
 				EnsureExistingDirectory(finalDir);
 
-				string name = String.Join('-', ProjectName, GitVersion.MajorMinorPatch, OsFriendlyName[EnvironmentInfo.Platform]);
+				string name = String.Join('-', ProductName, GitVersion.MajorMinorPatch, OsFriendlyName[EnvironmentInfo.Platform]);
 
 				var dmgbuild = new Process();
 				dmgbuild.StartInfo.FileName = "dmgbuild";
 				dmgbuild.StartInfo.Arguments =
 					$"-s " + BuildProjectDirectory / "dmgbuild-settings.py" +
-					" -D app=" + StagingDirectory / etoPlatform / $"{ProjectName}.{etoPlatform}.app" +
-					$" {ProjectName} " +
+					" -D app=" + StagingDirectory / etoPlatform / $"{ProductName}.{etoPlatform}.app" +
+					$" {ProductName} " +
 					finalDir / name + ".dmg";
 
 				dmgbuild.StartInfo.UseShellExecute = false;

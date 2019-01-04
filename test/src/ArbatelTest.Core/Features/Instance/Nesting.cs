@@ -29,11 +29,8 @@ namespace ArbatelTest.Core.Features.Instance
 			[OneTimeSetUp]
 			public void SetUp()
 			{
-				Assembly assembly = Assembly.GetExecutingAssembly();
-				string location = Path.GetDirectoryName(assembly.Location);
-
-				DataDirectory = Path.Combine(location, "..", "..", "..", "..", "data");
-				FgdDirectory = Path.Combine(location, "..", "..", "..", "..", "..", "extras");
+				DataDirectory = TestContext.Parameters.Get("dataDirectory");
+				FgdDirectory = TestContext.Parameters.Get("fgdDirectory");
 
 				string ericwFilename = Path.Combine(FgdDirectory, "quake4ericwTools.fgd");
 				var ericw = new QuakeFgd(ericwFilename);

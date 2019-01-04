@@ -1,28 +1,12 @@
-﻿using Eto.Forms;
+﻿using Arbatel.Formats;
+using Arbatel.Formats.Quake;
+using Eto;
 using NUnit.Framework;
-using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Arbatel.Formats;
-using Arbatel.Formats.Quake;
 
 namespace ArbatelTest.Core.FormatsTest
 {
-	[SetUpFixture]
-	public class InitializePlatform
-	{
-		[OneTimeSetUp]
-		public void SetUp()
-		{
-			var platform = Eto.Platform.Detect;
-
-			Eto.Platform.Initialize(platform);
-		}
-	}
-
 	public class BlockTest
 	{
 		[TestFixture]
