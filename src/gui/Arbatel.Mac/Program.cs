@@ -15,7 +15,7 @@ namespace Arbatel.Mac
 	// origins of these definitions.
 	using CGDirectDisplayID = IntPtr;
 
-	public enum CGError
+	internal enum CGError
 	{
 		Success = 0,
 		Failure = 1000,
@@ -32,7 +32,7 @@ namespace Arbatel.Mac
 
 	// As per the aforementioned OpenTK source file, the methods used here are
 	// only available in macOS 10.3 or later.
-	public static class CG
+	internal static class CG
 	{
 		public const string Library = "/System/Library/Frameworks/ApplicationServices.framework/Versions/Current/ApplicationServices";
 
@@ -70,7 +70,7 @@ namespace Arbatel.Mac
 		{
 			Toolkit opentk = Core.InitOpenTK();
 
-			var platform = Platform.Detect;
+			Platform platform = Platform.Detect;
 
 			platform.Add<GLSurface.IHandler>(() => new MacGLSurfaceHandler());
 
