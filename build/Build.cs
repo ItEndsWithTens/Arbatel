@@ -5,6 +5,7 @@ using Nuke.Common.Tooling;
 using Nuke.Common.Tools.GitVersion;
 using Nuke.Common.Tools.MSBuild;
 using Nuke.Common.Tools.Nunit;
+using Nuke.Common.Tools.VSWhere;
 using SharpCompress.Archives;
 using SharpCompress.Archives.Tar;
 using SharpCompress.Archives.Zip;
@@ -15,12 +16,12 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Text;
+using System.Linq;
 using static Nuke.Common.IO.FileSystemTasks;
 using static Nuke.Common.IO.PathConstruction;
 using static Nuke.Common.Tools.MSBuild.MSBuildTasks;
-using static Nuke.Common.Tools.NuGet.NuGetTasks;
 using static Nuke.Common.Tools.Nunit.NunitTasks;
+using static Nuke.Common.Tools.VSWhere.VSWhereTasks;
 
 class Build : NukeBuild
 {
@@ -30,6 +31,7 @@ class Build : NukeBuild
 	AbsolutePath SourceDirectory => RootDirectory / "src";
 	AbsolutePath StagingDirectory => RootDirectory / "staging";
 	AbsolutePath TestSourceDirectory => RootDirectory / "test" / "src";
+	AbsolutePath CustomMsBuildPath;
 
 	[Parameter("Configuration to build - Default is 'Debug' (local) or 'Release' (server)")]
 	readonly string Configuration = IsLocalBuild ? "Debug" : "Release";
@@ -52,53 +54,25 @@ class Build : NukeBuild
 	};
 
 	/// <summary>
-	/// Find the full path of a copy of MSBuild, as installed by Visual Studio
-	/// 2017 on a Windows system. Assumes VS2017 Update 2 or newer is installed.
+	/// Find the full path of a copy of MSBuild on a Windows system.
 	/// </summary>
 	/// <returns>The full path to MSBuild.exe</returns>
 	public static string GetMsBuildPath()
-	{
-		// Visual Studio 2017 Update 2 and newer install vswhere by default.
-		return GetMsBuildPath("vswhere.exe");
-	}
-	/// <summary>
-	/// Find the full path of a copy of MSBuild, as installed by Visual Studio
-	/// 2017 on a Windows system.
-	/// </summary>
-	/// <param name="vswherePath">The path to a copy of Microsoft's "vswhere" utility.</param>
-	/// <returns>The full path to MSBuild.exe</returns>
-	public static string GetMsBuildPath(string vswherePath)
 	{
 		if (!EnvironmentInfo.IsWin)
 		{
 			throw new PlatformNotSupportedException("GetMsBuildPath only works in Windows!");
 		}
 
-		string args = "-latest -products * -requires Microsoft.Component.MSBuild";
+		VSWhereSettings vswhereSettings = new VSWhereSettings()
+			.EnableLatest()
+			.AddRequires(MsBuildComponent);
 
-		var vswhere = new Process();
-		vswhere.StartInfo.FileName = vswherePath;
-		vswhere.StartInfo.UseShellExecute = false;
-		vswhere.StartInfo.RedirectStandardOutput = true;
-		vswhere.StartInfo.CreateNoWindow = true;
+		IReadOnlyCollection<Output> output = VSWhere(s => vswhereSettings).Output;
 
-		vswhere.StartInfo.Arguments = String.Join(' ', args, "-property installationPath");
-		vswhere.Start();
-		var output = new StringBuilder();
-		while (!vswhere.StandardOutput.EndOfStream)
-		{
-			output.Append(vswhere.StandardOutput.ReadLine());
-		}
-		string vsPath = output.ToString();
-
-		vswhere.StartInfo.Arguments = String.Join(' ', args, "-property installationVersion");
-		vswhere.Start();
-		output.Clear();
-		while (!vswhere.StandardOutput.EndOfStream)
-		{
-			output.Append(vswhere.StandardOutput.ReadLine());
-		}
-		Int32.TryParse(output.ToString().Split('.')[0], out int vsMajor);
+		string vsPath = output.FirstOrDefault(o => o.Text.StartsWith("installationPath")).Text.Replace("installationPath: ", "");
+		string vsVersion = output.FirstOrDefault(o => o.Text.StartsWith("installationVersion")).Text.Replace("installationVersion: ", "");
+		Int32.TryParse(vsVersion.Split('.')[0], out int vsMajor);
 
 		if (vsMajor < 15)
 		{
@@ -176,9 +150,11 @@ class Build : NukeBuild
 			// Windows developers with Visual Studio installed to a directory
 			// other than System.Environment.SpecialFolder.ProgramFilesX86 need
 			// to tell Nuke the path to MSBuild.exe themselves.
+			CustomMsBuildPath = (AbsolutePath)GetMsBuildPath();
+
 			if (EnvironmentInfo.IsWin)
 			{
-				settings = settings.SetToolPath(GetMsBuildPath());
+				settings = settings.SetToolPath(CustomMsBuildPath);
 			}
 
 			MSBuildProject parsed = MSBuildParseProject(project, s => settings);
@@ -210,7 +186,7 @@ class Build : NukeBuild
 
 				if (EnvironmentInfo.IsWin)
 				{
-					settings = settings.SetToolPath(GetMsBuildPath());
+					settings = settings.SetToolPath(CustomMsBuildPath);
 				}
 
 				MSBuildProject parsed = MSBuildParseProject(project, s => settings);
@@ -244,7 +220,7 @@ class Build : NukeBuild
 
 			if (EnvironmentInfo.IsWin)
 			{
-				settings = settings.SetToolPath(GetMsBuildPath());
+				settings = settings.SetToolPath(CustomMsBuildPath);
 			}
 
 			MSBuildProject parsed = MSBuildParseProject(project, s => settings);
@@ -278,7 +254,7 @@ class Build : NukeBuild
 
 				if (EnvironmentInfo.IsWin)
 				{
-					settings = settings.SetToolPath(GetMsBuildPath());
+					settings = settings.SetToolPath(CustomMsBuildPath);
 				}
 
 				MSBuildProject parsed = MSBuildParseProject(project, s => settings);
@@ -310,7 +286,7 @@ class Build : NukeBuild
 
 			if (EnvironmentInfo.IsWin)
 			{
-				settings = settings.SetToolPath(GetMsBuildPath());
+				settings = settings.SetToolPath(CustomMsBuildPath);
 			}
 
 			MSBuildProject parsed = MSBuildParseProject(project, s => settings);
