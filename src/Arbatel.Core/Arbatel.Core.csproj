@@ -42,7 +42,7 @@
 
   <ItemGroup>
     <Reference Include="Eto.Gl">
-      <HintPath>..\..\lib\thirdparty\Eto.Gl\Eto.Gl\Debug\Eto.Gl.dll</HintPath>
+      <HintPath>..\..\lib\thirdparty\Eto.Gl\Eto.Gl\$(Configuration)\Eto.Gl.dll</HintPath>
     </Reference>
   </ItemGroup>
 

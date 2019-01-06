@@ -61,10 +61,10 @@
     <Reference Include="System.Core" />
     <Reference Include="Xamarin.Mac" />
     <Reference Include="Eto.Gl">
-      <HintPath>..\..\..\lib\thirdparty\Eto.Gl\Eto.Gl\Debug\Eto.Gl.dll</HintPath>
+      <HintPath>..\..\..\lib\thirdparty\Eto.Gl\Eto.Gl\$(Configuration)\Eto.Gl.dll</HintPath>
     </Reference>
     <Reference Include="Eto.Gl.XamMac">
-      <HintPath>..\..\..\lib\thirdparty\Eto.Gl\Eto.Gl.XamMac\Debug\Eto.Gl.XamMac.dll</HintPath>
+      <HintPath>..\..\..\lib\thirdparty\Eto.Gl\Eto.Gl.XamMac\$(Configuration)\Eto.Gl.XamMac.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
