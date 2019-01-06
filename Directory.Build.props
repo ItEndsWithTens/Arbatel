@@ -25,4 +25,8 @@
     <DebugType>full</DebugType>
   </PropertyGroup>
 
+  <PropertyGroup>
+    <RestoreAdditionalProjectSources>https://www.myget.org/F/eto/</RestoreAdditionalProjectSources>
+  </PropertyGroup>
+
 </Project>

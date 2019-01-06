@@ -38,7 +38,9 @@
   Building and packaging this project requires some additional software:
 
   #### Windows
-  - [Visual Studio 2017, Update 2 or newer](https://visualstudio.microsoft.com/vs/community/)
+  - [Visual Studio 2017](https://visualstudio.microsoft.com/vs/community/)
+  - Up to date PowerShell (part of the [Windows Management Framework](https://docs.microsoft.com/en-us/powershell/wmf/overview))
+    - WMF 5.1 is included with Windows 10, and works as-is, but earlier versions of the OS may have outdated framework installations, preventing the Nuke build script from properly passing some arguments down into MSBuild.
 
   #### Linux
   - libcurl3 (GitVersion is currently broken in *nix without this)
@@ -53,9 +55,9 @@
   ## Credits
 
   Built with:
-  - [Eto.Forms](https://github.com/picoe/Eto) - Cross platform, native look GUI library
-  - [etoViewport](https://github.com/philstopford/etoViewport) - An OpenTK based OpenGL control for Eto.Forms
-  - [JsonSettings](https://github.com/Nucs/JsonSettings) - Simple, lightweight app settings library
+  - [Eto.Forms](https://github.com/picoe/Eto) - Cross platform, native look GUIs in C#
+  - [etoViewport](https://github.com/philstopford/etoViewport) - OpenGL in Eto.Forms by way of OpenTK
+  - [JsonSettings](https://github.com/Nucs/JsonSettings) - Simple, lightweight app settings
   - [Nuke](https://nuke.build) - Cross platform build automation with a C# DSL
 
 
