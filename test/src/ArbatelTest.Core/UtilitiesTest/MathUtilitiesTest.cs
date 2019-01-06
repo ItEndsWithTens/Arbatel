@@ -228,7 +228,7 @@ namespace ArbatelTest.Core.MathUtilitiesTest
 				Assert.That(results[14], Is.EqualTo(new List<int>() { 5, 6 }));
 			}
 
-			[TestCase]
+			[TestCase(Category = "Performance")]
 			public void NinetySixItemsSizeThree()
 			{
 				items = new List<int>();

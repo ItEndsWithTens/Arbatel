@@ -169,10 +169,13 @@ class Build : NukeBuild
 			AbsolutePath projectDir = RootDirectory / "src" / $"{ProductName}.Core";
 			AbsolutePath project = projectDir / $"{ProductName}.Core.csproj";
 
+			MSBuildSettings settings = new MSBuildSettings()
+				.SetProjectFile(project)
+				.SetConfiguration(Configuration);
+
 			// Windows developers with Visual Studio installed to a directory
 			// other than System.Environment.SpecialFolder.ProgramFilesX86 need
 			// to tell Nuke the path to MSBuild.exe themselves.
-			var settings = new MSBuildSettings();
 			if (EnvironmentInfo.IsWin)
 			{
 				settings = settings.SetToolPath(GetMsBuildPath());
@@ -184,9 +187,7 @@ class Build : NukeBuild
 
 			MSBuild(s => settings
 				.EnableRestore()
-				.SetProjectFile(project)
 				.SetTargets("Build")
-				.SetConfiguration(Configuration)
 				.SetAssemblyVersion(GitVersion.GetNormalizedAssemblyVersion())
 				.SetFileVersion(GitVersion.GetNormalizedFileVersion())
 				.SetInformationalVersion(GitVersion.InformationalVersion)
@@ -203,7 +204,10 @@ class Build : NukeBuild
 				AbsolutePath projectDir = RootDirectory / "src" / "gui" / $"{ProductName}.{etoPlatform}";
 				AbsolutePath project = projectDir / $"{ProductName}.{etoPlatform}.csproj";
 
-				var settings = new MSBuildSettings();
+				MSBuildSettings settings = new MSBuildSettings()
+					.SetProjectFile(project)
+					.SetConfiguration(Configuration);
+
 				if (EnvironmentInfo.IsWin)
 				{
 					settings = settings.SetToolPath(GetMsBuildPath());
@@ -215,9 +219,7 @@ class Build : NukeBuild
 
 				MSBuild(s => settings
 					.EnableRestore()
-					.SetProjectFile(project)
 					.SetTargets("Build")
-					.SetConfiguration(Configuration)
 					.SetAssemblyVersion(GitVersion.GetNormalizedAssemblyVersion())
 					.SetFileVersion(GitVersion.GetNormalizedFileVersion())
 					.SetInformationalVersion(GitVersion.InformationalVersion)
@@ -236,7 +238,10 @@ class Build : NukeBuild
 
 			Project project = Solution.GetProject($"{ProductName}.{etoPlatform}");
 
-			var settings = new MSBuildSettings();
+			MSBuildSettings settings = new MSBuildSettings()
+				.SetProjectFile(project)
+				.SetConfiguration(Configuration);
+
 			if (EnvironmentInfo.IsWin)
 			{
 				settings = settings.SetToolPath(GetMsBuildPath());
@@ -248,9 +253,7 @@ class Build : NukeBuild
 
 			MSBuild(s => settings
 				.EnableRestore()
-				.SetProjectFile(project)
 				.SetTargets("Build")
-				.SetConfiguration(Configuration)
 				.SetAssemblyVersion(GitVersion.GetNormalizedAssemblyVersion())
 				.SetFileVersion(GitVersion.GetNormalizedFileVersion())
 				.SetInformationalVersion(GitVersion.InformationalVersion)
@@ -269,7 +272,10 @@ class Build : NukeBuild
 				AbsolutePath projectDir = RootDirectory / "src" / "gui" / $"{ProductName}.{etoPlatform}";
 				AbsolutePath project = projectDir / $"{ProductName}.{etoPlatform}.csproj";
 
-				var settings = new MSBuildSettings();
+				MSBuildSettings settings = new MSBuildSettings()
+					.SetProjectFile(project)
+					.SetConfiguration(Configuration);
+
 				if (EnvironmentInfo.IsWin)
 				{
 					settings = settings.SetToolPath(GetMsBuildPath());
@@ -281,9 +287,7 @@ class Build : NukeBuild
 
 				MSBuild(s => settings
 					.EnableRestore()
-					.SetProjectFile(project)
 					.SetTargets("Build")
-					.SetConfiguration(Configuration)
 					.SetAssemblyVersion(GitVersion.GetNormalizedAssemblyVersion())
 					.SetFileVersion(GitVersion.GetNormalizedFileVersion())
 					.SetInformationalVersion(GitVersion.InformationalVersion)
@@ -300,7 +304,10 @@ class Build : NukeBuild
 		{
 			Project project = Solution.GetProject($"{ProductName}Test.Core");
 
-			var settings = new MSBuildSettings();
+			MSBuildSettings settings = new MSBuildSettings()
+				.SetProjectFile(project)
+				.SetConfiguration(Configuration);
+
 			if (EnvironmentInfo.IsWin)
 			{
 				settings = settings.SetToolPath(GetMsBuildPath());
@@ -312,9 +319,7 @@ class Build : NukeBuild
 
 			MSBuild(s => settings
 				.EnableRestore()
-				.SetProjectFile(project)
 				.SetTargets("Build")
-				.SetConfiguration(Configuration)
 				.SetAssemblyVersion(GitVersion.GetNormalizedAssemblyVersion())
 				.SetFileVersion(GitVersion.GetNormalizedFileVersion())
 				.SetInformationalVersion(GitVersion.InformationalVersion)
@@ -328,10 +333,17 @@ class Build : NukeBuild
 	{
 		Project project = Solution.GetProject($"{ProductName}Test.Core");
 
-		Nunit3(s => new Nunit3Settings()
+		Nunit3Settings settings = new Nunit3Settings()
 			.SetToolPath(StagingDirectory / $"{project.Name}" / executable)
 			.AddParameter("dataDirectory", RootDirectory / "test/data")
-			.AddParameter("fgdDirectory", RootDirectory / "extras"));
+			.AddParameter("fgdDirectory", RootDirectory / "extras");
+
+		if (Configuration != "Release")
+		{
+			settings = settings.SetWhereExpression("cat != Performance");
+		}
+
+		Nunit3(s => settings);
 	}
 
 	Target TestWindows => _ => _

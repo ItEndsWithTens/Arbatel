@@ -17,4 +17,12 @@
     <Deterministic>true</Deterministic>
   </PropertyGroup>
 
+  <PropertyGroup>
+    <!-- See https://www.wintellect.com/do-pdb-files-affect-performance/ -->
+    <!-- for an excellent article by John Robbins showing that debug symbols -->
+    <!-- have no performance impact, and that full and pdbonly are the same. -->
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+  </PropertyGroup>
+
 </Project>
