@@ -122,7 +122,7 @@ namespace ArbatelTest.Core.MathUtilitiesTest
 					sw.Reset();
 				}
 
-				Assert.That(average, Is.LessThan(1500));
+				Warn.Unless(average, Is.LessThan(1500));
 			}
 		}
 
@@ -259,7 +259,7 @@ namespace ArbatelTest.Core.MathUtilitiesTest
 					sw.Reset();
 				}
 
-				Assert.That(average, Is.LessThan(1000));
+				Warn.Unless(average, Is.LessThan(1000));
 			}
 		}
 
