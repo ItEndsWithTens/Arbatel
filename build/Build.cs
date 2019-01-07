@@ -147,13 +147,13 @@ class Build : NukeBuild
 				.SetProjectFile(project)
 				.SetConfiguration(Configuration);
 
-			// Windows developers with Visual Studio installed to a directory
-			// other than System.Environment.SpecialFolder.ProgramFilesX86 need
-			// to tell Nuke the path to MSBuild.exe themselves.
-			CustomMsBuildPath = (AbsolutePath)GetMsBuildPath();
-
 			if (EnvironmentInfo.IsWin)
 			{
+				// Windows developers with Visual Studio installed to a directory
+				// other than System.Environment.SpecialFolder.ProgramFilesX86 need
+				// to tell Nuke the path to MSBuild.exe themselves.
+				CustomMsBuildPath = (AbsolutePath)GetMsBuildPath();
+
 				settings = settings.SetToolPath(CustomMsBuildPath);
 			}
 
@@ -184,7 +184,7 @@ class Build : NukeBuild
 					.SetProjectFile(project)
 					.SetConfiguration(Configuration);
 
-				if (EnvironmentInfo.IsWin)
+				if (CustomMsBuildPath != null)
 				{
 					settings = settings.SetToolPath(CustomMsBuildPath);
 				}
@@ -218,7 +218,7 @@ class Build : NukeBuild
 				.SetProjectFile(project)
 				.SetConfiguration(Configuration);
 
-			if (EnvironmentInfo.IsWin)
+			if (CustomMsBuildPath != null)
 			{
 				settings = settings.SetToolPath(CustomMsBuildPath);
 			}
@@ -252,7 +252,7 @@ class Build : NukeBuild
 					.SetProjectFile(project)
 					.SetConfiguration(Configuration);
 
-				if (EnvironmentInfo.IsWin)
+				if (CustomMsBuildPath != null)
 				{
 					settings = settings.SetToolPath(CustomMsBuildPath);
 				}
@@ -284,7 +284,7 @@ class Build : NukeBuild
 				.SetProjectFile(project)
 				.SetConfiguration(Configuration);
 
-			if (EnvironmentInfo.IsWin)
+			if (CustomMsBuildPath != null)
 			{
 				settings = settings.SetToolPath(CustomMsBuildPath);
 			}
