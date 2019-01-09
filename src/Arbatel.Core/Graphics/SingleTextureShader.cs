@@ -183,7 +183,7 @@ namespace Arbatel.Graphics
 					SetUniform(LocationTextureWidth, (float)p.Texture.Width);
 					SetUniform(LocationTextureHeight, (float)p.Texture.Height);
 
-					GL.BindTexture(TextureTarget.Texture2D, Backend.Textures[p.Texture.Name.ToLower()]);
+					GL.BindTexture(TextureTarget.Texture2D, BackEnd.Textures[p.Texture.Name.ToLower()]);
 
 					// The last parameter of DrawRangeElements is a perhaps poorly
 					// labeled offset into the element buffer.

@@ -13,7 +13,7 @@ namespace Arbatel.Graphics
 {
 	public class Shader
 	{
-		public Backend Backend { get; set; }
+		public BackEnd BackEnd { get; set; }
 
 		public int Program;
 

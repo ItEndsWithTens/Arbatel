@@ -131,7 +131,7 @@ namespace Arbatel.Controls
 		/// <summary>
 		/// The graphics backend to use when rendering in this View.
 		/// </summary>
-		public Backend Backend { get; set; }
+		public BackEnd BackEnd { get; set; }
 		public Camera Camera = new Camera();
 		public Controller Controller;
 
@@ -176,10 +176,7 @@ namespace Arbatel.Controls
 			{
 				Camera.AspectRatio = (float)Width / (float)Height;
 
-				for (int i = 0; i < Map.MapObjects.Count; i++)
-				{
-					Map.MapObjects[i].Draw(Shaders, ShadingStyle, this, Camera);
-				}
+				BackEnd.DrawMap(Map, Shaders, ShadingStyle, this, Camera);
 			}
 
 			SwapBuffers();
@@ -301,9 +298,9 @@ namespace Arbatel.Controls
 			Shader.GetGlslVersion(out int glslMajor, out int glslMinor);
 			Shaders = new Dictionary<ShadingStyle, Shader>
 			{
-				{ ShadingStyle.Wireframe, new Shader() { Backend = Backend } },
-				{ ShadingStyle.Flat, new FlatShader(glslMajor, glslMinor) { Backend = Backend } },
-				{ ShadingStyle.Textured, new SingleTextureShader(glslMajor, glslMinor) { Backend = Backend } }
+				{ ShadingStyle.Wireframe, new Shader() { BackEnd = BackEnd } },
+				{ ShadingStyle.Flat, new FlatShader(glslMajor, glslMinor) { BackEnd = BackEnd } },
+				{ ShadingStyle.Textured, new SingleTextureShader(glslMajor, glslMinor) { BackEnd = BackEnd } }
 			};
 
 			// FIXME: Causes InvalidEnum from GL.GetError, at least on my OpenGL 2.1, GLSL 1.2, Intel HD Graphics laptop.

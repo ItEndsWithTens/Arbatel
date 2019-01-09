@@ -16,7 +16,7 @@ namespace Arbatel.Controls
 {
 	public class Viewport : PixelLayout
 	{
-		public Backend Backend { get; set; }
+		public BackEnd Backend { get; set; }
 
 		private int _view = 0;
 		public int View
@@ -50,7 +50,7 @@ namespace Arbatel.Controls
 			}
 		}
 
-		public Viewport(Backend backend)
+		public Viewport(BackEnd backend)
 		{
 			Backend = backend;
 
@@ -82,7 +82,7 @@ namespace Arbatel.Controls
 			var wireframe = new View3d()
 			{
 				ID = "3D Wireframe",
-				Backend = Backend,
+				BackEnd = Backend,
 				ClearColor = new Color4(1.0f, 0.0f, 0.0f, 1.0f),
 				ShadingStyle = ShadingStyle.Wireframe,
 				Enabled = false,
@@ -92,7 +92,7 @@ namespace Arbatel.Controls
 			var flat = new View3d()
 			{
 				ID = "3D Flat",
-				Backend = Backend,
+				BackEnd = Backend,
 				ClearColor = new Color4(0.0f, 1.0f, 0.0f, 1.0f),
 				ShadingStyle = ShadingStyle.Flat,
 				Enabled = false,
@@ -102,7 +102,7 @@ namespace Arbatel.Controls
 			var textured = new View3d()
 			{
 				ID = "3D Textured",
-				Backend = Backend,
+				BackEnd = Backend,
 				ClearColor = new Color4(0.0f, 0.0f, 1.0f, 1.0f),
 				ShadingStyle = ShadingStyle.Textured,
 				Enabled = false,

@@ -1,13 +1,10 @@
-﻿using Eto.Gl;
+﻿using Arbatel.Controls;
+using Arbatel.Graphics;
+using Eto.Gl;
 using OpenTK;
 using OpenTK.Graphics;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Arbatel.Controls;
-using Arbatel.Graphics;
 
 namespace Arbatel.Formats
 {
@@ -93,20 +90,6 @@ namespace Arbatel.Formats
 		/// </remarks>
 		public Dictionary<string, Option> KeyVals;
 
-		//private Vector3 position;
-		//public Vector3 Position
-		//{
-		//	get { return position; }
-		//	set
-		//	{
-		//		var diff = value - position;
-
-		//		AABB.Min += diff;
-		//		AABB.Max += diff;
-
-		//		position = value;
-		//	}
-		//}
 		public Vector3 Position { get; set; }
 
 		/// <summary>
@@ -163,71 +146,6 @@ namespace Arbatel.Formats
 			TextureCollection = new TextureDictionary(mo.TextureCollection);
 			Translucent = mo.Translucent;
 			UserData = mo.UserData;
-		}
-
-		public void Draw(Dictionary<ShadingStyle, Shader> shaders, ShadingStyle style, GLSurface surface, Camera camera)
-		{
-			if (!camera.CanSee(this))
-			{
-				return;
-			}
-
-			for (int i = 0; i < Children.Count; i++)
-			{
-				Children[i].Draw(shaders, style, surface, camera);
-			}
-
-			for (int i = 0; i < Renderables.Count; i++)
-			{
-				Renderables[i].Draw(shaders, style, surface, camera);
-			}
-		}
-
-		public void Init(List<View> views)
-		{
-			foreach (View view in views)
-			{
-				Init(view);
-			}
-		}
-		public void Init(View view)
-		{
-			foreach (var shader in view.Shaders.Values)
-			{
-				Init(shader, view);
-			}
-		}
-		public void Init(Shader shader, List<GLSurface> surfaces)
-		{
-			foreach (GLSurface surface in surfaces)
-			{
-				Init(shader, surface);
-			}
-		}
-		public void Init(Shader shader, GLSurface surface)
-		{
-			var points = new List<Vector3>();
-
-			foreach (MapObject child in Children)
-			{
-				child.Init(shader, surface);
-
-				points.Add(child.Aabb.Min);
-				points.Add(child.Aabb.Max);
-			}
-
-			foreach (Renderable renderable in Renderables)
-			{
-				renderable.Init(shader, surface);
-
-				points.Add(renderable.AABB.Min);
-				points.Add(renderable.AABB.Max);
-			}
-
-			if (points.Count > 0)
-			{
-				Aabb = new Aabb(points);
-			}
 		}
 
 		/// <summary>
@@ -290,10 +208,11 @@ namespace Arbatel.Formats
 					case TransformType.Position:
 						split = kv.Value.Value.Split(' ');
 
-						var origin = new Vertex();
-						float.TryParse(split[0], out origin.Position.X);
-						float.TryParse(split[1], out origin.Position.Y);
-						float.TryParse(split[2], out origin.Position.Z);
+						var position = new Vector3();
+						float.TryParse(split[0], out position.X);
+						float.TryParse(split[1], out position.Y);
+						float.TryParse(split[2], out position.Z);
+						var origin = new Vertex(position);
 
 						// TODO: Scale!
 						origin = Vertex.Rotate(origin, rotation.Y, rotation.Z, rotation.X);

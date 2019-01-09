@@ -1,10 +1,7 @@
 ﻿using OpenTK;
 using OpenTK.Graphics;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Runtime.InteropServices;
 
 namespace Arbatel.Graphics
 {
@@ -62,35 +59,37 @@ namespace Arbatel.Graphics
 
 	public struct Vertex
 	{
-		public Vector3 Position;
+		public static int MemorySize { get; } = Marshal.SizeOf(typeof(Vertex));
 
-		public Vector3 Normal;
+		public Vector3 Position { get; set; }
 
-		public Color4 Color;
+		public Vector3 Normal { get; set; }
 
-		public Vertex(Vertex _vertex) : this(_vertex.Position, _vertex.Normal, _vertex.Color)
+		public Color4 Color { get; set; }
+
+		public Vertex(Vertex vertex) : this(vertex.Position, vertex.Normal, vertex.Color)
 		{
 		}
-		public Vertex(Vector3 _position) : this(_position.X, _position.Y, _position.Z)
+		public Vertex(Vector3 position) : this(position.X, position.Y, position.Z)
 		{
 		}
-		public Vertex(float _x, float _y, float _z) :
-			this(new Vector3(_x, _y, _z), new Vector3(0.0f, 0.0f, 1.0f), Color4.White)
+		public Vertex(float x, float y, float z) :
+			this(new Vector3(x, y, z), new Vector3(0.0f, 0.0f, 1.0f), Color4.White)
 		{
 		}
-		public Vertex(float _x, float _y, float _z, Color4 _color) :
-			this(new Vector3(_x, _y, _z), new Vector3(0.0f, 0.0f, 1.0f), _color)
+		public Vertex(float x, float y, float z, Color4 color) :
+			this(new Vector3(x, y, z), new Vector3(0.0f, 0.0f, 1.0f), color)
 		{
 		}
-		public Vertex(Vector3 _position, Color4 _color) :
-			this(_position, new Vector3(0.0f, 0.0f, 1.0f), _color)
+		public Vertex(Vector3 position, Color4 color) :
+			this(position, new Vector3(0.0f, 0.0f, 1.0f), color)
 		{
 		}
-		public Vertex(Vector3 _position, Vector3 _normal, Color4 _color)
+		public Vertex(Vector3 position, Vector3 normal, Color4 color)
 		{
-			Position = _position;
-			Normal = _normal;
-			Color = _color;
+			Position = position;
+			Normal = normal;
+			Color = color;
 		}
 
 		public static Vertex Rotate(Vertex vertex, float pitch, float yaw, float roll)
@@ -114,18 +113,31 @@ namespace Arbatel.Graphics
 			return TranslateRelative(v, new Vector3(diffX, diffY, diffZ));
 		}
 
-		public static Vector3 operator +(Vertex lhs, Vertex rhs)
+		public static Vector3 Add(Vertex lhs, Vertex rhs)
 		{
 			return lhs.Position + rhs.Position;
 		}
-		public static Vector3 operator -(Vertex lhs, Vertex rhs)
+		public static Vector3 operator +(Vertex lhs, Vertex rhs)
+		{
+			return Add(lhs, rhs);
+		}
+
+		public static Vector3 Subtract(Vertex lhs, Vertex rhs)
 		{
 			return lhs.Position - rhs.Position;
 		}
+		public static Vector3 operator -(Vertex lhs, Vertex rhs)
+		{
+			return Subtract(lhs, rhs);
+		}
 
-		public static implicit operator Vector3(Vertex vertex)
+		public static Vector3 ToVector3(Vertex vertex)
 		{
 			return new Vector3(vertex.Position);
+		}
+		public static implicit operator Vector3(Vertex vertex)
+		{
+			return ToVector3(vertex);
 		}
 
 		public override string ToString()

@@ -231,8 +231,6 @@ namespace Arbatel.Graphics
 		/// </summary>
 		public List<Vertex> Vertices;
 
-		private readonly int VertexSize = Marshal.SizeOf(typeof(Vertex));
-
 		public Renderable()
 		{
 			AABB = new Aabb();
@@ -276,58 +274,6 @@ namespace Arbatel.Graphics
 			ShadingStyleDict = new Dictionary<ShadingStyle, ShadingStyle>(r.ShadingStyleDict);
 			Translucent = r.Translucent;
 			Vertices = new List<Vertex>(r.Vertices);
-		}
-
-		public void Draw(Dictionary<ShadingStyle, Shader> shaders, ShadingStyle style, GLSurface surface, Camera camera)
-		{
-			ShadingStyle actualStyle = ShadingStyleDict[style];
-
-			shaders[actualStyle].Draw(this, surface, camera);
-		}
-
-		public void Init(Shader shader, GLSurface surface)
-		{
-			surface.MakeCurrent();
-
-			Buffers b;
-
-			if (Buffers.ContainsKey(surface))
-			{
-				b = Buffers[surface];
-			}
-			else
-			{
-				b = new Buffers();
-
-				Buffers.Add(surface, b);
-			}
-
-			GL.BindVertexArray(b.Vao);
-			GL.BindBuffer(BufferTarget.ArrayBuffer, b.Vbo);
-			GL.BindBuffer(BufferTarget.ElementArrayBuffer, b.Ebo);
-
-			// Configure position element.
-			int positionLocation = GL.GetAttribLocation(shader.Program, "position");
-			GL.VertexAttribPointer(positionLocation, 3, VertexAttribPointerType.Float, false, VertexSize, 0);
-			GL.EnableVertexAttribArray(positionLocation);
-
-			// Normal
-			int normalLocation = GL.GetAttribLocation(shader.Program, "normal");
-			GL.VertexAttribPointer(normalLocation, 3, VertexAttribPointerType.Float, false, VertexSize, sizeof(float) * 3);
-			GL.EnableVertexAttribArray(normalLocation);
-
-			// Color
-			int colorLocation = GL.GetAttribLocation(shader.Program, "color");
-			GL.VertexAttribPointer(colorLocation, 4, VertexAttribPointerType.Float, false, VertexSize, sizeof(float) * 6);
-			GL.EnableVertexAttribArray(colorLocation);
-
-			GL.BufferData(BufferTarget.ArrayBuffer, VertexSize * Vertices.Count, Vertices.ToArray(), BufferUsageHint.StaticDraw);
-
-			GL.BufferData(BufferTarget.ElementArrayBuffer, 4 * Indices.Count, Indices.ToArray(), BufferUsageHint.StaticDraw);
-
-			GL.BindVertexArray(0);
-			GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
-			GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);
 		}
 
 		protected void Rotate(Vector3 rotation)

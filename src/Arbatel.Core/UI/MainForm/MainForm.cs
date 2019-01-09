@@ -3,6 +3,7 @@ using Arbatel.Formats;
 using Arbatel.Graphics;
 using Eto.Forms;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Arbatel.UI
 {
@@ -11,7 +12,7 @@ namespace Arbatel.UI
 		/// <summary>
 		/// The graphics backend used by this application.
 		/// </summary>
-		public Backend BackEnd { get; private set; } = new OpenGL4BackEnd();
+		public BackEnd BackEnd { get; private set; } = new OpenGL4BackEnd();
 
 		private Map _map;
 		/// <summary>
@@ -60,17 +61,12 @@ namespace Arbatel.UI
 		{
 			var viewport = FindChild("viewport") as Viewport;
 
-			var view3ds = new List<View>()
-			{
-				viewport.Views[2] as View,
-				viewport.Views[3] as View,
-				viewport.Views[4] as View
-			};
+			IEnumerable<View> view3ds =
+				from pair in viewport.Views
+				where pair.Value is View
+				select pair.Value as View;
 
-			foreach (MapObject mo in Map.MapObjects)
-			{
-				mo.Init(view3ds);
-			}
+			BackEnd.InitMap(Map, view3ds.ToList());
 
 			var tree = viewport.Views[1] as TreeGridView;
 			tree.Columns.Add(new GridColumn() { HeaderText = "Column 1", DataCell = new TextBoxCell(0) });
