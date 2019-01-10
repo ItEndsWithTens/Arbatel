@@ -8,16 +8,16 @@ namespace Arbatel.Graphics
 {
 	public class OpenGL4BackEnd : BackEnd
 	{
-		public override void DrawRenderable(Renderable r, Dictionary<ShadingStyle, Shader> shaders, ShadingStyle style, object surface, Camera camera)
+		public override void DrawRenderable(Renderable r, Dictionary<ShadingStyle, Shader> shaders, ShadingStyle style, View view, Camera camera)
 		{
 			ShadingStyle actualStyle = r.ShadingStyleDict[style];
 
-			shaders[actualStyle].Draw(r, surface as GLSurface, camera);
+			shaders[actualStyle].Draw(r, view.Content as GLSurface, camera);
 		}
 
-		public override void InitRenderable(Renderable renderable, Shader shader, object surface)
+		public override void InitRenderable(Renderable renderable, Shader shader, View view)
 		{
-			var glSurface = (GLSurface)surface;
+			var glSurface = view.Content as GLSurface;
 
 			glSurface.MakeCurrent();
 
@@ -72,7 +72,7 @@ namespace Arbatel.Graphics
 
 		public override void InitTextures(TextureDictionary dictionary)
 		{
-			foreach (var t in dictionary.Values)
+			foreach (Texture t in dictionary.Values)
 			{
 				GL.GenTextures(1, out int id);
 				Textures.Add(t.Name, id);

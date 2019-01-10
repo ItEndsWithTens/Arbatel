@@ -1,23 +1,15 @@
-﻿using Eto.Drawing;
-using Eto.Forms;
+﻿using Arbatel.Graphics;
 using OpenTK;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Arbatel.Controls;
-using Arbatel.Graphics;
 
 namespace Arbatel.Controllers
 {
 	public class FirstPersonController : Controller
 	{
-		public Camera Camera;
+		public Camera Camera { get; set; }
 
-		public FirstPersonController(ref Camera _camera)
+		public FirstPersonController(Camera camera)
 		{
-			Camera = _camera;
+			Camera = camera;
 
 			Camera.MaxPitch = 89.0f;
 			Camera.MinPitch = -89.0f;

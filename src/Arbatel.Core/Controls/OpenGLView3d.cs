@@ -8,11 +8,11 @@ using Arbatel.Controllers;
 
 namespace Arbatel.Controls
 {
-	public class View3d : View
+	public class OpenGLView3d : OpenGLView
 	{
-		public View3d()
+		public OpenGLView3d()
 		{
-			Controller = new FirstPersonController(ref Camera);
+			Controller = new FirstPersonController(Camera);
 		}
 	}
 }

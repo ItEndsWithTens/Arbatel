@@ -11,12 +11,13 @@ using System.Threading.Tasks;
 using Arbatel.Formats;
 using Arbatel.Graphics;
 using Arbatel.Utilities;
+using Arbatel.Controllers;
 
 namespace Arbatel.Controls
 {
 	public class Viewport : PixelLayout
 	{
-		public BackEnd Backend { get; set; }
+		public BackEnd BackEnd { get; set; }
 
 		private int _view = 0;
 		public int View
@@ -52,7 +53,7 @@ namespace Arbatel.Controls
 
 		public Viewport(BackEnd backend)
 		{
-			Backend = backend;
+			BackEnd = backend;
 
 			BackgroundColor = Colors.Crimson;
 
@@ -79,30 +80,30 @@ namespace Arbatel.Controls
 			tree.Shown += (sender, e) => { Focus(); };
 			tree.MouseLeave += (sender, e) => { Focus(); };
 
-			var wireframe = new View3d()
+			var wireframe = new OpenGLView3d()
 			{
 				ID = "3D Wireframe",
-				BackEnd = Backend,
+				BackEnd = BackEnd,
 				ClearColor = new Color4(1.0f, 0.0f, 0.0f, 1.0f),
 				ShadingStyle = ShadingStyle.Wireframe,
 				Enabled = false,
 				Visible = false
 			};
 
-			var flat = new View3d()
+			var flat = new OpenGLView3d()
 			{
 				ID = "3D Flat",
-				BackEnd = Backend,
+				BackEnd = BackEnd,
 				ClearColor = new Color4(0.0f, 1.0f, 0.0f, 1.0f),
 				ShadingStyle = ShadingStyle.Flat,
 				Enabled = false,
 				Visible = false
 			};
 
-			var textured = new View3d()
+			var textured = new OpenGLView3d()
 			{
 				ID = "3D Textured",
-				BackEnd = Backend,
+				BackEnd = BackEnd,
 				ClearColor = new Color4(0.0f, 0.0f, 1.0f, 1.0f),
 				ShadingStyle = ShadingStyle.Textured,
 				Enabled = false,
