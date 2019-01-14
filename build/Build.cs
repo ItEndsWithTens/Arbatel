@@ -4,7 +4,7 @@ using Nuke.Common.ProjectModel;
 using Nuke.Common.Tooling;
 using Nuke.Common.Tools.GitVersion;
 using Nuke.Common.Tools.MSBuild;
-using Nuke.Common.Tools.Nunit;
+using Nuke.Common.Tools.NUnit;
 using Nuke.Common.Tools.VSWhere;
 using SharpCompress.Archives;
 using SharpCompress.Archives.Tar;
@@ -20,16 +20,19 @@ using System.Linq;
 using static Nuke.Common.IO.FileSystemTasks;
 using static Nuke.Common.IO.PathConstruction;
 using static Nuke.Common.Tools.MSBuild.MSBuildTasks;
-using static Nuke.Common.Tools.Nunit.NunitTasks;
+using static Nuke.Common.Tools.NUnit.NUnitTasks;
 using static Nuke.Common.Tools.VSWhere.VSWhereTasks;
 
 class Build : NukeBuild
 {
 	const string ProductName = "Arbatel";
 
+	string[] EtoPlatformsWin = new string[] { "WinForms", "Wpf" };
+	string[] EtoPlatformsLin = new string[] { "Gtk" };
+	string[] EtoPlatformsMac = new string[] { "Mac", "XamMac" };
+
 	AbsolutePath ArtifactsDirectory => RootDirectory / "artifacts";
 	AbsolutePath SourceDirectory => RootDirectory / "src";
-	AbsolutePath StagingDirectory => RootDirectory / "staging";
 	AbsolutePath TestSourceDirectory => RootDirectory / "test" / "src";
 	AbsolutePath CustomMsBuildPath;
 
@@ -52,6 +55,22 @@ class Build : NukeBuild
 		{ PlatformFamily.Linux, "Linux" },
 		{ PlatformFamily.OSX, "macOS" },
 	};
+
+	public static int Main()
+	{
+		if (EnvironmentInfo.IsOsx)
+		{
+			return Execute<Build>(x => x.PackageMac);
+		}
+		else if (EnvironmentInfo.IsLinux)
+		{
+			return Execute<Build>(x => x.PackageLinux);
+		}
+		else
+		{
+			return Execute<Build>(x => x.PackageWindows);
+		}
+	}
 
 	/// <summary>
 	/// Find the full path of a copy of MSBuild on a Windows system.
@@ -82,20 +101,22 @@ class Build : NukeBuild
 		return Path.Combine(vsPath, "MSBuild", vsMajor.ToString() + ".0", "Bin", "MSBuild.exe");
 	}
 
-	public static int Main()
+	/// <summary>
+	/// Get the full path to a given project's compile output directory.
+	/// </summary>
+	/// <param name="name">The name of the project.</param>
+	/// <returns>The full, absolute path to the directory specified by a
+	/// project's "OutputPath" property.</returns>
+	public string GetOutputPath(string name)
 	{
-		if (EnvironmentInfo.IsOsx)
-		{
-			return Execute<Build>(x => x.PackageMac);
-		}
-		else if (EnvironmentInfo.IsLinux)
-		{
-			return Execute<Build>(x => x.PackageLinux);
-		}
-		else
-		{
-			return Execute<Build>(x => x.PackageWindows);
-		}
+		Project n = Solution.GetProject(name);
+
+		// The OutputPath property has a different value depending on the active
+		// build configuration, so it's necessary to take that into account.
+		Microsoft.Build.Evaluation.Project m = n.GetMSBuildProject(Configuration);
+		Microsoft.Build.Evaluation.ProjectProperty o = m.GetProperty("OutputPath");
+
+		return Path.Combine(n.Directory, o.EvaluatedValue);
 	}
 
 	Target Clean => _ => _
@@ -132,194 +153,78 @@ class Build : NukeBuild
 			list.Sort((a, b) => a.Length.CompareTo(b.Length));
 			list.Reverse();
 			DeleteDirectories(list);
-
-			EnsureCleanDirectory(StagingDirectory);
 		});
+
+	private void Compile(string[] platforms)
+	{
+		MSBuild(settings => new MSBuildSettings()
+			.EnableRestore()
+			.SetTargets("Build")
+			.SetConfiguration(Configuration)
+			.When(CustomMsBuildPath != null, s => s
+				.SetToolPath(CustomMsBuildPath))
+			.SetAssemblyVersion(GitVersion.GetNormalizedAssemblyVersion())
+			.SetFileVersion(GitVersion.GetNormalizedFileVersion())
+			.SetInformationalVersion(GitVersion.InformationalVersion)
+			.SetMaxCpuCount(Environment.ProcessorCount)
+			.SetNodeReuse(IsLocalBuild)
+			.CombineWith(platforms, (s, p) => s
+				.SetProjectFile(Solution.GetProject($"{p}"))));
+	}
 
 	Target CompileCore => _ => _
 		.DependsOn(Clean)
 		.Executes(() =>
 		{
-			AbsolutePath projectDir = RootDirectory / "src" / $"{ProductName}.Core";
-			AbsolutePath project = projectDir / $"{ProductName}.Core.csproj";
-
-			MSBuildSettings settings = new MSBuildSettings()
-				.SetProjectFile(project)
-				.SetConfiguration(Configuration);
-
 			if (EnvironmentInfo.IsWin)
 			{
 				// Windows developers with Visual Studio installed to a directory
 				// other than System.Environment.SpecialFolder.ProgramFilesX86 need
 				// to tell Nuke the path to MSBuild.exe themselves.
 				CustomMsBuildPath = (AbsolutePath)GetMsBuildPath();
-
-				settings = settings.SetToolPath(CustomMsBuildPath);
 			}
 
-			MSBuildProject parsed = MSBuildParseProject(project, s => settings);
-
-			AbsolutePath buildDir = projectDir / parsed.Properties["OutputPath"];
-
-			MSBuild(s => settings
-				.EnableRestore()
-				.SetTargets("Build")
-				.SetAssemblyVersion(GitVersion.GetNormalizedAssemblyVersion())
-				.SetFileVersion(GitVersion.GetNormalizedFileVersion())
-				.SetInformationalVersion(GitVersion.InformationalVersion)
-				.SetMaxCpuCount(Environment.ProcessorCount)
-				.SetNodeReuse(IsLocalBuild));
+			Compile(new string[] { $"{ProductName}.Core" });
 		});
 
 	Target CompileWindows => _ => _
 		.DependsOn(CompileCore)
 		.Executes(() =>
 		{
-			foreach (string etoPlatform in new string[] { "WinForms", "Wpf" })
-			{
-				AbsolutePath projectDir = RootDirectory / "src" / "gui" / $"{ProductName}.{etoPlatform}";
-				AbsolutePath project = projectDir / $"{ProductName}.{etoPlatform}.csproj";
-
-				MSBuildSettings settings = new MSBuildSettings()
-					.SetProjectFile(project)
-					.SetConfiguration(Configuration);
-
-				if (CustomMsBuildPath != null)
-				{
-					settings = settings.SetToolPath(CustomMsBuildPath);
-				}
-
-				MSBuildProject parsed = MSBuildParseProject(project, s => settings);
-
-				AbsolutePath buildDir = projectDir / parsed.Properties["OutputPath"];
-
-				MSBuild(s => settings
-					.EnableRestore()
-					.SetTargets("Build")
-					.SetAssemblyVersion(GitVersion.GetNormalizedAssemblyVersion())
-					.SetFileVersion(GitVersion.GetNormalizedFileVersion())
-					.SetInformationalVersion(GitVersion.InformationalVersion)
-					.SetMaxCpuCount(Environment.ProcessorCount)
-					.SetNodeReuse(IsLocalBuild));
-
-				CopyDirectoryRecursively(buildDir, StagingDirectory / $"{etoPlatform}");
-			}
+			Compile(EtoPlatformsWin.Select(p => $"{ProductName}.{p}").ToArray());
 		});
 
 	Target CompileLinux => _ => _
 		.DependsOn(CompileCore)
 		.Executes(() =>
 		{
-			string etoPlatform = "Gtk";
-
-			Project project = Solution.GetProject($"{ProductName}.{etoPlatform}");
-
-			MSBuildSettings settings = new MSBuildSettings()
-				.SetProjectFile(project)
-				.SetConfiguration(Configuration);
-
-			if (CustomMsBuildPath != null)
-			{
-				settings = settings.SetToolPath(CustomMsBuildPath);
-			}
-
-			MSBuildProject parsed = MSBuildParseProject(project, s => settings);
-
-			AbsolutePath buildDir = project.Directory / parsed.Properties["OutputPath"];
-
-			MSBuild(s => settings
-				.EnableRestore()
-				.SetTargets("Build")
-				.SetAssemblyVersion(GitVersion.GetNormalizedAssemblyVersion())
-				.SetFileVersion(GitVersion.GetNormalizedFileVersion())
-				.SetInformationalVersion(GitVersion.InformationalVersion)
-				.SetMaxCpuCount(Environment.ProcessorCount)
-				.SetNodeReuse(IsLocalBuild));
-
-			CopyDirectoryRecursively(buildDir, StagingDirectory / $"{etoPlatform}");
+			Compile(EtoPlatformsLin.Select(p => $"{ProductName}.{p}").ToArray());
 		});
 
 	Target CompileMac => _ => _
 		.DependsOn(CompileCore)
 		.Executes(() =>
 		{
-			foreach (string etoPlatform in new string[] { "Mac", "XamMac" })
-			{
-				AbsolutePath projectDir = RootDirectory / "src" / "gui" / $"{ProductName}.{etoPlatform}";
-				AbsolutePath project = projectDir / $"{ProductName}.{etoPlatform}.csproj";
-
-				MSBuildSettings settings = new MSBuildSettings()
-					.SetProjectFile(project)
-					.SetConfiguration(Configuration);
-
-				if (CustomMsBuildPath != null)
-				{
-					settings = settings.SetToolPath(CustomMsBuildPath);
-				}
-
-				MSBuildProject parsed = MSBuildParseProject(project, s => settings);
-
-				AbsolutePath buildDir = projectDir / parsed.Properties["OutputPath"];
-
-				MSBuild(s => settings
-					.EnableRestore()
-					.SetTargets("Build")
-					.SetAssemblyVersion(GitVersion.GetNormalizedAssemblyVersion())
-					.SetFileVersion(GitVersion.GetNormalizedFileVersion())
-					.SetInformationalVersion(GitVersion.InformationalVersion)
-					.SetMaxCpuCount(Environment.ProcessorCount)
-					.SetNodeReuse(IsLocalBuild));
-
-				CopyDirectoryRecursively(buildDir, StagingDirectory / $"{etoPlatform}");
-			}
+			Compile(EtoPlatformsMac.Select(p => $"{ProductName}.{p}").ToArray());
 		});
 
 	Target CompileTests => _ => _
 		.DependsOn(CompileCore)
 		.Executes(() =>
 		{
-			Project project = Solution.GetProject($"{ProductName}Test.Core");
-
-			MSBuildSettings settings = new MSBuildSettings()
-				.SetProjectFile(project)
-				.SetConfiguration(Configuration);
-
-			if (CustomMsBuildPath != null)
-			{
-				settings = settings.SetToolPath(CustomMsBuildPath);
-			}
-
-			MSBuildProject parsed = MSBuildParseProject(project, s => settings);
-
-			AbsolutePath buildDir = project.Directory / parsed.Properties["OutputPath"];
-
-			MSBuild(s => settings
-				.EnableRestore()
-				.SetTargets("Build")
-				.SetAssemblyVersion(GitVersion.GetNormalizedAssemblyVersion())
-				.SetFileVersion(GitVersion.GetNormalizedFileVersion())
-				.SetInformationalVersion(GitVersion.InformationalVersion)
-				.SetMaxCpuCount(Environment.ProcessorCount)
-				.SetNodeReuse(IsLocalBuild));
-
-			CopyDirectoryRecursively(buildDir, StagingDirectory / project.Name);
+			Compile(new string[] { $"{ProductName}Test.Core" });
 		});
 
 	private void Test(string executable)
 	{
-		Project project = Solution.GetProject($"{ProductName}Test.Core");
+		string binDir = GetOutputPath($"{ProductName}Test.Core");
 
-		Nunit3Settings settings = new Nunit3Settings()
-			.SetToolPath(StagingDirectory / $"{project.Name}" / executable)
+		NUnit3(settings => new NUnit3Settings()
+			.SetToolPath(Path.Combine(binDir, executable))
 			.AddParameter("dataDirectory", RootDirectory / "test/data")
-			.AddParameter("fgdDirectory", RootDirectory / "extras");
-
-		if (Configuration != "Release")
-		{
-			settings = settings.SetWhereExpression("cat != Performance");
-		}
-
-		Nunit3(s => settings);
+			.AddParameter("fgdDirectory", RootDirectory / "extras")
+			.When(Configuration != "Release",
+				s => s.SetWhereExpression("cat != Performance")));
 	}
 
 	Target TestWindows => _ => _
@@ -347,16 +252,16 @@ class Build : NukeBuild
 		.DependsOn(TestWindows)
 		.Executes(() =>
 		{
-			foreach (string etoPlatform in new string[] { "WinForms", "Wpf" })
+			foreach (string platform in EtoPlatformsWin)
 			{
-				AbsolutePath finalDir = ArtifactsDirectory / etoPlatform;
+				AbsolutePath finalDir = ArtifactsDirectory / platform;
 
-				EnsureExistingDirectory(finalDir);
+				EnsureCleanDirectory(finalDir);
 
 				using (var archive = ZipArchive.Create())
 				{
 					archive.DeflateCompressionLevel = CompressionLevel.BestCompression;
-					archive.AddAllFromDirectory(StagingDirectory / etoPlatform);
+					archive.AddAllFromDirectory(GetOutputPath($"{ProductName}.{platform}"));
 
 					string name = String.Join('-', ProductName, GitVersion.MajorMinorPatch, OsFriendlyName[EnvironmentInfo.Platform]);
 					archive.SaveTo(finalDir / name + ".zip", new WriterOptions(CompressionType.Deflate));
@@ -368,29 +273,31 @@ class Build : NukeBuild
 		.DependsOn(TestLinux)
 		.Executes(() =>
 		{
-			string etoPlatform = "Gtk";
+			foreach (string platform in EtoPlatformsLin)
+			{
+				AbsolutePath finalDir = ArtifactsDirectory / platform;
 
-			AbsolutePath finalDir = ArtifactsDirectory / etoPlatform;
+				EnsureCleanDirectory(finalDir);
 
-			EnsureExistingDirectory(finalDir);
+				string name = String.Join('-', ProductName, GitVersion.MajorMinorPatch, OsFriendlyName[EnvironmentInfo.Platform]);
 
-			string name = String.Join('-', ProductName, GitVersion.MajorMinorPatch, OsFriendlyName[EnvironmentInfo.Platform]);
-
-			var tarball = TarArchive.Create();
-
-			tarball.AddAllFromDirectory(StagingDirectory / etoPlatform);
-			tarball.SaveTo(finalDir / name + ".tar.gz", new WriterOptions(CompressionType.GZip));
+				using (var tarball = TarArchive.Create())
+				{
+					tarball.AddAllFromDirectory(GetOutputPath($"{ProductName}.{platform}"));
+					tarball.SaveTo(finalDir / name + ".tar.gz", new WriterOptions(CompressionType.GZip));
+				}
+			}
 		});
 
 	Target PackageMac => _ => _
 		.DependsOn(TestMac)
 		.Executes(() =>
 		{
-			foreach (string etoPlatform in new string[] { "Mac", "XamMac" })
+			foreach (string platform in EtoPlatformsMac)
 			{
-				AbsolutePath finalDir = ArtifactsDirectory / etoPlatform;
+				AbsolutePath finalDir = ArtifactsDirectory / platform;
 
-				EnsureExistingDirectory(finalDir);
+				EnsureCleanDirectory(finalDir);
 
 				string name = String.Join('-', ProductName, GitVersion.MajorMinorPatch, OsFriendlyName[EnvironmentInfo.Platform]);
 
@@ -398,7 +305,7 @@ class Build : NukeBuild
 				dmgbuild.StartInfo.FileName = "dmgbuild";
 				dmgbuild.StartInfo.Arguments =
 					$"-s " + BuildProjectDirectory / "dmgbuild-settings.py" +
-					" -D app=" + StagingDirectory / etoPlatform / $"{ProductName}.{etoPlatform}.app" +
+					" -D app=" + Path.Combine(GetOutputPath($"{ProductName}.{platform}"), $"{platform}.app") +
 					$" {ProductName} " +
 					finalDir / name + ".dmg";
 
