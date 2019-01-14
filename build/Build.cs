@@ -102,21 +102,23 @@ class Build : NukeBuild
 	}
 
 	/// <summary>
-	/// Get the full path to a given project's compile output directory.
+	/// Get the absolute path to a given project's compile output directory.
 	/// </summary>
 	/// <param name="name">The name of the project.</param>
 	/// <returns>The full, absolute path to the directory specified by a
 	/// project's "OutputPath" property.</returns>
-	public string GetOutputPath(string name)
+	public AbsolutePath GetOutputPath(string name)
 	{
 		Project n = Solution.GetProject(name);
 
 		// The OutputPath property has a different value depending on the active
 		// build configuration, so it's necessary to take that into account.
-		Microsoft.Build.Evaluation.Project m = n.GetMSBuildProject(Configuration);
-		Microsoft.Build.Evaluation.ProjectProperty o = m.GetProperty("OutputPath");
+		MSBuildProject parsed = MSBuildParseProject(n, settings => new MSBuildSettings()
+			.SetConfiguration(Configuration)
+			.When(CustomMsBuildPath != null, s => s
+				.SetToolPath(CustomMsBuildPath)));
 
-		return Path.Combine(n.Directory, o.EvaluatedValue);
+		return n.Directory / parsed.Properties["OutputPath"];
 	}
 
 	Target Clean => _ => _
@@ -305,7 +307,7 @@ class Build : NukeBuild
 				dmgbuild.StartInfo.FileName = "dmgbuild";
 				dmgbuild.StartInfo.Arguments =
 					$"-s " + BuildProjectDirectory / "dmgbuild-settings.py" +
-					" -D app=" + Path.Combine(GetOutputPath($"{ProductName}.{platform}"), $"{platform}.app") +
+					" -D app=" + GetOutputPath($"{ProductName}.{platform}") / $"{ProductName}.{platform}.app" +
 					$" {ProductName} " +
 					finalDir / name + ".dmg";
 

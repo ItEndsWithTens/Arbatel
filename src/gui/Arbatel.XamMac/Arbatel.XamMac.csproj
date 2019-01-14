@@ -89,7 +89,7 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Eto.Platform.XamMac2">
-      <Version>2.5.0-ci-10063</Version>
+      <Version>2.5.0-ci-10088</Version>
     </PackageReference>
     <PackageReference Include="OpenTK">
       <Version>3.0.1</Version>
