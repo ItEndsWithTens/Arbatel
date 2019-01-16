@@ -14,7 +14,6 @@ using SharpCompress.Compressors.Deflate;
 using SharpCompress.Writers;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using static Nuke.Common.IO.FileSystemTasks;
@@ -113,7 +112,7 @@ class Build : NukeBuild
 
 		// The OutputPath property has a different value depending on the active
 		// build configuration, so it's necessary to take that into account.
-		MSBuildProject parsed = MSBuildParseProject(n, settings => new MSBuildSettings()
+		MSBuildProject parsed = MSBuildParseProject(n, settings => settings
 			.SetConfiguration(Configuration)
 			.When(CustomMsBuildPath != null, s => s
 				.SetToolPath(CustomMsBuildPath)));
@@ -130,36 +129,16 @@ class Build : NukeBuild
 			// .csproj files mean that dependencies would also be rebuilt, which
 			// in this case means the core class library. To start fresh every
 			// time, but still build the core library only once, it's important
-			// to clean all the bin and obj folders along with the staging
-			// directory. Then use SetTargets("Build") on each GUI project to
-			// trigger an incremental build. The core will have been built anew,
-			// and no time will be wasted rebuilding it for every GUI app.
-
-			var files = new List<string>();
-			files.AddRange(GlobFiles(SourceDirectory, "**/bin/**/*", "**/obj/**/*"));
-			files.AddRange(GlobFiles(TestSourceDirectory, "**/bin/**/*", "**/obj/**/*"));
-
-			// Make sure all files are gone first; can't remove empty folders.
-			foreach (string file in files)
-			{
-				DeleteFile(file);
-			}
-
-			var directories = new List<string>();
-			directories.AddRange(GlobDirectories(SourceDirectory, "**/bin/**", "**/obj/**"));
-			directories.AddRange(GlobDirectories(TestSourceDirectory, "**/bin/**", "**/obj/**"));
-
-			// Sort paths by length, and reverse to delete the deepest first;
-			// the parent levels will then be empty and cleanly deletable.
-			var list = new List<string>(directories);
-			list.Sort((a, b) => a.Length.CompareTo(b.Length));
-			list.Reverse();
-			DeleteDirectories(list);
+			// to clean all bin and obj folders, then use SetTargets("Build") on
+			// each GUI project to trigger an incremental build. The core will
+			// be built anew, with no time wasted rebuilding it for every GUI.
+			DeleteDirectories(GlobDirectories(SourceDirectory, "*/bin", "*/obj"));
+			DeleteDirectories(GlobDirectories(TestSourceDirectory, "*/bin", "*/obj"));
 		});
 
 	private void Compile(string[] platforms)
 	{
-		MSBuild(settings => new MSBuildSettings()
+		MSBuild(settings => settings
 			.EnableRestore()
 			.SetTargets("Build")
 			.SetConfiguration(Configuration)
@@ -219,10 +198,8 @@ class Build : NukeBuild
 
 	private void Test(string executable)
 	{
-		string binDir = GetOutputPath($"{ProductName}Test.Core");
-
-		NUnit3(settings => new NUnit3Settings()
-			.SetToolPath(Path.Combine(binDir, executable))
+		NUnit3(settings => settings
+			.SetToolPath(GetOutputPath($"{ProductName}Test.Core") / executable)
 			.AddParameter("dataDirectory", RootDirectory / "test/data")
 			.AddParameter("fgdDirectory", RootDirectory / "extras")
 			.When(Configuration != "Release",
@@ -250,72 +227,66 @@ class Build : NukeBuild
 			Test($"{ProductName}Test.Core.app/Contents/MacOS/{ProductName}Test.Core");
 		});
 
+	private void Package(string[] etoPlatforms, Action<AbsolutePath, AbsolutePath, string> save)
+	{
+		foreach (string platform in etoPlatforms)
+		{
+			AbsolutePath source = GetOutputPath($"{ProductName}.{platform}") / (EnvironmentInfo.IsOsx ? $"{ProductName}.{platform}.app " : "");
+			AbsolutePath dest = ArtifactsDirectory / platform;
+
+			// Cleaning the entire artifacts directory is undesirable, since
+			// usually this script is only building for one OS at a time. If
+			// other platforms' packages exist already, leave them be.
+			EnsureCleanDirectory(dest);
+			EnsureExistingDirectory(dest);
+
+			string name = String.Join('-', ProductName, GitVersion.MajorMinorPatch, OsFriendlyName[EnvironmentInfo.Platform]);
+			
+			save.Invoke(source, dest, name);
+		}
+	}
+
 	Target PackageWindows => _ => _
 		.DependsOn(TestWindows)
 		.Executes(() =>
 		{
-			foreach (string platform in EtoPlatformsWin)
+			Package(EtoPlatformsWin, (source, dest, name) =>
 			{
-				AbsolutePath finalDir = ArtifactsDirectory / platform;
-
-				EnsureCleanDirectory(finalDir);
-
 				using (var archive = ZipArchive.Create())
 				{
 					archive.DeflateCompressionLevel = CompressionLevel.BestCompression;
-					archive.AddAllFromDirectory(GetOutputPath($"{ProductName}.{platform}"));
-
-					string name = String.Join('-', ProductName, GitVersion.MajorMinorPatch, OsFriendlyName[EnvironmentInfo.Platform]);
-					archive.SaveTo(finalDir / name + ".zip", new WriterOptions(CompressionType.Deflate));
+					archive.AddAllFromDirectory(source);
+					archive.SaveTo(dest / name + ".zip", new WriterOptions(CompressionType.Deflate));
 				}
-			}
+			});
 		});
 
 	Target PackageLinux => _ => _
 		.DependsOn(TestLinux)
 		.Executes(() =>
 		{
-			foreach (string platform in EtoPlatformsLin)
+			Package(EtoPlatformsLin, (source, dest, name) =>
 			{
-				AbsolutePath finalDir = ArtifactsDirectory / platform;
-
-				EnsureCleanDirectory(finalDir);
-
-				string name = String.Join('-', ProductName, GitVersion.MajorMinorPatch, OsFriendlyName[EnvironmentInfo.Platform]);
-
 				using (var tarball = TarArchive.Create())
 				{
-					tarball.AddAllFromDirectory(GetOutputPath($"{ProductName}.{platform}"));
-					tarball.SaveTo(finalDir / name + ".tar.gz", new WriterOptions(CompressionType.GZip));
+					tarball.AddAllFromDirectory(source);
+					tarball.SaveTo(dest / name + ".tar.gz", new WriterOptions(CompressionType.GZip));
 				}
-			}
+			});
 		});
 
 	Target PackageMac => _ => _
 		.DependsOn(TestMac)
 		.Executes(() =>
 		{
-			foreach (string platform in EtoPlatformsMac)
+			Package(EtoPlatformsMac, (source, dest, name) =>
 			{
-				AbsolutePath finalDir = ArtifactsDirectory / platform;
-
-				EnsureCleanDirectory(finalDir);
-
-				string name = String.Join('-', ProductName, GitVersion.MajorMinorPatch, OsFriendlyName[EnvironmentInfo.Platform]);
-
-				var dmgbuild = new Process();
-				dmgbuild.StartInfo.FileName = "dmgbuild";
-				dmgbuild.StartInfo.Arguments =
-					$"-s " + BuildProjectDirectory / "dmgbuild-settings.py" +
-					" -D app=" + GetOutputPath($"{ProductName}.{platform}") / $"{ProductName}.{platform}.app" +
-					$" {ProductName} " +
-					finalDir / name + ".dmg";
-
-				dmgbuild.StartInfo.UseShellExecute = false;
-				dmgbuild.StartInfo.CreateNoWindow = true;
-
-				dmgbuild.Start();
-				dmgbuild.WaitForExit();
-			}
+				ProcessTasks.StartProcess(
+					"dmgbuild",
+					"-s " + BuildProjectDirectory / "dmgbuild-settings.py " +
+					"-D app=" + source +
+					$"{ProductName} " +
+					dest / name + ".dmg");
+			});
 		});
 }
