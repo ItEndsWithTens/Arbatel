@@ -132,11 +132,11 @@ class Build : NukeBuild
 			// to clean all bin and obj folders, then use SetTargets("Build") on
 			// each GUI project to trigger an incremental build. The core will
 			// be built anew, with no time wasted rebuilding it for every GUI.
-			DeleteDirectories(GlobDirectories(SourceDirectory, "*/bin", "*/obj"));
-			DeleteDirectories(GlobDirectories(TestSourceDirectory, "*/bin", "*/obj"));
+			DeleteDirectories(GlobDirectories(SourceDirectory, "**/bin", "**/obj"));
+			DeleteDirectories(GlobDirectories(TestSourceDirectory, "**/bin", "**/obj"));
 		});
 
-	private void Compile(string[] platforms)
+	private void Compile(string[] projects)
 	{
 		MSBuild(settings => settings
 			.EnableRestore()
@@ -149,7 +149,7 @@ class Build : NukeBuild
 			.SetInformationalVersion(GitVersion.InformationalVersion)
 			.SetMaxCpuCount(Environment.ProcessorCount)
 			.SetNodeReuse(IsLocalBuild)
-			.CombineWith(platforms, (s, p) => s
+			.CombineWith(projects, (s, p) => s
 				.SetProjectFile(Solution.GetProject($"{p}"))));
 	}
 
