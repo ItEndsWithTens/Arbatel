@@ -25,8 +25,25 @@ namespace Arbatel.Controls
 			get { return _view; }
 			set
 			{
-				_view = value;
-				ChangeView(value);
+				_view = (value + Views.Count) % Views.Count;
+
+				foreach (var view in Views)
+				{
+					Control control = view.Value;
+
+					if (view.Key == _view)
+					{
+						control.Size = ClientSize;
+
+						control.Enabled = true;
+						control.Visible = true;
+					}
+					else
+					{
+						control.Enabled = false;
+						control.Visible = false;
+					}
+				}
 			}
 		}
 
@@ -135,29 +152,6 @@ namespace Arbatel.Controls
 			base.OnSizeChanged(e);
 
 			Views[View].Size = ClientSize;
-		}
-
-		private void ChangeView(int requested)
-		{
-			int wrapped = (requested + Views.Count) % Views.Count;
-
-			foreach (var view in Views)
-			{
-				var control = view.Value;
-
-				if (view.Key == wrapped)
-				{
-					control.Size = ClientSize;
-
-					control.Enabled = true;
-					control.Visible = true;
-				}
-				else
-				{
-					control.Enabled = false;
-					control.Visible = false;
-				}
-			}
 		}
 
 		private void Viewport_KeyDown(object sender, KeyEventArgs e)
