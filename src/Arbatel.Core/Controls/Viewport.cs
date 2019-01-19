@@ -73,7 +73,6 @@ namespace Arbatel.Controls
 
 			var text = new TextArea()
 			{
-				ID = "Text",
 				BackgroundColor = Colors.Yellow,
 				TextReplacements = TextReplacements.None,
 				Enabled = false,
@@ -81,17 +80,16 @@ namespace Arbatel.Controls
 			};
 			// To avoid interrupting Tab cycling until users actually want to edit
 			// something, defocus controls by default and focus this Viewport instead.
-			text.Shown += (sender, e) => { Focus(); };
+			text.EnabledChanged += (sender, e) => { Focus(); };
 			text.MouseLeave += (sender, e) => { Focus(); };
 
 			var tree = new TreeGridView()
 			{
-				ID = "Tree",
 				BackgroundColor = Colors.Cyan,
 				Enabled = false,
 				Visible = false
 			};
-			tree.Shown += (sender, e) => { Focus(); };
+			tree.EnabledChanged += (sender, e) => { Focus(); };
 			tree.MouseLeave += (sender, e) => { Focus(); };
 
 			var oglView = new OpenGLView3d()
@@ -140,6 +138,8 @@ namespace Arbatel.Controls
 				{
 					View++;
 				}
+
+				e.Handled = true;
 			}
 		}
 

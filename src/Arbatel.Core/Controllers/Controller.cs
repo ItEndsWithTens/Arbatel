@@ -1,10 +1,5 @@
-﻿using Eto.Forms;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Arbatel.Controls;
+﻿using Arbatel.Controls;
+using Eto.Forms;
 
 namespace Arbatel.Controllers
 {
@@ -29,11 +24,17 @@ namespace Arbatel.Controllers
 		protected bool Up { get; set; } = false;
 		protected bool Down { get; set; } = false;
 
-		virtual public void KeyDown(object sender, KeyEventArgs e)
+		protected Keys HandledKeys { get; } =
+			Keys.Z |
+			Keys.W | Keys.S |
+			Keys.A | Keys.D |
+			Keys.E | Keys.Q;
+
+		public virtual void KeyDown(object sender, KeyEventArgs e)
 		{
 			// If a modifier is pressed, a view Controller isn't the intended
 			// recipient of the key event.
-			if (e.Modifiers != Keys.None)
+			if (e.Modifiers != Keys.None || !HandledKeys.HasFlag(e.Key))
 			{
 				return;
 			}
@@ -70,9 +71,9 @@ namespace Arbatel.Controllers
 			e.Handled = true;
 		}
 
-		virtual public void KeyUp(object sender, KeyEventArgs e)
+		public virtual void KeyUp(object sender, KeyEventArgs e)
 		{
-			if (e.Modifiers != Keys.None)
+			if (e.Modifiers != Keys.None || !HandledKeys.HasFlag(e.Key))
 			{
 				return;
 			}
@@ -87,15 +88,15 @@ namespace Arbatel.Controllers
 			e.Handled = true;
 		}
 
-		virtual public void Update()
+		public virtual void Update()
 		{
 		}
 
-		virtual public void UpdateKeyboard()
+		public virtual void UpdateKeyboard()
 		{
 		}
 
-		virtual public void UpdateMouse()
+		public virtual void UpdateMouse()
 		{
 		}
 	}
