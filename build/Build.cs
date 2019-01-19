@@ -193,7 +193,7 @@ class Build : NukeBuild
 		.DependsOn(CompileCore)
 		.Executes(() =>
 		{
-			Compile(new string[] { $"{ProductName}Test.Core" });
+			Compile(new string[] { $"{ProductName}Test.Core", $"{ProductName}Test.Rendering" });
 		});
 
 	private void Test(string executable)
