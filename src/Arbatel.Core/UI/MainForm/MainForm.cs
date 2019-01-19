@@ -62,12 +62,12 @@ namespace Arbatel.UI
 		{
 			var viewport = FindChild("viewport") as Viewport;
 
-			IEnumerable<View> view3ds =
-				from pair in viewport.Views
-				where pair.Value.Control is View
-				select pair.Value.Control as View;
+			IEnumerable<View> views =
+				from view in viewport.Views
+				where view.Value.Control is View
+				select view.Value.Control as View;
 
-			BackEnd.InitMap(Map, view3ds.ToList());
+			BackEnd.InitMap(Map, views.Distinct().ToList());
 
 			var tree = viewport.Views[1].Control as TreeGridView;
 			tree.Columns.Add(new GridColumn() { HeaderText = "Column 1", DataCell = new TextBoxCell(0) });
