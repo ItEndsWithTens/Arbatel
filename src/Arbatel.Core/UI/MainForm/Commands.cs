@@ -80,7 +80,7 @@ namespace Arbatel.UI
 		{
 			if (Content is Viewport viewport)
 			{
-				if (viewport.Views[viewport.View] is View view)
+				if (viewport.Views[viewport.View].Control is View view)
 				{
 					if (IsFullscreen)
 					{

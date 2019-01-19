@@ -1,17 +1,9 @@
-﻿using Eto;
+﻿using Arbatel.Formats;
+using Arbatel.Graphics;
 using Eto.Drawing;
 using Eto.Forms;
-using OpenTK.Graphics;
-using OpenTK.Graphics.OpenGL4;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Arbatel.Formats;
-using Arbatel.Graphics;
-using Arbatel.Utilities;
-using Arbatel.Controllers;
 
 namespace Arbatel.Controls
 {
@@ -27,28 +19,33 @@ namespace Arbatel.Controls
 			{
 				_view = (value + Views.Count) % Views.Count;
 
-				foreach (var view in Views)
+				foreach (KeyValuePair<int, (Control Control, string Name, Action<Control> SetUp)> view in Views)
 				{
-					Control control = view.Value;
+					Control c = view.Value.Control;
 
 					if (view.Key == _view)
 					{
-						control.Size = ClientSize;
+						c.Size = ClientSize;
 
-						control.Enabled = true;
-						control.Visible = true;
+						c.Enabled = true;
+						c.Visible = true;
+
+						view.Value.SetUp.Invoke(c);
 					}
-					else
+					// Some values of View use the same Control as others, with
+					// only the SetUp Action differing, so it's important to not
+					// hide a View if it's still in use.
+					else if (!ReferenceEquals(Views[_view].Control, c))
 					{
-						control.Enabled = false;
-						control.Visible = false;
+						c.Enabled = false;
+						c.Visible = false;
 					}
 				}
 			}
 		}
 
-		public Dictionary<int, Control> Views { get; set; } = new Dictionary<int, Control>();
-		public Dictionary<int, Command> ViewCommands { get; set; } = new Dictionary<int, Command>();
+		public Dictionary<int, (Control Control, string Name, Action<Control> SetUp)> Views { get; } = new Dictionary<int, (Control, string, Action<Control>)>();
+		public Dictionary<int, Command> ViewCommands { get; } = new Dictionary<int, Command>();
 
 		private Map _map;
 		public Map Map
@@ -58,9 +55,9 @@ namespace Arbatel.Controls
 			{
 				_map = value;
 
-				foreach (var view in Views)
+				foreach (KeyValuePair<int, (Control Control, string Name, Action<Control> SetUp)> view in Views)
 				{
-					if (view.Value is View v)
+					if (view.Value.Control is View v)
 					{
 						v.Map = _map;
 					}
@@ -97,47 +94,24 @@ namespace Arbatel.Controls
 			tree.Shown += (sender, e) => { Focus(); };
 			tree.MouseLeave += (sender, e) => { Focus(); };
 
-			var wireframe = new OpenGLView3d()
+			var oglView = new OpenGLView3d()
 			{
-				ID = "3D Wireframe",
 				BackEnd = BackEnd,
-				ClearColor = new Color4(1.0f, 0.0f, 0.0f, 1.0f),
-				ShadingStyle = ShadingStyle.Wireframe,
 				Enabled = false,
 				Visible = false
 			};
 
-			var flat = new OpenGLView3d()
+			Views.Add(0, (text, "Text", (v) => { }));
+			Views.Add(1, (tree, "Tree", (v) => { }));
+			Views.Add(2, (oglView, "3D Wireframe", OpenGLView.SetUpWireframe));
+			Views.Add(3, (oglView, "3D Flat", OpenGLView.SetUpFlat));
+			Views.Add(4, (oglView, "3D Textured", OpenGLView.SetUpTextured));
+
+			foreach (KeyValuePair<int, (Control Control, string Name, Action<Control> SetUp)> view in Views)
 			{
-				ID = "3D Flat",
-				BackEnd = BackEnd,
-				ClearColor = new Color4(0.0f, 1.0f, 0.0f, 1.0f),
-				ShadingStyle = ShadingStyle.Flat,
-				Enabled = false,
-				Visible = false
-			};
+				Add(view.Value.Control, 0, 0);
 
-			var textured = new OpenGLView3d()
-			{
-				ID = "3D Textured",
-				BackEnd = BackEnd,
-				ClearColor = new Color4(0.0f, 0.0f, 1.0f, 1.0f),
-				ShadingStyle = ShadingStyle.Textured,
-				Enabled = false,
-				Visible = false
-			};
-
-			Views.Add(0, text);
-			Views.Add(1, tree);
-			Views.Add(2, wireframe);
-			Views.Add(3, flat);
-			Views.Add(4, textured);
-
-			foreach (var view in Views)
-			{
-				Add(view.Value, 0, 0);
-
-				var command = new Command { MenuText = view.Value.ID };
+				var command = new Command { MenuText = view.Value.Name };
 				command.Executed += (sender, e) => { View = view.Key; };
 
 				ViewCommands.Add(view.Key, command);
@@ -151,7 +125,7 @@ namespace Arbatel.Controls
 		{
 			base.OnSizeChanged(e);
 
-			Views[View].Size = ClientSize;
+			Views[View].Control.Size = ClientSize;
 		}
 
 		private void Viewport_KeyDown(object sender, KeyEventArgs e)
@@ -171,7 +145,7 @@ namespace Arbatel.Controls
 
 		private void Viewport_LoadComplete(object sender, EventArgs e)
 		{
-			View = 0;
+			View = 4;
 		}
 	}
 }

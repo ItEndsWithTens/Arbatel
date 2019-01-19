@@ -1,5 +1,6 @@
 ﻿using Arbatel.Graphics;
 using Eto;
+using Eto.Forms;
 using Eto.Gl;
 using OpenTK;
 using OpenTK.Graphics;
@@ -12,6 +13,58 @@ namespace Arbatel.Controls
 {
 	public class OpenGLView : View
 	{
+		public static Action<Control> SetUpWireframe { get; } = new Action<Control>((control) =>
+		{
+			if (control is OpenGLView o && o.OpenGLReady)
+			{
+				o.ShadingStyle = ShadingStyle.Wireframe;
+
+				GL.Disable(EnableCap.CullFace);
+
+				GL.Disable(EnableCap.Blend);
+
+				GL.ClearColor(1.0f, 0.0f, 0.0f, 1.0f);
+
+				GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Line);
+			}
+		});
+
+		public static Action<Control> SetUpFlat { get; } = new Action<Control>((control) =>
+		{
+			if (control is OpenGLView o && o.OpenGLReady)
+			{
+				o.ShadingStyle = ShadingStyle.Flat;
+
+				GL.Enable(EnableCap.CullFace);
+				GL.CullFace(CullFaceMode.Back);
+
+				GL.Enable(EnableCap.Blend);
+				GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
+
+				GL.ClearColor(0.0f, 1.0f, 0.0f, 1.0f);
+
+				GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
+			}
+		});
+
+		public static Action<Control> SetUpTextured { get; } = new Action<Control>((control) =>
+		{
+			if (control is OpenGLView o && o.OpenGLReady)
+			{
+				o.ShadingStyle = ShadingStyle.Textured;
+
+				GL.Enable(EnableCap.CullFace);
+				GL.CullFace(CullFaceMode.Back);
+
+				GL.Enable(EnableCap.Blend);
+				GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
+
+				GL.ClearColor(0.0f, 0.0f, 1.0f, 1.0f);
+
+				GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
+			}
+		});
+
 		// OpenGL 3.0 is the lowest version that has all the features this
 		// project needs built in. Vertex array objects are actually the only
 		// feature this project currently uses that's not available in 2.X, but
@@ -67,9 +120,6 @@ namespace Arbatel.Controls
 				}
 			}
 		}
-
-		public Color4 ClearColor { get; set; }
-		public PolygonMode PolygonMode { get; set; }
 
 		// Explicitly choosing an eight-bit stencil buffer prevents visual artifacts
 		// on the Mac platform; the GraphicsMode defaults are apparently insufficient.
@@ -160,34 +210,22 @@ namespace Arbatel.Controls
 
 			GL.Enable(EnableCap.DepthTest);
 
-			GL.Enable(EnableCap.CullFace);
 			GL.FrontFace(FrontFaceDirection.Ccw);
-			GL.CullFace(CullFaceMode.Back);
-
-			GL.Enable(EnableCap.Blend);
-			GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
-
-			// GL.ClearColor has two overloads, and if this class' ClearColor field is
-			// passed in, the compiler tries to use the one taking a System.Drawing.Color
-			// parameter instead of the one taking an OpenTK.Graphics.Color4. Using the
-			// float signature therefore avoids an unnecessary System.Drawing reference.
-			GL.ClearColor(ClearColor.R, ClearColor.G, ClearColor.B, ClearColor.A);
 
 			Shader.GetGlslVersion(out int glslMajor, out int glslMinor);
 
 			Shaders.Clear();
-			Shaders.Add(ShadingStyle.Wireframe, new Shader() { BackEnd = BackEnd });
+			Shaders.Add(ShadingStyle.Wireframe, new FlatShader(glslMajor, glslMinor) { BackEnd = BackEnd });
 			Shaders.Add(ShadingStyle.Flat, new FlatShader(glslMajor, glslMinor) { BackEnd = BackEnd });
 			Shaders.Add(ShadingStyle.Textured, new SingleTextureShader(glslMajor, glslMinor) { BackEnd = BackEnd });
-
-			// FIXME: Causes InvalidEnum from GL.GetError, at least on my OpenGL 2.1, GLSL 1.2, Intel HD Graphics laptop.
-			GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode);
 
 			// TEST. Also remember to switch Camera to use left-handed, Z-up position at some point.
 			Camera.Position = new Vector3(256.0f, 1024.0f, 1024.0f);
 			Camera.Pitch = -30.0f;
 
 			OpenGLReady = true;
+
+			SetUpTextured(this);
 		}
 	}
 }

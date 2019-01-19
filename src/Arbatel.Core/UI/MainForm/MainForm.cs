@@ -2,6 +2,7 @@ using Arbatel.Controls;
 using Arbatel.Formats;
 using Arbatel.Graphics;
 using Eto.Forms;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -39,9 +40,9 @@ namespace Arbatel.UI
 
 			var viewport = new Viewport(BackEnd) { ID = "viewport" };
 
-			foreach (Control c in viewport.Views.Values)
+			foreach ((Control Control, string Name, Action<View> SetUp) view in viewport.Views.Values)
 			{
-				if (c is View v)
+				if (view.Control is View v)
 				{
 					Settings.Updatables.Add(v);
 				}
@@ -63,12 +64,12 @@ namespace Arbatel.UI
 
 			IEnumerable<View> view3ds =
 				from pair in viewport.Views
-				where pair.Value is View
-				select pair.Value as View;
+				where pair.Value.Control is View
+				select pair.Value.Control as View;
 
 			BackEnd.InitMap(Map, view3ds.ToList());
 
-			var tree = viewport.Views[1] as TreeGridView;
+			var tree = viewport.Views[1].Control as TreeGridView;
 			tree.Columns.Add(new GridColumn() { HeaderText = "Column 1", DataCell = new TextBoxCell(0) });
 			tree.Columns.Add(new GridColumn() { HeaderText = "Column 2", DataCell = new TextBoxCell(1) });
 			tree.Columns.Add(new GridColumn() { HeaderText = "Column 3", DataCell = new TextBoxCell(2) });
