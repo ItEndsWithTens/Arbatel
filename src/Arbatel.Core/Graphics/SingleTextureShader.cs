@@ -158,6 +158,18 @@ namespace Arbatel.Graphics
 			GL.BindBuffer(BufferTarget.ArrayBuffer, b.Vbo);
 			GL.BindBuffer(BufferTarget.ElementArrayBuffer, b.Ebo);
 
+			int positionLocation = GL.GetAttribLocation(Program, "position");
+			GL.VertexAttribPointer(positionLocation, 3, VertexAttribPointerType.Float, false, Vertex.MemorySize, 0);
+			GL.EnableVertexAttribArray(positionLocation);
+
+			int normalLocation = GL.GetAttribLocation(Program, "normal");
+			GL.VertexAttribPointer(normalLocation, 3, VertexAttribPointerType.Float, false, Vertex.MemorySize, sizeof(float) * 3);
+			GL.EnableVertexAttribArray(normalLocation);
+
+			int colorLocation = GL.GetAttribLocation(Program, "color");
+			GL.VertexAttribPointer(colorLocation, 4, VertexAttribPointerType.Float, false, Vertex.MemorySize, sizeof(float) * 6);
+			GL.EnableVertexAttribArray(colorLocation);
+
 			GL.ActiveTexture(TextureUnit.Texture0);
 
 			IntPtr elementOffset = IntPtr.Zero;

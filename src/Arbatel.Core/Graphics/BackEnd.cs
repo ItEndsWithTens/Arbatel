@@ -47,33 +47,26 @@ namespace Arbatel.Graphics
 		}
 		public virtual void InitMap(Map map, View view)
 		{
-			foreach (Shader shader in view.Shaders.Values)
-			{
-				InitMap(map, shader, view);
-			}
-		}
-		public virtual void InitMap(Map map, Shader shader, View view)
-		{
 			foreach (MapObject mo in map.MapObjects)
 			{
-				InitMapObject(mo, shader, view);
+				InitMapObject(mo, view);
 			}
 		}
 
-		public virtual void InitMapObject(MapObject mapObject, Shader shader, View view)
+		public virtual void InitMapObject(MapObject mapObject, View view)
 		{
 			foreach (MapObject child in mapObject.Children)
 			{
-				InitMapObject(child, shader, view);
+				InitMapObject(child, view);
 			}
 
 			foreach (Renderable r in mapObject.Renderables)
 			{
-				InitRenderable(r, shader, view);
+				InitRenderable(r, view);
 			}
 		}
 
-		public virtual void InitRenderable(Renderable renderable, Shader shader, View view)
+		public virtual void InitRenderable(Renderable renderable, View view)
 		{
 		}
 

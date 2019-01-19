@@ -15,7 +15,7 @@ namespace Arbatel.Graphics
 			shaders[actualStyle].Draw(r, view.Content as GLSurface, camera);
 		}
 
-		public override void InitRenderable(Renderable renderable, Shader shader, View view)
+		public override void InitRenderable(Renderable renderable, View view)
 		{
 			var glSurface = view.Content as GLSurface;
 
@@ -37,21 +37,6 @@ namespace Arbatel.Graphics
 			GL.BindVertexArray(b.Vao);
 			GL.BindBuffer(BufferTarget.ArrayBuffer, b.Vbo);
 			GL.BindBuffer(BufferTarget.ElementArrayBuffer, b.Ebo);
-
-			// Configure position element.
-			int positionLocation = GL.GetAttribLocation(shader.Program, "position");
-			GL.VertexAttribPointer(positionLocation, 3, VertexAttribPointerType.Float, false, Vertex.MemorySize, 0);
-			GL.EnableVertexAttribArray(positionLocation);
-
-			// Normal
-			int normalLocation = GL.GetAttribLocation(shader.Program, "normal");
-			GL.VertexAttribPointer(normalLocation, 3, VertexAttribPointerType.Float, false, Vertex.MemorySize, sizeof(float) * 3);
-			GL.EnableVertexAttribArray(normalLocation);
-
-			// Color
-			int colorLocation = GL.GetAttribLocation(shader.Program, "color");
-			GL.VertexAttribPointer(colorLocation, 4, VertexAttribPointerType.Float, false, Vertex.MemorySize, sizeof(float) * 6);
-			GL.EnableVertexAttribArray(colorLocation);
 
 			GL.BufferData(
 				BufferTarget.ArrayBuffer,

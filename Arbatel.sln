@@ -5,9 +5,9 @@ VisualStudioVersion = 15.0.27130.2026
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Arbatel.Core", "src\Arbatel.Core\Arbatel.Core.csproj", "{A5FFC3A4-78CA-44F2-B8A8-F18DADF1690A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Arbatel.WinForms", "src\gui\Arbatel.WinForms\Arbatel.WinForms.csproj", "{4925B6D7-8B10-43D7-8CA9-D7A03B2B622E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Arbatel.WinForms", "src\gui\Arbatel.WinForms\Arbatel.WinForms.csproj", "{4925B6D7-8B10-43D7-8CA9-D7A03B2B622E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ArbatelTest.Core", "test\src\ArbatelTest.Core\ArbatelTest.Core.csproj", "{4B4E25A8-B7D3-420D-8193-1785E0528D5E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ArbatelTest.Core", "test\src\ArbatelTest.Core\ArbatelTest.Core.csproj", "{4B4E25A8-B7D3-420D-8193-1785E0528D5E}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Arbatel.Wpf", "src\gui\Arbatel.Wpf\Arbatel.Wpf.csproj", "{63B65D5D-D3F6-4C18-B4B4-75A0DFEEE635}"
 EndProject
@@ -24,7 +24,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "common", "common", "{16A799
 		build\dmgbuild-settings.py = build\dmgbuild-settings.py
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "_build", "build\_build.csproj", "{25570A55-7D75-4A24-84C1-864BBB2A0545}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "_build", "build\_build.csproj", "{25570A55-7D75-4A24-84C1-864BBB2A0545}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "gui", "gui", "{697D0DF3-4FE0-49DC-828E-60A3898F2368}"
 	ProjectSection(SolutionItems) = preProject
