@@ -5,6 +5,8 @@ namespace Arbatel.Controllers
 {
 	public class Controller
 	{
+		public UITimer Clock { get; } = new UITimer();
+
 		public bool MouseLook { get; set; } = false;
 
 		// Flightstick: false, true
@@ -29,6 +31,24 @@ namespace Arbatel.Controllers
 			Keys.W | Keys.S |
 			Keys.A | Keys.D |
 			Keys.E | Keys.Q;
+
+		public Controller()
+		{
+			Clock.Elapsed += Clock_Elapsed;
+		}
+
+		public virtual void Activate()
+		{
+			Clock.Start();
+		}
+		public virtual void Deactivate()
+		{
+			Clock.Stop();
+
+			MouseLook = false;
+
+			Forward = Backward = Left = Right = Up = Down = false;
+		}
 
 		public virtual void KeyDown(object sender, KeyEventArgs e)
 		{
@@ -70,10 +90,11 @@ namespace Arbatel.Controllers
 
 			e.Handled = true;
 		}
-
 		public virtual void KeyUp(object sender, KeyEventArgs e)
 		{
-			if (e.Modifiers != Keys.None || !HandledKeys.HasFlag(e.Key))
+			// To ensure Controllers stop their camera whenever users release a
+			// movement key, don't ignore modified events like KeyDown does.
+			if (!HandledKeys.HasFlag(e.Key))
 			{
 				return;
 			}
@@ -98,6 +119,11 @@ namespace Arbatel.Controllers
 
 		public virtual void UpdateMouse()
 		{
+		}
+
+		private void Clock_Elapsed(object sender, System.EventArgs e)
+		{
+			Update();
 		}
 	}
 }

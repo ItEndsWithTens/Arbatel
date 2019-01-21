@@ -1,10 +1,4 @@
-﻿using Eto;
-using Eto.Forms;
-using Eto.Gl;
-using OpenTK.Graphics;
-using OpenTK.Graphics.OpenGL4;
-using System;
-using Arbatel.Controllers;
+﻿using Arbatel.Controllers;
 
 namespace Arbatel.Controls
 {
@@ -13,6 +7,8 @@ namespace Arbatel.Controls
 		public OpenGLView3d()
 		{
 			Controller = new FirstPersonController(Camera);
+
+			Fps = 60.0f;
 		}
 	}
 }
