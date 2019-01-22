@@ -59,6 +59,11 @@ namespace Arbatel.Graphics
 		{
 			foreach (Texture t in dictionary.Values)
 			{
+				if (Textures.ContainsKey(t.Name))
+				{
+					continue;
+				}
+
 				GL.GenTextures(1, out int id);
 				Textures.Add(t.Name, id);
 
@@ -70,6 +75,15 @@ namespace Arbatel.Graphics
 				GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.NearestMipmapLinear);
 				GL.GenerateMipmap(GenerateMipmapTarget.Texture2D);
 				GL.BindTexture(TextureTarget.Texture2D, 0);
+			}
+		}
+		public override void DeleteTextures(TextureDictionary dictionary)
+		{
+			foreach (Texture t in dictionary.Values)
+			{
+				GL.DeleteTexture(Textures[t.Name]);
+
+				Textures.Remove(t.Name);
 			}
 		}
 	}

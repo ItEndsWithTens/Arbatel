@@ -26,7 +26,7 @@ namespace Arbatel.UI
 			{
 				Items =
 				{
-					new ButtonMenuItem { Text = "&File", Items = { CmdOpen } },
+					new ButtonMenuItem { Text = "&File", Items = { CmdOpen, CmdClose } },
 					new ButtonMenuItem { Text = "&Edit", Items = { CmdPreferences } },
 					new ButtonMenuItem { Text = "&View", Items = { CmdFullScreen } },
 					new ButtonMenuItem

@@ -58,6 +58,20 @@ namespace Arbatel.UI
 			Content = viewport;
 		}
 
+		private void CloseMap()
+		{
+			if (Map == null)
+			{
+				return;
+			}
+
+			BackEnd.DeleteTextures(Map.Textures);
+
+			Settings.Updatables.Remove(Map);
+
+			Map = null;
+		}
+
 		private void GetAllThisNonsenseReady()
 		{
 			var viewport = FindChild("viewport") as Viewport;

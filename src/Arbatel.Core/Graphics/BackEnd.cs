@@ -73,5 +73,8 @@ namespace Arbatel.Graphics
 		public virtual void InitTextures(TextureDictionary dictionary)
 		{
 		}
+		public virtual void DeleteTextures(TextureDictionary dictionary)
+		{
+		}
 	}
 }

@@ -16,6 +16,12 @@ namespace Arbatel.UI
 	{
 		private Command CmdAbout = new Command() { MenuText = "About" };
 
+		private Command CmdClose = new Command
+		{
+			MenuText = "&Close",
+			Shortcut = Application.Instance.CommonModifier | Keys.W
+		};
+
 		private Command CmdFullScreen = new Command()
 		{
 			MenuText = "&Full Screen",
@@ -34,16 +40,16 @@ namespace Arbatel.UI
 			Shortcut = Application.Instance.CommonModifier | Keys.Comma
 		};
 
-		private Command CmdSaveCollapsedAs = new Command()
-		{
-			MenuText = "&Save collapsed as...",
-			Shortcut = Application.Instance.CommonModifier | Application.Instance.AlternateModifier | Keys.S
-		};
-
 		private Command CmdQuit = new Command()
 		{
 			MenuText = "&Quit",
 			Shortcut = Application.Instance.CommonModifier | Keys.Q
+		};
+
+		private Command CmdSaveCollapsedAs = new Command()
+		{
+			MenuText = "&Save collapsed as...",
+			Shortcut = Application.Instance.CommonModifier | Application.Instance.AlternateModifier | Keys.S
 		};
 
 		private bool IsFullscreen { get; set; } = false;
@@ -65,6 +71,8 @@ namespace Arbatel.UI
 				"build " + build + "\n" +
 				"revision " + revision);
 
+			CmdClose.Executed += CmdClose_Executed;
+
 			CmdFullScreen.Executed += CmdFullScreen_Executed;
 
 			CmdOpen.Executed += CmdOpen_Executed;
@@ -74,6 +82,11 @@ namespace Arbatel.UI
 			CmdSaveCollapsedAs.Executed += CmdSaveCollapsedAs_Executed;
 
 			CmdQuit.Executed += (sender, e) => { Application.Instance.Quit(); };
+		}
+
+		private void CmdClose_Executed(object sender, EventArgs e)
+		{
+			CloseMap();
 		}
 
 		private void CmdFullScreen_Executed(object sender, EventArgs e)
@@ -127,6 +140,8 @@ namespace Arbatel.UI
 			{
 				return;
 			}
+
+			CloseMap();
 
 			Settings.Local.LastMapDirectory = new Uri(Path.GetDirectoryName(dlgOpenFile.FileName));
 
