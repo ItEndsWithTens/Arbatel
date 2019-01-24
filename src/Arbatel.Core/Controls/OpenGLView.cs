@@ -66,11 +66,9 @@ namespace Arbatel.Controls
 		});
 
 		// OpenGL 3.0 is the lowest version that has all the features this
-		// project needs built in. Vertex array objects are actually the only
-		// feature this project currently uses that's not available in 2.X, but
-		// with the appropriate extension, everything works fine. Unfortunately,
-		// requesting a context of less than 3.2 in macOS will produce a 2.1
-		// context without said extension.
+		// project needs built in. With the appropriate extensions 2.X is also
+		// usable; unfortunately, requesting a context of less than 3.2 in macOS
+		// will produce a 2.1 context without said extensions.
 		public static int GLMajor { get; } = EtoEnvironment.Platform.IsMac ? 3 : 2;
 		public static int GLMinor { get; } = EtoEnvironment.Platform.IsMac ? 2 : 0;
 
@@ -80,7 +78,8 @@ namespace Arbatel.Controls
 		public static ReadOnlyCollection<string> RequiredGLExtensions { get; } =
 			new List<string>
 			{
-				"ARB_vertex_array_object"
+				"ARB_vertex_array_object",
+				"ARB_framebuffer_object"
 			}.AsReadOnly();
 
 		private bool _openGLReady = false;
