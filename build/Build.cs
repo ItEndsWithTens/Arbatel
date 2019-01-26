@@ -200,7 +200,7 @@ class Build : NukeBuild
 		.DependsOn(CompileTests)
 		.Executes(() =>
 		{
-			string name = $"{ProductName}Test.Core";
+			string project = $"{ProductName}Test.Core";
 
 			// Nuke supports passing project file names directly into NUnit to
 			// specify which test assemblies to load. The NUnit console runner
@@ -209,18 +209,11 @@ class Build : NukeBuild
 			// loads extensions by looking in your NuGet package directory for
 			// anything matching the pattern NUnit.Extension.*, whereas NuGet
 			// restores everything in lowercase these days. Works in Windows,
-			// fails in Linux and macOS. Piecing together the output assembly
-			// name and passing that in instead is the next best thing.
-			Project p = Solution.GetProject(name);
-			MSBuildProject m = MSBuildParseProject(p, settings => settings
-				.SetConfiguration(Configuration)
-				.When(CustomMsBuildPath != null, s => s
-					.SetToolPath(CustomMsBuildPath)));
-			string tests = p.Directory / m.Properties["OutputPath"] / $"{name}.dll";
-
+			// fails in Linux and macOS. Passing in the output assembly path
+			// instead is the next best thing.
 			NUnit3(settings => settings
 				.SetConfiguration(Configuration)
-				.SetInputFiles(tests)
+				.SetInputFiles(GetOutputPath(project) / $"{project}.dll")
 				.AddParameter("dataDirectory", RootDirectory / "test/data")
 				.AddParameter("fgdDirectory", RootDirectory / "extras")
 				.When(Configuration != "Release",
