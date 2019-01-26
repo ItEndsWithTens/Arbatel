@@ -36,6 +36,9 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{0CA443D2-1B96-46DE-A904-AF9E2E8A5731}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "automatic", "automatic", "{00B90184-F86A-46C3-A5CE-425BC91E66D8}"
+	ProjectSection(SolutionItems) = preProject
+		test\src\vsadapter.runsettings = test\src\vsadapter.runsettings
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "manual", "manual", "{3DAA7AB2-B3A8-48F0-890D-36A605FFC528}"
 EndProject

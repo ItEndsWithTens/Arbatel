@@ -196,35 +196,35 @@ class Build : NukeBuild
 			Compile(new string[] { $"{ProductName}Test.Core", $"{ProductName}Test.Rendering" });
 		});
 
-	private void Test(string executable)
-	{
-		NUnit3(settings => settings
-			.SetToolPath(GetOutputPath($"{ProductName}Test.Core") / executable)
-			.AddParameter("dataDirectory", RootDirectory / "test/data")
-			.AddParameter("fgdDirectory", RootDirectory / "extras")
-			.When(Configuration != "Release",
-				s => s.SetWhereExpression("cat != Performance")));
-	}
-
-	Target TestWindows => _ => _
-		.DependsOn(CompileWindows, CompileTests)
+	Target Test => _ => _
+		.DependsOn(CompileTests)
 		.Executes(() =>
 		{
-			Test($"{ProductName}Test.Core.exe");
-		});
+			string name = $"{ProductName}Test.Core";
 
-	Target TestLinux => _ => _
-		.DependsOn(CompileLinux, CompileTests)
-		.Executes(() =>
-		{
-			Test($"{ProductName}Test.Core.exe");
-		});
+			// Nuke supports passing project file names directly into NUnit to
+			// specify which test assemblies to load. The NUnit console runner
+			// can't load .csproj files out of the box, but the developers offer
+			// an extension that does the trick. Unfortunately, NUnit currently
+			// loads extensions by looking in your NuGet package directory for
+			// anything matching the pattern NUnit.Extension.*, whereas NuGet
+			// restores everything in lowercase these days. Works in Windows,
+			// fails in Linux and macOS. Piecing together the output assembly
+			// name and passing that in instead is the next best thing.
+			Project p = Solution.GetProject(name);
+			MSBuildProject m = MSBuildParseProject(p, settings => settings
+				.SetConfiguration(Configuration)
+				.When(CustomMsBuildPath != null, s => s
+					.SetToolPath(CustomMsBuildPath)));
+			string tests = p.Directory / m.Properties["OutputPath"] / $"{name}.dll";
 
-	Target TestMac => _ => _
-		.DependsOn(CompileMac, CompileTests)
-		.Executes(() =>
-		{
-			Test($"{ProductName}Test.Core.app/Contents/MacOS/{ProductName}Test.Core");
+			NUnit3(settings => settings
+				.SetConfiguration(Configuration)
+				.SetInputFiles(tests)
+				.AddParameter("dataDirectory", RootDirectory / "test/data")
+				.AddParameter("fgdDirectory", RootDirectory / "extras")
+				.When(Configuration != "Release",
+					s => s.SetWhereExpression("cat != Performance")));
 		});
 
 	private void Package(string[] etoPlatforms, Action<AbsolutePath, AbsolutePath, string> save)
@@ -241,13 +241,13 @@ class Build : NukeBuild
 			EnsureExistingDirectory(dest);
 
 			string name = String.Join('-', ProductName, GitVersion.MajorMinorPatch, OsFriendlyName[EnvironmentInfo.Platform]);
-			
+
 			save.Invoke(source, dest, name);
 		}
 	}
 
 	Target PackageWindows => _ => _
-		.DependsOn(TestWindows)
+		.DependsOn(CompileWindows, Test)
 		.Executes(() =>
 		{
 			Package(EtoPlatformsWin, (source, dest, name) =>
@@ -262,7 +262,7 @@ class Build : NukeBuild
 		});
 
 	Target PackageLinux => _ => _
-		.DependsOn(TestLinux)
+		.DependsOn(CompileLinux, Test)
 		.Executes(() =>
 		{
 			Package(EtoPlatformsLin, (source, dest, name) =>
@@ -276,7 +276,7 @@ class Build : NukeBuild
 		});
 
 	Target PackageMac => _ => _
-		.DependsOn(TestMac)
+		.DependsOn(CompileMac, Test)
 		.Executes(() =>
 		{
 			Package(EtoPlatformsMac, (source, dest, name) =>

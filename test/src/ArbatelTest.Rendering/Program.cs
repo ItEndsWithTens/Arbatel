@@ -1,5 +1,6 @@
 ﻿using Arbatel;
 using Arbatel.UI;
+using Arbatel.Utilities;
 using Eto;
 using Eto.Forms;
 using Eto.Gl;
@@ -11,23 +12,6 @@ namespace ArbatelTest.Rendering
 {
 	public class Program
 	{
-		public static Type GetTypeFromName(string name)
-		{
-			Type type = null;
-
-			foreach (Assembly assembly in AppDomain.CurrentDomain.GetAssemblies())
-			{
-				type = assembly.GetType(name);
-
-				if (type != null)
-				{
-					break;
-				}
-			}
-
-			return type;
-		}
-
 		[STAThread]
 		public static void Main(string[] args)
 		{
@@ -49,19 +33,19 @@ namespace ArbatelTest.Rendering
 			if (platform.IsMac)
 			{
 				Assembly.Load("Eto.Gl.Mac");
-				Type type = GetTypeFromName("Eto.Gl.Mac.MacGLSurfaceHandler");
+				Type type = AssemblyUtilities.GetTypeFromName("Eto.Gl.Mac.MacGLSurfaceHandler");
 				platform.Add(() => (GLSurface.IHandler)Activator.CreateInstance(type));
 			}
 			else if (platform.IsGtk)
 			{
 				Assembly.Load("Eto.Gl.Gtk2");
-				Type type = GetTypeFromName("Eto.Gl.Gtk.GtkGlSurfaceHandler");
+				Type type = AssemblyUtilities.GetTypeFromName("Eto.Gl.Gtk.GtkGlSurfaceHandler");
 				platform.Add(() => (GLSurface.IHandler)Activator.CreateInstance(type));
 			}
 			else
 			{
 				Assembly.Load("Eto.Gl.Windows");
-				Type type = GetTypeFromName("Eto.Gl.Windows.WinGLSurfaceHandler");
+				Type type = AssemblyUtilities.GetTypeFromName("Eto.Gl.Windows.WinGLSurfaceHandler");
 				platform.Add(() => (GLSurface.IHandler)Activator.CreateInstance(type));
 			}
 

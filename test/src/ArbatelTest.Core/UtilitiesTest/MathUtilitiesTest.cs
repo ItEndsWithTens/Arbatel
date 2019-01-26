@@ -1,15 +1,10 @@
-﻿using NUnit.Framework;
-using OpenTK;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Arbatel;
-using Arbatel.Formats;
+﻿using Arbatel.Formats;
 using Arbatel.Graphics;
 using Arbatel.Utilities;
+using NUnit.Framework;
+using OpenTK;
+using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace ArbatelTest.Core.MathUtilitiesTest
 {

@@ -52,6 +52,8 @@
 
   Once those are installed, open a PowerShell or Bash terminal as appropriate, and run build.ps1 or build.sh, respectively. The main solution file can of course be opened in Visual Studio, VS for Mac, or MonoDevelop to easily edit, build, and debug, but the full end-to-end compile and package process is handled by the Nuke bootstrapping scripts.
 
+  The suite of automated NUnit tests will run during a command line build with no special setup. To run them using the NUnit test adapter in Visual Studio, go to Test|Test Settings->Select Test Settings File, and choose test/src/vsadapter.runsettings.
+
   ## Credits
 
   Built with:

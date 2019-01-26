@@ -10,7 +10,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 
-namespace ArbatelTest.Core.Features.Instance
+namespace ArbatelTest.Core.NeedsEto.Features.Instance
 {
 	public class Pitch
 	{
@@ -29,8 +29,8 @@ namespace ArbatelTest.Core.Features.Instance
 			[OneTimeSetUp]
 			public void SetUp()
 			{
-				DataDirectory = TestContext.Parameters.Get("dataDirectory");
-				FgdDirectory = TestContext.Parameters.Get("fgdDirectory");
+				DataDirectory = TestContext.Parameters["dataDirectory"];
+				FgdDirectory = TestContext.Parameters["fgdDirectory"];
 
 				string ericwFilename = Path.Combine(FgdDirectory, "quake4ericwTools.fgd");
 				var ericw = new QuakeFgd(ericwFilename);
@@ -265,8 +265,8 @@ namespace ArbatelTest.Core.Features.Instance
 			[OneTimeSetUp]
 			public void SetUp()
 			{
-				DataDirectory = TestContext.Parameters.Get("dataDirectory");
-				FgdDirectory = TestContext.Parameters.Get("fgdDirectory");
+				DataDirectory = TestContext.Parameters["dataDirectory"];
+				FgdDirectory = TestContext.Parameters["fgdDirectory"];
 
 				string ericwFilename = Path.Combine(FgdDirectory, "quake4ericwTools.fgd");
 				var ericw = new QuakeFgd(ericwFilename);
@@ -501,8 +501,8 @@ namespace ArbatelTest.Core.Features.Instance
 			[OneTimeSetUp]
 			public void SetUp()
 			{
-				DataDirectory = TestContext.Parameters.Get("dataDirectory");
-				FgdDirectory = TestContext.Parameters.Get("fgdDirectory");
+				DataDirectory = TestContext.Parameters["dataDirectory"];
+				FgdDirectory = TestContext.Parameters["fgdDirectory"];
 
 				string ericwFilename = Path.Combine(FgdDirectory, "quake4ericwTools.fgd");
 				var ericw = new QuakeFgd(ericwFilename);
