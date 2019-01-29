@@ -63,7 +63,7 @@ namespace Arbatel.Mac
 		public static extern CGError DisplayShowCursor(CGDirectDisplayID display);
 	}
 
-	class MainClass
+	public static class MainClass
 	{
 		[STAThread]
 		public static void Main(string[] args)
@@ -76,7 +76,7 @@ namespace Arbatel.Mac
 
 			Style.Add<View>(
 				"hidecursor",
-				handler =>
+				view =>
 				{
 					CG.DisplayHideCursor((CGDirectDisplayID)0);
 					CG.AssociateMouseAndMouseCursorPosition(false);
@@ -84,7 +84,7 @@ namespace Arbatel.Mac
 
 			Style.Add<View>(
 				"showcursor",
-				handler =>
+				view =>
 				{
 					CG.AssociateMouseAndMouseCursorPosition(true);
 					CG.DisplayShowCursor((CGDirectDisplayID)0);

@@ -63,20 +63,20 @@ namespace Arbatel.XamMac
 		public static extern CGError DisplayShowCursor(CGDirectDisplayID display);
 	}
 
-	class MainClass
+	public static class MainClass
 	{
 		[STAThread]
 		public static void Main(string[] args)
 		{
 			Toolkit opentk = Core.InitOpenTK();
 
-			var platform = new Eto.Mac.Platform();
+			Platform platform = new Eto.Mac.Platform();
 
 			platform.Add<GLSurface.IHandler>(() => new MacGLSurfaceHandler());
 
 			Style.Add<View>(
 				"hidecursor",
-				handler =>
+				view =>
 				{
 					CG.DisplayHideCursor((CGDirectDisplayID)0);
 					CG.AssociateMouseAndMouseCursorPosition(false);
@@ -84,7 +84,7 @@ namespace Arbatel.XamMac
 
 			Style.Add<View>(
 				"showcursor",
-				handler =>
+				view =>
 				{
 					CG.AssociateMouseAndMouseCursorPosition(true);
 					CG.DisplayShowCursor((CGDirectDisplayID)0);

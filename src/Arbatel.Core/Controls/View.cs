@@ -61,7 +61,10 @@ namespace Arbatel.Controls
 				{
 					Controller.Deactivate();
 
-					Style = "showcursor";
+					if (Style == "hidecursor")
+					{
+						Style = "showcursor";
+					}
 				}
 			}
 		}

@@ -10,7 +10,7 @@ using System;
 
 namespace Arbatel.WinForms
 {
-	public class Program
+	public static class Program
 	{
 		[STAThread]
 		public static void Main(string[] args)
@@ -23,16 +23,24 @@ namespace Arbatel.WinForms
 
 			Style.Add<View>(
 				"hidecursor",
-				handler =>
+				view =>
 				{
 					System.Windows.Forms.Cursor.Hide();
 
-					CaptureCursor(handler);
+					var center = new Point(view.PointToScreen(view.Bounds.Center));
+
+					System.Windows.Forms.Cursor.Position = center.ToSD();
+
+					var topLeft = new Point(view.PointToScreen(view.Location));
+
+					var clip = new System.Drawing.Rectangle(topLeft.ToSD(), view.Size.ToSD());
+
+					System.Windows.Forms.Cursor.Clip = clip;
 				});
 
 			Style.Add<View>(
 				"showcursor",
-				handler =>
+				view =>
 				{
 					System.Windows.Forms.Cursor.Show();
 
@@ -57,19 +65,6 @@ namespace Arbatel.WinForms
 			{
 				application.Run(mainForm);
 			}
-		}
-
-		public static void CaptureCursor(View view)
-		{
-			var center = new Point(view.PointToScreen(view.Bounds.Center));
-
-			System.Windows.Forms.Cursor.Position = center.ToSD();
-
-			var topLeft = new Point(view.PointToScreen(view.Location));
-
-			var clip = new System.Drawing.Rectangle(topLeft.ToSD(), view.Size.ToSD());
-
-			System.Windows.Forms.Cursor.Clip = clip;
 		}
 	}
 }

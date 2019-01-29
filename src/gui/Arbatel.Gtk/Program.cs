@@ -9,7 +9,7 @@ using System;
 
 namespace Arbatel.Gtk
 {
-	class MainClass
+	public static class MainClass
 	{
 		[STAThread]
 		public static void Main(string[] args)
@@ -22,14 +22,14 @@ namespace Arbatel.Gtk
 
 			Style.Add<View>(
 				"hidecursor",
-				handler =>
+				view =>
 				{
-					Gdk.Window window = handler.ToNative().GdkWindow;
+					Gdk.Window window = view.ToNative().GdkWindow;
 
 					var pixmap = new Gdk.Pixmap(null, 1, 1, 1);
 					var cursor = new Gdk.Cursor(pixmap, pixmap, Gdk.Color.Zero, Gdk.Color.Zero, 0, 0);
 
-					var mask = Gdk.EventMask.PointerMotionMask | Gdk.EventMask.ButtonPressMask;
+					Gdk.EventMask mask = Gdk.EventMask.PointerMotionMask | Gdk.EventMask.ButtonPressMask;
 
 					// Doesn't successfully limit mouse motion when running in
 					// Windows, but that's an edge case anyway, so no big deal.
@@ -38,7 +38,7 @@ namespace Arbatel.Gtk
 
 			Style.Add<View>(
 				"showcursor",
-				handler =>
+				view =>
 				{
 					Gdk.Pointer.Ungrab(0);
 				});

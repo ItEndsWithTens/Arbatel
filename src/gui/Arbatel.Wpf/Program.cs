@@ -8,14 +8,14 @@ using System;
 
 namespace Arbatel.Wpf
 {
-	public class Program
+	public static class Program
 	{
 		[STAThread]
 		public static void Main(string[] args)
 		{
 			Toolkit opentk = Core.InitOpenTK();
 
-			var platform = Platform.Detect;
+			Platform platform = Platform.Detect;
 
 			platform.Add<GLSurface.IHandler>(() => new WPFWFGLSurfaceHandler());
 
