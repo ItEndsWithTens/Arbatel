@@ -1,15 +1,31 @@
-﻿using OpenTK;
+﻿using Arbatel.Graphics;
+using OpenTK;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Arbatel.Graphics;
 
 namespace Arbatel.Utilities
 {
-	public class MathUtilities
+	public static class MathExtensions
 	{
+		public static bool IsNaN(this Vector3 vector)
+		{
+			return
+				Single.IsNaN(vector.X) ||
+				Single.IsNaN(vector.Y) ||
+				Single.IsNaN(vector.Z);
+		}
+	}
+
+	public static class MathUtilities
+	{
+		public static bool ApproximatelyEquivalent(Vector3 a, Vector3 b, float tolerance)
+		{
+			return
+				MathHelper.ApproximatelyEquivalent(a.X, b.X, tolerance) &&
+				MathHelper.ApproximatelyEquivalent(a.Y, b.Y, tolerance) &&
+				MathHelper.ApproximatelyEquivalent(a.Z, b.Z, tolerance);
+		}
+
 		/// <summary>
 		/// Get all unique combinations of a set.
 		/// </summary>
@@ -30,7 +46,7 @@ namespace Arbatel.Utilities
 		public static List<List<int>> Combinations(int count, int size, int start)
 		{
 			var items = new List<int>();
-			for (var i = 0; i < count; i++)
+			for (int i = 0; i < count; i++)
 			{
 				items.Add(i);
 			}
@@ -60,7 +76,7 @@ namespace Arbatel.Utilities
 
 			if (size == 1)
 			{
-				for (var i = start; i < items.Count; i++)
+				for (int i = start; i < items.Count; i++)
 				{
 					combinations.Add(new List<int>() { items[i] });
 				}
@@ -68,11 +84,11 @@ namespace Arbatel.Utilities
 				return combinations;
 			}
 
-			for (var i = start; i < items.Count; i++)
+			for (int i = start; i < items.Count; i++)
 			{
-				var remainingCombos = Combinations(items, size - 1, i + 1);
+				List<List<int>> remainingCombos = Combinations(items, size - 1, i + 1);
 
-				foreach (var combo in remainingCombos)
+				foreach (List<int> combo in remainingCombos)
 				{
 					var output = new List<int>() { items[i] };
 					output.AddRange(combo);
@@ -92,7 +108,7 @@ namespace Arbatel.Utilities
 		public static List<List<int>> Permutations(int count, int size)
 		{
 			var items = new List<int>();
-			for (var i = 0; i < count; i++)
+			for (int i = 0; i < count; i++)
 			{
 				items.Add(i);
 			}
@@ -111,7 +127,7 @@ namespace Arbatel.Utilities
 
 			if (size == 1)
 			{
-				foreach (var item in items)
+				foreach (int item in items)
 				{
 					permutations.Add(new List<int>() { item });
 				}
@@ -119,7 +135,7 @@ namespace Arbatel.Utilities
 				return permutations;
 			}
 
-			foreach (var item in items)
+			foreach (int item in items)
 			{
 				var others = new List<int>(items);
 
@@ -130,9 +146,9 @@ namespace Arbatel.Utilities
 				// provide lists with duplicate items know what they're doing.
 				others.Remove(item);
 
-				var remainingPerms = Permutations(others, size - 1);
+				List<List<int>> remainingPerms = Permutations(others, size - 1);
 
-				foreach (var perm in remainingPerms)
+				foreach (List<int> perm in remainingPerms)
 				{
 					var output = new List<int>() { item };
 					output.AddRange(perm);
@@ -173,7 +189,7 @@ namespace Arbatel.Utilities
 		/// <returns>The angle between a and b, in degrees.</returns>
 		public static double GetClockwiseAngle(Vector3 a, Vector3 b, Vector3 normal)
 		{
-			double result = double.NaN;
+			double result = Double.NaN;
 
 			double angle = SignedAngleBetweenVectors(a, b, normal);
 			if (angle > 0.0 || MathHelper.ApproximatelyEquivalent(angle, -180.0, 0.001))
@@ -199,7 +215,7 @@ namespace Arbatel.Utilities
 		{
 			var vectors = new List<Vector3>();
 
-			foreach (var vertex in vertices)
+			foreach (Vertex vertex in vertices)
 			{
 				vectors.Add(vertex.Position);
 			}
@@ -221,14 +237,14 @@ namespace Arbatel.Utilities
 		{
 			var angles = new Dictionary<List<int>, double>();
 
-			foreach (var pair in pairs)
+			foreach (List<int> pair in pairs)
 			{
 				Vector3 a = points[pair[0]] - center;
 				Vector3 b = points[pair[1]] - center;
 
 				double angle = GetClockwiseAngle(a, b, normal);
 
-				if (!angle.Equals(double.NaN))
+				if (!angle.Equals(Double.NaN))
 				{
 					angles.Add(pair, angle);
 				}
@@ -239,8 +255,8 @@ namespace Arbatel.Utilities
 
 		public static double SignedAngleBetweenVectors(Vector3 a, Vector3 b, Vector3 normal)
 		{
-			var dot1 = Vector3.Dot(normal, Vector3.Cross(a, b));
-			var dot2 = Vector3.Dot(a, b);
+			float dot1 = Vector3.Dot(normal, Vector3.Cross(a, b));
+			float dot2 = Vector3.Dot(a, b);
 
 			return MathHelper.RadiansToDegrees(Math.Atan2(dot1, dot2));
 		}
@@ -262,12 +278,12 @@ namespace Arbatel.Utilities
 
 			Dictionary<List<int>, double> angles = GetClockwiseAngles(vertices, pairs, aabb.Center, normal);
 
-			var currentIndex = 0;
-			for (var i = 0; i < vertices.Count - 1; i++)
+			int currentIndex = 0;
+			for (int i = 0; i < vertices.Count - 1; i++)
 			{
-				var previousAngle = 181.0;
-				var nextIndex = 0;
-				foreach (var candidate in angles)
+				double previousAngle = 181.0;
+				int nextIndex = 0;
+				foreach (KeyValuePair<List<int>, double> candidate in angles)
 				{
 					if (candidate.Key[0] != currentIndex)
 					{

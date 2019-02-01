@@ -2,9 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Arbatel.Utilities;
 
 namespace Arbatel.Graphics
 {
@@ -30,12 +27,12 @@ namespace Arbatel.Graphics
 
 			Points = _points;
 
-			var a = Points[2] - Points[0];
-			var b = Points[1] - Points[0];
+			Vector3 a = Points[2] - Points[0];
+			Vector3 b = Points[1] - Points[0];
 
 			if (Winding == Winding.Ccw)
 			{
-				var c = a;
+				Vector3 c = a;
 				a = b;
 				b = c;
 			}
@@ -46,6 +43,15 @@ namespace Arbatel.Graphics
 			DistanceFromOrigin = Vector3.Dot(Points[0].Position, Normal);
 		}
 
+		public static Vector3 Intersect(IEnumerable<Plane> planes)
+		{
+			if (planes.Count() != 3)
+			{
+				throw new ArgumentException("Can only intersect 3 planes at once!");
+			}
+
+			return Intersect(planes.ElementAt(0), planes.ElementAt(1), planes.ElementAt(2));
+		}
 		public static Vector3 Intersect(Plane a, Plane b, Plane c)
 		{
 			float denominator = Vector3.Dot(a.Normal, Vector3.Cross(b.Normal, c.Normal));
@@ -53,7 +59,7 @@ namespace Arbatel.Graphics
 			// Planes do not intersect.
 			if (MathHelper.ApproximatelyEquivalent(denominator, 0.0f, 0.0001f))
 			{
-				return new Vector3(float.NaN, float.NaN, float.NaN);
+				return new Vector3(Single.NaN);
 			}
 
 			var crossAB = Vector3.Cross(a.Normal, b.Normal);
