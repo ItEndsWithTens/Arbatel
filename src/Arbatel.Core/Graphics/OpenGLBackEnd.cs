@@ -1,58 +1,143 @@
 ﻿using Arbatel.Controls;
 using Arbatel.Formats;
-using Eto.Gl;
 using OpenTK.Graphics.OpenGL4;
+using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Arbatel.Graphics
 {
-	public class OpenGL4BackEnd : BackEnd
+	public class Buffers
 	{
-		public override void DrawRenderable(Renderable r, Dictionary<ShadingStyle, Shader> shaders, ShadingStyle style, View view, Camera camera)
-		{
-			ShadingStyle actualStyle = r.ShadingStyleDict[style];
+		public int Vao;
+		public int Vbo;
+		public int Ebo;
 
-			shaders[actualStyle].Draw(r, view.Content as GLSurface, camera);
+		public Buffers()
+		{
+			GL.GenVertexArrays(1, out Vao);
+			GL.GenBuffers(1, out Vbo);
+			GL.GenBuffers(1, out Ebo);
 		}
 
-		public override void InitRenderable(Renderable renderable, View view)
+		public void CleanUp()
 		{
-			var glSurface = view.Content as GLSurface;
+			GL.DeleteBuffer(Ebo);
+			GL.DeleteBuffer(Vbo);
+			GL.DeleteVertexArray(Vao);
+		}
+	}
 
-			glSurface.MakeCurrent();
+	public class OpenGL4BackEnd : BackEnd
+	{
+		public Dictionary<(Map, View), Buffers> Buffers { get; } = new Dictionary<(Map, View), Buffers>();
 
-			Buffers b;
+		public override void DrawMap(Map map, Dictionary<ShadingStyle, Shader> shaders, ShadingStyle style, View view, Camera camera)
+		{
+			IEnumerable<MapObject> visible =
+				from mo in map.MapObjects
+				where camera.CanSee(mo)
+				select mo;
 
-			if (renderable.Buffers.ContainsKey(glSurface))
-			{
-				b = renderable.Buffers[glSurface];
-			}
-			else
-			{
-				b = new Buffers();
+			IEnumerable<Renderable> renderables = visible.SelectMany(mo => mo.Renderables);
 
-				renderable.Buffers.Add(glSurface, b);
-			}
+			IEnumerable<Renderable> textured =
+				from r in renderables
+				where r.ShadingStyleDict[view.ShadingStyle] == ShadingStyle.Textured
+				select r;
+
+			IEnumerable<Renderable> flat =
+				from r in renderables
+				where r.ShadingStyleDict[view.ShadingStyle] <= ShadingStyle.Flat
+				select r;
+
+			Buffers b = Buffers[(map, view)];
 
 			GL.BindVertexArray(b.Vao);
 			GL.BindBuffer(BufferTarget.ArrayBuffer, b.Vbo);
 			GL.BindBuffer(BufferTarget.ElementArrayBuffer, b.Ebo);
 
-			GL.BufferData(
-				BufferTarget.ArrayBuffer,
-				Vertex.MemorySize * renderable.Vertices.Count,
-				renderable.Vertices.ToArray(),
-				BufferUsageHint.StaticDraw);
-
-			GL.BufferData(
-				BufferTarget.ElementArrayBuffer,
-				4 * renderable.Indices.Count,
-				renderable.Indices.ToArray(),
-				BufferUsageHint.StaticDraw);
+			shaders[ShadingStyle.Textured].Draw(textured, camera);
+			shaders[ShadingStyle.Flat].Draw(flat, camera);
 
 			GL.BindVertexArray(0);
 			GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
 			GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);
+		}
+
+		protected override void InitMap(Map map, View view)
+		{
+			var buffers = new Buffers();
+			Buffers.Add((map, view), buffers);
+
+			GL.BindVertexArray(buffers.Vao);
+			GL.BindBuffer(BufferTarget.ArrayBuffer, buffers.Vbo);
+			GL.BindBuffer(BufferTarget.ElementArrayBuffer, buffers.Ebo);
+
+			IEnumerable<Renderable> renderables = map.AllObjects.SelectMany(mo => mo.Renderables);
+
+			int minimumVertexBytes = 0;
+			int minimumIndexBytes = 0;
+			foreach (Renderable r in renderables)
+			{
+				minimumVertexBytes += Vertex.MemorySize * r.Vertices.Count;
+				minimumIndexBytes += sizeof(int) * r.Indices.Count;
+			}
+			GL.BufferData(BufferTarget.ArrayBuffer, minimumVertexBytes, IntPtr.Zero, BufferUsageHint.StaticDraw);
+			GL.BufferData(BufferTarget.ElementArrayBuffer, minimumIndexBytes, IntPtr.Zero, BufferUsageHint.StaticDraw);
+
+			InitRenderables(renderables, view);
+
+			GL.BindVertexArray(0);
+			GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
+			GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);
+		}
+		protected override void DeleteMap(Map map, View view)
+		{
+			if (!Buffers.ContainsKey((map, view)))
+			{
+				return;
+			}
+
+			Buffers[(map, view)].CleanUp();
+			Buffers.Remove((map, view));
+		}
+
+		public override void InitRenderables(IEnumerable<Renderable> renderables, View view)
+		{
+			int verticesSoFar = 0;
+			IntPtr vboOffset = IntPtr.Zero;
+
+			int indicesSoFar = 0;
+			IntPtr eboOffset = IntPtr.Zero;
+
+			foreach (Renderable r in renderables)
+			{
+				r.VertexOffset = vboOffset;
+
+				r.IndexOffset = eboOffset;
+
+				int totalVerticesBytes = Vertex.MemorySize * r.Vertices.Count;
+				GL.BufferSubData(
+					BufferTarget.ArrayBuffer,
+					vboOffset,
+					totalVerticesBytes,
+					r.Vertices.ToArray());
+
+				int totalIndicesBytes = sizeof(int) * r.Indices.Count;
+				IEnumerable<int> shiftedIndices = r.Indices.Select(i => verticesSoFar + i);
+				GL.BufferSubData(
+					BufferTarget.ElementArrayBuffer,
+					eboOffset,
+					totalIndicesBytes,
+					shiftedIndices.ToArray());
+
+				verticesSoFar += r.Vertices.Count;
+				vboOffset += totalVerticesBytes;
+
+				indicesSoFar += r.Indices.Count;
+				eboOffset += totalIndicesBytes;
+			}
 		}
 
 		public override void InitTextures(TextureDictionary dictionary)

@@ -57,27 +57,6 @@ namespace Arbatel.Graphics
 		All = Translate | Rotate | Scale
 	}
 
-	public class Buffers
-	{
-		public int Vao;
-		public int Vbo;
-		public int Ebo;
-
-		public Buffers()
-		{
-			GL.GenVertexArrays(1, out Vao);
-			GL.GenBuffers(1, out Vbo);
-			GL.GenBuffers(1, out Ebo);
-		}
-
-		public void CleanUp()
-		{
-			GL.DeleteBuffer(Ebo);
-			GL.DeleteBuffer(Vbo);
-			GL.DeleteVertexArray(Vao);
-		}
-	}
-
 	public class Polygon
 	{
 		/// <summary>
@@ -177,8 +156,6 @@ namespace Arbatel.Graphics
 	{
 		public Aabb AABB { get; protected set; }
 
-		public Dictionary<GLSurface, Buffers> Buffers;
-
 		/// <summary>
 		/// The coordinate space in which this Renderable's vertices are stored.
 		/// </summary>
@@ -231,10 +208,25 @@ namespace Arbatel.Graphics
 		/// </summary>
 		public List<Vertex> Vertices;
 
+		// TODO: Hoist these up into the backend? Make a dictionary, keyed by a Renderable
+		// instance with a value of a tuple, (VertexOffset, IndexOffset). In principle, things
+		// to be rendered shouldn't need to carry around information about their place in the
+		// backend's buffers, right? Even though this doesn't involve any OpenTK/OpenGL-specific
+		// stuff, it's still ugly, and I think unnecessary.
+		/// <summary>
+		/// The starting offset in bytes of this renderable's vertices, relative
+		/// to the back end buffer they're stored in.
+		/// </summary>
+		public IntPtr VertexOffset { get; set; } = IntPtr.Zero;
+		/// <summary>
+		/// The starting offset in bytes of this renderable's vertex indices,
+		/// relative to the back end buffer they're stored in.
+		/// </summary>
+		public IntPtr IndexOffset { get; set; } = IntPtr.Zero;
+
 		public Renderable()
 		{
 			AABB = new Aabb();
-			Buffers = new Dictionary<GLSurface, Buffers>();
 			CoordinateSpace = CoordinateSpace.World;
 			Indices = new List<int>();
 			ModelMatrix = Matrix4.Identity;
@@ -265,7 +257,6 @@ namespace Arbatel.Graphics
 		public Renderable(Renderable r)
 		{
 			AABB = new Aabb(r.AABB);
-			Buffers = new Dictionary<GLSurface, Buffers>(r.Buffers);
 			CoordinateSpace = r.CoordinateSpace;
 			Indices = new List<int>(r.Indices);
 			ModelMatrix = r.ModelMatrix;

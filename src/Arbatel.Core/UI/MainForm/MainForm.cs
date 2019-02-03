@@ -65,7 +65,12 @@ namespace Arbatel.UI
 				return;
 			}
 
-			BackEnd.DeleteTextures(Map.Textures);
+			IEnumerable<View> views =
+				from view in (Content as Viewport).Views
+				where view.Value.Control is View
+				select view.Value.Control as View;
+
+			BackEnd.DeleteMap(Map, views);
 
 			Settings.Updatables.Remove(Map);
 

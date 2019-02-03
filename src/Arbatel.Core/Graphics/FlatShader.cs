@@ -110,15 +110,14 @@ namespace Arbatel.Graphics
 			LocationProjectionMatrix = GL.GetUniformLocation(Program, "projection");
 		}
 
-		public override void Draw(Renderable renderable, GLSurface surface, Camera camera)
+		public override void Draw(IEnumerable<Renderable> renderables, Camera camera)
 		{
-			base.Draw(renderable, surface, camera);
+			if (renderables.Count() == 0)
+			{
+				return;
+			}
 
-			Buffers b = renderable.Buffers[surface];
-
-			GL.BindVertexArray(b.Vao);
-			GL.BindBuffer(BufferTarget.ArrayBuffer, b.Vbo);
-			GL.BindBuffer(BufferTarget.ElementArrayBuffer, b.Ebo);
+			base.Draw(renderables, camera);
 
 			int positionLocation = GL.GetAttribLocation(Program, "position");
 			GL.VertexAttribPointer(positionLocation, 3, VertexAttribPointerType.Float, false, Vertex.MemorySize, 0);
@@ -132,11 +131,12 @@ namespace Arbatel.Graphics
 			GL.VertexAttribPointer(colorLocation, 4, VertexAttribPointerType.Float, false, Vertex.MemorySize, sizeof(float) * 6);
 			GL.EnableVertexAttribArray(colorLocation);
 
-			GL.DrawElements(BeginMode.Triangles, renderable.Indices.Count, DrawElementsType.UnsignedInt, 0);
+			foreach (Renderable r in renderables)
+			{
+				SetUniform(LocationModelMatrix, r.ModelMatrix);
 
-			GL.BindVertexArray(0);
-			GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);
-			GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
+				GL.DrawElements(PrimitiveType.Triangles, r.Indices.Count, DrawElementsType.UnsignedInt, r.IndexOffset);
+			}
 		}
 	}
 }

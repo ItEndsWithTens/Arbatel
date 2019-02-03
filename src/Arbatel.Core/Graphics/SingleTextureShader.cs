@@ -148,15 +148,14 @@ namespace Arbatel.Graphics
 			LocationTextureHeight = GL.GetUniformLocation(Program, "textureHeight");
 		}
 
-		public override void Draw(Renderable renderable, GLSurface surface, Camera camera)
+		public override void Draw(IEnumerable<Renderable> renderables, Camera camera)
 		{
-			base.Draw(renderable, surface, camera);
+			if (renderables.Count() == 0)
+			{
+				return;
+			}
 
-			Buffers b = renderable.Buffers[surface];
-
-			GL.BindVertexArray(b.Vao);
-			GL.BindBuffer(BufferTarget.ArrayBuffer, b.Vbo);
-			GL.BindBuffer(BufferTarget.ElementArrayBuffer, b.Ebo);
+			base.Draw(renderables, camera);
 
 			int positionLocation = GL.GetAttribLocation(Program, "position");
 			GL.VertexAttribPointer(positionLocation, 3, VertexAttribPointerType.Float, false, Vertex.MemorySize, 0);
@@ -170,44 +169,43 @@ namespace Arbatel.Graphics
 			GL.VertexAttribPointer(colorLocation, 4, VertexAttribPointerType.Float, false, Vertex.MemorySize, sizeof(float) * 6);
 			GL.EnableVertexAttribArray(colorLocation);
 
-			GL.ActiveTexture(TextureUnit.Texture0);
-
-			IntPtr elementOffset = IntPtr.Zero;
-			for (var i = 0; i < renderable.Polygons.Count; i++)
+			foreach (Renderable r in renderables)
 			{
-				Polygon p = renderable.Polygons[i];
+				SetUniform(LocationModelMatrix, r.ModelMatrix);
 
-				// OpenGL offers its own backface culling, if it's enabled, but
-				// that only does its work after a draw call. An early backface
-				// check here skips texture binding and setting the uniforms.
-				Vector3 point = renderable.Vertices[p.Indices[0]];
-				var yUpRightHand = new Vector4(point.X, point.Z, -point.Y, 1.0f);
-				var transformed = yUpRightHand * renderable.ModelMatrix;
-				var zUpLeftHand = new Vector3(transformed.X, -transformed.Z, transformed.Y);
-				var toPoint = camera.WorldPosition - new Vector3(zUpLeftHand);
-				if (Vector3.Dot(toPoint, p.Normal) > 0.0f)
+				GL.ActiveTexture(TextureUnit.Texture0);
+
+				IntPtr elementOffset = r.IndexOffset;
+				for (var i = 0; i < r.Polygons.Count; i++)
 				{
-					SetUniform(LocationBasisS, p.BasisS);
-					SetUniform(LocationBasisT, p.BasisT);
-					SetUniform(LocationOffset, p.Offset);
-					SetUniform(LocationScale, p.Scale);
+					Polygon p = r.Polygons[i];
 
-					SetUniform(LocationTextureWidth, (float)p.Texture.Width);
-					SetUniform(LocationTextureHeight, (float)p.Texture.Height);
+					// OpenGL offers its own backface culling, if it's enabled, but
+					// that only does its work after a draw call. An early backface
+					// check here skips texture binding and setting the uniforms.
+					Vector3 point = r.Vertices[p.Indices[0]];
+					var yUpRightHand = new Vector4(point.X, point.Z, -point.Y, 1.0f);
+					var transformed = yUpRightHand * r.ModelMatrix;
+					var zUpLeftHand = new Vector3(transformed.X, -transformed.Z, transformed.Y);
+					var toPoint = camera.WorldPosition - new Vector3(zUpLeftHand);
+					if (Vector3.Dot(toPoint, p.Normal) > 0.0f)
+					{
+						SetUniform(LocationBasisS, p.BasisS);
+						SetUniform(LocationBasisT, p.BasisT);
+						SetUniform(LocationOffset, p.Offset);
+						SetUniform(LocationScale, p.Scale);
 
-					GL.BindTexture(TextureTarget.Texture2D, BackEnd.Textures[p.Texture.Name.ToLower()]);
+						SetUniform(LocationTextureWidth, (float)p.Texture.Width);
+						SetUniform(LocationTextureHeight, (float)p.Texture.Height);
 
-					// The last parameter of DrawRangeElements is a perhaps poorly
-					// labeled offset into the element buffer.
-					GL.DrawRangeElements(PrimitiveType.Triangles, p.Indices.Min(), p.Indices.Max(), p.Indices.Count, DrawElementsType.UnsignedInt, elementOffset);
+						GL.BindTexture(TextureTarget.Texture2D, BackEnd.Textures[p.Texture.Name.ToLower()]);
+
+						GL.DrawElements(PrimitiveType.Triangles, p.Indices.Count, DrawElementsType.UnsignedInt, elementOffset);
+					}
+
+					elementOffset += p.Indices.Count * sizeof(int);
 				}
-
-				elementOffset += p.Indices.Count * sizeof(int);
 			}
-
-			GL.BindVertexArray(0);
-			GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);
-			GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
 		}
 	}
 }

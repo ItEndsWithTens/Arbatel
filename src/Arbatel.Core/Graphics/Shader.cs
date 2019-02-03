@@ -120,15 +120,20 @@ namespace Arbatel.Graphics
 			GL.UniformMatrix4(location, false, ref value);
 		}
 
-		public void Use()
+		public virtual void Use()
 		{
 			GL.UseProgram(Program);
 		}
 
-		virtual public void Draw(Renderable renderable, GLSurface surface, Camera camera)
+		public virtual void Draw(IEnumerable<Renderable> renderables, Camera camera)
 		{
+			if (renderables.Count() == 0)
+			{
+				return;
+			}
+
 			Use();
-			SetUniform(LocationModelMatrix, renderable.ModelMatrix);
+
 			SetUniform(LocationViewMatrix, camera.ViewMatrix);
 			SetUniform(LocationProjectionMatrix, camera.ProjectionMatrix);
 		}
