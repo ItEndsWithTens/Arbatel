@@ -35,7 +35,7 @@ namespace Arbatel.Graphics
 		public override void DrawMap(Map map, Dictionary<ShadingStyle, Shader> shaders, ShadingStyle style, View view, Camera camera)
 		{
 			IEnumerable<MapObject> visible =
-				from mo in map.MapObjects
+				from mo in map.AllObjects
 				where camera.CanSee(mo)
 				select mo;
 
