@@ -1,16 +1,14 @@
 ﻿using Eto.Drawing;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Arbatel.Graphics
 {
 	public class Texture : Bitmap
 	{
-		public string Name;
+		public string Name { get; set; }
+
+		public bool Translucent { get; set; } = false;
 
 		public Texture() : base(16, 16, PixelFormat.Format24bppRgb)
 		{
@@ -40,15 +38,15 @@ namespace Arbatel.Graphics
 		/// <returns>The uncompressed pixel data for this Texture as an array of bytes.</returns>
 		public byte[] ToUncompressed(PixelFormat format = PixelFormat.Format24bppRgb, bool flip = false)
 		{
-			var components = 3;
+			int components = 3;
 			if (format == PixelFormat.Format32bppRgb || format == PixelFormat.Format32bppRgba)
 			{
 				components++;
 			}
 
-			var bytes = new byte[Width * Height * components];
+			byte[] bytes = new byte[Width * Height * components];
 
-			var pitch = Width * components;
+			int pitch = Width * components;
 
 			// An unsafe block is necessary for speed; Eto's Bitmap GetPixel is
 			// too slow for grabbing every pixel of an image, but the BitmapData
@@ -60,9 +58,9 @@ namespace Arbatel.Graphics
 			{
 				using (BitmapData raw = Lock())
 				{
-					for (var y = 0; y < Height; y++)
+					for (int y = 0; y < Height; y++)
 					{
-						var line = pitch;
+						int line = pitch;
 						if (flip)
 						{
 							line *= y;
@@ -72,11 +70,11 @@ namespace Arbatel.Graphics
 							line *= Height - 1 - y;
 						}
 
-						for (var x = 0; x < Width; x++)
+						for (int x = 0; x < Width; x++)
 						{
 							Color pixel = raw.GetPixel(x, y);
 
-							var offset = x * components;
+							int offset = x * components;
 
 							bytes[line + offset + 0] = Convert.ToByte(pixel.Rb);
 							bytes[line + offset + 1] = Convert.ToByte(pixel.Gb);

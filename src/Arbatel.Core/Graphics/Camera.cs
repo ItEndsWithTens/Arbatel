@@ -327,5 +327,33 @@ namespace Arbatel.Graphics
 				Frustum.Update(Position, Front, Right, Up, Fov, AspectRatio, NearClip, FarClip);
 			}
 		}
+
+		/// <summary>
+		/// Get a list of polygons from the specified Renderable that are
+		/// visible to this camera.
+		/// </summary>
+		public List<Polygon> VisiblePolygons(Renderable r)
+		{
+			var visible = new List<Polygon>();
+
+			foreach (Polygon p in r.Polygons)
+			{
+				// OpenGL offers its own backface culling, if it's enabled, but
+				// that only does its work after a draw call. Letting cameras
+				// check ahead of time allows skipping the setup of those calls.
+				Vector3 point = r.Vertices[p.Indices[0]];
+				var yUpRightHand = new Vector4(point.X, point.Z, -point.Y, 1.0f);
+				Vector4 transformed = yUpRightHand * r.ModelMatrix;
+				var zUpLeftHand = new Vector3(transformed.X, -transformed.Z, transformed.Y);
+				Vector3 toPoint = WorldPosition - new Vector3(zUpLeftHand);
+
+				if (Vector3.Dot(toPoint, p.Normal) > 0.0f)
+				{
+					visible.Add(p);
+				}
+			}
+
+			return visible;
+		}
 	}
 }

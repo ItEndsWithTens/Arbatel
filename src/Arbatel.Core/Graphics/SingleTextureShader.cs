@@ -148,6 +148,8 @@ namespace Arbatel.Graphics
 			LocationTextureHeight = GL.GetUniformLocation(Program, "textureHeight");
 		}
 
+		private List<(Polygon, Renderable)> VisiblePolygons { get; } = new List<(Polygon, Renderable)>();
+
 		public override void Draw(IEnumerable<Renderable> renderables, Camera camera)
 		{
 			if (renderables.Count() == 0)
@@ -169,41 +171,38 @@ namespace Arbatel.Graphics
 			GL.VertexAttribPointer(colorLocation, 4, VertexAttribPointerType.Float, false, Vertex.MemorySize, sizeof(float) * 6);
 			GL.EnableVertexAttribArray(colorLocation);
 
+			VisiblePolygons.Clear();
 			foreach (Renderable r in renderables)
 			{
-				SetUniform(LocationModelMatrix, r.ModelMatrix);
-
-				GL.ActiveTexture(TextureUnit.Texture0);
-
-				IntPtr elementOffset = r.IndexOffset;
-				for (var i = 0; i < r.Polygons.Count; i++)
+				foreach (Polygon p in camera.VisiblePolygons(r))
 				{
-					Polygon p = r.Polygons[i];
+					VisiblePolygons.Add((p, r));
+				}
+			}
 
-					// OpenGL offers its own backface culling, if it's enabled, but
-					// that only does its work after a draw call. An early backface
-					// check here skips texture binding and setting the uniforms.
-					Vector3 point = r.Vertices[p.Indices[0]];
-					var yUpRightHand = new Vector4(point.X, point.Z, -point.Y, 1.0f);
-					var transformed = yUpRightHand * r.ModelMatrix;
-					var zUpLeftHand = new Vector3(transformed.X, -transformed.Z, transformed.Y);
-					var toPoint = camera.WorldPosition - new Vector3(zUpLeftHand);
-					if (Vector3.Dot(toPoint, p.Normal) > 0.0f)
-					{
-						SetUniform(LocationBasisS, p.BasisS);
-						SetUniform(LocationBasisT, p.BasisT);
-						SetUniform(LocationOffset, p.Offset);
-						SetUniform(LocationScale, p.Scale);
+			GL.ActiveTexture(TextureUnit.Texture0);
 
-						SetUniform(LocationTextureWidth, (float)p.Texture.Width);
-						SetUniform(LocationTextureHeight, (float)p.Texture.Height);
+			IEnumerable<IGrouping<Texture, (Polygon, Renderable)>> byTexture = VisiblePolygons
+				.GroupBy(pair => pair.Item1.Texture)
+				.OrderBy(t => t.Key.Translucent);
 
-						GL.BindTexture(TextureTarget.Texture2D, BackEnd.Textures[p.Texture.Name.ToLower()]);
+			foreach (IGrouping<Texture, (Polygon, Renderable)> group in byTexture)
+			{
+				SetUniform(LocationTextureWidth, (float)group.Key.Width);
+				SetUniform(LocationTextureHeight, (float)group.Key.Height);
 
-						GL.DrawElements(PrimitiveType.Triangles, p.Indices.Count, DrawElementsType.UnsignedInt, elementOffset);
-					}
+				GL.BindTexture(TextureTarget.Texture2D, BackEnd.Textures[group.Key.Name.ToLower()]);
 
-					elementOffset += p.Indices.Count * sizeof(int);
+				foreach ((Polygon p, Renderable r) in group)
+				{
+					SetUniform(LocationModelMatrix, r.ModelMatrix);
+
+					SetUniform(LocationBasisS, p.BasisS);
+					SetUniform(LocationBasisT, p.BasisT);
+					SetUniform(LocationOffset, p.Offset);
+					SetUniform(LocationScale, p.Scale);
+
+					GL.DrawElements(PrimitiveType.Triangles, p.Indices.Count, DrawElementsType.UnsignedInt, p.IndexOffset);
 				}
 			}
 		}

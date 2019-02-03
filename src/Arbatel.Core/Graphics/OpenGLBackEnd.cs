@@ -117,6 +117,13 @@ namespace Arbatel.Graphics
 
 				r.IndexOffset = eboOffset;
 
+				IntPtr polygonIndexOffset = r.IndexOffset;
+				foreach (Polygon p in r.Polygons)
+				{
+					p.IndexOffset = polygonIndexOffset;
+					polygonIndexOffset += p.Indices.Count * sizeof(int);
+				}
+
 				int totalVerticesBytes = Vertex.MemorySize * r.Vertices.Count;
 				GL.BufferSubData(
 					BufferTarget.ArrayBuffer,

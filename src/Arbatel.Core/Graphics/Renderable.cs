@@ -74,6 +74,8 @@ namespace Arbatel.Graphics
 
 		public Vector3 Normal;
 
+		public IntPtr IndexOffset;
+
 		public Polygon()
 		{
 			Indices = new List<int>();
@@ -178,7 +180,7 @@ namespace Arbatel.Graphics
 		/// field to switch the matrix used for this Renderable.</remarks>
 		public Matrix4 ModelMatrix { get; protected set; }
 
-		public List<Polygon> Polygons;
+		public List<Polygon> Polygons { get; } = new List<Polygon>();
 
 		protected Vector3 _position;
 		public Vector3 Position
@@ -230,7 +232,6 @@ namespace Arbatel.Graphics
 			CoordinateSpace = CoordinateSpace.World;
 			Indices = new List<int>();
 			ModelMatrix = Matrix4.Identity;
-			Polygons = new List<Polygon>();
 			ShadingStyleDict = new Dictionary<ShadingStyle, ShadingStyle>().Default();
 			Transformability = Transformability.All;
 			Translucent = false;

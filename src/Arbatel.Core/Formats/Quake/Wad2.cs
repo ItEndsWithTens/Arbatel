@@ -170,10 +170,12 @@ namespace Arbatel.Formats.Quake
 
 							if (Translucents.Contains(texture.Name))
 							{
+								texture.Translucent = true;
 								color.A = 0.5f;
 							}
 							else if (texture.Name.StartsWith("{") && color == Palette[255])
 							{
+								texture.Translucent = true;
 								color.A = 0.0f;
 							}
 
