@@ -24,6 +24,13 @@ namespace Arbatel.Graphics
 		public int LocationViewMatrix;
 		public int LocationProjectionMatrix;
 
+		public static Dictionary<string, int> Locations { get; } = new Dictionary<string, int>
+		{
+			{ "position", 0 },
+			{ "normal", 1 },
+			{ "color", 2 }
+		};
+
 		public Shader()
 		{
 			LocationModelMatrix = 0;
@@ -45,6 +52,11 @@ namespace Arbatel.Graphics
 			FragmentShaderSource = String.Join(Environment.NewLine, fragmentArray);
 
 			Compile(VertexShaderSource, FragmentShaderSource);
+
+			foreach (KeyValuePair<string, int> location in Locations)
+			{
+				GL.BindAttribLocation(Program, location.Value, location.Key);
+			}
 		}
 		public void Compile(string vertex, string fragment)
 		{

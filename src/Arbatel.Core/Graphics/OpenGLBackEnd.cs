@@ -54,15 +54,11 @@ namespace Arbatel.Graphics
 			Buffers b = Buffers[(map, view)];
 
 			GL.BindVertexArray(b.Vao);
-			GL.BindBuffer(BufferTarget.ArrayBuffer, b.Vbo);
-			GL.BindBuffer(BufferTarget.ElementArrayBuffer, b.Ebo);
 
 			shaders[ShadingStyle.Textured].Draw(textured, camera);
 			shaders[ShadingStyle.Flat].Draw(flat, camera);
 
 			GL.BindVertexArray(0);
-			GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
-			GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);
 		}
 
 		protected override void InitMap(Map map, View view)
@@ -73,6 +69,15 @@ namespace Arbatel.Graphics
 			GL.BindVertexArray(buffers.Vao);
 			GL.BindBuffer(BufferTarget.ArrayBuffer, buffers.Vbo);
 			GL.BindBuffer(BufferTarget.ElementArrayBuffer, buffers.Ebo);
+
+			GL.VertexAttribPointer(Shader.Locations["position"], 3, VertexAttribPointerType.Float, false, Vertex.MemorySize, 0);
+			GL.EnableVertexAttribArray(Shader.Locations["position"]);
+
+			GL.VertexAttribPointer(Shader.Locations["normal"], 3, VertexAttribPointerType.Float, false, Vertex.MemorySize, sizeof(float) * 3);
+			GL.EnableVertexAttribArray(Shader.Locations["normal"]);
+
+			GL.VertexAttribPointer(Shader.Locations["color"], 4, VertexAttribPointerType.Float, false, Vertex.MemorySize, sizeof(float) * 6);
+			GL.EnableVertexAttribArray(Shader.Locations["color"]);
 
 			IEnumerable<Renderable> renderables = map.AllObjects.SelectMany(mo => mo.Renderables);
 
