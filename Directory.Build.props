@@ -1,12 +1,6 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
   <PropertyGroup>
-    <BuildOS Condition="$([MSBuild]::IsOsPlatform(`Windows`)) == true">Windows</BuildOS>
-    <BuildOS Condition="$([MSBuild]::IsOsPlatform(`Linux`)) == true">Linux</BuildOS>
-    <BuildOS Condition="$([MSBuild]::IsOsPlatform(`OSX`)) == true">macOS</BuildOS>
-  </PropertyGroup>
-
-  <PropertyGroup>
     <AssemblyVersion>0.1.0</AssemblyVersion>
     <Company>Rob Martens</Company>
     <Copyright>Copyright © 2018</Copyright>
@@ -14,7 +8,13 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <Deterministic>true</Deterministic>
+    <BuildOS Condition="$([MSBuild]::IsOsPlatform(`Windows`)) == true">Windows</BuildOS>
+    <BuildOS Condition="$([MSBuild]::IsOsPlatform(`Linux`)) == true">Linux</BuildOS>
+    <BuildOS Condition="$([MSBuild]::IsOsPlatform(`OSX`)) == true">macOS</BuildOS>
+
+    <RestoreAdditionalProjectSources>https://www.myget.org/F/eto/</RestoreAdditionalProjectSources>
+
+    <TopLevelDirectory>$(MSBuildThisFileDirectory)</TopLevelDirectory>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -23,10 +23,8 @@
     <!-- have no performance impact, and that full and pdbonly are the same. -->
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
-  </PropertyGroup>
-
-  <PropertyGroup>
-    <RestoreAdditionalProjectSources>https://www.myget.org/F/eto/</RestoreAdditionalProjectSources>
+    <Deterministic>true</Deterministic>
+    <MacBundleMono>False</MacBundleMono>
   </PropertyGroup>
 
 </Project>

@@ -9,20 +9,7 @@ namespace Arbatel.Graphics
 {
 	public class Shader
 	{
-		public static string ShaderDirectory
-		{
-			get
-			{
-				string location = Core.Location;
-
-				if (!Eto.EtoEnvironment.Platform.IsMac)
-				{
-					location = Path.Combine(location, "shaders", "glsl");
-				}
-
-				return location;
-			}
-		}
+		public static string ShaderDirectory => Path.Combine(Core.Location, "..", "shaders", "glsl");
 
 		public BackEnd BackEnd { get; set; }
 

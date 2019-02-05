@@ -1,0 +1,48 @@
+﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+  <Target Name="RemoveSupportDirectories" BeforeTargets="Clean">
+    <RemoveDir Directories="$(OutputPath)lib" />
+    <RemoveDir Directories="$(OutputPath)shaders" />
+  </Target>
+
+  <PropertyGroup>
+    <NoNeatenize>_build;$(Product).Core;$(Product)Test.Core</NoNeatenize>
+    
+    <IsMacProject>false</IsMacProject>
+    <IsMacProject Condition="$(MSBuildProjectName) == '$(Product).Mac'">true</IsMacProject>
+    <IsMacProject Condition="$(MSBuildProjectName) == '$(Product).XamMac'">true</IsMacProject>
+  </PropertyGroup>
+
+  <!-- The output GUI executables' config files are hideous enough, the -->
+  <!-- least a build process could do is keep this project's various -->
+  <!-- dependencies organized. This, in combination with the App.config -->
+  <!-- files and their 'probing' element's 'privatePath' parameter, will -->
+  <!-- make the directory structure as clean and presentable as possible. -->
+  <Target Name="NeatenizeLibraries" AfterTargets="Build" Condition="!$(NoNeatenize.Contains($(MSBuildProjectName)))">
+    <PropertyGroup>
+      <NeatenizePath Condition="$(IsMacProject) AND $(OutputAppPath) != ''">$(OutputAppPath)\Contents\MonoBundle\</NeatenizePath>
+      <NeatenizePath Condition="!$(IsMacProject) OR $(OutputAppPath) == ''">$(OutputPath)</NeatenizePath>
+    </PropertyGroup>
+    <ItemGroup>
+      <Uglies Include="$(NeatenizePath)*" />
+      <Uglies Remove="$(NeatenizePath)$(AssemblyName).exe" />
+      <Uglies Remove="$(NeatenizePath)$(AssemblyName).exe.config" />
+      <Uglies Remove="$(NeatenizePath)$(AssemblyName).pdb" />
+      <Uglies Remove="$(NeatenizePath)shaders" />
+    </ItemGroup>
+    <Move SourceFiles="@(Uglies)" DestinationFolder="$(NeatenizePath)lib" />
+  </Target>
+
+  <PropertyGroup>
+    <NoCopyShaders>_build</NoCopyShaders>
+  </PropertyGroup>
+
+  <Target Name="CopyShaders" AfterTargets="NeatenizeLibraries" Condition="!$(NoCopyShaders.Contains($(MSBuildProjectName)))">
+    <ItemGroup>
+      <Shaders Include="$(TopLevelDirectory)src\shaders\**\*" />
+    </ItemGroup>
+    <Copy Condition="$(OutputAppPath) != ''" SourceFiles="@(Shaders)" DestinationFolder="$(OutputAppPath)\Contents\MonoBundle\shaders\%(Shaders.RecursiveDir)"/>
+    <Copy Condition="$(OutputAppPath) == ''" SourceFiles="@(Shaders)" DestinationFolder="$(OutputPath)\shaders\%(Shaders.RecursiveDir)" />
+  </Target>
+
+</Project>

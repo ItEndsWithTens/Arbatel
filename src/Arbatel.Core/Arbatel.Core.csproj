@@ -16,18 +16,19 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="OpenTK.dll.config" />
+    <None Remove="..\..\OpenTK.dll.config" />
     <Content Include="..\..\OpenTK.dll.config" Link="OpenTK.dll.config">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
 
-    <None Remove="res\palette-quake.lmp" />
-    <EmbeddedResource Include="res\palette-quake.lmp" />
+    <None Remove="..\res\palette-quake.lmp" />
+    <EmbeddedResource Include="..\res\palette-quake.lmp" Link="res\palette-quake.lmp" />
 
-    <None Remove="shaders\**\*" />
-    <Content Include="shaders\**\*">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
+    <!-- This is just an editing convenience, to show the files in Visual -->
+    <!-- Studio's Solution Explorer for easy access. CopyToOutputDirectory -->
+    <!-- doesn't seem to ever reliably copy these; check the top level -->
+    <!-- Directory.Build.targets for a custom build target that does. -->
+    <None Include="..\shaders\**\*" Link="shaders\%(RecursiveDir)%(Filename)%(Extension)" />
   </ItemGroup>
 
   <ItemGroup>
