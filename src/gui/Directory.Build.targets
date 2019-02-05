@@ -11,12 +11,14 @@
       <Uglies Remove="$(OutputPath)$(AssemblyName).exe" />
       <Uglies Remove="$(OutputPath)$(AssemblyName).exe.config" />
       <Uglies Remove="$(OutputPath)$(AssemblyName).pdb" />
+      <Uglies Remove="$(OutputPath)shaders" />
     </ItemGroup>
     <Move SourceFiles="@(Uglies)" DestinationFolder="$(OutputPath)lib" />
   </Target>
 
-  <Target Name="RemoveLibDirectory" AfterTargets="Clean" BeforeTargets="Build">
+  <Target Name="RemoveSupportDirectories" AfterTargets="Clean" BeforeTargets="Build">
     <RemoveDir Directories="$(OutputPath)lib" />
+    <RemoveDir Directories="$(OutputPath)shaders" />
   </Target>
 
 </Project>

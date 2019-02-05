@@ -1,28 +1,36 @@
-﻿using Eto.Gl;
-using OpenTK;
+﻿using OpenTK;
 using OpenTK.Graphics.OpenGL4;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace Arbatel.Graphics
 {
 	public class Shader
 	{
+		public static string ShaderDirectory
+		{
+			get
+			{
+				string location = Core.Location;
+
+				if (!Eto.EtoEnvironment.Platform.IsMac)
+				{
+					location = Path.Combine(location, "shaders", "glsl");
+				}
+
+				return location;
+			}
+		}
+
 		public BackEnd BackEnd { get; set; }
 
-		public int Program;
+		public int Program { get; set; }
 
-		public string VertexShaderSource;
-		public string FragmentShaderSource;
-
-		public int LocationModelMatrix;
-		public int LocationViewMatrix;
-		public int LocationProjectionMatrix;
+		public int LocationModelMatrix { get; set; }
+		public int LocationViewMatrix { get; set; }
+		public int LocationProjectionMatrix { get; set; }
 
 		public static Dictionary<string, int> Locations { get; } = new Dictionary<string, int>
 		{
@@ -39,25 +47,19 @@ namespace Arbatel.Graphics
 		}
 		public Shader(string vertexPath, string fragmentPath) : this()
 		{
+			vertexPath = Path.Combine(ShaderDirectory, vertexPath);
+			fragmentPath = Path.Combine(ShaderDirectory, fragmentPath);
+
 			Compile(File.ReadAllText(vertexPath), File.ReadAllText(fragmentPath));
 		}
 		public Shader(string[] vertexArray, string[] fragmentArray) : this()
 		{
-			Compile(VertexShaderSource, FragmentShaderSource);
+			string vertexSource = String.Join(Environment.NewLine, vertexArray);
+			string fragmentSource = String.Join(Environment.NewLine, fragmentArray);
+
+			Compile(vertexSource, fragmentSource);
 		}
 
-		public void Compile(string[] vertexArray, string[] fragmentArray)
-		{
-			VertexShaderSource = String.Join(Environment.NewLine, vertexArray);
-			FragmentShaderSource = String.Join(Environment.NewLine, fragmentArray);
-
-			Compile(VertexShaderSource, FragmentShaderSource);
-
-			foreach (KeyValuePair<string, int> location in Locations)
-			{
-				GL.BindAttribLocation(Program, location.Value, location.Key);
-			}
-		}
 		public void Compile(string vertex, string fragment)
 		{
 			int vertexShader = GL.CreateShader(ShaderType.VertexShader);
@@ -95,20 +97,32 @@ namespace Arbatel.Graphics
 			GL.DeleteShader(fragmentShader);
 
 			Program = shaderProgram;
+
+			LocationModelMatrix = GL.GetUniformLocation(Program, "model");
+			LocationViewMatrix = GL.GetUniformLocation(Program, "view");
+			LocationProjectionMatrix = GL.GetUniformLocation(Program, "projection");
+
+			foreach (KeyValuePair<string, int> location in Locations)
+			{
+				GL.BindAttribLocation(Program, location.Value, location.Key);
+			}
 		}
 
-		public static void GetGlslVersion(out int major, out int minor)
+		public static (int major, int minor) GetGlslVersion()
 		{
-			// Not sure if there's another way to get the GLSL version; the GL version is easy, but I can't find any
-			// info about determining the shader language version number beside this string parsing stuff.
-			var raw = GL.GetString(StringName.ShadingLanguageVersion);
+			string raw = GL.GetString(StringName.ShadingLanguageVersion);
 
-			var regex = new Regex(@"(\d+?\.\d+?)\s*.*");
+			string[] split = raw.Split('.', ' ');
 
-			var trimmed = regex.Match(raw).Groups[1].Value.TrimEnd('0');
+			bool gotMajor = Int32.TryParse(split[0], out int major);
+			bool gotMinor = Int32.TryParse(split[1].TrimEnd('0'), out int minor);
 
-			int.TryParse(trimmed.Substring(0, trimmed.IndexOf('.')), out major);
-			int.TryParse(trimmed.Substring(trimmed.IndexOf('.') + 1), out minor);
+			if (!(gotMajor && gotMinor))
+			{
+				throw new GraphicsException("Couldn't parse GLSL version string!");
+			}
+
+			return (major, minor);
 		}
 
 		public static void SetUniform(int location, int value)

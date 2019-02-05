@@ -17,15 +17,15 @@
 
   <ItemGroup>
     <None Remove="OpenTK.dll.config" />
-    <None Remove="res\palette-quake.lmp" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <EmbeddedResource Include="res\palette-quake.lmp" />
-  </ItemGroup>
-
-  <ItemGroup>
     <Content Include="..\..\OpenTK.dll.config" Link="OpenTK.dll.config">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+
+    <None Remove="res\palette-quake.lmp" />
+    <EmbeddedResource Include="res\palette-quake.lmp" />
+
+    <None Remove="shaders\**\*" />
+    <Content Include="shaders\**\*">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>

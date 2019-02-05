@@ -177,50 +177,44 @@ namespace Arbatel.Controls
 			bool gotMajor = Int32.TryParse(split[0], out int glMajor);
 			bool gotMinor = Int32.TryParse(split[1], out int glMinor);
 
-			if (gotMajor && gotMinor)
-			{
-				if (glMajor < 3)
-				{
-					string extensions = GL.GetString(StringName.Extensions);
-
-					var missing = new List<string>();
-
-					foreach (string extension in RequiredGLExtensions)
-					{
-						if (!extensions.Contains(extension))
-						{
-							missing.Add(extension);
-						}
-					}
-
-					if (missing.Count > 0)
-					{
-						string message = $"{Core.Name} needs at least OpenGL 3.0, or these missing extensions:\n\n";
-						message += String.Join("\n", missing.ToArray());
-
-						throw new GraphicsException(message);
-					}
-				}
-			}
-			else
+			if (!(gotMajor && gotMinor))
 			{
 				throw new GraphicsException("Couldn't parse OpenGL version string!");
+			}
+
+			if (glMajor < 3)
+			{
+				string extensions = GL.GetString(StringName.Extensions);
+
+				var missing = new List<string>();
+
+				foreach (string extension in RequiredGLExtensions)
+				{
+					if (!extensions.Contains(extension))
+					{
+						missing.Add(extension);
+					}
+				}
+
+				if (missing.Count > 0)
+				{
+					string message = $"{Core.Name} needs at least OpenGL 3.0, or these missing extensions:\n\n";
+					message += String.Join("\n", missing.ToArray());
+
+					throw new GraphicsException(message);
+				}
 			}
 
 			GL.Enable(EnableCap.DepthTest);
 
 			GL.FrontFace(FrontFaceDirection.Ccw);
 
-			Shader.GetGlslVersion(out int glslMajor, out int glslMinor);
+			(int glslMajor, int glslMinor) = Shader.GetGlslVersion();
 
 			Shaders.Clear();
 			Shaders.Add(ShadingStyle.Wireframe, new FlatShader(glslMajor, glslMinor) { BackEnd = BackEnd });
 			Shaders.Add(ShadingStyle.Flat, new FlatShader(glslMajor, glslMinor) { BackEnd = BackEnd });
 			Shaders.Add(ShadingStyle.Textured, new SingleTextureShader(glslMajor, glslMinor) { BackEnd = BackEnd });
-
-			// TEST. Also remember to switch Camera to use left-handed, Z-up position at some point.
-			Camera.Position = new Vector3(256.0f, 1024.0f, 1024.0f);
-			Camera.Pitch = -30.0f;
 
 			OpenGLReady = true;
 

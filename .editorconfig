@@ -28,7 +28,7 @@ csharp_preserve_single_line_statements = false
 
 csharp_style_expression_bodied_accessors = false:suggestion
 csharp_style_expression_bodied_methods = false:suggestion
-csharp_style_expression_bodied_properties = false:suggestion
+csharp_style_expression_bodied_properties = when_on_single_line:suggestion
 
 csharp_style_inlined_variable_declaration = true:suggestion
 
@@ -57,6 +57,10 @@ dotnet_style_prefer_auto_properties = true
 
 dotnet_style_coalesce_expression = true
 dotnet_style_null_propagation = true
+
+[*.{.glsl,.frag,.vert,.geom,.comp,.tese,.tesc}]
+
+indent_style = tab
 
 [*.{csproj,props,targets}]
 
