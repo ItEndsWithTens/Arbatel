@@ -5,7 +5,7 @@ using System.Linq;
 namespace Arbatel.Graphics
 {
 	/// <summary>
-	/// A shader that applies a single texture to a surface.
+	/// A shader that draws polygons grouped by texture.
 	/// </summary>
 	public class SingleTextureShader : Shader
 	{
@@ -17,8 +17,8 @@ namespace Arbatel.Graphics
 		public int LocationTextureHeight { get; set; } = 0;
 
 		public SingleTextureShader(int major, int minor) : base(
-			major >= 3 ? "SingleTexture330.vert" : "SingleTexture120.vert",
-			minor >= 3 ? "SingleTexture330.frag" : "SingleTexture120.frag")
+			major >= 3 && minor >= 3 ? "SingleTexture330.vert" : "SingleTexture120.vert",
+			major >= 3 && minor >= 3 ? "SingleTexture330.frag" : "SingleTexture120.frag")
 		{ 
 			LocationBasisS = GL.GetUniformLocation(Program, "basisS");
 			LocationBasisT = GL.GetUniformLocation(Program, "basisT");
@@ -50,27 +50,35 @@ namespace Arbatel.Graphics
 
 			GL.ActiveTexture(TextureUnit.Texture0);
 
-			IEnumerable<IGrouping<Texture, (Polygon, Renderable)>> byTexture = VisiblePolygons
+			IEnumerable<IGrouping<Texture, (Polygon, Renderable)>> byTexture =
+				VisiblePolygons
 				.GroupBy(pair => pair.Item1.Texture)
 				.OrderBy(t => t.Key.Translucent);
 
-			foreach (IGrouping<Texture, (Polygon, Renderable)> group in byTexture)
+			foreach (IGrouping<Texture, (Polygon, Renderable)> t in byTexture)
 			{
-				SetUniform(LocationTextureWidth, (float)group.Key.Width);
-				SetUniform(LocationTextureHeight, (float)group.Key.Height);
+				SetUniform(LocationTextureWidth, (float)t.Key.Width);
+				SetUniform(LocationTextureHeight, (float)t.Key.Height);
 
-				GL.BindTexture(TextureTarget.Texture2D, BackEnd.Textures[group.Key.Name.ToLower()]);
+				GL.BindTexture(TextureTarget.Texture2D, BackEnd.Textures[t.Key.Name.ToLower()]);
 
-				foreach ((Polygon p, Renderable r) in group)
+				IEnumerable<IGrouping<Renderable, (Polygon, Renderable)>> byRenderable =
+					t
+					.GroupBy(pair => pair.Item2);
+
+				foreach (IGrouping<Renderable, (Polygon, Renderable)> r in byRenderable)
 				{
-					SetUniform(LocationModelMatrix, r.ModelMatrix);
+					SetUniform(LocationModelMatrix, r.Key.ModelMatrix);
 
-					SetUniform(LocationBasisS, p.BasisS);
-					SetUniform(LocationBasisT, p.BasisT);
-					SetUniform(LocationOffset, p.Offset);
-					SetUniform(LocationScale, p.Scale);
+					foreach ((Polygon p, _) in r)
+					{
+						SetUniform(LocationBasisS, p.BasisS);
+						SetUniform(LocationBasisT, p.BasisT);
+						SetUniform(LocationOffset, p.Offset);
+						SetUniform(LocationScale, p.Scale);
 
-					GL.DrawElements(PrimitiveType.Triangles, p.Indices.Count, DrawElementsType.UnsignedInt, p.IndexOffset);
+						GL.DrawElements(PrimitiveType.Triangles, p.Indices.Count, DrawElementsType.UnsignedInt, p.IndexOffset);
+					}
 				}
 			}
 		}

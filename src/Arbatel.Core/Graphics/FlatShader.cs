@@ -5,13 +5,13 @@ using System.Linq;
 namespace Arbatel.Graphics
 {
 	/// <summary>
-	/// A shader that applies a solid color to a surface.
+	/// A shader that draws polygons using their underlying vertex colors.
 	/// </summary>
 	public class FlatShader : Shader
 	{
 		public FlatShader(int major, int minor) : base(
-			major >= 3 ? "Flat330.vert" : "Flat120.vert",
-			minor >= 3 ? "Flat330.frag" : "Flat120.frag")
+			major >= 3 && minor >= 3 ? "Flat330.vert" : "Flat120.vert",
+			major >= 3 && minor >= 3 ? "Flat330.frag" : "Flat120.frag")
 		{
 		}
 
