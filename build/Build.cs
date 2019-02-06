@@ -132,8 +132,8 @@ class Build : NukeBuild
 			// to clean all bin and obj folders, then use SetTargets("Build") on
 			// each GUI project to trigger an incremental build. The core will
 			// be built anew, with no time wasted rebuilding it for every GUI.
-			DeleteDirectories(GlobDirectories(SourceDirectory, "**/bin", "**/obj"));
-			DeleteDirectories(GlobDirectories(TestSourceDirectory, "**/bin", "**/obj"));
+			EnsureCleanDirectories(GlobDirectories(SourceDirectory, "**/bin", "**/obj"));
+			EnsureCleanDirectories(GlobDirectories(TestSourceDirectory, "**/bin", "**/obj"));
 		});
 
 	private void Compile(string[] projects)
@@ -231,7 +231,6 @@ class Build : NukeBuild
 			// usually this script is only building for one OS at a time. If
 			// other platforms' packages exist already, leave them be.
 			EnsureCleanDirectory(dest);
-			EnsureExistingDirectory(dest);
 
 			string name = String.Join('-', ProductName, GitVersion.MajorMinorPatch, OsFriendlyName[EnvironmentInfo.Platform]);
 
