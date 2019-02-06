@@ -8,6 +8,21 @@ using System.Collections.Generic;
 
 namespace Arbatel.Formats
 {
+	public static class MapObjectExtensions
+	{
+		public static IEnumerable<Renderable> GetAllRenderables(this IEnumerable<MapObject> mapObjects)
+		{
+			var all = new List<Renderable>();
+
+			foreach (MapObject mo in mapObjects)
+			{
+				all.AddRange(mo.GetAllRenderables());
+			}
+
+			return all;
+		}
+	}
+
 	/// <summary>
 	/// What components of a MapObject should be kept when saving a Map.
 	/// </summary>

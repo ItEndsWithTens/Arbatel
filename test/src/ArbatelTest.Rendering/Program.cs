@@ -64,6 +64,12 @@ namespace ArbatelTest.Rendering
 						Text = "Get average refresh time",
 						Command = Commands.CmdAverageRefreshTime,
 						CommandParameter = form
+					},
+					new ButtonMenuItem
+					{
+						Text = "Count visible triangles",
+						Command = Commands.CmdVisibleTriangles,
+						CommandParameter = form
 					}
 				}
 			};
