@@ -28,8 +28,6 @@ namespace Arbatel.Graphics
 			LocationTextureHeight = GL.GetUniformLocation(Program, "textureHeight");
 		}
 
-		private List<(Polygon, Renderable)> VisiblePolygons { get; } = new List<(Polygon, Renderable)>();
-
 		public override void Draw(IEnumerable<Renderable> renderables, Camera camera)
 		{
 			if (renderables.Count() == 0)
@@ -39,19 +37,10 @@ namespace Arbatel.Graphics
 
 			base.Draw(renderables, camera);
 
-			VisiblePolygons.Clear();
-			foreach (Renderable r in renderables)
-			{
-				foreach (Polygon p in camera.VisiblePolygons(r))
-				{
-					VisiblePolygons.Add((p, r));
-				}
-			}
-
 			GL.ActiveTexture(TextureUnit.Texture0);
 
 			IEnumerable<IGrouping<Texture, (Polygon, Renderable)>> byTexture =
-				VisiblePolygons
+				camera.GetVisiblePolygons(renderables)
 				.GroupBy(pair => pair.Item1.Texture)
 				.OrderBy(t => t.Key.Translucent);
 

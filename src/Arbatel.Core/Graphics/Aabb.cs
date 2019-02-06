@@ -56,44 +56,52 @@ namespace Arbatel.Graphics
 		{
 			Init(points);
 		}
+		public Aabb(params Vector3[] points)
+		{
+			Init(points);
+		}
 		public Aabb(Aabb aabb)
 		{
 			Min = new Vector3(aabb.Min);
 			Max = new Vector3(aabb.Max);
 		}
 
-		private void Init(List<Vector3> vertices)
+		private void Init(List<Vector3> points)
 		{
-			Vector3 newMin = vertices[0];
-			Vector3 newMax = vertices[0];
+			Init(points.ToArray());
+		}
+		private void Init(params Vector3[] points)
+		{
+			Vector3 newMin = points[0];
+			Vector3 newMax = points[0];
 
-			foreach (var vertex in vertices)
+			foreach (Vector3 point in points)
 			{
-				if (vertex.X < newMin.X)
+				if (point.X < newMin.X)
 				{
-					newMin.X = vertex.X;
+					newMin.X = point.X;
 				}
-				if (vertex.X > newMax.X)
+				if (point.X > newMax.X)
 				{
-					newMax.X = vertex.X;
-				}
-
-				if (vertex.Y < newMin.Y)
-				{
-					newMin.Y = vertex.Y;
-				}
-				if (vertex.Y > newMax.Y)
-				{
-					newMax.Y = vertex.Y;
+					newMax.X = point.X;
 				}
 
-				if (vertex.Z < newMin.Z)
+				if (point.Y < newMin.Y)
 				{
-					newMin.Z = vertex.Z;
+					newMin.Y = point.Y;
 				}
-				if (vertex.Z > newMax.Z)
+				if (point.Y > newMax.Y)
 				{
-					newMax.Z = vertex.Z;
+					newMax.Y = point.Y;
+				}
+
+				if (point.Z < newMin.Z)
+				{
+					newMin.Z = point.Z;
+				}
+				if (point.Z > newMax.Z)
+				{
+					newMax.Z = point.Z;
 				}
 			}
 

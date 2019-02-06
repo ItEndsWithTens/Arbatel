@@ -1,31 +1,31 @@
-﻿using OpenTK;
-using OpenTK.Graphics.OpenGL4;
+﻿using Arbatel.Formats;
+using Arbatel.Utilities;
+using OpenTK;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Arbatel.Formats;
-using Arbatel.Utilities;
 
 namespace Arbatel.Graphics
 {
 	public class Frustum
 	{
-		public Vector3 NearTopLeft;
-		public Vector3 NearTopRight;
-		public Vector3 NearBottomLeft;
-		public Vector3 NearBottomRight;
+		public Vector3 NearTopLeft { get; set; }
+		public Vector3 NearTopRight { get; set; }
+		public Vector3 NearBottomLeft { get; set; }
+		public Vector3 NearBottomRight { get; set; }
 
-		public Vector3 FarTopLeft;
-		public Vector3 FarTopRight;
-		public Vector3 FarBottomLeft;
-		public Vector3 FarBottomRight;
+		public Vector3 FarTopLeft { get; set; }
+		public Vector3 FarTopRight { get; set; }
+		public Vector3 FarBottomLeft { get; set; }
+		public Vector3 FarBottomRight { get; set; }
 
-		public double MaxAngleH;
-		public double MaxAngleV;
+		public double MaxAngleH { get; set; }
+		public double MaxAngleV { get; set; }
 
-		public Frustum(Vector3 position, Vector3 front, Vector3 right, Vector3 up, float fov, float aspect, float near, float far)
+		public Aabb Bounds { get; private set; }
+
+		public Frustum(
+			Vector3 position, Vector3 front, Vector3 right, Vector3 up,
+			float fov, float aspect, float near, float far)
 		{
 			NearTopLeft = new Vector3();
 			NearTopRight = new Vector3();
@@ -43,47 +43,19 @@ namespace Arbatel.Graphics
 			Update(position, front, right, up, fov, aspect, near, far);
 		}
 
-		public bool Contains(List<Vector3> points)
-		{
-			return Contains(new Aabb(points));
-		}
 		public bool Contains(Aabb aabb)
 		{
-			var contains = true;
-
 			// Note the component swap! Not the swap of Y and Z, that's only due
 			// to the difference in up axis between objects in world space and
 			// the camera's coordinate system. The swap of Max.Y and Min.Y for
 			// the new min/max, however, is thanks to switching left-handed 
 			// coordinates to right-handed; that flips the sign of the camera's
 			// lens axis, so the old min and max become the new max and min.
-			var minCamera = new Vector3(aabb.Min.X, aabb.Min.Z, -aabb.Max.Y);
-			var maxCamera = new Vector3(aabb.Max.X, aabb.Max.Z, -aabb.Min.Y);
+			bool outsideX = aabb.Max.X < Bounds.Min.X || aabb.Min.X > Bounds.Max.X;
+			bool outsideY = aabb.Max.Z < Bounds.Min.Y || aabb.Min.Z > Bounds.Max.Y;
+			bool outsideZ = -aabb.Min.Y < Bounds.Min.Z || -aabb.Max.Y > Bounds.Max.Z;
 
-			var frustumPoints = new List<Vector3>()
-			{
-				NearTopLeft,
-				NearTopRight,
-				NearBottomLeft,
-				NearBottomRight,
-				FarTopLeft,
-				FarTopRight,
-				FarBottomLeft,
-				FarBottomRight
-			};
-
-			var frustumBounds = new Aabb(frustumPoints);
-
-			bool outsideX = maxCamera.X < frustumBounds.Min.X || minCamera.X > frustumBounds.Max.X;
-			bool outsideY = maxCamera.Y < frustumBounds.Min.Y || minCamera.Y > frustumBounds.Max.Y;
-			bool outsideZ = maxCamera.Z < frustumBounds.Min.Z || minCamera.Z > frustumBounds.Max.Z;
-
-			if (outsideX || outsideY || outsideZ)
-			{
-				contains = false;
-			}
-
-			return contains;
+			return !(outsideX || outsideY || outsideZ);
 		}
 
 		public void Update(Vector3 position, Vector3 front, Vector3 right, Vector3 up, float fov, float aspect, float near, float far)
@@ -113,9 +85,15 @@ namespace Arbatel.Graphics
 			FarBottomLeft = (farTarget - farEdgeHorizontal) - farEdgeVertical;
 			FarBottomRight = (farTarget + farEdgeHorizontal) - farEdgeVertical;
 
-			// The angle of view is known, and the maximum angle a surface can
-			// point while still being rendered HOLD ON, let me try something
-			//MaxAngleH = GetRemainingAngle()
+			Bounds = new Aabb(
+				NearTopLeft,
+				NearTopRight,
+				NearBottomLeft,
+				NearBottomRight,
+				FarTopLeft,
+				FarTopRight,
+				FarBottomLeft,
+				FarBottomRight);
 
 			MaxAngleH = GetRemainingAngle((fov * aspect) / 2.0f);
 			MaxAngleV = GetRemainingAngle(fov / 2.0f);
@@ -149,7 +127,7 @@ namespace Arbatel.Graphics
 			{
 				_aspectRatio = value;
 
-				Update();
+				UpdateProjectionMatrix();
 			}
 		}
 
@@ -170,7 +148,7 @@ namespace Arbatel.Graphics
 				{
 					_fov = value;
 
-					Update();
+					UpdateProjectionMatrix();
 				}
 			}
 		}
@@ -189,8 +167,26 @@ namespace Arbatel.Graphics
 			set { _minPitch = MathUtilities.ModAngleToCircleSigned(value); }
 		}
 
-		public float NearClip;
-		public float FarClip;
+		private float _nearClip;
+		public float NearClip
+		{
+			get { return _nearClip; }
+			set
+			{
+				_nearClip = value;
+				UpdateProjectionMatrix();
+			}
+		}
+		private float _farClip;
+		public float FarClip
+		{
+			get { return _farClip; }
+			set
+			{
+				_farClip = value;
+				UpdateProjectionMatrix();
+			}
+		}
 
 		private Vector3 _position;
 		/// <summary>
@@ -203,7 +199,7 @@ namespace Arbatel.Graphics
 			{
 				_position = value;
 				WorldPosition = new Vector3(value.X, value.Z, -value.Y);
-				Update();
+				Rotate();
 			}
 		}
 
@@ -215,15 +211,6 @@ namespace Arbatel.Graphics
 			get { return new Vector3(Position.X, -Position.Z, Position.Y); }
 			private set { }
 		}
-
-		public Vector3 WorldUp;
-
-		public Vector3 Front;
-		public Vector3 Right;
-		public Vector3 Up;
-
-		public Matrix4 ViewMatrix;
-		public Matrix4 ProjectionMatrix;
 
 		private float _pitch;
 		public float Pitch
@@ -242,7 +229,7 @@ namespace Arbatel.Graphics
 					_pitch = MinPitch;
 				}
 
-				Update();
+				Rotate();
 			}
 		}
 
@@ -254,7 +241,7 @@ namespace Arbatel.Graphics
 			{
 				_yaw = MathUtilities.ModAngleToCircleUnsigned(value);
 
-				Update();
+				Rotate();
 			}
 		}
 
@@ -266,11 +253,19 @@ namespace Arbatel.Graphics
 			{
 				_roll = MathUtilities.ModAngleToCircleSigned(value);
 
-				Update();
+				Rotate();
 			}
 		}
 
-		public readonly Frustum Frustum;
+		public Frustum Frustum { get; }
+
+		public Matrix4 ViewMatrix { get; private set; }
+		public Matrix4 ProjectionMatrix { get; set; }
+
+		private Vector3 WorldUp;
+		private Vector3 Front;
+		private Vector3 Right;
+		private Vector3 Up;
 
 		public Camera()
 		{
@@ -280,8 +275,8 @@ namespace Arbatel.Graphics
 			MaxPitch = 89.0f;
 			MinPitch = -89.0f;
 
-			NearClip = 1.0f;
-			FarClip = 4096.0f;
+			_nearClip = 1.0f;
+			_farClip = 14189.0f; // The solid diagonal of an 8k cube.
 
 			WorldUp = new Vector3(0.0f, 1.0f, 0.0f);
 			Position = new Vector3(0.0f, 0.0f, 0.0f);
@@ -290,7 +285,7 @@ namespace Arbatel.Graphics
 			Yaw = -90.0f;
 			Roll = 0.0f;
 
-			Update();
+			UpdateProjectionMatrix();
 
 			Frustum = new Frustum(Position, Front, Right, Up, Fov, AspectRatio, NearClip, FarClip);
 		}
@@ -304,11 +299,11 @@ namespace Arbatel.Graphics
 			return Frustum.Contains(r.AABB);
 		}
 
-		public void Update()
+		public void Rotate()
 		{
 			// TODO: Hook up Roll. Not critical, but nice to have.
-			var yawRad = MathHelper.DegreesToRadians(Yaw);
-			var pitchRad = MathHelper.DegreesToRadians(Pitch);
+			float yawRad = MathHelper.DegreesToRadians(Yaw);
+			float pitchRad = MathHelper.DegreesToRadians(Pitch);
 
 			Front.X = Convert.ToSingle(Math.Cos(pitchRad) * Math.Cos(yawRad));
 			Front.Y = Convert.ToSingle(Math.Sin(pitchRad));
@@ -320,40 +315,74 @@ namespace Arbatel.Graphics
 			Up = Vector3.Normalize(Vector3.Cross(Right, Front));
 
 			ViewMatrix = Matrix4.LookAt(Position, Position + Front, Up);
-			ProjectionMatrix = Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(Fov), AspectRatio, NearClip, FarClip);
 
-			if (Frustum != null)
+			Frustum?.Update(Position, Front, Right, Up, Fov, AspectRatio, NearClip, FarClip);
+		}
+
+		public void TranslateRelative(bool forward, bool backward, bool left, bool right, bool up, bool down, float distance)
+		{
+			if (forward)
 			{
-				Frustum.Update(Position, Front, Right, Up, Fov, AspectRatio, NearClip, FarClip);
+				// Remember that OpenGL uses right-handed coordinates.
+				Position += distance * Front;
+			}
+			else if (backward)
+			{
+				Position -= distance * Front;
+			}
+
+			if (left)
+			{
+				Position -= distance * Right;
+			}
+			else if (right)
+			{
+				Position += distance * Right;
+			}
+
+			if (up)
+			{
+				Position += distance * WorldUp;
+			}
+			else if (down)
+			{
+				Position -= distance * WorldUp;
 			}
 		}
 
-		/// <summary>
-		/// Get a list of polygons from the specified Renderable that are
-		/// visible to this camera.
-		/// </summary>
-		public List<Polygon> VisiblePolygons(Renderable r)
+		public void UpdateProjectionMatrix()
 		{
-			var visible = new List<Polygon>();
+			ProjectionMatrix = Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(Fov), AspectRatio, NearClip, FarClip);
 
-			foreach (Polygon p in r.Polygons)
+			Frustum?.Update(Position, Front, Right, Up, Fov, AspectRatio, NearClip, FarClip);
+		}
+
+		private List<(Polygon, Renderable)> _visiblePolygons = new List<(Polygon, Renderable)>();
+		public List<(Polygon, Renderable)> GetVisiblePolygons(IEnumerable<Renderable> renderables)
+		{
+			_visiblePolygons.Clear();
+
+			foreach (Renderable r in renderables)
 			{
-				// OpenGL offers its own backface culling, if it's enabled, but
-				// that only does its work after a draw call. Letting cameras
-				// check ahead of time allows skipping the setup of those calls.
-				Vector3 point = r.Vertices[p.Indices[0]];
-				var yUpRightHand = new Vector4(point.X, point.Z, -point.Y, 1.0f);
-				Vector4 transformed = yUpRightHand * r.ModelMatrix;
-				var zUpLeftHand = new Vector3(transformed.X, -transformed.Z, transformed.Y);
-				Vector3 toPoint = WorldPosition - new Vector3(zUpLeftHand);
-
-				if (Vector3.Dot(toPoint, p.Normal) > 0.0f)
+				foreach (Polygon p in r.Polygons)
 				{
-					visible.Add(p);
+					// OpenGL offers its own backface culling, if it's enabled, but
+					// that only does its work after a draw call. Letting cameras
+					// check ahead of time allows skipping the setup of those calls.
+					Vector3 point = r.Vertices[p.Indices[0]];
+					var yUpRightHand = new Vector4(point.X, point.Z, -point.Y, 1.0f);
+					Vector4 transformed = yUpRightHand * r.ModelMatrix;
+					var zUpLeftHand = new Vector3(transformed.X, -transformed.Z, transformed.Y);
+					Vector3 toPoint = WorldPosition - new Vector3(zUpLeftHand);
+
+					if (Vector3.Dot(toPoint, p.Normal) > 0.0f)
+					{
+						_visiblePolygons.Add((p, r));
+					}
 				}
 			}
 
-			return visible;
+			return _visiblePolygons;
 		}
 	}
 }

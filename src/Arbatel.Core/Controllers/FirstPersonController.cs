@@ -24,33 +24,7 @@ namespace Arbatel.Controllers
 
 		public override void UpdateKeyboard()
 		{
-			if (Forward)
-			{
-				// Remember that OpenGL uses right-handed coordinates.
-				Camera.Position += Speed * Camera.Front;
-			}
-			else if (Backward)
-			{
-				Camera.Position -= Speed * Camera.Front;
-			}
-
-			if (Left)
-			{
-				Camera.Position -= Speed * Camera.Right;
-			}
-			else if (Right)
-			{
-				Camera.Position += Speed * Camera.Right;
-			}
-
-			if (Up)
-			{
-				Camera.Position += Speed * Camera.WorldUp;
-			}
-			else if (Down)
-			{
-				Camera.Position -= Speed * Camera.WorldUp;
-			}
+			Camera.TranslateRelative(Forward, Backward, Left, Right, Up, Down, Speed);
 		}
 
 		private OpenTK.Input.MouseState CurrentMouseState;
