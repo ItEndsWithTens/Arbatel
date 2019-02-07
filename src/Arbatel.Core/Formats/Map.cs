@@ -6,6 +6,48 @@ using System.IO;
 
 namespace Arbatel.Formats
 {
+	public static class MapExtensions
+	{
+		public static string[] SplitAndKeepDelimiters(this string raw, params string[] delimiters)
+		{
+			var hits = new List<(string, int)>();
+
+			foreach (string d in delimiters)
+			{
+				int position = 0;
+				while (position < raw.Length)
+				{
+					int hit = raw.IndexOf(d, position, StringComparison.OrdinalIgnoreCase);
+
+					if (hit >= 0)
+					{
+						hits.Add((d, hit));
+						position = hit + d.Length;
+					}
+					else
+					{
+						position = raw.Length;
+					}
+				}
+			}
+			hits.RemoveAll(h => h.Item2 == -1);
+			hits.Sort((lhs, rhs) => lhs.Item2.CompareTo(rhs.Item2));
+
+			var split = new List<string>();
+
+			int start = 0;
+			foreach ((string d, int i) in hits)
+			{
+				split.Add(raw.Substring(start, i - start));
+				split.Add(raw.Substring(i, d.Length));
+
+				start = i + d.Length;
+			}
+
+			return split.ToArray();
+		}
+	}
+
 	public class Map : IUpdateFromSettings
 	{
 		public Aabb Aabb { get; protected set; } = new Aabb();

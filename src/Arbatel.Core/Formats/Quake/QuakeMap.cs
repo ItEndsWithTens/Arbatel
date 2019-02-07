@@ -7,7 +7,6 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
-using System.Text.RegularExpressions;
 
 namespace Arbatel.Formats.Quake
 {
@@ -28,10 +27,29 @@ namespace Arbatel.Formats.Quake
 		}
 		public QuakeMap(Stream stream, DefinitionDictionary definitions) : base(stream, definitions)
 		{
+			var sb = new StringBuilder();
 			using (var sr = new StreamReader(stream))
 			{
-				Parse(sr.ReadToEnd());
+				while (!sr.EndOfStream)
+				{
+					string line = sr.ReadLine();
+
+					int commentStart = line.IndexOf("//", StringComparison.Ordinal);
+					switch (commentStart)
+					{
+						case -1:
+							sb.Append(line);
+							break;
+						case 0:
+							continue;
+						default:
+							sb.Append(line.Remove(commentStart));
+							break;
+					}
+				}
 			}
+
+			Parse(sb.ToString());
 		}
 
 		/// <summary>
@@ -124,36 +142,23 @@ namespace Arbatel.Formats.Quake
 			string oldCwd = Directory.GetCurrentDirectory();
 			Directory.SetCurrentDirectory(Path.GetDirectoryName(AbsolutePath ?? oldCwd));
 
-			string stripped = Regex.Replace(raw, "//.*?[\r\n]", "");
-			stripped = stripped.Replace("\r", String.Empty);
-			stripped = stripped.Replace("\n", String.Empty);
-			stripped = stripped.Replace("\t", String.Empty); // FIXME: Only strip leading tabs! Or just tabs not within a key or value?
+			// FIXME: Only strip leading tabs! Or just tabs not within a key or value?
+			string stripped = raw
+				.Replace("\r", String.Empty)
+				.Replace("\n", String.Empty)
+				.Replace("\t", String.Empty);
 
 			// Modern Quake sourceports allow for transparency in textures,
-			// indicated by an open curly brace in the texture name. This
-			// complicates the Regex necessary to split the map file. Any open
+			// indicated by an open curly brace in the texture name. Any open
 			// curly brace that's actually a delimiter will be followed by an
 			// open parenthesis or one or more whitespace characters. Texture
 			// names will instead have ordinary text characters after the brace.
-			string curly = Regex.Escape(OpenDelimiter);
+			List<string> split = stripped.SplitAndKeepDelimiters(
+				$"{OpenDelimiter} ",
+				$"{OpenDelimiter}(",
+				$"{OpenDelimiter}\"",
+				CloseDelimiter).ToList();
 
-			// The whitespace here is outside the capture group, and will be
-			// discarded, but it would get stripped later anyway.
-			string whitespaceAfter = "(" + curly + ")\\s+";
-
-			// These, however, are inside the capture group, and will be
-			// preserved, but will end up in the same list item as the open
-			// curly brace. A quick loop later on will clean that up.
-			string parenthesisAfter = "(" + curly + "\\()";
-			string quoteAfter = "(" + curly + "\")";
-
-			string delimiters =
-				whitespaceAfter + "|" +
-				parenthesisAfter + "|" +
-				quoteAfter + "|" +
-				"(" + Regex.Escape(CloseDelimiter) + ")";
-
-			var split = Regex.Split(stripped, delimiters).ToList();
 			split.RemoveAll(s => s.Trim().Length == 0 || s.Trim() == "\"");
 
 			// The regex patterns above include capture groups to retain some
@@ -165,13 +170,13 @@ namespace Arbatel.Formats.Quake
 				if (split[item] == "{(")
 				{
 					split[item] = "{";
-					split[item + 1] = "(" + split[item + 1];
+					split[item + 1] = $"({split[item + 1]}";
 					item++;
 				}
 				else if (split[item] == "{\"")
 				{
 					split[item] = "{";
-					split[item + 1] = "\"" + split[item + 1];
+					split[item + 1] = $"\"{split[item + 1]}";
 					item++;
 				}
 				else
