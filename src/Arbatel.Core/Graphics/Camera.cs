@@ -364,6 +364,11 @@ namespace Arbatel.Graphics
 
 			foreach (Renderable r in renderables)
 			{
+				if (!CanSee(r))
+				{
+					continue;
+				}
+
 				foreach (Polygon p in r.Polygons)
 				{
 					// OpenGL offers its own backface culling, if it's enabled, but

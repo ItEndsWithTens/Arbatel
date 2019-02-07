@@ -4,30 +4,41 @@ using System.IO;
 
 namespace Arbatel.Graphics
 {
-	public class Texture : Bitmap
+	public class Texture
 	{
-		public string Name { get; set; }
+		public Bitmap Bitmap { get; set; }
+
+		public string Name { get; set; } = "";
+
+		public int Width => Bitmap.Width;
+		public int Height => Bitmap.Height;
 
 		public bool Translucent { get; set; } = false;
 
-		public Texture() : base(16, 16, PixelFormat.Format24bppRgb)
+		public Texture()
 		{
 		}
-		public Texture(int width, int height) : this(width, height, PixelFormat.Format24bppRgb)
+		public Texture(int width, int height)
 		{
+			Bitmap = new Bitmap(width, height, PixelFormat.Format24bppRgb);
 		}
-		public Texture(int width, int height, PixelFormat format) : base(width, height, format)
+		public Texture(int width, int height, PixelFormat format)
 		{
+			Bitmap = new Bitmap(width, height, format);
 		}
-		public Texture(string filename) : base(filename)
+		public Texture(string filename)
 		{
+			Bitmap = new Bitmap(filename);
 		}
-		public Texture(Stream stream) : base(stream)
+		public Texture(Stream stream)
 		{
+			Bitmap = new Bitmap(stream);
 		}
-		public Texture(Texture texture) : base(texture)
+		public Texture(Texture texture)
 		{
+			Bitmap = new Bitmap(texture.Bitmap);
 			Name = texture.Name;
+			Translucent = texture.Translucent;
 		}
 
 		/// <summary>
@@ -44,9 +55,9 @@ namespace Arbatel.Graphics
 				components++;
 			}
 
-			byte[] bytes = new byte[Width * Height * components];
+			byte[] bytes = new byte[Bitmap.Width * Bitmap.Height * components];
 
-			int pitch = Width * components;
+			int pitch = Bitmap.Width * components;
 
 			// An unsafe block is necessary for speed; Eto's Bitmap GetPixel is
 			// too slow for grabbing every pixel of an image, but the BitmapData
@@ -56,9 +67,9 @@ namespace Arbatel.Graphics
 			// per-platform branching to reorder the components properly.
 			unsafe
 			{
-				using (BitmapData raw = Lock())
+				using (BitmapData raw = Bitmap.Lock())
 				{
-					for (int y = 0; y < Height; y++)
+					for (int y = 0; y < Bitmap.Height; y++)
 					{
 						int line = pitch;
 						if (flip)
@@ -67,10 +78,10 @@ namespace Arbatel.Graphics
 						}
 						else
 						{
-							line *= Height - 1 - y;
+							line *= Bitmap.Height - 1 - y;
 						}
 
-						for (int x = 0; x < Width; x++)
+						for (int x = 0; x < Bitmap.Width; x++)
 						{
 							Color pixel = raw.GetPixel(x, y);
 

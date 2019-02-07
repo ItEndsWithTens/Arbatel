@@ -160,7 +160,7 @@ namespace Arbatel.Formats.Quake
 					Name = name
 				};
 
-				using (BitmapData data = texture.Lock())
+				using (BitmapData data = texture.Bitmap.Lock())
 				{
 					for (var y = 0; y < height; y++)
 					{

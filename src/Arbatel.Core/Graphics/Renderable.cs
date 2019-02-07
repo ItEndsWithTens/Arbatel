@@ -65,7 +65,7 @@ namespace Arbatel.Graphics
 		/// </summary>
 		public List<int> Indices;
 
-		public Texture Texture;
+		public Texture Texture { get; set; } = new Texture();
 		public Vector3 BasisS;
 		public Vector3 BasisT;
 		public Vector2 Offset;
@@ -79,12 +79,11 @@ namespace Arbatel.Graphics
 		public Polygon()
 		{
 			Indices = new List<int>();
-			Texture = new Texture() { Name = "NOODLES" };
 		}
 		public Polygon(Polygon p)
 		{
 			Indices = new List<int>(p.Indices);
-			Texture = new Texture(p.Texture);
+			Texture = p.Texture;
 			BasisS = new Vector3(p.BasisS);
 			BasisT = new Vector3(p.BasisT);
 			Offset = new Vector2(p.Offset.X, p.Offset.Y);
