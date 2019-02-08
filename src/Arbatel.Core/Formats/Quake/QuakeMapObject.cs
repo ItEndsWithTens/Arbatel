@@ -106,13 +106,7 @@ namespace Arbatel.Formats
 
 			if (KeyVals.ContainsKey("origin"))
 			{
-				string[] coords = KeyVals["origin"].Value.Split(' ');
-
-				float.TryParse(coords[0], out float x);
-				float.TryParse(coords[1], out float y);
-				float.TryParse(coords[2], out float z);
-
-				Position = new Vector3(x, y, z);
+				Position = KeyVals["origin"].Value.ToVector3();
 			}
 			else if (Definition.ClassName == "worldspawn")
 			{
@@ -142,13 +136,7 @@ namespace Arbatel.Formats
 
 				if (KeyVals.ContainsKey("origin"))
 				{
-					string[] coords = KeyVals["origin"].Value.Split(' ');
-
-					float.TryParse(coords[0], out x);
-					float.TryParse(coords[1], out y);
-					float.TryParse(coords[2], out z);
-
-					Position = new Vector3(x, y, z);
+					Position = KeyVals["origin"].Value.ToVector3();
 				}
 
 				if (Definition.RenderableSources.ContainsKey(RenderableSource.Key))
@@ -235,13 +223,7 @@ namespace Arbatel.Formats
 		{
 			Renderable gem = new GemGenerator(Color4.Red).Generate();
 
-			string[] coords = block.KeyVals["origin"].Value.Split(' ');
-
-			float.TryParse(coords[0], out float x);
-			float.TryParse(coords[1], out float y);
-			float.TryParse(coords[2], out float z);
-
-			gem.Position = new Vector3(x, y, z);
+			gem.Position = block.KeyVals["origin"].Value.ToVector3();
 			gem.Transformability = Definition.RenderableTransformability;
 
 			Renderables.Add(gem);

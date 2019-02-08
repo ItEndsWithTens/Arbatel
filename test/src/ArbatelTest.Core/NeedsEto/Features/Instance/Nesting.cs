@@ -182,7 +182,7 @@ namespace ArbatelTest.Core.NeedsEto.Features.Instance
 				Assert.That(light.Definition.ClassName, Is.EqualTo("light"));
 
 				var expected = new Vector3(512, -224, 160);
-				Vector3 actual = Formatting.StringToVector3(light.KeyVals["origin"].Value);
+				Vector3 actual = light.KeyVals["origin"].Value.ToVector3();
 
 				Assert.Multiple(() =>
 				{
@@ -275,7 +275,7 @@ namespace ArbatelTest.Core.NeedsEto.Features.Instance
 				Assert.That(light.Definition.ClassName, Is.EqualTo("light"));
 
 				var expected = new Vector3(-384, 352, 288);
-				Vector3 actual = Formatting.StringToVector3(light.KeyVals["origin"].Value);
+				Vector3 actual = light.KeyVals["origin"].Value.ToVector3();
 
 				Assert.Multiple(() =>
 				{

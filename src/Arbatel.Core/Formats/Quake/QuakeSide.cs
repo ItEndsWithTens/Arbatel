@@ -1,10 +1,10 @@
 ﻿using Arbatel.Graphics;
+using Arbatel.Utilities;
 using OpenTK;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Text.RegularExpressions;
 
 namespace Arbatel.Formats.Quake
 {
@@ -21,27 +21,11 @@ namespace Arbatel.Formats.Quake
 		}
 		public QuakeSide(string raw)
 		{
-			// Regex seems a bit heavy to drag into this, but in principle this
-			// should be able to handle tabs and other whitespace. This approach
-			// wouldn't work for key/val lines, since it might remove desirable
-			// whitespace found in values, but for sides it's perfect.
-			string[] split = Regex.Split(raw, @"\s");
+			var split = raw.Split(' ', '\t').ToList();
 
-			var pointA = new Vector3();
-			var pointB = new Vector3();
-			var pointC = new Vector3();
-
-			Single.TryParse(split[1], out pointA.X);
-			Single.TryParse(split[2], out pointA.Y);
-			Single.TryParse(split[3], out pointA.Z);
-
-			Single.TryParse(split[6], out pointB.X);
-			Single.TryParse(split[7], out pointB.Y);
-			Single.TryParse(split[8], out pointB.Z);
-
-			Single.TryParse(split[11], out pointC.X);
-			Single.TryParse(split[12], out pointC.Y);
-			Single.TryParse(split[13], out pointC.Z);
+			var pointA = split.GetRange(1, 3).ToVector3();
+			var pointB = split.GetRange(6, 3).ToVector3();
+			var pointC = split.GetRange(11, 3).ToVector3();
 
 			var planePointA = new Vertex { Position = pointA };
 			var planePointB = new Vertex { Position = pointB };
@@ -57,14 +41,10 @@ namespace Arbatel.Formats.Quake
 			// Valve 220
 			if (split.Contains("["))
 			{
-				Single.TryParse(split[17], out basisS.X);
-				Single.TryParse(split[18], out basisS.Y);
-				Single.TryParse(split[19], out basisS.Z);
+				basisS = split.GetRange(17, 3).ToVector3();
 				Single.TryParse(split[20], out TextureOffset.X);
 
-				Single.TryParse(split[23], out basisT.X);
-				Single.TryParse(split[24], out basisT.Y);
-				Single.TryParse(split[25], out basisT.Z);
+				basisT = split.GetRange(23, 3).ToVector3();
 				Single.TryParse(split[26], out TextureOffset.Y);
 
 				Single.TryParse(split[28], out TextureRotation);
@@ -97,16 +77,12 @@ namespace Arbatel.Formats.Quake
 					}
 				}
 
-				basisS.X = closestPlane.Points[1].Position.X;
-				basisS.Y = closestPlane.Points[1].Position.Y;
-				basisS.Z = closestPlane.Points[1].Position.Z;
+				basisS = closestPlane.Points[1].Position;
 				Single.TryParse(split[16], out TextureOffset.X);
 
 				// Positive T runs downward from the texture coordinate system's
 				// origin, as opposed to the world coordinates, where +Z is up.
-				basisT.X = -closestPlane.Points[2].Position.X;
-				basisT.Y = -closestPlane.Points[2].Position.Y;
-				basisT.Z = -closestPlane.Points[2].Position.Z;
+				basisT = -closestPlane.Points[2].Position;
 				Single.TryParse(split[17], out TextureOffset.Y);
 
 				Single.TryParse(split[18], out TextureRotation);
