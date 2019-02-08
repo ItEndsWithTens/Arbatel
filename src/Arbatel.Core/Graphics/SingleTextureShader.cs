@@ -19,7 +19,7 @@ namespace Arbatel.Graphics
 		public SingleTextureShader(int major, int minor) : base(
 			major >= 3 && minor >= 3 ? "SingleTexture330.vert" : "SingleTexture120.vert",
 			major >= 3 && minor >= 3 ? "SingleTexture330.frag" : "SingleTexture120.frag")
-		{ 
+		{
 			LocationBasisS = GL.GetUniformLocation(Program, "basisS");
 			LocationBasisT = GL.GetUniformLocation(Program, "basisT");
 			LocationOffset = GL.GetUniformLocation(Program, "offset");
@@ -30,11 +30,6 @@ namespace Arbatel.Graphics
 
 		public override void Draw(IEnumerable<Renderable> renderables, Camera camera)
 		{
-			if (renderables.Count() == 0)
-			{
-				return;
-			}
-
 			base.Draw(renderables, camera);
 
 			GL.ActiveTexture(TextureUnit.Texture0);

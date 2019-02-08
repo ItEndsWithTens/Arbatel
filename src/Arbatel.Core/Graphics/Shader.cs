@@ -3,7 +3,6 @@ using OpenTK.Graphics.OpenGL4;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 
 namespace Arbatel.Graphics
 {
@@ -140,11 +139,6 @@ namespace Arbatel.Graphics
 
 		public virtual void Draw(IEnumerable<Renderable> renderables, Camera camera)
 		{
-			if (renderables.Count() == 0)
-			{
-				return;
-			}
-
 			Use();
 
 			SetUniform(LocationViewMatrix, camera.ViewMatrix);

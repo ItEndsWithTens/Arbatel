@@ -1,6 +1,5 @@
 ﻿using OpenTK.Graphics.OpenGL4;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace Arbatel.Graphics
 {
@@ -17,11 +16,6 @@ namespace Arbatel.Graphics
 
 		public override void Draw(IEnumerable<Renderable> renderables, Camera camera)
 		{
-			if (renderables.Count() == 0)
-			{
-				return;
-			}
-
 			base.Draw(renderables, camera);
 
 			foreach (Renderable r in renderables)
