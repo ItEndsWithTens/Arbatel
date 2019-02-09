@@ -34,12 +34,9 @@ namespace Arbatel.Graphics
 
 		public override void DrawMap(Map map, Dictionary<ShadingStyle, Shader> shaders, ShadingStyle style, View view, Camera camera)
 		{
-			IEnumerable<MapObject> visible =
-				from mo in map.AllObjects
-				where camera.CanSee(mo)
-				select mo;
+			IEnumerable<MapObject> visible = camera.GetVisibleMapObjects(map.AllObjects);
 
-			IEnumerable<Renderable> renderables = visible.SelectMany(mo => mo.Renderables);
+			IEnumerable<Renderable> renderables = visible.GetAllRenderables();
 
 			IEnumerable<Renderable> textured =
 				from r in renderables
@@ -79,7 +76,7 @@ namespace Arbatel.Graphics
 			GL.VertexAttribPointer(Shader.Locations["color"], 4, VertexAttribPointerType.Float, false, Vertex.MemorySize, sizeof(float) * 6);
 			GL.EnableVertexAttribArray(Shader.Locations["color"]);
 
-			IEnumerable<Renderable> renderables = map.AllObjects.SelectMany(mo => mo.Renderables);
+			IEnumerable<Renderable> renderables = map.AllObjects.GetAllRenderables();
 
 			int minimumVertexBytes = 0;
 			int minimumIndexBytes = 0;

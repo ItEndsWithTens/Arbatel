@@ -8,18 +8,18 @@ namespace Arbatel.Graphics
 {
 	public class Frustum
 	{
-		public Vector3 NearTopLeft { get; set; }
-		public Vector3 NearTopRight { get; set; }
-		public Vector3 NearBottomLeft { get; set; }
-		public Vector3 NearBottomRight { get; set; }
+		public Vector3 NearTopLeft { get; set; } = new Vector3();
+		public Vector3 NearTopRight { get; set; } = new Vector3();
+		public Vector3 NearBottomLeft { get; set; } = new Vector3();
+		public Vector3 NearBottomRight { get; set; } = new Vector3();
 
-		public Vector3 FarTopLeft { get; set; }
-		public Vector3 FarTopRight { get; set; }
-		public Vector3 FarBottomLeft { get; set; }
-		public Vector3 FarBottomRight { get; set; }
+		public Vector3 FarTopLeft { get; set; } = new Vector3();
+		public Vector3 FarTopRight { get; set; } = new Vector3();
+		public Vector3 FarBottomLeft { get; set; } = new Vector3();
+		public Vector3 FarBottomRight { get; set; } = new Vector3();
 
-		public double MaxAngleH { get; set; }
-		public double MaxAngleV { get; set; }
+		public double MaxAngleH { get; set; } = 180.0;
+		public double MaxAngleV { get; set; } = 180.0;
 
 		public Aabb Bounds { get; private set; }
 
@@ -27,19 +27,6 @@ namespace Arbatel.Graphics
 			Vector3 position, Vector3 front, Vector3 right, Vector3 up,
 			float fov, float aspect, float near, float far)
 		{
-			NearTopLeft = new Vector3();
-			NearTopRight = new Vector3();
-			NearBottomLeft = new Vector3();
-			NearBottomRight = new Vector3();
-
-			FarTopLeft = new Vector3();
-			FarTopRight = new Vector3();
-			FarBottomLeft = new Vector3();
-			FarBottomRight = new Vector3();
-
-			MaxAngleH = 180.0;
-			MaxAngleV = 180.0;
-
 			Update(position, front, right, up, fov, aspect, near, far);
 		}
 
@@ -355,6 +342,22 @@ namespace Arbatel.Graphics
 			ProjectionMatrix = Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(Fov), AspectRatio, NearClip, FarClip);
 
 			Frustum?.Update(Position, Front, Right, Up, Fov, AspectRatio, NearClip, FarClip);
+		}
+
+		private List<MapObject> _visibleMapObjects = new List<MapObject>();
+		public List<MapObject> GetVisibleMapObjects(IEnumerable<MapObject> mapObjects)
+		{
+			_visibleMapObjects.Clear();
+
+			foreach (MapObject mo in mapObjects)
+			{
+				if (CanSee(mo))
+				{
+					_visibleMapObjects.Add(mo);
+				}
+			}
+
+			return _visibleMapObjects;
 		}
 
 		private List<(Polygon, Renderable)> _visiblePolygons = new List<(Polygon, Renderable)>();
