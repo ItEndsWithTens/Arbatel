@@ -1,11 +1,7 @@
-﻿using OpenTK;
+﻿using Arbatel.Graphics;
+using OpenTK;
 using OpenTK.Graphics;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Arbatel.Graphics;
 
 namespace Arbatel.Formats
 {
@@ -29,25 +25,25 @@ namespace Arbatel.Formats
 
 	public struct Spawnflag
 	{
-		public string Description;
-		public string Default;
+		public string Description { get; set; }
+		public string Default { get; set; }
+		public string Remarks { get; set; }
 	}
 
 	public class Option
 	{
-		public string Type;
-		public string Description;
-		public string Default;
-		public Dictionary<string, string> Choices;
-		public string Remarks;
+		public string Type { get; set; }
+		public string Description { get; set; }
+		public string Default { get; set; }
+		public Dictionary<string, string> Choices { get; } = new Dictionary<string, string>();
+		public string Remarks { get; set; }
 
-		public string Value;
+		public string Value { get; set; }
 
-		public TransformType TransformType;
+		public TransformType TransformType { get; set; }
 
 		public Option()
 		{
-			Choices = new Dictionary<string, string>();
 		}
 		public Option(Option option)
 		{

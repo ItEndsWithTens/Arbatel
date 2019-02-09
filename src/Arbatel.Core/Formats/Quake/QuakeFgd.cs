@@ -1,13 +1,12 @@
-﻿using OpenTK;
+﻿using Arbatel.Graphics;
+using Arbatel.Utilities;
+using OpenTK;
 using OpenTK.Graphics;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
-using Arbatel.Graphics;
 
 namespace Arbatel.Formats
 {
@@ -63,44 +62,100 @@ namespace Arbatel.Formats
 		}
 		public QuakeFgd(Stream stream) : this()
 		{
+			var sb = new StringBuilder();
 			using (var sr = new StreamReader(stream))
 			{
-				Parse(sr);
+				while (!sr.EndOfStream)
+				{
+					string line = sr.ReadLine();
+
+					int commentStart = line.IndexOf("//", StringComparison.OrdinalIgnoreCase);
+					switch (commentStart)
+					{
+						case -1:
+							sb.Append(line);
+							break;
+						case 0:
+							continue;
+						default:
+							sb.Append(line.Remove(commentStart));
+							break;
+					}
+				}
 			}
+
+			Parse(sb.ToString());
 		}
 
-		public override void Parse(StreamReader sr)
+		public void Parse(string raw)
 		{
-			List<string> raw = Preprocess(sr);
+			List<string> split = raw.SplitAndKeepDelimiters(
+				"[", "]", "\t", "=", ":", ",", "(", ")", " ").ToList();
+			split.RemoveAll(item => item.Length == 0);
 
-			List<Definition> flat = GetFlatClassList(raw);
+			var pruned = new List<string>();
+
+			int line = 0;
+			int quotes = 0;
+			while (line < split.Count)
+			{
+				string item = split[line];
+				quotes = item.Count(i => i == '\"');
+
+				if (quotes % 2 == 0)
+				{
+					if (item.Trim().Length > 0)
+					{
+						pruned.Add(item);
+					}
+				}
+				else
+				{
+					while (quotes % 2 != 0)
+					{
+						line++;
+						item += split[line];
+						quotes = item.Count(i => i == '\"');
+					}
+
+					pruned.Add(item);
+				}
+
+				line++;
+			}
+
+			List<Definition> flat = GetFlatClassList(pruned);
 
 			List<Definition> resolved = ResolveClassInheritance(flat);
 
-			foreach (var definition in resolved)
+			foreach (Definition definition in resolved)
 			{
 				Add(definition.ClassName, definition);
 			}
 		}
 
-		/// <summary>
-		/// Prepare an input FGD for subsequent parsing.
-		/// </summary>
-		/// <param name="sr">The StreamReader to pull input from.</param>
-		/// <returns></returns>
-		public override List<string> Preprocess(StreamReader sr)
+		private List<(string, string)> ExtractChoices(List<string> block, int blockOffset)
 		{
-			string all = sr.ReadToEnd();
+			var choices = new List<(string, string)>();
 
-			// It's important to strip out comments first, in case they include
-			// any delimiters used in the subsequent split. Waiting until after
-			// splitting would make eliminating them a pain.
-			string noComments = Regex.Replace(all, "//.*?[\r\n]", "");
+			int closeBracket = FindClosingDelimiter(block, blockOffset);
 
-			// Split on and keep absolutely everything in an FGD that can be
-			// treated as a delimiter. Some things will be reassembled later.
-			var delimiters = "(\\[|\\]|\\r|\\n|\\t|=|:|,|\\(|\\)|\\s)";
-			return Regex.Split(noComments, delimiters).Select(s => s.Trim()).Where(s => s != "").ToList();
+			while (blockOffset != closeBracket)
+			{
+				if (block[blockOffset] != "[")
+				{
+					string choice = block[blockOffset];
+					blockOffset += 2;
+
+					string text = block[blockOffset].TrimStart('\"').TrimEnd('\"');
+
+					choices.Add((choice, text));
+				}
+
+				blockOffset++;
+			}
+
+			return choices;
 		}
 
 		private List<string> ExtractHeaderProperty(string name, List<string> header)
@@ -110,9 +165,9 @@ namespace Arbatel.Formats
 			int openParenthesis = header.IndexOf(name) + 1;
 			int closeParenthesis = FindClosingDelimiter(header, openParenthesis);
 
-			for (var i = openParenthesis + 1; i < closeParenthesis; i++)
+			for (int i = openParenthesis + 1; i < closeParenthesis; i++)
 			{
-				var value = header[i];
+				string value = header[i];
 
 				if (value != ",")
 				{
@@ -151,11 +206,11 @@ namespace Arbatel.Formats
 				throw new ArgumentException("Unrecognized open delimiter!");
 			}
 
-			var closeIndex = 0;
+			int closeIndex = 0;
 
-			var count = 0;
+			int count = 0;
 
-			for (var i = openIndex; i < raw.Count; i++)
+			for (int i = openIndex; i < raw.Count; i++)
 			{
 				if (raw[i] == openDelimiter)
 				{
@@ -178,11 +233,11 @@ namespace Arbatel.Formats
 
 		private int GetBlockLength(List<string> raw, int start)
 		{
-			var length = 0;
+			int length = 0;
 
-			var braces = 0;
+			int braces = 0;
 
-			for (var i = start; i < raw.Count; i++)
+			for (int i = start; i < raw.Count; i++)
 			{
 				if (raw[i] == "[")
 				{
@@ -196,7 +251,7 @@ namespace Arbatel.Formats
 				}
 			}
 
-			for (var i = start + length; i < raw.Count; i++)
+			for (int i = start + length; i < raw.Count; i++)
 			{
 				if (raw[i] == "[")
 				{
@@ -225,7 +280,7 @@ namespace Arbatel.Formats
 		{
 			var flat = new List<Definition>();
 
-			var blockStart = 0;
+			int blockStart = 0;
 			while (blockStart < raw.Count)
 			{
 				int blockLength = GetBlockLength(raw, blockStart);
@@ -238,12 +293,12 @@ namespace Arbatel.Formats
 					Saveability = Saveability.All
 				};
 
-				var blockOffset = 0;
+				int blockOffset = 0;
 				while (blockOffset < block.Count - 1)
 				{
 					if (block[blockOffset].StartsWith("@"))
 					{
-						var header = block.GetRange(blockOffset, block.IndexOf("[", blockOffset));
+						List<string> header = block.GetRange(blockOffset, block.IndexOf("[", blockOffset));
 
 						string type = header[0].Substring(1).ToLower();
 						if (type == "pointclass")
@@ -277,13 +332,14 @@ namespace Arbatel.Formats
 						{
 							int descriptionLength = header.Count - descriptionStart;
 							def.Description = String.Join(" ", header.GetRange(descriptionStart, descriptionLength));
+							def.Description = def.Description.TrimStart('\"').TrimEnd('\"');
 						}
 
 						if (header.Contains("base"))
 						{
 							List<string> vals = ExtractHeaderProperty("base", header);
 
-							foreach (var value in vals)
+							foreach (string value in vals)
 							{
 								def.BaseNames.Add(value);
 							}
@@ -293,9 +349,9 @@ namespace Arbatel.Formats
 						{
 							List<string> vals = ExtractHeaderProperty("color", header);
 
-							int.TryParse(vals[0], out int red);
-							int.TryParse(vals[1], out int green);
-							int.TryParse(vals[2], out int blue);
+							Int32.TryParse(vals[0], out int red);
+							Int32.TryParse(vals[1], out int green);
+							Int32.TryParse(vals[2], out int blue);
 
 							var color = new Color4()
 							{
@@ -338,9 +394,9 @@ namespace Arbatel.Formats
 							List<string> vals = ExtractHeaderProperty("offset", header);
 
 							var offset = new Vector3();
-							float.TryParse(vals[0], out offset.X);
-							float.TryParse(vals[1], out offset.Y);
-							float.TryParse(vals[2], out offset.Z);
+							Single.TryParse(vals[0], out offset.X);
+							Single.TryParse(vals[1], out offset.Y);
+							Single.TryParse(vals[2], out offset.Z);
 
 							def.Offset = offset;
 						}
@@ -355,14 +411,14 @@ namespace Arbatel.Formats
 							if (vals.Count == 6)
 							{
 								var min = new Vector3();
-								float.TryParse(vals[0], out min.X);
-								float.TryParse(vals[1], out min.Y);
-								float.TryParse(vals[2], out min.Z);
+								Single.TryParse(vals[0], out min.X);
+								Single.TryParse(vals[1], out min.Y);
+								Single.TryParse(vals[2], out min.Z);
 
 								var max = new Vector3();
-								float.TryParse(vals[3], out max.X);
-								float.TryParse(vals[4], out max.Y);
-								float.TryParse(vals[5], out max.Z);
+								Single.TryParse(vals[3], out max.X);
+								Single.TryParse(vals[4], out max.Y);
+								Single.TryParse(vals[5], out max.Z);
 
 								size.Min = min;
 								size.Max = max;
@@ -370,9 +426,9 @@ namespace Arbatel.Formats
 							// Size defined by width, depth, and height.
 							else
 							{
-								float.TryParse(vals[0], out float width);
-								float.TryParse(vals[1], out float depth);
-								float.TryParse(vals[2], out float height);
+								Single.TryParse(vals[0], out float width);
+								Single.TryParse(vals[1], out float depth);
+								Single.TryParse(vals[2], out float height);
 
 								size.Max = new Vector3()
 								{
@@ -398,7 +454,9 @@ namespace Arbatel.Formats
 
 						if (header.Contains("studio"))
 						{
-							string path = ExtractHeaderProperty("studio", header)[0];
+							List<string> paths = ExtractHeaderProperty("studio", header);
+
+							string path = paths.Count > 0 ? paths[0] : null;
 
 							def.RenderableSources.Add(RenderableSource.Model, path);
 						}
@@ -424,26 +482,29 @@ namespace Arbatel.Formats
 						{
 							if (block[blockOffset] != "[")
 							{
+								var flag = new Spawnflag();
+
 								string flagKey = block[blockOffset];
 								blockOffset += 2;
 
-								string description = block[blockOffset];
+								flag.Description = block[blockOffset].TrimStart('\"').TrimEnd('\"');
 								blockOffset++;
-								while (!description.EndsWith("\""))
+
+								bool hasDefault = block[blockOffset] == ":" && block[blockOffset + 1] != ":";
+								if (hasDefault)
 								{
-									description += " " + block[blockOffset];
+									blockOffset++;
+									flag.Default = block[blockOffset];
 									blockOffset++;
 								}
-								blockOffset++;
 
-								string defaultValue = block[blockOffset];
-								blockOffset++;
-
-								var flag = new Spawnflag
+								bool hasRemarks = block[blockOffset] == ":" && block[blockOffset + 1].StartsWith("\"");
+								if (hasRemarks)
 								{
-									Description = description,
-									Default = defaultValue
-								};
+									blockOffset++;
+									flag.Remarks = block[blockOffset].TrimStart('\"').TrimEnd('\"');
+									blockOffset++;
+								}
 
 								def.Flags.Add(flagKey, flag);
 							}
@@ -465,6 +526,19 @@ namespace Arbatel.Formats
 						option.Type = block[blockOffset].ToLower();
 						blockOffset += 3;
 
+						int choicesFirst = -1;
+						int choicesLast = -1;
+						if (option.Type == "choices")
+						{
+							choicesFirst = block.IndexOf("[", blockOffset);
+							choicesLast = FindClosingDelimiter(block, choicesFirst);
+
+							foreach ((string k, string v) in ExtractChoices(block, choicesFirst))
+							{
+								option.Choices.Add(k, v);
+							}
+						}
+
 						if (TransformTypeOverrides.ContainsKey(key))
 						{
 							option.TransformType = TransformTypeOverrides[key];
@@ -478,99 +552,52 @@ namespace Arbatel.Formats
 							option.TransformType = TransformType.None;
 						}
 
-						option.Description = block[blockOffset];
+						option.Description = block[blockOffset].TrimStart('\"').TrimEnd('\"');
 						blockOffset++;
-
-						for (var i = 1; !option.Description.EndsWith("\""); i++)
-						{
-							option.Description += " " + block[blockOffset];
-							blockOffset++;
-						}
 
 						// If there's nothing after the description, there's no
 						// more work to do for this option.
 						if (block[blockOffset] != ":")
 						{
-							def.KeyValsTemplate.Add(key, option);
+							if (def.KeyValsTemplate.ContainsKey(key))
+							{
+								def.KeyValsTemplate[key] = option;
+							}
+							else
+							{
+								def.KeyValsTemplate.Add(key, option);
+							}
+
+							if (choicesLast > -1)
+							{
+								blockOffset = choicesLast;
+							}
 							continue;
 						}
 						blockOffset++;
 
 						// If there is a colon after the description, there's at
 						// least space for a default value, even if it's blank.
-						bool defaultIsBlank = block[blockOffset] == ":";
+						bool defaultIsBlank = block[blockOffset] == ":" || block[blockOffset] == "=";
 						if (!defaultIsBlank)
 						{
-							string defaultValue = block[blockOffset];
+							option.Default = block[blockOffset].TrimStart('\"').TrimEnd('\"');
 							blockOffset++;
-
-							// If the default is delimited by a double quote, it
-							// needs to be assembled from separated pieces.
-							if (defaultValue.StartsWith("\""))
-							{
-								while (block[blockOffset] != ":" && block[blockOffset] != "=")
-								{
-									defaultValue += " " + block[blockOffset];
-									blockOffset++;
-								}
-							}
-
-							option.Default = defaultValue;
 						}
 
 						bool hasRemarks = block[blockOffset] == ":" && block[blockOffset + 1].StartsWith("\"");
 						if (hasRemarks)
 						{
-							option.Remarks = block[blockOffset];
 							blockOffset++;
-							while (!option.Remarks.EndsWith("\""))
-							{
-								option.Remarks += " " + block[blockOffset];
-								blockOffset++;
-							}
+							option.Remarks = block[blockOffset].TrimStart('\"').TrimEnd('\"');
+							blockOffset++;
 						}
 
-						bool hasChoices = block[blockOffset] == "=";
-
-						if (hasChoices)
+						if (def.KeyValsTemplate.ContainsKey(key))
 						{
-							blockOffset++;
-
-							int closeBracket = FindClosingDelimiter(block, blockOffset);
-
-							while (blockOffset != closeBracket)
-							{
-								if (block[blockOffset] != "[")
-								{
-									string choice = block[blockOffset];
-									blockOffset += 2;
-
-									string text = block[blockOffset];
-									blockOffset++;
-
-									// Spaces were otherwise stripped out, but
-									// there should be one in this case.
-									if (!text.EndsWith("\""))
-									{
-										text += " ";
-									}
-
-									while (!text.EndsWith("\""))
-									{
-										text += block[blockOffset];
-										blockOffset++;
-									}
-
-									option.Choices.Add(choice, text);
-								}
-								else
-								{
-									blockOffset++;
-								}
-							}
+							def.KeyValsTemplate[key] = option;
 						}
-
-						if (!def.KeyValsTemplate.ContainsKey(key))
+						else
 						{
 							def.KeyValsTemplate.Add(key, option);
 						}
@@ -627,13 +654,13 @@ namespace Arbatel.Formats
 			resolved.AddRange(points.OrderBy(d => d.BaseNames.Count).ToList());
 			resolved.AddRange(solids.OrderBy(d => d.BaseNames.Count).ToList());
 
-			foreach (var def in resolved)
+			foreach (Definition def in resolved)
 			{
-				foreach (var name in def.BaseNames)
+				foreach (string name in def.BaseNames)
 				{
 					Definition baseClass = resolved.Find(d => d.ClassName == name);
 
-					foreach (var flag in baseClass.Flags)
+					foreach (KeyValuePair<string, Spawnflag> flag in baseClass.Flags)
 					{
 						if (!def.Flags.ContainsKey(flag.Key))
 						{
@@ -641,7 +668,7 @@ namespace Arbatel.Formats
 						}
 					}
 
-					foreach (var keyval in baseClass.KeyValsTemplate)
+					foreach (KeyValuePair<string, Option> keyval in baseClass.KeyValsTemplate)
 					{
 						if (!def.KeyValsTemplate.ContainsKey(keyval.Key))
 						{
@@ -653,7 +680,7 @@ namespace Arbatel.Formats
 					// a color defined; checks for null won't work.
 					if (def.Color.R == 0.0f && def.Color.G == 0.0f && def.Color.B == 0.0f && def.Color.A == 0.0f)
 					{
-						var c = baseClass.Color;
+						Color4 c = baseClass.Color;
 
 						// It is of course possible the base class also has no
 						// color, in which case white will do nicely.
@@ -674,7 +701,7 @@ namespace Arbatel.Formats
 						def.Size = baseClass.Size;
 					}
 
-					foreach (var source in baseClass.RenderableSources)
+					foreach (KeyValuePair<RenderableSource, string> source in baseClass.RenderableSources)
 					{
 						if (!def.RenderableSources.ContainsKey(source.Key))
 						{

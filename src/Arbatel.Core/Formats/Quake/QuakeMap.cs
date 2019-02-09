@@ -34,7 +34,7 @@ namespace Arbatel.Formats.Quake
 				{
 					string line = sr.ReadLine();
 
-					int commentStart = line.IndexOf("//", StringComparison.Ordinal);
+					int commentStart = line.IndexOf("//", StringComparison.OrdinalIgnoreCase);
 					switch (commentStart)
 					{
 						case -1:

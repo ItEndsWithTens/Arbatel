@@ -1,16 +1,13 @@
 ﻿using OpenTK;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Arbatel.Graphics
 {
 	/// <summary>
 	/// An axis-aligned bounding box surrounding a given set of points.
 	/// </summary>
-	public class Aabb
+	public class Aabb : IEquatable<Aabb>
 	{
 		private Vector3 min;
 		public Vector3 Min
@@ -45,7 +42,7 @@ namespace Arbatel.Graphics
 		{
 			var points = new List<Vector3>();
 
-			foreach (var vertex in vertices)
+			foreach (Vertex vertex in vertices)
 			{
 				points.Add(vertex.Position);
 			}
@@ -115,7 +112,7 @@ namespace Arbatel.Graphics
 		/// <param name="lhs">The first AABB to combine.</param>
 		/// <param name="rhs">The second AABB to combine.</param>
 		/// <returns>A new AABB representing the total AABB of the two inputs.</returns>
-		public static Aabb operator +(Aabb lhs, Aabb rhs)
+		public static Aabb Add(Aabb lhs, Aabb rhs)
 		{
 			Vector3 newMin = lhs.Min;
 			Vector3 newMax = lhs.Max;
@@ -156,20 +153,9 @@ namespace Arbatel.Graphics
 				Max = newMax
 			};
 		}
-
-		/// <summary>
-		/// Offset an AABB in 3D.
-		/// </summary>
-		/// <param name="lhs">The AABB to offset.</param>
-		/// <param name="rhs">The distance to offset.</param>
-		/// <returns>A new AABB, offset by the specified amounts.</returns>
-		public static Aabb operator +(Aabb lhs, Vector3 rhs)
+		public static Aabb operator +(Aabb lhs, Aabb rhs)
 		{
-			return new Aabb
-			{
-				Min = lhs.Min + rhs,
-				Max = lhs.Max + rhs
-			};
+			return Add(lhs, rhs);
 		}
 
 		/// <summary>
@@ -178,13 +164,65 @@ namespace Arbatel.Graphics
 		/// <param name="lhs">The AABB to offset.</param>
 		/// <param name="rhs">The distance to offset.</param>
 		/// <returns>A new AABB, offset by the specified amounts.</returns>
-		public static Aabb operator -(Aabb lhs, Vector3 rhs)
+		public static Aabb Add(Aabb lhs, Vector3 rhs)
+		{
+			return new Aabb
+			{
+				Min = lhs.Min + rhs,
+				Max = lhs.Max + rhs
+			};
+		}
+		public static Aabb operator +(Aabb lhs, Vector3 rhs)
+		{
+			return Add(lhs, rhs);
+		}
+
+		/// <summary>
+		/// Offset an AABB in 3D.
+		/// </summary>
+		/// <param name="lhs">The AABB to offset.</param>
+		/// <param name="rhs">The distance to offset.</param>
+		/// <returns>A new AABB, offset by the specified amounts.</returns>
+		public static Aabb Subtract(Aabb lhs, Vector3 rhs)
 		{
 			return new Aabb
 			{
 				Min = lhs.Min - rhs,
 				Max = lhs.Max - rhs
 			};
+		}
+		public static Aabb operator -(Aabb lhs, Vector3 rhs)
+		{
+			return Subtract(lhs, rhs);
+		}
+
+		public override bool Equals(object obj)
+		{
+			return Equals(obj as Aabb);
+		}
+
+		public bool Equals(Aabb other)
+		{
+			return other != null && Min.Equals(other.Min) && Max.Equals(other.Max);
+		}
+
+		public override int GetHashCode()
+		{
+			int hashCode = 1537547080;
+			hashCode = hashCode * -1521134295 + EqualityComparer<Vector3>.Default.GetHashCode(Min);
+			hashCode = hashCode * -1521134295 + EqualityComparer<Vector3>.Default.GetHashCode(Max);
+
+			return hashCode;
+		}
+
+		public static bool operator ==(Aabb lhs, Aabb rhs)
+		{
+			return EqualityComparer<Aabb>.Default.Equals(lhs, rhs);
+		}
+
+		public static bool operator !=(Aabb lhs, Aabb rhs)
+		{
+			return !(lhs == rhs);
 		}
 	}
 }
