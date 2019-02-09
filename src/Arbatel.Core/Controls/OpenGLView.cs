@@ -13,7 +13,7 @@ namespace Arbatel.Controls
 {
 	public class OpenGLView : View
 	{
-		public static Action<Control> SetUpWireframe { get; } = new Action<Control>((control) =>
+		public static Action<Control> SetUpWireframe { get; } = new Action<Control>(control =>
 		{
 			if (control is OpenGLView o && o.OpenGLReady)
 			{
@@ -29,7 +29,7 @@ namespace Arbatel.Controls
 			}
 		});
 
-		public static Action<Control> SetUpFlat { get; } = new Action<Control>((control) =>
+		public static Action<Control> SetUpFlat { get; } = new Action<Control>(control =>
 		{
 			if (control is OpenGLView o && o.OpenGLReady)
 			{
@@ -47,7 +47,7 @@ namespace Arbatel.Controls
 			}
 		});
 
-		public static Action<Control> SetUpTextured { get; } = new Action<Control>((control) =>
+		public static Action<Control> SetUpTextured { get; } = new Action<Control>(control =>
 		{
 			if (control is OpenGLView o && o.OpenGLReady)
 			{
@@ -116,6 +116,25 @@ namespace Arbatel.Controls
 				else
 				{
 					GraphicsClock.Stop();
+				}
+			}
+		}
+
+		public new ShadingStyle ShadingStyle
+		{
+			get { return base.ShadingStyle; }
+			set
+			{
+				base.ShadingStyle = value;
+
+				switch (value)
+				{
+					case ShadingStyle.Textured:
+						BackEnd.DrawMap = (BackEnd as OpenGL4BackEnd).DrawMapTextured;
+						break;
+					default:
+						BackEnd.DrawMap = (BackEnd as OpenGL4BackEnd).DrawMapFlat;
+						break;
 				}
 			}
 		}

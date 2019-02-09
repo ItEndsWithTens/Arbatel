@@ -137,10 +137,25 @@ namespace Arbatel.Graphics
 			GL.UseProgram(Program);
 		}
 
-		public virtual void Draw(IEnumerable<Renderable> renderables, Camera camera)
+		/// <summary>
+		/// Draw the specified renderables, respecting their model matrices.
+		/// </summary>
+		public virtual void DrawModel(IEnumerable<Renderable> renderables, Camera camera)
 		{
 			Use();
 
+			SetUniform(LocationViewMatrix, camera.ViewMatrix);
+			SetUniform(LocationProjectionMatrix, camera.ProjectionMatrix);
+		}
+
+		/// <summary>
+		/// Draw the specified renderables, ignoring their model matrices.
+		/// </summary>
+		public virtual void DrawWorld(IEnumerable<Renderable> renderables, Camera camera)
+		{
+			Use();
+
+			SetUniform(LocationModelMatrix, Matrix4.Identity);
 			SetUniform(LocationViewMatrix, camera.ViewMatrix);
 			SetUniform(LocationProjectionMatrix, camera.ProjectionMatrix);
 		}

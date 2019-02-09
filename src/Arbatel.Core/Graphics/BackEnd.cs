@@ -1,16 +1,17 @@
 ﻿using Arbatel.Controls;
 using Arbatel.Formats;
+using System;
 using System.Collections.Generic;
 
 namespace Arbatel.Graphics
 {
+	public delegate void DrawMap(Map map, Dictionary<ShadingStyle, Shader> shaders, ShadingStyle style, View view, Camera camera);
+
 	public class BackEnd
 	{
 		public Dictionary<string, int> Textures { get; } = new Dictionary<string, int>();
 
-		public virtual void DrawMap(Map map, Dictionary<ShadingStyle, Shader> shaders, ShadingStyle style, View view, Camera camera)
-		{
-		}
+		public DrawMap DrawMap { get; set; }
 
 		public virtual void InitMap(Map map, List<View> views)
 		{

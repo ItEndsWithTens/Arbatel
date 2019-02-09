@@ -1,5 +1,6 @@
 ﻿using Arbatel.Controls;
 using Arbatel.Formats;
+using OpenTK;
 using OpenTK.Graphics.OpenGL4;
 using System;
 using System.Collections.Generic;
@@ -32,7 +33,32 @@ namespace Arbatel.Graphics
 	{
 		public Dictionary<(Map, View), Buffers> Buffers { get; } = new Dictionary<(Map, View), Buffers>();
 
-		public override void DrawMap(Map map, Dictionary<ShadingStyle, Shader> shaders, ShadingStyle style, View view, Camera camera)
+		public void DrawMapFlat(Map map, Dictionary<ShadingStyle, Shader> shaders, ShadingStyle style, View view, Camera camera)
+		{
+			IEnumerable<MapObject> visible = camera.GetVisibleMapObjects(map.AllObjects);
+
+			IEnumerable<Renderable> renderables = visible.GetAllRenderables();
+
+			IEnumerable<Renderable> flatWorld =
+				from r in renderables
+				where r.ModelMatrix == Matrix4.Identity
+				select r;
+
+			IEnumerable<Renderable> flatModel =
+				from r in renderables
+				where r.ModelMatrix != Matrix4.Identity
+				select r;
+
+			Buffers b = Buffers[(map, view)];
+
+			GL.BindVertexArray(b.Vao);
+
+			shaders[ShadingStyle.Flat].DrawWorld(flatWorld, camera);
+			shaders[ShadingStyle.Flat].DrawModel(flatModel, camera);
+
+			GL.BindVertexArray(0);
+		}
+		public void DrawMapTextured(Map map, Dictionary<ShadingStyle, Shader> shaders, ShadingStyle style, View view, Camera camera)
 		{
 			IEnumerable<MapObject> visible = camera.GetVisibleMapObjects(map.AllObjects);
 
@@ -43,17 +69,40 @@ namespace Arbatel.Graphics
 				where r.ShadingStyleDict[view.ShadingStyle] == ShadingStyle.Textured
 				select r;
 
+			IEnumerable<Renderable> texturedWorld =
+				from r in textured
+				where r.ModelMatrix == Matrix4.Identity
+				select r;
+
+			IEnumerable<Renderable> texturedModel =
+				from r in textured
+				where r.ModelMatrix != Matrix4.Identity
+				select r;
+
 			IEnumerable<Renderable> flat =
 				from r in renderables
 				where r.ShadingStyleDict[view.ShadingStyle] <= ShadingStyle.Flat
+				select r;
+
+			IEnumerable<Renderable> flatWorld =
+				from r in flat
+				where r.ModelMatrix == Matrix4.Identity
+				select r;
+
+			IEnumerable<Renderable> flatModel =
+				from r in flat
+				where r.ModelMatrix != Matrix4.Identity
 				select r;
 
 			Buffers b = Buffers[(map, view)];
 
 			GL.BindVertexArray(b.Vao);
 
-			shaders[ShadingStyle.Textured].Draw(textured, camera);
-			shaders[ShadingStyle.Flat].Draw(flat, camera);
+			shaders[ShadingStyle.Textured].DrawWorld(texturedWorld, camera);
+			shaders[ShadingStyle.Textured].DrawModel(texturedModel, camera);
+
+			shaders[ShadingStyle.Flat].DrawWorld(flatWorld, camera);
+			shaders[ShadingStyle.Flat].DrawModel(flatModel, camera);
 
 			GL.BindVertexArray(0);
 		}
