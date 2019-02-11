@@ -79,7 +79,8 @@ namespace Arbatel.Controls
 			new List<string>
 			{
 				"ARB_vertex_array_object",
-				"ARB_framebuffer_object"
+				"ARB_framebuffer_object",
+				"ARB_uniform_buffer_object"
 			}.AsReadOnly();
 
 		private bool _openGLReady = false;

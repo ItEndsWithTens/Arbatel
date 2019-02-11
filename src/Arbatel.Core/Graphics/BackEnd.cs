@@ -36,7 +36,7 @@ namespace Arbatel.Graphics
 		{
 		}
 
-		public virtual void InitRenderables(IEnumerable<Renderable> renderables, View view)
+		public virtual void InitRenderables(Buffers buffers, IEnumerable<Renderable> renderables, Map map, View view)
 		{
 		}
 

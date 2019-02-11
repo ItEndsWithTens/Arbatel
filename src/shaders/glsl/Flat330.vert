@@ -5,9 +5,22 @@ layout (location = 2) in vec4 color;
 
 out vec4 vertexColor;
 
+layout (std140) uniform Matrices
+{
+	mat4 projection;
+	mat4 view;
+};
 uniform mat4 model;
-uniform mat4 view;
-uniform mat4 projection;
+
+layout (std140) uniform TextureInfo
+{	
+	float textureWidth;
+	float textureHeight;
+	vec4 basisS;
+	vec4 basisT;
+	vec2 offset;
+	vec2 scale;
+};
 
 void main()
 {

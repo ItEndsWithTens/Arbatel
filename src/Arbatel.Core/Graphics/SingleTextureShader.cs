@@ -9,23 +9,10 @@ namespace Arbatel.Graphics
 	/// </summary>
 	public class SingleTextureShader : Shader
 	{
-		public int LocationBasisS { get; set; } = 0;
-		public int LocationBasisT { get; set; } = 0;
-		public int LocationOffset { get; set; } = 0;
-		public int LocationScale { get; set; } = 0;
-		public int LocationTextureWidth { get; set; } = 0;
-		public int LocationTextureHeight { get; set; } = 0;
-
 		public SingleTextureShader(int major, int minor) : base(
 			major >= 3 && minor >= 3 ? "SingleTexture330.vert" : "SingleTexture120.vert",
 			major >= 3 && minor >= 3 ? "SingleTexture330.frag" : "SingleTexture120.frag")
 		{
-			LocationBasisS = GL.GetUniformLocation(Program, "basisS");
-			LocationBasisT = GL.GetUniformLocation(Program, "basisT");
-			LocationOffset = GL.GetUniformLocation(Program, "offset");
-			LocationScale = GL.GetUniformLocation(Program, "scale");
-			LocationTextureWidth = GL.GetUniformLocation(Program, "textureWidth");
-			LocationTextureHeight = GL.GetUniformLocation(Program, "textureHeight");
 		}
 
 		public override void DrawModel(IEnumerable<Renderable> renderables, Camera camera)
@@ -41,9 +28,6 @@ namespace Arbatel.Graphics
 
 			foreach (IGrouping<Texture, (Polygon, Renderable)> t in byTexture)
 			{
-				SetUniform(LocationTextureWidth, (float)t.Key.Width);
-				SetUniform(LocationTextureHeight, (float)t.Key.Height);
-
 				GL.BindTexture(TextureTarget.Texture2D, BackEnd.Textures[t.Key.Name.ToLower()]);
 
 				IEnumerable<IGrouping<Renderable, (Polygon, Renderable)>> byRenderable =
@@ -56,22 +40,28 @@ namespace Arbatel.Graphics
 
 					foreach ((Polygon p, _) in r)
 					{
-						SetUniform(LocationBasisS, p.BasisS);
-						SetUniform(LocationBasisT, p.BasisT);
-						SetUniform(LocationOffset, p.Offset);
-						SetUniform(LocationScale, p.Scale);
+						GL.BindBufferRange(
+							BufferRangeTarget.UniformBuffer,
+							Ubos["TextureInfo"].bindingPoint,
+							Ubos["TextureInfo"].name,
+							p.TextureInfoOffset,
+							64);
 
-						GL.DrawElements(PrimitiveType.Triangles, p.Indices.Count, DrawElementsType.UnsignedInt, p.IndexOffset);
+						GL.DrawElements(
+							PrimitiveType.Triangles,
+							p.Indices.Count,
+							DrawElementsType.UnsignedInt,
+							p.IndexOffset);
 					}
 				}
 			}
+
+			GL.BindBuffer(BufferTarget.UniformBuffer, 0);
 		}
 
 		public override void DrawWorld(IEnumerable<Renderable> renderables, Camera camera)
 		{
 			base.DrawWorld(renderables, camera);
-
-			GL.ActiveTexture(TextureUnit.Texture0);
 
 			IEnumerable<IGrouping<Texture, (Polygon, Renderable)>> byTexture =
 				camera.GetVisiblePolygons(renderables)
@@ -80,21 +70,26 @@ namespace Arbatel.Graphics
 
 			foreach (IGrouping<Texture, (Polygon, Renderable)> t in byTexture)
 			{
-				SetUniform(LocationTextureWidth, (float)t.Key.Width);
-				SetUniform(LocationTextureHeight, (float)t.Key.Height);
-
 				GL.BindTexture(TextureTarget.Texture2D, BackEnd.Textures[t.Key.Name.ToLower()]);
 
 				foreach ((Polygon p, _) in t)
 				{
-					SetUniform(LocationBasisS, p.BasisS);
-					SetUniform(LocationBasisT, p.BasisT);
-					SetUniform(LocationOffset, p.Offset);
-					SetUniform(LocationScale, p.Scale);
+					GL.BindBufferRange(
+						BufferRangeTarget.UniformBuffer,
+						Ubos["TextureInfo"].bindingPoint,
+						Ubos["TextureInfo"].name,
+						p.TextureInfoOffset,
+						64);
 
-					GL.DrawElements(PrimitiveType.Triangles, p.Indices.Count, DrawElementsType.UnsignedInt, p.IndexOffset);
+					GL.DrawElements(
+						PrimitiveType.Triangles,
+						p.Indices.Count,
+						DrawElementsType.UnsignedInt,
+						p.IndexOffset);
 				}
 			}
+
+			GL.BindBuffer(BufferTarget.UniformBuffer, 0);
 		}
 	}
 }

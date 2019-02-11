@@ -13,16 +13,22 @@ namespace Arbatel.Graphics
 		public int Vao;
 		public int Vbo;
 		public int Ebo;
+		public int UboMatrices;
+		public int UboTextureInfo;
 
 		public Buffers()
 		{
 			GL.GenVertexArrays(1, out Vao);
 			GL.GenBuffers(1, out Vbo);
 			GL.GenBuffers(1, out Ebo);
+			GL.GenBuffers(1, out UboMatrices);
+			GL.GenBuffers(1, out UboTextureInfo);
 		}
 
 		public void CleanUp()
 		{
+			GL.DeleteBuffer(UboTextureInfo);
+			GL.DeleteBuffer(UboMatrices);
 			GL.DeleteBuffer(Ebo);
 			GL.DeleteBuffer(Vbo);
 			GL.DeleteVertexArray(Vao);
@@ -53,6 +59,9 @@ namespace Arbatel.Graphics
 
 			GL.BindVertexArray(b.Vao);
 
+			GL.BindBufferBase(BufferRangeTarget.UniformBuffer, 0, b.UboMatrices);
+
+			shaders[ShadingStyle.Flat].Use();
 			shaders[ShadingStyle.Flat].DrawWorld(flatWorld, camera);
 			shaders[ShadingStyle.Flat].DrawModel(flatModel, camera);
 
@@ -98,9 +107,11 @@ namespace Arbatel.Graphics
 
 			GL.BindVertexArray(b.Vao);
 
+			shaders[ShadingStyle.Textured].Use();
 			shaders[ShadingStyle.Textured].DrawWorld(texturedWorld, camera);
 			shaders[ShadingStyle.Textured].DrawModel(texturedModel, camera);
 
+			shaders[ShadingStyle.Flat].Use();
 			shaders[ShadingStyle.Flat].DrawWorld(flatWorld, camera);
 			shaders[ShadingStyle.Flat].DrawModel(flatModel, camera);
 
@@ -111,6 +122,20 @@ namespace Arbatel.Graphics
 		{
 			var buffers = new Buffers();
 			Buffers.Add((map, view), buffers);
+
+			foreach (KeyValuePair<ShadingStyle, Shader> shader in view.Shaders)
+			{
+				(int bindingPoint, int index, int name) = shader.Value.Ubos["Matrices"];
+				name = buffers.UboMatrices;
+				shader.Value.Ubos["Matrices"] = (bindingPoint, index, name);
+
+				if (shader.Value is SingleTextureShader t)
+				{
+					(bindingPoint, index, name) = shader.Value.Ubos["TextureInfo"];
+					name = buffers.UboTextureInfo;
+					shader.Value.Ubos["TextureInfo"] = (bindingPoint, index, name);
+				}
+			}
 
 			GL.BindVertexArray(buffers.Vao);
 			GL.BindBuffer(BufferTarget.ArrayBuffer, buffers.Vbo);
@@ -127,17 +152,7 @@ namespace Arbatel.Graphics
 
 			IEnumerable<Renderable> renderables = map.AllObjects.GetAllRenderables();
 
-			int minimumVertexBytes = 0;
-			int minimumIndexBytes = 0;
-			foreach (Renderable r in renderables)
-			{
-				minimumVertexBytes += Vertex.MemorySize * r.Vertices.Count;
-				minimumIndexBytes += sizeof(int) * r.Indices.Count;
-			}
-			GL.BufferData(BufferTarget.ArrayBuffer, minimumVertexBytes, IntPtr.Zero, BufferUsageHint.StaticDraw);
-			GL.BufferData(BufferTarget.ElementArrayBuffer, minimumIndexBytes, IntPtr.Zero, BufferUsageHint.StaticDraw);
-
-			InitRenderables(renderables, view);
+			InitRenderables(buffers, renderables, map, view);
 
 			GL.BindVertexArray(0);
 			GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
@@ -154,18 +169,68 @@ namespace Arbatel.Graphics
 			Buffers.Remove((map, view));
 		}
 
-		public override void InitRenderables(IEnumerable<Renderable> renderables, View view)
+		public struct QuakeTextureInfo
 		{
+			public float Width;
+			public float Height;
+			public Vector4 BasisS;
+			public Vector4 BasisT;
+			public Vector2 Offset;
+			public Vector2 Scale;
+		}
+
+		public override void InitRenderables(Buffers buffers, IEnumerable<Renderable> renderables, Map map, View view)
+		{
+			GL.GetInteger(GetPName.UniformBufferOffsetAlignment, out int uboAlignment);
+
+			int totalVertexBytes = 0;
+			int totalIndexBytes = 0;
+			int totalMatrixBytes = Vector4.SizeInBytes * 4 * 2; // projectionMatrix, viewMatrix
+			int totalTextureInfoBytes = 0;
+
+			int minimumTextureInfoBytes =
+				sizeof(float) * 2 + // textureWidth, textureHeight
+				Vector4.SizeInBytes * 2 + // basisS, basisT (padded vec3s)
+				Vector2.SizeInBytes * 2; // offset, scale
+			int textureInfoBytesStep = uboAlignment;
+			while (minimumTextureInfoBytes % textureInfoBytesStep != minimumTextureInfoBytes)
+			{
+				textureInfoBytesStep += uboAlignment;
+			}
+
+			foreach (Renderable r in renderables)
+			{
+				totalVertexBytes += Vertex.MemorySize * r.Vertices.Count;
+				totalIndexBytes += sizeof(int) * r.Indices.Count;
+				for (int p = 0; p < r.Polygons.Count; p++)
+				{
+					totalTextureInfoBytes += textureInfoBytesStep;
+				}
+			}
+
+			GL.BufferData(BufferTarget.ArrayBuffer, totalVertexBytes, IntPtr.Zero, BufferUsageHint.StaticDraw);
+			GL.BufferData(BufferTarget.ElementArrayBuffer, totalIndexBytes, IntPtr.Zero, BufferUsageHint.StaticDraw);
+
+			GL.BindBuffer(BufferTarget.UniformBuffer, buffers.UboMatrices);
+			GL.BufferData(BufferTarget.UniformBuffer, totalMatrixBytes, IntPtr.Zero, BufferUsageHint.StaticDraw);
+			GL.BindBuffer(BufferTarget.UniformBuffer, 0);
+
+			GL.BindBuffer(BufferTarget.UniformBuffer, buffers.UboTextureInfo);
+			GL.BufferData(BufferTarget.UniformBuffer, totalTextureInfoBytes, IntPtr.Zero, BufferUsageHint.StaticDraw);
+			GL.BindBuffer(BufferTarget.UniformBuffer, 0);
+
+			GL.BindBufferBase(BufferRangeTarget.UniformBuffer, 1, buffers.UboTextureInfo);
+
 			int verticesSoFar = 0;
 			IntPtr vboOffset = IntPtr.Zero;
 
 			int indicesSoFar = 0;
 			IntPtr eboOffset = IntPtr.Zero;
 
+			IntPtr textureInfoBufferOffset = IntPtr.Zero;
 			foreach (Renderable r in renderables)
 			{
 				r.VertexOffset = vboOffset;
-
 				r.IndexOffset = eboOffset;
 
 				IntPtr polygonIndexOffset = r.IndexOffset;
@@ -173,6 +238,61 @@ namespace Arbatel.Graphics
 				{
 					p.IndexOffset = polygonIndexOffset;
 					polygonIndexOffset += p.Indices.Count * sizeof(int);
+					p.TextureInfoOffset = textureInfoBufferOffset;
+
+					if (r.ShadingStyleDict[ShadingStyle.Textured] == ShadingStyle.Textured)
+					{
+						var textureInfo = new QuakeTextureInfo
+						{
+							Width = p.Texture.Width,
+							Height = p.Texture.Height,
+							BasisS = new Vector4(p.BasisS),
+							BasisT = new Vector4(p.BasisT),
+							Offset = p.Offset,
+							Scale = p.Scale
+						};
+
+						unsafe
+						{
+							GL.BufferSubData(
+								BufferTarget.UniformBuffer,
+								textureInfoBufferOffset + 0,
+								sizeof(float),
+								(IntPtr)(&textureInfo.Width));
+
+							GL.BufferSubData(
+								BufferTarget.UniformBuffer,
+								textureInfoBufferOffset + 4,
+								sizeof(float),
+								(IntPtr)(&textureInfo.Height));
+
+							GL.BufferSubData(
+								BufferTarget.UniformBuffer,
+								textureInfoBufferOffset + 16,
+								Vector4.SizeInBytes,
+								(IntPtr)(&textureInfo.BasisS));
+
+							GL.BufferSubData(
+								BufferTarget.UniformBuffer,
+								textureInfoBufferOffset + 32,
+								Vector4.SizeInBytes,
+								(IntPtr)(&textureInfo.BasisT));
+
+							GL.BufferSubData(
+								BufferTarget.UniformBuffer,
+								textureInfoBufferOffset + 48,
+								Vector2.SizeInBytes,
+								(IntPtr)(&textureInfo.Offset));
+
+							GL.BufferSubData(
+								BufferTarget.UniformBuffer,
+								textureInfoBufferOffset + 56,
+								Vector2.SizeInBytes,
+								(IntPtr)(&textureInfo.Scale));
+						}
+					}
+
+					textureInfoBufferOffset += textureInfoBytesStep;
 				}
 
 				int totalVerticesBytes = Vertex.MemorySize * r.Vertices.Count;
@@ -196,6 +316,8 @@ namespace Arbatel.Graphics
 				indicesSoFar += r.Indices.Count;
 				eboOffset += totalIndicesBytes;
 			}
+
+			GL.BindBufferBase(BufferRangeTarget.UniformBuffer, 1, 0);
 		}
 
 		public override void InitTextures(TextureDictionary dictionary)

@@ -15,8 +15,8 @@ namespace Arbatel.Graphics
 		public int Program { get; set; }
 
 		public int LocationModelMatrix { get; set; }
-		public int LocationViewMatrix { get; set; }
-		public int LocationProjectionMatrix { get; set; }
+
+		public Dictionary<string, (int bindingPoint, int blockIndex, int name)> Ubos { get; } = new Dictionary<string, (int, int, int)>();
 
 		public static Dictionary<string, int> Locations { get; } = new Dictionary<string, int>
 		{
@@ -28,8 +28,6 @@ namespace Arbatel.Graphics
 		public Shader()
 		{
 			LocationModelMatrix = 0;
-			LocationViewMatrix = 0;
-			LocationProjectionMatrix = 0;
 		}
 		public Shader(string vertexPath, string fragmentPath) : this()
 		{
@@ -85,13 +83,17 @@ namespace Arbatel.Graphics
 			Program = shaderProgram;
 
 			LocationModelMatrix = GL.GetUniformLocation(Program, "model");
-			LocationViewMatrix = GL.GetUniformLocation(Program, "view");
-			LocationProjectionMatrix = GL.GetUniformLocation(Program, "projection");
 
 			foreach (KeyValuePair<string, int> location in Locations)
 			{
 				GL.BindAttribLocation(Program, location.Value, location.Key);
 			}
+
+			Ubos.Add("Matrices", (0, GL.GetUniformBlockIndex(Program, "Matrices"), -1));
+			Ubos.Add("TextureInfo", (1, GL.GetUniformBlockIndex(Program, "TextureInfo"), -1));
+
+			GL.UniformBlockBinding(Program, Ubos["Matrices"].blockIndex, Ubos["Matrices"].bindingPoint);
+			GL.UniformBlockBinding(Program, Ubos["TextureInfo"].blockIndex, Ubos["TextureInfo"].bindingPoint);
 		}
 
 		public static (int major, int minor) GetGlslVersion()
@@ -142,10 +144,7 @@ namespace Arbatel.Graphics
 		/// </summary>
 		public virtual void DrawModel(IEnumerable<Renderable> renderables, Camera camera)
 		{
-			Use();
-
-			SetUniform(LocationViewMatrix, camera.ViewMatrix);
-			SetUniform(LocationProjectionMatrix, camera.ProjectionMatrix);
+			SetMatrices(camera);
 		}
 
 		/// <summary>
@@ -153,11 +152,68 @@ namespace Arbatel.Graphics
 		/// </summary>
 		public virtual void DrawWorld(IEnumerable<Renderable> renderables, Camera camera)
 		{
-			Use();
-
+			SetMatrices(camera);
 			SetUniform(LocationModelMatrix, Matrix4.Identity);
-			SetUniform(LocationViewMatrix, camera.ViewMatrix);
-			SetUniform(LocationProjectionMatrix, camera.ProjectionMatrix);
+		}
+
+		private void SetMatrices(Camera camera)
+		{
+			GL.BindBufferBase(
+				BufferRangeTarget.UniformBuffer,
+				Ubos["Matrices"].bindingPoint,
+				Ubos["Matrices"].name);
+
+			IntPtr pointer = IntPtr.Zero;
+			GL.BufferSubData(
+				BufferTarget.UniformBuffer,
+				pointer + 0,
+				Vector4.SizeInBytes,
+				(IntPtr)camera.ProjectionMatrix.Row0);
+
+			GL.BufferSubData(
+				BufferTarget.UniformBuffer,
+				pointer + 16,
+				Vector4.SizeInBytes,
+				(IntPtr)camera.ProjectionMatrix.Row1);
+
+			GL.BufferSubData(
+				BufferTarget.UniformBuffer,
+				pointer + 32,
+				Vector4.SizeInBytes,
+				(IntPtr)camera.ProjectionMatrix.Row2);
+
+			GL.BufferSubData(
+				BufferTarget.UniformBuffer,
+				pointer + 48,
+				Vector4.SizeInBytes,
+				(IntPtr)camera.ProjectionMatrix.Row3);
+
+			pointer += 64;
+			GL.BufferSubData(
+				BufferTarget.UniformBuffer,
+				pointer + 0,
+				Vector4.SizeInBytes,
+				(IntPtr)camera.ViewMatrix.Row0);
+
+			GL.BufferSubData(
+				BufferTarget.UniformBuffer,
+				pointer + 16,
+				Vector4.SizeInBytes,
+				(IntPtr)camera.ViewMatrix.Row1);
+
+			GL.BufferSubData(
+				BufferTarget.UniformBuffer,
+				pointer + 32,
+				Vector4.SizeInBytes,
+				(IntPtr)camera.ViewMatrix.Row2);
+
+			GL.BufferSubData(
+				BufferTarget.UniformBuffer,
+				pointer + 48,
+				Vector4.SizeInBytes,
+				(IntPtr)camera.ViewMatrix.Row3);
+
+			GL.BindBuffer(BufferTarget.UniformBuffer, 0);
 		}
 	}
 }

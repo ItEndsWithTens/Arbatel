@@ -75,6 +75,7 @@ namespace Arbatel.Graphics
 		public Vector3 Normal;
 
 		public IntPtr IndexOffset;
+		public IntPtr TextureInfoOffset;
 
 		public Polygon()
 		{
