@@ -22,6 +22,7 @@ namespace Arbatel.Formats.Quake
 		public QuakeSide(string raw)
 		{
 			var split = raw.Split(' ', '\t').ToList();
+			split.RemoveAll(s => String.IsNullOrEmpty(s.Trim()));
 
 			var pointA = split.GetRange(1, 3).ToVector3();
 			var pointB = split.GetRange(6, 3).ToVector3();

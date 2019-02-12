@@ -43,6 +43,13 @@ namespace Arbatel.Utilities
 				start = i + d.Length;
 			}
 
+			// Tack on any leftovers; text between the last instance of a
+			// delimiter and the end of the input string.
+			if (start < raw.Length)
+			{
+				split.Add(raw.Substring(start));
+			}
+
 			return split.ToArray();
 		}
 

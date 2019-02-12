@@ -1,13 +1,7 @@
-﻿using Eto.Gl;
-using OpenTK;
+﻿using Arbatel.Utilities;
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
-using Arbatel.Graphics;
 
 namespace Arbatel.Formats
 {
@@ -16,27 +10,27 @@ namespace Arbatel.Formats
 		/// <summary>
 		/// The DefinitionDictionary this block pulled its key/value defaults from.
 		/// </summary>
-		public DefinitionDictionary Definitions { get; set; }
+		public DefinitionDictionary Definitions { get; } = new DefinitionDictionary();
 
-		public string OpenDelimiter = "{";
-		public string CloseDelimiter = "}";
-		public string KeyValDelimiter = "\"";
+		public string OpenDelimiter { get; set; } = "{";
+		public string CloseDelimiter { get; set; } = "}";
+		public string KeyValDelimiter { get; set; } = "\"";
 
-		public string BlockType = "";
+		public string BlockType { get; set; } = "";
 
 		/// <summary>
 		/// The starting index of the block, relative to the list it was parsed from.
 		/// </summary>
-		public int RawStartIndex;
+		public int RawStartIndex { get; set; }
 
 		/// <summary>
 		///  The number of elements this block occupies in the list it was parsed from.
 		/// </summary>
-		public int RawLength;
+		public int RawLength { get; set; }
 
-		public Dictionary<string, Option> KeyVals = new Dictionary<string, Option>();
+		public Dictionary<string, Option> KeyVals { get; } = new Dictionary<string, Option>();
 
-		public List<Block> Children = new List<Block>();
+		public List<Block> Children { get; } = new List<Block>();
 
 		/// <summary>
 		/// Whether this block contains information about outbound logic flow.
@@ -45,7 +39,7 @@ namespace Arbatel.Formats
 		/// Blocks in Source engine VMFs, for example, don't indicate whether anything
 		/// targets them, only whether they target anything else.
 		/// </remarks>
-		public bool HasConnectionsOut = false;
+		public bool HasConnectionsOut { get; set; } = false;
 
 		public Saveability Saveability { get; set; }
 
@@ -57,9 +51,7 @@ namespace Arbatel.Formats
 		{
 			var keyVals = new List<KeyValuePair<string, string>>();
 
-			// Using a pair of capturing parentheses in the regex pattern preserves
-			// delimiters in the output.
-			List<string> list = Regex.Split(raw, "(" + Regex.Escape(KeyValDelimiter) + ")").ToList();
+			List<string> list = raw.SplitAndKeepDelimiters(KeyValDelimiter).ToList();
 
 			// After splitting, the list may contain entries that are empty or
 			// comprised only of whitespace. Empty entries are the result of the
@@ -75,7 +67,7 @@ namespace Arbatel.Formats
 
 			// With no way to detect undefined values, the only reliable method
 			// remaining is brute force: count delimiters one by one.
-			var i = 0;
+			int i = 0;
 			while (i < list.Count)
 			{
 				// There are four double quote marks per key/value pair.
@@ -131,8 +123,8 @@ namespace Arbatel.Formats
 		{
 			int closeBraceIndex = openBraceIndex + 1;
 
-			var braces = 1;
-			for (var i = openBraceIndex + 1; i < raw.Count; ++i)
+			int braces = 1;
+			for (int i = openBraceIndex + 1; i < raw.Count; ++i)
 			{
 				if (raw[i] == OpenDelimiter)
 				{

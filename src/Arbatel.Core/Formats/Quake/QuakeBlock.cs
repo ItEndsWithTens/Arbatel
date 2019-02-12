@@ -1,28 +1,31 @@
-﻿using OpenTK;
+﻿using Arbatel.Graphics;
+using Arbatel.Utilities;
+using OpenTK;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
-using Arbatel.Graphics;
 
 namespace Arbatel.Formats.Quake
 {
 	public class QuakeBlock : Block
 	{
-		public List<Solid> Solids = new List<Solid>();
+		public List<Solid> Solids { get; } = new List<Solid>();
 
 		public QuakeBlock(List<string> rawList, int openBraceIndex, DefinitionDictionary definitions)
 		{
-			Definitions = definitions;
+			Definitions.Clear();
+			foreach (KeyValuePair<string, Definition> pair in definitions)
+			{
+				Definitions.Add(pair.Key, pair.Value);
+			}
 
 			RawStartIndex = openBraceIndex;
 			RawLength = (FindCloseBraceIndex(rawList, openBraceIndex) + 1) - RawStartIndex;
 
 			Solids = new List<Solid>();
 
-			var rawBlock = rawList.GetRange(RawStartIndex, RawLength);
+			List<string> rawBlock = rawList.GetRange(RawStartIndex, RawLength);
 
 			Parse(rawBlock);
 		}
@@ -35,26 +38,29 @@ namespace Arbatel.Formats.Quake
 			}
 			else
 			{
-				var message = "Provided MapObject isn't actually a QuakeMapObject!";
-				throw new ArgumentException(message);
+				throw new ArgumentException("Provided MapObject isn't actually a QuakeMapObject!");
 			}
 
 			Saveability = qmo.Saveability;
 
-			foreach (var child in qmo.Children)
+			foreach (MapObject child in qmo.Children)
 			{
 				Children.Add(new QuakeBlock(child as QuakeMapObject));
 			}
 
-			KeyVals = qmo.KeyVals;
+			KeyVals.Clear();
+			foreach (KeyValuePair<string, Option> pair in qmo.KeyVals)
+			{
+				KeyVals.Add(pair.Key, pair.Value);
+			}
 
 			if (qmo.Definition != null && qmo.Definition.ClassType == ClassType.Solid)
 			{
-				foreach (var r in qmo.Renderables)
+				foreach (Renderable r in qmo.Renderables)
 				{
 					var solid = new Solid();
 
-					foreach (var p in r.Polygons)
+					foreach (Polygon p in r.Polygons)
 					{
 						var side = new QuakeSide
 						{
@@ -79,43 +85,6 @@ namespace Arbatel.Formats.Quake
 		{
 			return ToString(QuakeSideFormat.Valve220);
 		}
-		public string ToStringOLD(QuakeSideFormat format)
-		{
-			var sb = new StringBuilder();
-
-			sb.AppendLine(OpenDelimiter);
-
-			foreach (var keyVal in KeyVals)
-			{
-				sb.Append("\"");
-				sb.Append(keyVal.Key);
-				sb.Append("\" \"");
-				sb.Append(keyVal.Value);
-				sb.Append("\"");
-				sb.Append(Environment.NewLine);
-			}
-
-			foreach (var solid in Solids)
-			{
-				sb.AppendLine(OpenDelimiter);
-
-				foreach (var side in solid.Sides)
-				{
-					sb.AppendLine((side as QuakeSide).ToString(format));
-				}
-
-				sb.AppendLine(CloseDelimiter);
-			}
-
-			foreach (var child in Children)
-			{
-				sb.AppendLine(child.ToString());
-			}
-
-			sb.Append(CloseDelimiter);
-
-			return sb.ToString();
-		}
 		public string ToString(QuakeSideFormat format)
 		{
 			var sb = new StringBuilder();
@@ -124,7 +93,7 @@ namespace Arbatel.Formats.Quake
 			{
 				sb.AppendLine(OpenDelimiter);
 
-				foreach (var keyVal in KeyVals)
+				foreach (KeyValuePair<string, Option> keyVal in KeyVals)
 				{
 					sb.Append("\"");
 					sb.Append(keyVal.Key);
@@ -137,11 +106,11 @@ namespace Arbatel.Formats.Quake
 
 			if ((Saveability & Saveability.Solids) == Saveability.Solids)
 			{
-				foreach (var solid in Solids)
+				foreach (Solid solid in Solids)
 				{
 					sb.AppendLine(OpenDelimiter);
 
-					foreach (var side in solid.Sides)
+					foreach (Side side in solid.Sides)
 					{
 						sb.AppendLine((side as QuakeSide).ToString(format));
 					}
@@ -152,7 +121,7 @@ namespace Arbatel.Formats.Quake
 
 			if ((Saveability & Saveability.Children) == Saveability.Children)
 			{
-				foreach (var child in Children)
+				foreach (Block child in Children)
 				{
 					sb.AppendLine(child.ToString());
 				}
@@ -168,18 +137,18 @@ namespace Arbatel.Formats.Quake
 
 		private void Parse(List<string> rawBlock)
 		{
-			var i = 0;
+			int i = 0;
 			while (i < rawBlock.Count)
 			{
-				var item = rawBlock[i];
+				string item = rawBlock[i];
 
 				if (item.Contains(KeyValDelimiter))
 				{
-					var rawKeyVals = ExtractKeyVals(item);
+					List<KeyValuePair<string, string>> rawKeyVals = ExtractKeyVals(item);
 
 					string classname = rawKeyVals.Find(s => s.Key == "classname").Value;
 
-					foreach (var rawKeyVal in rawKeyVals)
+					foreach (KeyValuePair<string, string> rawKeyVal in rawKeyVals)
 					{
 						Option newOption;
 						if (Definitions.ContainsKey(classname) && Definitions[classname].KeyValsTemplate.ContainsKey(rawKeyVal.Key))
@@ -208,17 +177,17 @@ namespace Arbatel.Formats.Quake
 				// start of the top level block; any others indicate children.
 				else if (item == OpenDelimiter && i != 0)
 				{
-					var childOpenBraceIndex = i + 1;
+					int childOpenBraceIndex = i + 1;
 
 					var childBlock = new QuakeBlock(rawBlock, childOpenBraceIndex, Definitions);
 					Children.Add(childBlock);
 
 					i = childBlock.RawStartIndex + childBlock.RawLength;
 				}
-				else if (item.StartsWith("("))
+				else if (item.StartsWith("(", StringComparison.OrdinalIgnoreCase))
 				{
-					var solid = item;
-					var j = i + 1;
+					string solid = item;
+					int j = i + 1;
 					while (rawBlock[j] != CloseDelimiter)
 					{
 						solid += rawBlock[j];
@@ -236,16 +205,13 @@ namespace Arbatel.Formats.Quake
 			}
 		}
 
-		private List<Side> ExtractSides(string raw)
+		private static List<Side> ExtractSides(string raw)
 		{
+			List<string> split = raw.SplitAndKeepDelimiters("(", ")").ToList();
+			split.RemoveAll(s => String.IsNullOrEmpty(s.Trim()));
+
 			var sides = new List<Side>();
-
-			var delimiters = "(\\(|\\))";
-
-			List<string> split = Regex.Split(raw, delimiters).Select(s => s.Trim()).ToList();
-			split.RemoveAll(s => s.Trim() == "");
-
-			for (var i = 0; i < split.Count; i += 10)
+			for (int i = 0; i < split.Count; i += 10)
 			{
 				sides.Add(new QuakeSide(String.Join(" ", split.GetRange(i, 10))));
 			}
