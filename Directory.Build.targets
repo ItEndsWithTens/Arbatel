@@ -11,6 +11,7 @@
     <IsMacProject>false</IsMacProject>
     <IsMacProject Condition="$(MSBuildProjectName) == '$(Product).Mac'">true</IsMacProject>
     <IsMacProject Condition="$(MSBuildProjectName) == '$(Product).XamMac'">true</IsMacProject>
+    <IsMacProject Condition="$(MSBuildProjectName) == '$(Product)Test.Rendering' AND $(BuildOS) == 'macOS'">true</IsMacProject>
   </PropertyGroup>
 
   <!-- The output GUI executables' config files are hideous enough, the -->
