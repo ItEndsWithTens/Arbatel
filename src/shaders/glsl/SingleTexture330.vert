@@ -2,8 +2,9 @@
 layout (location = 0) in vec3 position;
 layout (location = 1) in vec3 normal;
 layout (location = 2) in vec4 color;
+layout (location = 3) in vec2 texCoords;
 
-out vec2 texCoords;
+out vec2 texCoordsFromVert;
 
 layout (std140) uniform Matrices
 {
@@ -11,16 +12,6 @@ layout (std140) uniform Matrices
 	mat4 view;
 };
 uniform mat4 model;
-
-layout (std140) uniform TextureInfo
-{
-	float textureWidth;
-	float textureHeight;
-	vec4 basisS;
-	vec4 basisT;
-	vec2 offset;
-	vec2 scale;
-};
 
 void main()
 {
@@ -30,8 +21,5 @@ void main()
 	vec3 yUpRightHand = vec3(position.x, position.z, -position.y);
 	gl_Position = projection * view * model * vec4(yUpRightHand, 1.0f);
 
-	float coordS = (dot(position, basisS.xyz) + (offset.x * scale.x)) / (textureWidth * scale.x);
-	float coordT = (dot(position, basisT.xyz) + (offset.y * scale.y)) / (textureHeight * scale.y);
-
-	texCoords = vec2(coordS, coordT);
+	texCoordsFromVert = texCoords;
 }

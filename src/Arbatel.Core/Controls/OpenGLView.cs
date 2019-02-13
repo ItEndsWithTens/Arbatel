@@ -24,8 +24,6 @@ namespace Arbatel.Controls
 				GL.Disable(EnableCap.Blend);
 
 				GL.ClearColor(1.0f, 0.0f, 0.0f, 1.0f);
-
-				GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Line);
 			}
 		});
 
@@ -42,8 +40,6 @@ namespace Arbatel.Controls
 				GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
 
 				GL.ClearColor(0.0f, 1.0f, 0.0f, 1.0f);
-
-				GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
 			}
 		});
 
@@ -60,8 +56,6 @@ namespace Arbatel.Controls
 				GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
 
 				GL.ClearColor(0.0f, 0.0f, 1.0f, 1.0f);
-
-				GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
 			}
 		});
 
@@ -133,9 +127,14 @@ namespace Arbatel.Controls
 					case ShadingStyle.Textured:
 						BackEnd.DrawMap = (BackEnd as OpenGL4BackEnd).DrawMapTextured;
 						break;
-					default:
+					case ShadingStyle.Flat:
 						BackEnd.DrawMap = (BackEnd as OpenGL4BackEnd).DrawMapFlat;
 						break;
+					case ShadingStyle.Wireframe:
+						BackEnd.DrawMap = (BackEnd as OpenGL4BackEnd).DrawMapWireframe;
+						break;
+					default:
+						throw new ArgumentException("Invalid ShadingStyle!");
 				}
 			}
 		}
@@ -232,7 +231,7 @@ namespace Arbatel.Controls
 			(int glslMajor, int glslMinor) = Shader.GetGlslVersion();
 
 			Shaders.Clear();
-			Shaders.Add(ShadingStyle.Wireframe, new FlatShader(glslMajor, glslMinor) { BackEnd = BackEnd });
+			Shaders.Add(ShadingStyle.Wireframe, new WireframeShader(glslMajor, glslMinor) { BackEnd = BackEnd });
 			Shaders.Add(ShadingStyle.Flat, new FlatShader(glslMajor, glslMinor) { BackEnd = BackEnd });
 			Shaders.Add(ShadingStyle.Textured, new SingleTextureShader(glslMajor, glslMinor) { BackEnd = BackEnd });
 

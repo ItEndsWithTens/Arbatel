@@ -2,6 +2,7 @@
 layout (location = 0) in vec3 position;
 layout (location = 1) in vec3 normal;
 layout (location = 2) in vec4 color;
+layout (location = 3) in vec2 texCoords;
 
 out vec4 vertexColor;
 
@@ -11,16 +12,6 @@ layout (std140) uniform Matrices
 	mat4 view;
 };
 uniform mat4 model;
-
-layout (std140) uniform TextureInfo
-{	
-	float textureWidth;
-	float textureHeight;
-	vec4 basisS;
-	vec4 basisT;
-	vec2 offset;
-	vec2 scale;
-};
 
 void main()
 {

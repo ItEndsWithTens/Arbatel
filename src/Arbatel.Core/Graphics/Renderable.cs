@@ -75,7 +75,6 @@ namespace Arbatel.Graphics
 		public Vector3 Normal;
 
 		public IntPtr IndexOffset;
-		public IntPtr TextureInfoOffset;
 
 		public Polygon()
 		{
@@ -372,6 +371,10 @@ namespace Arbatel.Graphics
 			return AABB;
 		}
 
+		public virtual void UpdateTextureCoordinates()
+		{
+		}
+
 		public void UpdateTextures(TextureDictionary textures)
 		{
 			foreach (var polygon in Polygons)
@@ -381,6 +384,8 @@ namespace Arbatel.Graphics
 					polygon.Texture = textures[polygon.Texture.Name];
 				}
 			}
+
+			UpdateTextureCoordinates();
 		}
 
 		public bool UpdateTranslucency(List<string> translucents)

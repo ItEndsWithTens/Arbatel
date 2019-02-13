@@ -67,6 +67,8 @@ namespace Arbatel.Graphics
 
 		public Color4 Color { get; set; }
 
+		public Vector2 TexCoords { get; set; }
+
 		public Vertex(Vertex vertex) : this(vertex.Position, vertex.Normal, vertex.Color)
 		{
 		}
@@ -85,11 +87,16 @@ namespace Arbatel.Graphics
 			this(position, new Vector3(0.0f, 0.0f, 1.0f), color)
 		{
 		}
-		public Vertex(Vector3 position, Vector3 normal, Color4 color)
+		public Vertex(Vector3 position, Vector3 normal, Color4 color) :
+			this(position, normal, color, new Vector2())
+		{
+		}
+		public Vertex(Vector3 position, Vector3 normal, Color4 color, Vector2 texCoords)
 		{
 			Position = position;
 			Normal = normal;
 			Color = color;
+			TexCoords = texCoords;
 		}
 
 		public static Vertex Rotate(Vertex vertex, float pitch, float yaw, float roll)

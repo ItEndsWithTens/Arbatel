@@ -1,4 +1,5 @@
 ﻿using OpenTK.Graphics.OpenGL4;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -14,6 +15,9 @@ namespace Arbatel.Graphics
 			major >= 3 && minor >= 3 ? "SingleTexture330.frag" : "SingleTexture120.frag")
 		{
 		}
+
+		private List<int> _indexCounts = new List<int>();
+		private List<IntPtr> _indexOffsets = new List<IntPtr>();
 
 		public override void DrawModel(IEnumerable<Renderable> renderables, Camera camera)
 		{
@@ -34,25 +38,24 @@ namespace Arbatel.Graphics
 					t
 					.GroupBy(pair => pair.Item2);
 
-				foreach (IGrouping<Renderable, (Polygon, Renderable)> r in byRenderable)
+				foreach (IGrouping<Renderable, (Polygon, Renderable)> pair in byRenderable)
 				{
-					SetUniform(LocationModelMatrix, r.Key.ModelMatrix);
+					SetUniform(LocationModelMatrix, pair.Key.ModelMatrix);
 
-					foreach ((Polygon p, _) in r)
+					_indexCounts.Clear();
+					_indexOffsets.Clear();
+					foreach ((Polygon p, _) in t)
 					{
-						GL.BindBufferRange(
-							BufferRangeTarget.UniformBuffer,
-							Ubos["TextureInfo"].bindingPoint,
-							Ubos["TextureInfo"].name,
-							p.TextureInfoOffset,
-							64);
-
-						GL.DrawElements(
-							PrimitiveType.Triangles,
-							p.Indices.Count,
-							DrawElementsType.UnsignedInt,
-							p.IndexOffset);
+						_indexCounts.Add(p.Indices.Count);
+						_indexOffsets.Add(p.IndexOffset);
 					}
+
+					GL.MultiDrawElements(
+						PrimitiveType.TriangleFan,
+						_indexCounts.ToArray(),
+						DrawElementsType.UnsignedInt,
+						_indexOffsets.ToArray(),
+						_indexCounts.Count);
 				}
 			}
 
@@ -72,24 +75,21 @@ namespace Arbatel.Graphics
 			{
 				GL.BindTexture(TextureTarget.Texture2D, BackEnd.Textures[t.Key.Name.ToLower()]);
 
+				_indexCounts.Clear();
+				_indexOffsets.Clear();
 				foreach ((Polygon p, _) in t)
 				{
-					GL.BindBufferRange(
-						BufferRangeTarget.UniformBuffer,
-						Ubos["TextureInfo"].bindingPoint,
-						Ubos["TextureInfo"].name,
-						p.TextureInfoOffset,
-						64);
-
-					GL.DrawElements(
-						PrimitiveType.Triangles,
-						p.Indices.Count,
-						DrawElementsType.UnsignedInt,
-						p.IndexOffset);
+					_indexCounts.Add(p.Indices.Count);
+					_indexOffsets.Add(p.IndexOffset);
 				}
-			}
 
-			GL.BindBuffer(BufferTarget.UniformBuffer, 0);
+				GL.MultiDrawElements(
+					PrimitiveType.TriangleFan,
+					_indexCounts.ToArray(),
+					DrawElementsType.UnsignedInt,
+					_indexOffsets.ToArray(),
+					_indexCounts.Count);
+			}
 		}
 	}
 }

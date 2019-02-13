@@ -22,7 +22,8 @@ namespace Arbatel.Graphics
 		{
 			{ "position", 0 },
 			{ "normal", 1 },
-			{ "color", 2 }
+			{ "color", 2 },
+			{ "texCoords", 3 }
 		};
 
 		public Shader()
@@ -90,10 +91,8 @@ namespace Arbatel.Graphics
 			}
 
 			Ubos.Add("Matrices", (0, GL.GetUniformBlockIndex(Program, "Matrices"), -1));
-			Ubos.Add("TextureInfo", (1, GL.GetUniformBlockIndex(Program, "TextureInfo"), -1));
 
 			GL.UniformBlockBinding(Program, Ubos["Matrices"].blockIndex, Ubos["Matrices"].bindingPoint);
-			GL.UniformBlockBinding(Program, Ubos["TextureInfo"].blockIndex, Ubos["TextureInfo"].bindingPoint);
 		}
 
 		public static (int major, int minor) GetGlslVersion()
@@ -139,12 +138,19 @@ namespace Arbatel.Graphics
 			GL.UseProgram(Program);
 		}
 
+		public virtual void Draw(IEnumerable<Renderable> world, IEnumerable<Renderable> model, Camera camera)
+		{
+			Use();
+			SetMatrices(camera);
+			DrawWorld(world, camera);
+			DrawModel(model, camera);
+		}
+
 		/// <summary>
 		/// Draw the specified renderables, respecting their model matrices.
 		/// </summary>
 		public virtual void DrawModel(IEnumerable<Renderable> renderables, Camera camera)
 		{
-			SetMatrices(camera);
 		}
 
 		/// <summary>
@@ -152,7 +158,6 @@ namespace Arbatel.Graphics
 		/// </summary>
 		public virtual void DrawWorld(IEnumerable<Renderable> renderables, Camera camera)
 		{
-			SetMatrices(camera);
 			SetUniform(LocationModelMatrix, Matrix4.Identity);
 		}
 

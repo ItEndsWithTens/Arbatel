@@ -1,28 +1,22 @@
 ﻿using OpenTK.Graphics;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Arbatel.Formats;
 
 namespace Arbatel.Graphics
 {
 	public class RenderableGenerator
 	{
-		public Color4 Color = Color4.White;
+		public Color4 Color { get; set; } = Color4.White;
 
-		public Transformability Transformability;
+		public Transformability Transformability { get; set; }
 
 		public RenderableGenerator()
 		{
 		}
-		public RenderableGenerator(Color4 _color)
+		public RenderableGenerator(Color4 color)
 		{
-			Color = _color;
+			Color = color;
 		}
 
-		virtual public Renderable Generate()
+		public virtual Renderable Generate()
 		{
 			return new Renderable();
 		}

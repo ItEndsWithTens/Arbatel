@@ -5,11 +5,12 @@ using System.Collections.Generic;
 namespace Arbatel.Graphics
 {
 	/// <summary>
-	/// A shader that draws polygons using their underlying vertex colors.
+	/// A shader that draws polygons as wire frames, using their underlying
+	/// vertex colors.
 	/// </summary>
-	public class FlatShader : Shader
+	public class WireframeShader : Shader
 	{
-		public FlatShader(int major, int minor) : base(
+		public WireframeShader(int major, int minor) : base(
 			major >= 3 && minor >= 3 ? "Flat330.vert" : "Flat120.vert",
 			major >= 3 && minor >= 3 ? "Flat330.frag" : "Flat120.frag")
 		{
@@ -35,7 +36,7 @@ namespace Arbatel.Graphics
 				}
 
 				GL.MultiDrawElements(
-					PrimitiveType.TriangleFan,
+					PrimitiveType.LineLoop,
 					_indexCounts.ToArray(),
 					DrawElementsType.UnsignedInt,
 					_indexOffsets.ToArray(),
@@ -59,7 +60,7 @@ namespace Arbatel.Graphics
 			}
 
 			GL.MultiDrawElements(
-				PrimitiveType.TriangleFan,
+				PrimitiveType.LineLoop,
 				_indexCounts.ToArray(),
 				DrawElementsType.UnsignedInt,
 				_indexOffsets.ToArray(),

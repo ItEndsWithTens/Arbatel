@@ -31,12 +31,6 @@ namespace Arbatel.Graphics
 			_position = AABB.Center;
 		}
 
-		/// <summary>
-		/// Construct polygons for the provided solid, triangulate them, and add
-		/// them to the specified Renderable.
-		/// </summary>
-		/// <param name="solid">The solid to build polygons for.</param>
-		/// <param name="renderable">The renderable that will contain the resulting polygons.</param>
 		private static void BuildPolygons(Solid solid, Renderable renderable)
 		{
 			foreach (Side side in solid.Sides)
@@ -46,64 +40,33 @@ namespace Arbatel.Graphics
 					continue;
 				}
 
+				var p = new Polygon
+				{
+					Texture = new Texture() { Name = side.TextureName.ToLower() },
+					BasisS = side.TextureBasis[0],
+					BasisT = side.TextureBasis[1],
+					Offset = new Vector2(side.TextureOffset.X, side.TextureOffset.Y),
+					Rotation = side.TextureRotation,
+					Scale = new Vector2(side.TextureScale.X, side.TextureScale.Y),
+
+					Normal = side.Plane.Normal
+				};
+
 				side.Vertices = MathUtilities.SortVertices(side.Vertices, side.Plane.Normal, Winding.Ccw);
 
-				foreach (Vertex sideVertex in side.Vertices)
+				for (int i = 0; i < side.Vertices.Count; i++)
 				{
-					bool renderableContainsSideVertex = false;
-					int index = 0;
-					for (int i = 0; i < renderable.Vertices.Count; i++)
-					{
-						Vertex renderableVertex = renderable.Vertices[i];
-						if (MathUtilities.ApproximatelyEquivalent(sideVertex.Position, renderableVertex.Position, Tolerance))
-						{
-							renderableContainsSideVertex = true;
-							index = i;
-							break;
-						}
-					}
+					Vertex v = side.Vertices[i];
+					v.Normal = p.Normal;
 
-					if (renderableContainsSideVertex)
-					{
-						side.Indices.Add(index);
-					}
-					else
-					{
-						renderable.Vertices.Add(sideVertex);
-						side.Indices.Add(renderable.Vertices.Count - 1);
-					}
+					renderable.Vertices.Add(v);
+					side.Indices.Add(renderable.Vertices.Count - 1);
+
+					p.Indices.Add(side.Indices[i]);
+					renderable.Indices.Add(side.Indices[i]);
 				}
 
-				var polygon = new Polygon();
-
-				// By this point, the side's vertices are sorted CCW, and the
-				// indices should reflect that. It should now just be a matter
-				// of breaking them into groups of three.
-				for (int i = 0; i < side.Vertices.Count - 2; i++)
-				{
-					int indexA = 0;
-					int indexB = i + 1;
-					int indexC = i + 2;
-
-					polygon.Indices.Add(side.Indices[indexA]);
-					polygon.Indices.Add(side.Indices[indexB]);
-					polygon.Indices.Add(side.Indices[indexC]);
-
-					renderable.Indices.Add(side.Indices[indexA]);
-					renderable.Indices.Add(side.Indices[indexB]);
-					renderable.Indices.Add(side.Indices[indexC]);
-				}
-
-				polygon.Texture = new Texture() { Name = side.TextureName.ToLower() };
-				polygon.BasisS = side.TextureBasis[0];
-				polygon.BasisT = side.TextureBasis[1];
-				polygon.Offset = new Vector2(side.TextureOffset.X, side.TextureOffset.Y);
-				polygon.Rotation = side.TextureRotation;
-				polygon.Scale = new Vector2(side.TextureScale.X, side.TextureScale.Y);
-
-				polygon.Normal = side.Plane.Normal;
-
-				renderable.Polygons.Add(polygon);
+				renderable.Polygons.Add(p);
 			}
 		}
 
@@ -121,7 +84,7 @@ namespace Arbatel.Graphics
 			{
 				Vector3 intersection = Plane.Intersect(combo.Select(n => sides[n].Plane));
 
-				if (!intersection.IsNaN() && IntersectionIsLegal(intersection, solid))
+				if (IntersectionIsLegal(intersection, solid))
 				{
 					for (int i = 0; i < 3; i++)
 					{
@@ -146,6 +109,26 @@ namespace Arbatel.Graphics
 			}
 		}
 
+		public override void UpdateTextureCoordinates()
+		{
+			foreach (Polygon p in Polygons)
+			{
+				foreach (int index in p.Indices)
+				{
+					Vertex v = Vertices[index];
+
+					v.TexCoords = new Vector2
+					{
+						X = (Vector3.Dot(v.Position, p.BasisS) + (p.Offset.X * p.Scale.X)) / (p.Texture.Width * p.Scale.X),
+						Y = (Vector3.Dot(v.Position, p.BasisT) + (p.Offset.Y * p.Scale.Y)) / (p.Texture.Height * p.Scale.Y)
+					};
+
+					Vertices[index] = v;
+				}
+			}
+			
+		}
+
 		/// <summary>
 		/// Determine whether the provided 3D point is valid, given the solid it
 		/// was calculated from.
@@ -168,6 +151,11 @@ namespace Arbatel.Graphics
 		/// </remarks>
 		private static bool IntersectionIsLegal(Vector3 intersection, Solid solid)
 		{
+			if (intersection.IsNaN())
+			{
+				return false;
+			}
+
 			bool inFront = false;
 
 			foreach (Side side in solid.Sides)
