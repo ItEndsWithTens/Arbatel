@@ -67,12 +67,18 @@ namespace Arbatel.Graphics
 				Console.Write("Error! Fragment shader compilation failed: " + log);
 			}
 
-			int shaderProgram = GL.CreateProgram();
-			GL.AttachShader(shaderProgram, vertexShader);
-			GL.AttachShader(shaderProgram, fragmentShader);
-			GL.LinkProgram(shaderProgram);
+			Program = GL.CreateProgram();
+			GL.AttachShader(Program, vertexShader);
+			GL.AttachShader(Program, fragmentShader);
 
-			log = GL.GetProgramInfoLog(shaderProgram);
+			foreach (KeyValuePair<string, int> location in Locations)
+			{
+				GL.BindAttribLocation(Program, location.Value, location.Key);
+			}
+
+			GL.LinkProgram(Program);
+
+			log = GL.GetProgramInfoLog(Program);
 			if (log != "")
 			{
 				Console.Write("Error! Shader program linking failed: " + log);
@@ -81,14 +87,7 @@ namespace Arbatel.Graphics
 			GL.DeleteShader(vertexShader);
 			GL.DeleteShader(fragmentShader);
 
-			Program = shaderProgram;
-
 			LocationModelMatrix = GL.GetUniformLocation(Program, "model");
-
-			foreach (KeyValuePair<string, int> location in Locations)
-			{
-				GL.BindAttribLocation(Program, location.Value, location.Key);
-			}
 
 			Ubos.Add("Matrices", (0, GL.GetUniformBlockIndex(Program, "Matrices"), -1));
 
