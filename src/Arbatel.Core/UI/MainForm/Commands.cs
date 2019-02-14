@@ -131,7 +131,13 @@ namespace Arbatel.UI
 			var dlgOpenFile = new OpenFileDialog()
 			{
 				MultiSelect = false,
-				Directory = Settings.Local.LastMapDirectory
+				Directory = Settings.Local.LastMapDirectory,
+				Filters =
+				{
+					new FileFilter("Quake map", ".map"),
+					new FileFilter("All files", ".*")
+				},
+				CurrentFilterIndex = 0
 			};
 
 			dlgOpenFile.ShowDialog(this);

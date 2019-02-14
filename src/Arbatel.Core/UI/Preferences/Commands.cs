@@ -23,10 +23,16 @@ namespace Arbatel.UI.Preferences
 
 		private void CmdAddFgd_Executed(object sender, EventArgs e)
 		{
-			var dlgAddFgd = new OpenFileDialog() { Directory = Settings.Local.LastFgdDirectory };
-			dlgAddFgd.Filters.Add(new FileFilter("Quake FGD", ".fgd"));
-			dlgAddFgd.Filters.Add(new FileFilter("All files", ".*"));
-			dlgAddFgd.CurrentFilterIndex = 0;
+			var dlgAddFgd = new OpenFileDialog
+			{
+				Directory = Settings.Local.LastFgdDirectory,
+				Filters =
+				{
+					new FileFilter("Quake FGD", ".fgd"),
+					new FileFilter("All files", ".*")
+				},
+				CurrentFilterIndex = 0
+			};
 
 			dlgAddFgd.ShowDialog(this);
 
@@ -47,7 +53,16 @@ namespace Arbatel.UI.Preferences
 
 		private void CmdAddWad_Executed(object sender, EventArgs e)
 		{
-			var dlgAddWad = new OpenFileDialog() { Directory = Settings.Local.LastWadDirectory };
+			var dlgAddWad = new OpenFileDialog
+			{
+				Directory = Settings.Local.LastWadDirectory,
+				Filters =
+				{
+					new FileFilter("Quake WAD", ".wad"),
+					new FileFilter("All files", ".*")
+				},
+				CurrentFilterIndex = 0
+			};
 
 			dlgAddWad.ShowDialog(this);
 

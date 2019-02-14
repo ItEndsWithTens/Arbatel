@@ -1,11 +1,6 @@
 ﻿using Eto;
 using Eto.Drawing;
 using Eto.Forms;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Arbatel.UI.Preferences
 {
@@ -36,7 +31,12 @@ namespace Arbatel.UI.Preferences
 				}
 			};
 
-			var btnBuiltInPalette = new RadioButton { Text = "Built-in", Checked = true, ID = "btnBuiltInPalette" };
+			var btnBuiltInPalette = new RadioButton
+			{
+				Text = "Built-in",
+				Checked = true,
+				ID = "btnBuiltInPalette"
+			};
 			btnBuiltInPalette.CheckedChanged += (sender, e) =>
 			{
 				var drpPalette = FindChild<DropDown>("drpPalette");
@@ -51,7 +51,11 @@ namespace Arbatel.UI.Preferences
 				}
 			};
 
-			var btnCustomPalette = new RadioButton(btnBuiltInPalette) { Text = "Custom", ID = "btnCustomPalette" };
+			var btnCustomPalette = new RadioButton(btnBuiltInPalette)
+			{
+				Text = "Custom",
+				ID = "btnCustomPalette"
+			};
 			btnCustomPalette.CheckedChanged += (sender, e) =>
 			{
 				var fpkPalette = FindChild<FilePicker>("fpkPalette");
@@ -71,14 +75,24 @@ namespace Arbatel.UI.Preferences
 				Spacing = new Size(MasterPadding, 0)
 			};
 			tblBuiltInPalette.Add(btnBuiltInPalette, 0, 0);
-			tblBuiltInPalette.Add(new DropDown() { Items = { "Quake" }, SelectedIndex = 0, ID = "drpPalette" }, 1, 0);
+			tblBuiltInPalette.Add(new DropDown
+			{
+				Items = { "Quake" },
+				SelectedIndex = 0,
+				ID = "drpPalette"
+			}, 1, 0);
 
 			var tblCustomPalette = new TableLayout(2, 1)
 			{
 				Spacing = new Size(MasterPadding, 0)
 			};
 			tblCustomPalette.Add(btnCustomPalette, 0, 0);
-			tblCustomPalette.Add(new FilePicker() { FileAction = FileAction.OpenFile, Enabled = false, ID = "fpkPalette" }, 1, 0);
+			tblCustomPalette.Add(new FilePicker
+			{
+				FileAction = FileAction.OpenFile,
+				Enabled = false,
+				ID = "fpkPalette"
+			}, 1, 0);
 
 			var stkPalette = new StackLayout
 			{
