@@ -236,13 +236,13 @@ namespace ArbatelTest.Core.NeedsEto.Features.Instance
 				});
 
 				// Should be at 136, -120, 8 before rotation.
-				Vertex vertex6 = box.Vertices[6].ModelToWorld(box.ModelMatrix);
-				var expected6 = new Vector3(118.8512517f, -120.0f, 72.0f);
+				Vertex vertex18 = box.Vertices[18].ModelToWorld(box.ModelMatrix);
+				var expected18 = new Vector3(118.8512517f, -120.0f, 72.0f);
 				Assert.Multiple(() =>
 				{
-					Assert.That(vertex6.Position.X, Is.EqualTo(expected6.X).Within(Tolerance));
-					Assert.That(vertex6.Position.Y, Is.EqualTo(expected6.Y).Within(Tolerance));
-					Assert.That(vertex6.Position.Z, Is.EqualTo(expected6.Z).Within(Tolerance));
+					Assert.That(vertex18.Position.X, Is.EqualTo(expected18.X).Within(Tolerance));
+					Assert.That(vertex18.Position.Y, Is.EqualTo(expected18.Y).Within(Tolerance));
+					Assert.That(vertex18.Position.Z, Is.EqualTo(expected18.Z).Within(Tolerance));
 				});
 			}
 		}
@@ -472,13 +472,13 @@ namespace ArbatelTest.Core.NeedsEto.Features.Instance
 				});
 
 				// Should be at 136, -120, 8 before rotation.
-				Vertex vertex6 = box.Vertices[6].ModelToWorld(box.ModelMatrix);
-				var expected6 = new Vector3(164.7673435f, -82.509668f, 8.0f);
+				Vertex vertex18 = box.Vertices[18].ModelToWorld(box.ModelMatrix);
+				var expected18 = new Vector3(164.7673435f, -82.509668f, 8.0f);
 				Assert.Multiple(() =>
 				{
-					Assert.That(vertex6.Position.X, Is.EqualTo(expected6.X).Within(Tolerance));
-					Assert.That(vertex6.Position.Y, Is.EqualTo(expected6.Y).Within(Tolerance));
-					Assert.That(vertex6.Position.Z, Is.EqualTo(expected6.Z).Within(Tolerance));
+					Assert.That(vertex18.Position.X, Is.EqualTo(expected18.X).Within(Tolerance));
+					Assert.That(vertex18.Position.Y, Is.EqualTo(expected18.Y).Within(Tolerance));
+					Assert.That(vertex18.Position.Z, Is.EqualTo(expected18.Z).Within(Tolerance));
 				});
 			}
 		}
@@ -708,13 +708,13 @@ namespace ArbatelTest.Core.NeedsEto.Features.Instance
 				});
 
 				// Should be at 136, -120, 8 before rotation.
-				Vertex vertex6 = box.Vertices[6].ModelToWorld(box.ModelMatrix);
-				var expected6 = new Vector3(136.0f, -112.2806555f, 51.7785784f);
+				Vertex vertex18 = box.Vertices[18].ModelToWorld(box.ModelMatrix);
+				var expected18 = new Vector3(136.0f, -112.2806555f, 51.7785784f);
 				Assert.Multiple(() =>
 				{
-					Assert.That(vertex6.Position.X, Is.EqualTo(expected6.X).Within(Tolerance));
-					Assert.That(vertex6.Position.Y, Is.EqualTo(expected6.Y).Within(Tolerance));
-					Assert.That(vertex6.Position.Z, Is.EqualTo(expected6.Z).Within(Tolerance));
+					Assert.That(vertex18.Position.X, Is.EqualTo(expected18.X).Within(Tolerance));
+					Assert.That(vertex18.Position.Y, Is.EqualTo(expected18.Y).Within(Tolerance));
+					Assert.That(vertex18.Position.Z, Is.EqualTo(expected18.Z).Within(Tolerance));
 				});
 			}
 		}

@@ -89,7 +89,7 @@ namespace ArbatelTest.Core.NeedsEto.Formats
 
 				Assert.That(qmo.KeyVals.Count, Is.EqualTo(2));
 
-				Assert.That(qmo.Renderables[0].Vertices.Count, Is.EqualTo(8));
+				Assert.That(qmo.Renderables[0].Vertices.Count, Is.EqualTo(24));
 
 				var indexCount = 0;
 				foreach (var polygon in qmo.Renderables[0].Polygons)
@@ -97,7 +97,7 @@ namespace ArbatelTest.Core.NeedsEto.Formats
 					indexCount += polygon.Indices.Count;
 				}
 
-				Assert.That(indexCount, Is.EqualTo(36));
+				Assert.That(indexCount, Is.EqualTo(24));
 			}
 
 			public class OpenBraceInTextureName
