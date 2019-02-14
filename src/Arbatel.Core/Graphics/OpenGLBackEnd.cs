@@ -60,7 +60,6 @@ namespace Arbatel.Graphics
 
 			GL.BindVertexArray(0);
 		}
-
 		public void DrawMapFlat(Map map, Dictionary<ShadingStyle, Shader> shaders, ShadingStyle style, View view, Camera camera)
 		{
 			IEnumerable<MapObject> visible = camera.GetVisibleMapObjects(map.AllObjects);
@@ -256,36 +255,33 @@ namespace Arbatel.Graphics
 			}
 		}
 
-		public override void InitTextures(TextureDictionary dictionary)
+		public override void InitTexture(Texture t)
 		{
-			foreach (Texture t in dictionary.Values)
-			{
-				if (Textures.ContainsKey(t.Name))
-				{
-					continue;
-				}
+			GL.GenTextures(1, out int id);
+			Textures.Add(t.Name, id);
 
-				GL.GenTextures(1, out int id);
-				Textures.Add(t.Name, id);
-
-				GL.BindTexture(TextureTarget.Texture2D, id);
-				GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba, t.Width, t.Height, 0, PixelFormat.Rgba, PixelType.UnsignedByte, t.ToUncompressed(Eto.Drawing.PixelFormat.Format32bppRgba, flip: true));
-				GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.Repeat);
-				GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.Repeat);
-				GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Nearest);
-				GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.NearestMipmapLinear);
-				GL.GenerateMipmap(GenerateMipmapTarget.Texture2D);
-				GL.BindTexture(TextureTarget.Texture2D, 0);
-			}
+			GL.BindTexture(TextureTarget.Texture2D, id);
+			GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba, t.Width, t.Height, 0, PixelFormat.Rgba, PixelType.UnsignedByte, t.ToUncompressed(Eto.Drawing.PixelFormat.Format32bppRgba, flip: true));
+			GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.Repeat);
+			GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.Repeat);
+			GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Nearest);
+			GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.NearestMipmapLinear);
+			GL.GenerateMipmap(GenerateMipmapTarget.Texture2D);
+			GL.BindTexture(TextureTarget.Texture2D, 0);
 		}
-		public override void DeleteTextures(TextureDictionary dictionary)
+		public override void DeleteTexture(Texture t)
 		{
-			foreach (Texture t in dictionary.Values)
-			{
-				GL.DeleteTexture(Textures[t.Name]);
+			DeleteTexture(t.Name);
+		}
+		public override void DeleteTexture(string name)
+		{
+			DeleteTexture(Textures[name]);
 
-				Textures.Remove(t.Name);
-			}
+			Textures.Remove(name);
+		}
+		public override void DeleteTexture(int id)
+		{
+			GL.DeleteTexture(id);
 		}
 	}
 }

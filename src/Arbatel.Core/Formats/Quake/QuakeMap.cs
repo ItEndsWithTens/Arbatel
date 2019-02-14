@@ -238,6 +238,8 @@ namespace Arbatel.Formats.Quake
 			}
 
 			Textures = textures.Values.ToList().Stack();
+
+			base.UpdateFromSettings(settings);
 		}
 	}
 }

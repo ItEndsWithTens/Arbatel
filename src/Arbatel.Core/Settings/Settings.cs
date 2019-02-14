@@ -8,6 +8,7 @@ namespace Arbatel
 	public interface IUpdateFromSettings
 	{
 		void UpdateFromSettings(Settings settings);
+		event EventHandler Updated;
 	}
 
 	public class Settings

@@ -15,6 +15,8 @@ namespace Arbatel.Graphics
 
 		public virtual void InitMap(Map map, List<View> views)
 		{
+			map.Updated += Map_Updated;
+
 			foreach (View view in views)
 			{
 				InitMap(map, view);
@@ -25,6 +27,8 @@ namespace Arbatel.Graphics
 		}
 		public virtual void DeleteMap(Map map, IEnumerable<View> views)
 		{
+			map.Updated -= Map_Updated;
+
 			DeleteTextures(map.Textures);
 
 			foreach (View view in views)
@@ -43,9 +47,54 @@ namespace Arbatel.Graphics
 
 		public virtual void InitTextures(TextureDictionary dictionary)
 		{
+			foreach (Texture t in dictionary.Values)
+			{
+				if (Textures.ContainsKey(t.Name))
+				{
+					continue;
+				}
+
+				InitTexture(t);
+			}
+		}
+		public virtual void InitTexture(Texture texture)
+		{
+		}
+		public virtual void DeleteTextures()
+		{
+			foreach (KeyValuePair<string, int> pair in Textures)
+			{
+				DeleteTexture(pair.Value);
+			}
+
+			Textures.Clear();
 		}
 		public virtual void DeleteTextures(TextureDictionary dictionary)
 		{
+			foreach (Texture t in dictionary.Values)
+			{
+				DeleteTexture(t);
+			}
+		}
+		public virtual void DeleteTexture(Texture texture)
+		{
+			DeleteTexture(texture.Name);
+		}
+		public virtual void DeleteTexture(string name)
+		{
+		}
+		public virtual void DeleteTexture(int id)
+		{
+		}
+
+		private void Map_Updated(object sender, EventArgs e)
+		{
+			if (sender is Map m)
+			{
+				DeleteTextures();
+
+				InitTextures(m.Textures);
+			}
 		}
 	}
 }

@@ -113,6 +113,8 @@ namespace Arbatel.Controls
 			}
 		}
 
+		public event EventHandler Updated;
+
 		public View()
 		{
 			GraphicsClock.Elapsed += GraphicsClock_Elapsed;
@@ -165,6 +167,17 @@ namespace Arbatel.Controls
 				Controller.InvertMouseX = settings.Roaming.InvertMouseX;
 				Controller.InvertMouseY = settings.Roaming.InvertMouseY;
 			}
+
+			OnUpdated();
+		}
+
+		protected virtual void OnUpdated()
+		{
+			OnUpdated(new EventArgs());
+		}
+		protected virtual void OnUpdated(EventArgs e)
+		{
+			Updated?.Invoke(this, e);
 		}
 	}
 }

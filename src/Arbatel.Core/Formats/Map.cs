@@ -59,6 +59,8 @@ namespace Arbatel.Formats
 			}
 		}
 
+		public event EventHandler Updated;
+
 		public Map()
 		{
 		}
@@ -185,6 +187,16 @@ namespace Arbatel.Formats
 
 		public virtual void UpdateFromSettings(Settings settings)
 		{
+			OnUpdated();
+		}
+
+		protected virtual void OnUpdated()
+		{
+			OnUpdated(new EventArgs());
+		}
+		protected virtual void OnUpdated(EventArgs e)
+		{
+			Updated?.Invoke(this, e);
 		}
 	}
 }
