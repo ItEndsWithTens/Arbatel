@@ -185,6 +185,8 @@ namespace Arbatel.Graphics
 		}
 		protected override void DeleteMap(Map map, View view)
 		{
+			base.DeleteMap(map, view);
+
 			if (!Buffers.ContainsKey((map, view)))
 			{
 				return;

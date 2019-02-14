@@ -392,5 +392,11 @@ namespace Arbatel.Graphics
 
 			return _visiblePolygons;
 		}
+
+		public void Clear()
+		{
+			_visibleMapObjects.Clear();
+			_visiblePolygons.Clear();
+		}
 	}
 }

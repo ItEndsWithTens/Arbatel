@@ -34,6 +34,7 @@ namespace Arbatel.Graphics
 		}
 		protected virtual void DeleteMap(Map map, View view)
 		{
+			view.Camera.Clear();
 		}
 
 		public virtual void InitRenderables(Buffers buffers, IEnumerable<Renderable> renderables, Map map, View view)
