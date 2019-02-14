@@ -51,20 +51,24 @@ namespace Arbatel.Graphics
 			GL.ShaderSource(vertexShader, vertex);
 			GL.CompileShader(vertexShader);
 
-			string log = GL.GetShaderInfoLog(vertexShader);
-			if (log != "")
+			GL.GetShader(vertexShader, ShaderParameter.CompileStatus, out int compileSuccess);
+			if (compileSuccess == 0)
 			{
-				Console.Write("Error! Vertex shader compilation failed: " + log);
+				string log = GL.GetShaderInfoLog(vertexShader);
+
+				throw new GraphicsException($"Vertex shader compilation failed! Error message:\n\n{log}");
 			}
 
 			int fragmentShader = GL.CreateShader(ShaderType.FragmentShader);
 			GL.ShaderSource(fragmentShader, fragment);
 			GL.CompileShader(fragmentShader);
 
-			log = GL.GetShaderInfoLog(fragmentShader);
-			if (log != "")
+			GL.GetShader(fragmentShader, ShaderParameter.CompileStatus, out compileSuccess);
+			if (compileSuccess == 0)
 			{
-				Console.Write("Error! Fragment shader compilation failed: " + log);
+				string log = GL.GetShaderInfoLog(fragmentShader);
+
+				throw new GraphicsException($"Fragment shader compilation failed! Error message:\n\n{log}");
 			}
 
 			Program = GL.CreateProgram();
@@ -78,10 +82,12 @@ namespace Arbatel.Graphics
 
 			GL.LinkProgram(Program);
 
-			log = GL.GetProgramInfoLog(Program);
-			if (log != "")
+			GL.GetShader(Program, ShaderParameter.CompileStatus, out compileSuccess);
+			if (compileSuccess == 0)
 			{
-				Console.Write("Error! Shader program linking failed: " + log);
+				string log = GL.GetProgramInfoLog(Program);
+
+				throw new GraphicsException($"Shader program linking failed! Error message:\n\n{log}");
 			}
 
 			GL.DeleteShader(vertexShader);
