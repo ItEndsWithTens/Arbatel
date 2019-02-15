@@ -4,6 +4,7 @@ layout (location = 1) in vec3 normal;
 layout (location = 2) in vec4 color;
 layout (location = 3) in vec2 texCoords;
 
+out vec4 colorFromVert;
 out vec2 texCoordsFromVert;
 
 layout (std140) uniform Matrices
@@ -21,5 +22,6 @@ void main()
 	vec3 yUpRightHand = vec3(position.x, position.z, -position.y);
 	gl_Position = projection * view * model * vec4(yUpRightHand, 1.0f);
 
+	colorFromVert = color;
 	texCoordsFromVert = texCoords;
 }

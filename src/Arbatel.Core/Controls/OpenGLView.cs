@@ -1,4 +1,5 @@
-﻿using Arbatel.Graphics;
+﻿using Arbatel.Formats;
+using Arbatel.Graphics;
 using Eto;
 using Eto.Forms;
 using Eto.Gl;
@@ -24,6 +25,29 @@ namespace Arbatel.Controls
 				GL.Disable(EnableCap.Blend);
 
 				GL.ClearColor(1.0f, 0.0f, 0.0f, 1.0f);
+
+				if (o.Map != null)
+				{
+					IEnumerable<Renderable> renderables = o.Map.MapObjects.GetAllRenderables();
+					foreach (Renderable r in renderables)
+					{
+						if (r.Selected)
+						{
+							r.SetColor(r.Colors[ShadingStyle.Wireframe].selected);
+						}
+						else
+						{
+							if (r.Tint != null)
+							{
+								r.SetColor(r.Tint.Value);
+							}
+							else
+							{
+								r.SetColor(r.Colors[ShadingStyle.Wireframe].deselected);
+							}
+						}
+					}
+				}
 			}
 		});
 
@@ -40,6 +64,29 @@ namespace Arbatel.Controls
 				GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
 
 				GL.ClearColor(0.0f, 1.0f, 0.0f, 1.0f);
+
+				if (o.Map != null)
+				{
+					IEnumerable<Renderable> renderables = o.Map.MapObjects.GetAllRenderables();
+					foreach (Renderable r in renderables)
+					{
+						if (r.Selected)
+						{
+							r.SetColor(r.Colors[ShadingStyle.Flat].selected);
+						}
+						else
+						{
+							if (r.Tint != null)
+							{
+								r.SetColor(r.Tint.Value);
+							}
+							else
+							{
+								r.SetColor(r.Colors[ShadingStyle.Flat].deselected);
+							}
+						}
+					}
+				}
 			}
 		});
 
@@ -56,6 +103,29 @@ namespace Arbatel.Controls
 				GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
 
 				GL.ClearColor(0.0f, 0.0f, 1.0f, 1.0f);
+
+				if (o.Map != null)
+				{
+					IEnumerable<Renderable> renderables = o.Map.MapObjects.GetAllRenderables();
+					foreach (Renderable r in renderables)
+					{
+						if (r.Selected)
+						{
+							r.SetColor(r.Colors[ShadingStyle.Textured].selected);
+						}
+						else
+						{
+							if (r.Tint != null)
+							{
+								r.SetColor(r.Tint.Value);
+							}
+							else
+							{
+								r.SetColor(r.Colors[ShadingStyle.Textured].deselected);
+							}
+						}
+					}
+				}
 			}
 		});
 
@@ -171,7 +241,7 @@ namespace Arbatel.Controls
 			{
 				Camera.AspectRatio = (float)Width / (float)Height;
 
-				BackEnd.DrawMap(Map, Shaders, ShadingStyle, this, Camera);
+				BackEnd.DrawMap(Map, Shaders, this, Camera);
 			}
 
 			(Content as GLSurface).SwapBuffers();

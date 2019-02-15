@@ -62,6 +62,8 @@ namespace Arbatel.Controls
 						v.Map = _map;
 					}
 				}
+
+				Views[View].SetUp.Invoke(Views[View].Control);
 			}
 		}
 

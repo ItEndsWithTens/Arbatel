@@ -33,44 +33,44 @@ namespace Arbatel.Graphics
 			var modelVerts = new List<Vertex>()
 			{
 				// Top SE
-				new Vertex(halfWidth, 0.0f, 0.0f, Color),
-				new Vertex(0.0f, 0.0f, halfHeight, Color),
-				new Vertex(0.0f, -halfDepth, 0.0f, Color),
+				new Vertex(halfWidth, 0.0f, 0.0f),
+				new Vertex(0.0f, 0.0f, halfHeight),
+				new Vertex(0.0f, -halfDepth, 0.0f),
 
 				// Top NE
-				new Vertex(0.0f, halfDepth, 0.0f, Color),
-				new Vertex(0.0f, 0.0f, halfHeight, Color),
-				new Vertex(halfWidth, 0.0f, 0.0f, Color),
+				new Vertex(0.0f, halfDepth, 0.0f),
+				new Vertex(0.0f, 0.0f, halfHeight),
+				new Vertex(halfWidth, 0.0f, 0.0f),
 
 				// Top NW
-				new Vertex(-halfWidth, 0.0f, 0.0f, Color),
-				new Vertex(0.0f, 0.0f, halfHeight, Color),
-				new Vertex(0.0f, halfDepth, 0.0f, Color),
+				new Vertex(-halfWidth, 0.0f, 0.0f),
+				new Vertex(0.0f, 0.0f, halfHeight),
+				new Vertex(0.0f, halfDepth, 0.0f),
 
 				// Top SW
-				new Vertex(0.0f, -halfDepth, 0.0f, Color),
-				new Vertex(0.0f, 0.0f, halfHeight, Color),
-				new Vertex(-halfWidth, 0.0f, 0.0f, Color),
+				new Vertex(0.0f, -halfDepth, 0.0f),
+				new Vertex(0.0f, 0.0f, halfHeight),
+				new Vertex(-halfWidth, 0.0f, 0.0f),
 
 				// Bottom NW
-				new Vertex(0.0f, halfDepth, 0.0f, Color),
-				new Vertex(0.0f, 0.0f, -halfHeight, Color),
-				new Vertex(-halfWidth, 0.0f, 0.0f, Color),
+				new Vertex(0.0f, halfDepth, 0.0f),
+				new Vertex(0.0f, 0.0f, -halfHeight),
+				new Vertex(-halfWidth, 0.0f, 0.0f),
 
 				// Bottom NE
-				new Vertex(halfWidth, 0.0f, 0.0f, Color),
-				new Vertex(0.0f, 0.0f, -halfHeight, Color),
-				new Vertex(0.0f, halfDepth, 0.0f, Color),
+				new Vertex(halfWidth, 0.0f, 0.0f),
+				new Vertex(0.0f, 0.0f, -halfHeight),
+				new Vertex(0.0f, halfDepth, 0.0f),
 
 				// Bottom SE
-				new Vertex(0.0f, -halfDepth, 0.0f, Color),
-				new Vertex(0.0f, 0.0f, -halfHeight, Color),
-				new Vertex(halfWidth, 0.0f, 0.0f, Color),
+				new Vertex(0.0f, -halfDepth, 0.0f),
+				new Vertex(0.0f, 0.0f, -halfHeight),
+				new Vertex(halfWidth, 0.0f, 0.0f),
 
 				// Bottom SW
-				new Vertex(-halfWidth, 0.0f, 0.0f, Color),
-				new Vertex(0.0f, 0.0f, -halfHeight, Color),
-				new Vertex(0.0f, -halfDepth, 0.0f, Color)
+				new Vertex(-halfWidth, 0.0f, 0.0f),
+				new Vertex(0.0f, 0.0f, -halfHeight),
+				new Vertex(0.0f, -halfDepth, 0.0f)
 			};
 
 			var gem = new Renderable(modelVerts)
@@ -78,6 +78,10 @@ namespace Arbatel.Graphics
 				CoordinateSpace = CoordinateSpace.Model,
 				ShadingStyleDict = new Dictionary<ShadingStyle, ShadingStyle>().Capped(ShadingStyle.Flat)
 			};
+
+			gem.Colors[ShadingStyle.Wireframe] = (Color, gem.Colors[ShadingStyle.Wireframe].selected);
+			gem.Colors[ShadingStyle.Flat] = (Color, gem.Colors[ShadingStyle.Flat].selected);
+			gem.Colors[ShadingStyle.Textured] = (Color, gem.Colors[ShadingStyle.Textured].selected);
 
 			for (int i = 0; i < 24; i += 3)
 			{

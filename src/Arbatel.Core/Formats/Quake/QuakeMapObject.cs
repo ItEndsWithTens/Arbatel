@@ -1,15 +1,11 @@
-﻿using OpenTK;
+﻿using Arbatel.Formats.Quake;
+using Arbatel.Graphics;
+using Arbatel.Utilities;
+using OpenTK;
 using OpenTK.Graphics;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Arbatel.Controls;
-using Arbatel.Formats.Quake;
-using Arbatel.Graphics;
-using Arbatel.Utilities;
 
 namespace Arbatel.Formats
 {
@@ -20,7 +16,7 @@ namespace Arbatel.Formats
 			var collapsed = new QuakeMapObject(mo);
 			collapsed.Children.Clear();
 
-			foreach (var child in mo.Children)
+			foreach (MapObject child in mo.Children)
 			{
 				collapsed.Children.AddRange(new QuakeMapObject(child).Collapse());
 			}
@@ -34,7 +30,7 @@ namespace Arbatel.Formats
 				collapsed.Saveability = Saveability.Children;
 			}
 
-			var onlyChildren = collapsed.Saveability == Saveability.Children;
+			bool onlyChildren = collapsed.Saveability == Saveability.Children;
 			return onlyChildren ? collapsed.Children : new List<MapObject>() { collapsed };
 		}
 	}
@@ -67,8 +63,7 @@ namespace Arbatel.Formats
 			}
 			else
 			{
-				var message = "Provided Block isn't actually a QuakeBlock!";
-				throw new ArgumentException(message);
+				throw new ArgumentException("Provided Block isn't actually a QuakeBlock!");
 			}
 
 			KeyVals = new Dictionary<string, Option>(quakeBlock.KeyVals);
@@ -86,7 +81,7 @@ namespace Arbatel.Formats
 
 			TextureCollection = textures;
 
-			foreach (var child in quakeBlock.Children)
+			foreach (Block child in quakeBlock.Children)
 			{
 				if (child.KeyVals.Count > 0)
 				{
@@ -122,7 +117,7 @@ namespace Arbatel.Formats
 			// and unknown solid entities, which can be treated the same way.
 			if (b.Solids.Count > 0)
 			{
-				foreach (var solid in b.Solids)
+				foreach (Solid solid in b.Solids)
 				{
 					Renderables.Add(new QuakeBrush(solid));
 				}
@@ -145,20 +140,20 @@ namespace Arbatel.Formats
 
 					string path = KeyVals[key].Value;
 
-					if (path.EndsWith(".map"))
+					if (path.EndsWith(".map", StringComparison.OrdinalIgnoreCase))
 					{
-						var oldCwd = Directory.GetCurrentDirectory();
-						var instancePath = oldCwd + Path.DirectorySeparatorChar + path;
+						string oldCwd = Directory.GetCurrentDirectory();
+						string instancePath = oldCwd + Path.DirectorySeparatorChar + path;
 
 						QuakeMap map;
-						using (var stream = new FileStream(instancePath, FileMode.Open, FileAccess.Read))
+						using (FileStream stream = File.OpenRead(instancePath))
 						{
-							map = new QuakeMap(stream, Definition.DefinitionCollection);//, TextureCollection);
+							map = new QuakeMap(stream, Definition.DefinitionCollection);
 						}
 						map.Transform(this);
 						UserData = map;
 
-						foreach (var mo in map.MapObjects)
+						foreach (MapObject mo in map.AllObjects)
 						{
 							var modified = new QuakeMapObject(mo);
 							if (mo.KeyVals["classname"].Value == "worldspawn")
@@ -166,16 +161,29 @@ namespace Arbatel.Formats
 								modified.Saveability = Saveability.Solids;
 							}
 
+							if (mo.Definition.ClassName == "func_instance")
+							{
+								// Top level point entity renderables for an
+								// instance should stay orange...
+								foreach (Renderable r in mo.Renderables)
+								{
+									r.Tint = Color4.Orange;
+								}
+							}
+							else
+							{
+								// ...but any children should be tinted yellow.
+								foreach (Renderable r in mo.GetAllRenderables())
+								{
+									r.Tint = Color4.Yellow;
+								}
+							}
+
 							Children.Add(modified);
 						}
 
 						// Create a simple box to mark this instance's origin.
-						var generator = new BoxGenerator()
-						{
-							Color = Color4.Orange
-						};
-
-						var box = generator.Generate();
+						Renderable box = new BoxGenerator(Color4.Orange).Generate();
 						box.Position = new Vector3(x, y, z);
 						box.Transformability = Definition.RenderableTransformability;
 
@@ -190,7 +198,7 @@ namespace Arbatel.Formats
 				{
 					Aabb s = Definition.Size;
 
-					var box = new BoxGenerator(s.Min, s.Max, Definition.Color).Generate();
+					Renderable box = new BoxGenerator(s.Min, s.Max, Definition.Color).Generate();
 
 					box.Position = Position;
 

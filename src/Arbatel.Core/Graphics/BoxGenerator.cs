@@ -10,13 +10,16 @@ namespace Arbatel.Graphics
 		public Vector3 Min { get; set; }
 		public Vector3 Max { get; set; }
 
-		public BoxGenerator() : this(16.0f)
+		public BoxGenerator() : this(Color4.Yellow)
 		{
 		}
-		public BoxGenerator(float size) : this(size, size, size)
+		public BoxGenerator(Color4 color) : this(16.0f, color)
 		{
 		}
-		public BoxGenerator(float width, float depth, float height) : base()
+		public BoxGenerator(float size, Color4 color) : this(size, size, size, color)
+		{
+		}
+		public BoxGenerator(float width, float depth, float height, Color4 color) : base()
 		{
 			float Width = width;
 			float Depth = depth;
@@ -28,6 +31,8 @@ namespace Arbatel.Graphics
 
 			Min = new Vector3(-halfWidth, -halfDepth, -halfHeight);
 			Max = new Vector3(halfWidth, halfDepth, halfHeight);
+
+			Color = color;
 		}
 		public BoxGenerator(Vector3 min, Vector3 max)
 		{
@@ -46,40 +51,40 @@ namespace Arbatel.Graphics
 			var modelVerts = new List<Vertex>()
 			{
 				// Bottom
-				new Vertex(Min.X, Min.Y, Min.Z, Color),
-				new Vertex(Min.X, Max.Y, Min.Z, Color),
-				new Vertex(Max.X, Max.Y, Min.Z, Color),
-				new Vertex(Max.X, Min.Y, Min.Z, Color),
+				new Vertex(Min.X, Min.Y, Min.Z),
+				new Vertex(Min.X, Max.Y, Min.Z),
+				new Vertex(Max.X, Max.Y, Min.Z),
+				new Vertex(Max.X, Min.Y, Min.Z),
 
 				// Top
-				new Vertex(Max.X, Min.Y, Max.Z, Color),
-				new Vertex(Max.X, Max.Y, Max.Z, Color),
-				new Vertex(Min.X, Max.Y, Max.Z, Color),
-				new Vertex(Min.X, Min.Y, Max.Z, Color),
+				new Vertex(Max.X, Min.Y, Max.Z),
+				new Vertex(Max.X, Max.Y, Max.Z),
+				new Vertex(Min.X, Max.Y, Max.Z),
+				new Vertex(Min.X, Min.Y, Max.Z),
 
 				// Left
-				new Vertex(Min.X, Min.Y, Min.Z, Color),
-				new Vertex(Min.X, Min.Y, Max.Z, Color),
-				new Vertex(Min.X, Max.Y, Max.Z, Color),
-				new Vertex(Min.X, Max.Y, Min.Z, Color),
+				new Vertex(Min.X, Min.Y, Min.Z),
+				new Vertex(Min.X, Min.Y, Max.Z),
+				new Vertex(Min.X, Max.Y, Max.Z),
+				new Vertex(Min.X, Max.Y, Min.Z),
 
 				// Right
-				new Vertex(Max.X, Max.Y, Min.Z, Color),
-				new Vertex(Max.X, Max.Y, Max.Z, Color),
-				new Vertex(Max.X, Min.Y, Max.Z, Color),
-				new Vertex(Max.X, Min.Y, Min.Z, Color),
+				new Vertex(Max.X, Max.Y, Min.Z),
+				new Vertex(Max.X, Max.Y, Max.Z),
+				new Vertex(Max.X, Min.Y, Max.Z),
+				new Vertex(Max.X, Min.Y, Min.Z),
 
 				// Front
-				new Vertex(Min.X, Max.Y, Min.Z, Color),
-				new Vertex(Min.X, Max.Y, Max.Z, Color),
-				new Vertex(Max.X, Max.Y, Max.Z, Color),
-				new Vertex(Max.X, Max.Y, Min.Z, Color),
+				new Vertex(Min.X, Max.Y, Min.Z),
+				new Vertex(Min.X, Max.Y, Max.Z),
+				new Vertex(Max.X, Max.Y, Max.Z),
+				new Vertex(Max.X, Max.Y, Min.Z),
 
 				// Back
-				new Vertex(Max.X, Min.Y, Min.Z, Color),
-				new Vertex(Max.X, Min.Y, Max.Z, Color),
-				new Vertex(Min.X, Min.Y, Max.Z, Color),
-				new Vertex(Min.X, Min.Y, Min.Z, Color)
+				new Vertex(Max.X, Min.Y, Min.Z),
+				new Vertex(Max.X, Min.Y, Max.Z),
+				new Vertex(Min.X, Min.Y, Max.Z),
+				new Vertex(Min.X, Min.Y, Min.Z)
 			};
 
 			var box = new Renderable(modelVerts)
@@ -87,6 +92,10 @@ namespace Arbatel.Graphics
 				CoordinateSpace = CoordinateSpace.Model,
 				ShadingStyleDict = new Dictionary<ShadingStyle, ShadingStyle>().Capped(ShadingStyle.Flat)
 			};
+
+			box.Colors[ShadingStyle.Wireframe] = (Color, box.Colors[ShadingStyle.Wireframe].selected);
+			box.Colors[ShadingStyle.Flat] = (Color, box.Colors[ShadingStyle.Flat].selected);
+			box.Colors[ShadingStyle.Textured] = (Color, box.Colors[ShadingStyle.Textured].selected);
 
 			for (int i = 0; i < 24; i += 4)
 			{

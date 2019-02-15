@@ -20,5 +20,6 @@ void main()
 	// uses right-handed, Y-up coordinates.
 	vec3 yUpRightHand = vec3(position.x, position.z, -position.y);
 	gl_Position = projection * view * model * vec4(yUpRightHand, 1.0f);
+
 	vertexColor = color;
 }

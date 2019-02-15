@@ -14,6 +14,14 @@ using Arbatel.Utilities;
 
 namespace Arbatel.Graphics
 {
+	/// <summary>
+	/// Anything that, upon update, needs its representation in the back end updated.
+	/// </summary>
+	public interface IUpdateBackEnd
+	{
+		event EventHandler Updated;
+	}
+
 	public static class RenderableExtensions
 	{
 		public static Renderable ToWorld(this Renderable renderable)
@@ -153,7 +161,7 @@ namespace Arbatel.Graphics
 	/// <remarks>
 	/// Vector3s are used even for 2D objects to allow simple depth sorting.
 	/// </remarks>
-	public class Renderable
+	public class Renderable : IUpdateBackEnd
 	{
 		public Aabb AABB { get; protected set; }
 
@@ -162,6 +170,22 @@ namespace Arbatel.Graphics
 		/// </summary>
 		/// <remarks>Used to set the ModelMatrix for this Renderable.</remarks>
 		public CoordinateSpace CoordinateSpace { get; set; }
+
+		private bool _needsBackEndUpdate = true;
+		public bool NeedsBackEndUpdate
+		{
+			get { return _needsBackEndUpdate; }
+			set
+			{
+				_needsBackEndUpdate = value;
+
+				if (NeedsBackEndUpdate)
+				{
+					OnUpdated();
+					_needsBackEndUpdate = false;
+				}
+			}
+		}
 
 		/// <summary>
 		/// The vertex indices of this object, relative to the Vertices list.
@@ -191,6 +215,8 @@ namespace Arbatel.Graphics
 				_position = value;
 			}
 		}
+
+		public bool Selected { get; set; } = false;
 
 		/// <summary>
 		/// A mapping of requested shading style to supported shading style.
@@ -224,6 +250,20 @@ namespace Arbatel.Graphics
 		/// relative to the back end buffer they're stored in.
 		/// </summary>
 		public IntPtr IndexOffset { get; set; } = IntPtr.Zero;
+
+		public Dictionary<ShadingStyle, (Color4 deselected, Color4 selected)> Colors { get; } = new Dictionary<ShadingStyle, (Color4, Color4)>
+		{
+			{ ShadingStyle.Wireframe, (Color4.White, Color4.Red) },
+			{ ShadingStyle.Flat, (Color4.White, Color4.Red) },
+			{ ShadingStyle.Textured, (Color4.White, Color4.Red) }
+		};
+
+		/// <summary>
+		/// If defined, this color will replace this Renderable's deselected color.
+		/// </summary>
+		public Color4? Tint { get; set; } = null;
+
+		public event EventHandler Updated;
 
 		public Renderable()
 		{
@@ -354,6 +394,23 @@ namespace Arbatel.Graphics
 			TranslateRelative(new Vector3(diffX, diffY, diffZ));
 		}
 
+		/// <summary>
+		/// Give this renderable's vertices an arbitrary color, ignoring the
+		/// values in its Colors dictionary.
+		/// </summary>
+		public void SetColor(Color4 color)
+		{
+			for (int i = 0; i < Vertices.Count; i++)
+			{
+				Vertex v = Vertices[i];
+				v.Color = color;
+
+				Vertices[i] = v;
+			}
+
+			NeedsBackEndUpdate = true;
+		}
+
 		public Aabb UpdateBounds()
 		{
 			var worldVerts = new List<Vector3>();
@@ -427,6 +484,15 @@ namespace Arbatel.Graphics
 				case CoordinateSpace.Screen:
 					break;
 			}
+		}
+
+		protected virtual void OnUpdated()
+		{
+			OnUpdated(new EventArgs());
+		}
+		protected virtual void OnUpdated(EventArgs e)
+		{
+			Updated?.Invoke(this, e);
 		}
 	}
 }

@@ -1,4 +1,5 @@
-﻿using Arbatel.Formats;
+﻿using Arbatel.Controls;
+using Arbatel.Formats;
 using Arbatel.Utilities;
 using OpenTK;
 using OpenTK.Graphics;
@@ -21,9 +22,12 @@ namespace Arbatel.Graphics
 		public QuakeBrush(Solid solid)
 		{
 			var random = new Random();
-			var color = new Color4((float)random.NextDouble(), (float)random.NextDouble(), (float)random.NextDouble(), 1.0f);
 
-			CalculateIntersections(solid, color);
+			var deselected = new Color4((float)random.NextDouble(), (float)random.NextDouble(), (float)random.NextDouble(), 1.0f);
+			Colors[ShadingStyle.Wireframe] = (deselected, Colors[ShadingStyle.Wireframe].selected);
+			Colors[ShadingStyle.Flat] = (deselected, Colors[ShadingStyle.Flat].selected);
+
+			CalculateIntersections(solid, deselected);
 
 			BuildPolygons(solid, this);
 

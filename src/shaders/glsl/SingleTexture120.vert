@@ -4,6 +4,7 @@ attribute vec3 normal;
 attribute vec4 color;
 attribute vec2 texCoords;
 
+varying vec4 colorFromVert;
 varying vec2 texCoordsFromVert;
 
 uniform Matrices
@@ -18,5 +19,6 @@ void main()
 	vec3 yUpRightHand = vec3(position.x, position.z, -position.y);
 	gl_Position = projection * view * model * vec4(yUpRightHand, 1.0f);
 
+	colorFromVert = color;
 	texCoordsFromVert = texCoords;
 }

@@ -5,10 +5,23 @@ using System.Collections.Generic;
 
 namespace Arbatel.Graphics
 {
-	public delegate void DrawMap(Map map, Dictionary<ShadingStyle, Shader> shaders, ShadingStyle style, View view, Camera camera);
+	public class Buffers
+	{
+		public Buffers()
+		{
+		}
+
+		public virtual void CleanUp()
+		{
+		}
+	}
+
+	public delegate void DrawMap(Map map, Dictionary<ShadingStyle, Shader> shaders, View view, Camera camera);
 
 	public class BackEnd
 	{
+		public virtual Dictionary<(Map, View), Buffers> Buffers { get; } = new Dictionary<(Map, View), Buffers>();
+
 		public Dictionary<string, int> Textures { get; } = new Dictionary<string, int>();
 
 		public DrawMap DrawMap { get; set; }
@@ -24,10 +37,19 @@ namespace Arbatel.Graphics
 		}
 		protected virtual void InitMap(Map map, View view)
 		{
+			foreach (Renderable r in map.MapObjects.GetAllRenderables())
+			{
+				r.Updated += Renderable_Updated;
+			}
 		}
 		public virtual void DeleteMap(Map map, IEnumerable<View> views)
 		{
 			map.Updated -= Map_Updated;
+
+			foreach (Renderable r in map.MapObjects.GetAllRenderables())
+			{
+				r.Updated -= Renderable_Updated;
+			}
 
 			DeleteTextures(map.Textures);
 
@@ -42,6 +64,16 @@ namespace Arbatel.Graphics
 		}
 
 		public virtual void InitRenderables(Buffers buffers, IEnumerable<Renderable> renderables, Map map, View view)
+		{
+		}
+		public virtual void UpdateRenderables(Buffers buffers, IEnumerable<Renderable> renderables)
+		{
+			foreach (Renderable r in renderables)
+			{
+				UpdateRenderable(buffers, r);
+			}
+		}
+		public virtual void UpdateRenderable(Buffers buffers, Renderable renderable)
 		{
 		}
 
@@ -94,6 +126,17 @@ namespace Arbatel.Graphics
 				DeleteTextures();
 
 				InitTextures(m.Textures);
+			}
+		}
+
+		protected virtual void Renderable_Updated(object sender, EventArgs e)
+		{
+			if (sender is Renderable r)
+			{
+				foreach (KeyValuePair<(Map, View), Buffers> pair in Buffers)
+				{
+					UpdateRenderable(pair.Value, r);
+				}
 			}
 		}
 	}

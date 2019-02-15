@@ -18,9 +18,9 @@ namespace Arbatel.UI
 			Size = (Size)(screen.Bounds.Size / 1.5f);
 			Location = (Point)(screen.WorkingArea.Center - (Size / 2));
 
-			var instanceHidden = new RadioMenuItem { Text = "Hidden" };
-			var instanceTinted = new RadioMenuItem(instanceHidden) { Text = "Tinted", Checked = true };
-			var instanceNormal = new RadioMenuItem(instanceHidden) { Text = "Normal" };
+			var instanceHidden = new RadioMenuItem { Text = "Hidden", Command = CmdShowInstancesHidden };
+			var instanceTinted = new RadioMenuItem(instanceHidden) { Text = "Tinted", Command = CmdShowInstancesTinted, Checked = true };
+			var instanceNormal = new RadioMenuItem(instanceHidden) { Text = "Normal", Command = CmdShowInstancesNormal };
 
 			Menu = new MenuBar
 			{

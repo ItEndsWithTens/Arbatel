@@ -8,14 +8,14 @@ using System.Linq;
 
 namespace Arbatel.Graphics
 {
-	public class Buffers
+	public class OpenGLBuffers : Buffers
 	{
 		public int Vao;
 		public int Vbo;
 		public int Ebo;
 		public int UboMatrices;
 
-		public Buffers()
+		public OpenGLBuffers()
 		{
 			GL.GenVertexArrays(1, out Vao);
 			GL.GenBuffers(1, out Vbo);
@@ -23,7 +23,7 @@ namespace Arbatel.Graphics
 			GL.GenBuffers(1, out UboMatrices);
 		}
 
-		public void CleanUp()
+		public override void CleanUp()
 		{
 			GL.DeleteBuffer(UboMatrices);
 			GL.DeleteBuffer(Ebo);
@@ -34,9 +34,9 @@ namespace Arbatel.Graphics
 
 	public class OpenGL4BackEnd : BackEnd
 	{
-		public Dictionary<(Map, View), Buffers> Buffers { get; } = new Dictionary<(Map, View), Buffers>();
+		public new Dictionary<(Map, View), OpenGLBuffers> Buffers { get; } = new Dictionary<(Map, View), OpenGLBuffers>();
 
-		public void DrawMapWireframe(Map map, Dictionary<ShadingStyle, Shader> shaders, ShadingStyle style, View view, Camera camera)
+		public void DrawMapWireframe(Map map, Dictionary<ShadingStyle, Shader> shaders, View view, Camera camera)
 		{
 			IEnumerable<MapObject> visible = camera.GetVisibleMapObjects(map.AllObjects);
 
@@ -52,7 +52,7 @@ namespace Arbatel.Graphics
 				where r.ModelMatrix != Matrix4.Identity
 				select r;
 
-			Buffers b = Buffers[(map, view)];
+			OpenGLBuffers b = Buffers[(map, view)];
 
 			GL.BindVertexArray(b.Vao);
 
@@ -60,7 +60,7 @@ namespace Arbatel.Graphics
 
 			GL.BindVertexArray(0);
 		}
-		public void DrawMapFlat(Map map, Dictionary<ShadingStyle, Shader> shaders, ShadingStyle style, View view, Camera camera)
+		public void DrawMapFlat(Map map, Dictionary<ShadingStyle, Shader> shaders, View view, Camera camera)
 		{
 			IEnumerable<MapObject> visible = camera.GetVisibleMapObjects(map.AllObjects);
 
@@ -76,7 +76,7 @@ namespace Arbatel.Graphics
 				where r.ModelMatrix != Matrix4.Identity
 				select r;
 
-			Buffers b = Buffers[(map, view)];
+			OpenGLBuffers b = Buffers[(map, view)];
 
 			GL.BindVertexArray(b.Vao);
 
@@ -84,7 +84,7 @@ namespace Arbatel.Graphics
 
 			GL.BindVertexArray(0);
 		}
-		public void DrawMapTextured(Map map, Dictionary<ShadingStyle, Shader> shaders, ShadingStyle style, View view, Camera camera)
+		public void DrawMapTextured(Map map, Dictionary<ShadingStyle, Shader> shaders, View view, Camera camera)
 		{
 			IEnumerable<MapObject> visible = camera.GetVisibleMapObjects(map.AllObjects);
 
@@ -135,7 +135,7 @@ namespace Arbatel.Graphics
 				where r.ModelMatrix != Matrix4.Identity
 				select r;
 
-			Buffers b = Buffers[(map, view)];
+			OpenGLBuffers b = Buffers[(map, view)];
 
 			GL.BindVertexArray(b.Vao);
 
@@ -148,7 +148,9 @@ namespace Arbatel.Graphics
 
 		protected override void InitMap(Map map, View view)
 		{
-			var buffers = new Buffers();
+			base.InitMap(map, view);
+
+			var buffers = new OpenGLBuffers();
 			Buffers.Add((map, view), buffers);
 
 			foreach (KeyValuePair<ShadingStyle, Shader> shader in view.Shaders)
@@ -196,6 +198,10 @@ namespace Arbatel.Graphics
 		}
 
 		public override void InitRenderables(Buffers buffers, IEnumerable<Renderable> renderables, Map map, View view)
+		{
+			InitRenderables(buffers as OpenGLBuffers, renderables, map, view);
+		}
+		protected void InitRenderables(OpenGLBuffers buffers, IEnumerable<Renderable> renderables, Map map, View view)
 		{
 			int totalVertexBytes = 0;
 			int totalIndexBytes = 0;
@@ -255,6 +261,25 @@ namespace Arbatel.Graphics
 			}
 		}
 
+		public override void UpdateRenderable(Buffers buffers, Renderable renderable)
+		{
+			UpdateRenderable(buffers as OpenGLBuffers, renderable);
+		}
+		protected void UpdateRenderable(OpenGLBuffers buffers, Renderable renderable)
+		{
+			GL.BindBuffer(BufferTarget.ArrayBuffer, buffers.Vbo);
+
+			int totalVerticesBytes = Vertex.MemorySize * renderable.Vertices.Count;
+
+			GL.BufferSubData(
+				BufferTarget.ArrayBuffer,
+				renderable.VertexOffset,
+				totalVerticesBytes,
+				renderable.Vertices.ToArray());
+
+			GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
+		}
+
 		public override void InitTexture(Texture t)
 		{
 			GL.GenTextures(1, out int id);
@@ -282,6 +307,17 @@ namespace Arbatel.Graphics
 		public override void DeleteTexture(int id)
 		{
 			GL.DeleteTexture(id);
+		}
+
+		protected override void Renderable_Updated(object sender, EventArgs e)
+		{
+			if (sender is Renderable r)
+			{
+				foreach (KeyValuePair<(Map, View), OpenGLBuffers> pair in Buffers)
+				{
+					UpdateRenderable(pair.Value, r);
+				}
+			}
 		}
 	}
 }

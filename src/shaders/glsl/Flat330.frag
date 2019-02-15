@@ -6,4 +6,9 @@ out vec4 color;
 void main()
 {
 	color = vertexColor;
+
+	if (color.a == 0.0f)
+	{
+		discard;
+	}
 }

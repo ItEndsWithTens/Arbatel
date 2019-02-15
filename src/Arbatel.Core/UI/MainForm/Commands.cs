@@ -1,9 +1,11 @@
 ﻿using Arbatel.Controls;
 using Arbatel.Formats;
 using Arbatel.Formats.Quake;
+using Arbatel.Graphics;
 using Arbatel.UI.Preferences;
 using Eto.Drawing;
 using Eto.Forms;
+using OpenTK.Graphics;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -14,7 +16,7 @@ namespace Arbatel.UI
 {
 	public partial class MainForm : Form
 	{
-		private Command CmdAbout = new Command() { MenuText = "About" };
+		private Command CmdAbout = new Command { MenuText = "About" };
 
 		private Command CmdClose = new Command
 		{
@@ -22,34 +24,44 @@ namespace Arbatel.UI
 			Shortcut = Application.Instance.CommonModifier | Keys.W
 		};
 
-		private Command CmdFullScreen = new Command()
+		private Command CmdFullScreen = new Command
 		{
 			MenuText = "&Full Screen",
 			Shortcut = Keys.F11
 		};
 
-		private Command CmdOpen = new Command()
+		private Command CmdOpen = new Command
 		{
 			MenuText = "&Open...",
 			Shortcut = Application.Instance.CommonModifier | Keys.O
 		};
 
-		private Command CmdPreferences = new Command()
+		private Command CmdPreferences = new Command
 		{
 			MenuText = "&Preferences",
 			Shortcut = Application.Instance.CommonModifier | Keys.Comma
 		};
 
-		private Command CmdQuit = new Command()
+		private Command CmdQuit = new Command
 		{
 			MenuText = "&Quit",
 			Shortcut = Application.Instance.CommonModifier | Keys.Q
 		};
 
-		private Command CmdSaveCollapsedAs = new Command()
+		private Command CmdSaveCollapsedAs = new Command
 		{
 			MenuText = "&Save collapsed as...",
 			Shortcut = Application.Instance.CommonModifier | Application.Instance.AlternateModifier | Keys.S
+		};
+
+		private Command CmdShowInstancesHidden = new Command
+		{
+		};
+		private Command CmdShowInstancesTinted = new Command
+		{
+		};
+		private Command CmdShowInstancesNormal = new Command
+		{
 		};
 
 		private bool IsFullscreen { get; set; } = false;
@@ -58,7 +70,7 @@ namespace Arbatel.UI
 
 		public void InitializeCommands()
 		{
-			Assembly assembly = Assembly.GetAssembly(typeof(MainForm));
+			var assembly = Assembly.GetAssembly(typeof(MainForm));
 
 			Version version = assembly.GetName().Version;
 			int major = version.Major;
@@ -80,6 +92,10 @@ namespace Arbatel.UI
 			CmdPreferences.Executed += CmdPreferences_Executed;
 
 			CmdSaveCollapsedAs.Executed += CmdSaveCollapsedAs_Executed;
+
+			CmdShowInstancesHidden.Executed += CmdShowInstancesHidden_Executed;
+			CmdShowInstancesTinted.Executed += CmdShowInstancesTinted_Executed;
+			CmdShowInstancesNormal.Executed += CmdShowInstancesNormal_Executed;
 
 			CmdQuit.Executed += (sender, e) => { Application.Instance.Quit(); };
 		}
@@ -221,6 +237,88 @@ namespace Arbatel.UI
 
 			Settings.Local.LastSaveCollapsedAsDirectory = new Uri(Path.GetDirectoryName(dlgSaveCollapsedAs.FileName));
 			Settings.Local.Save();
+		}
+
+		private void CmdShowInstancesHidden_Executed(object sender, EventArgs e)
+		{
+			IEnumerable<MapObject> instances =
+				from mo in Map.AllObjects
+				where mo.Definition.ClassName is "func_instance"
+				select mo;
+
+			foreach (MapObject mo in instances)
+			{
+				foreach (Renderable r in mo.GetAllRenderables())
+				{
+					r.Tint = new Color4(1.0f, 1.0f, 1.0f, 0.0f);
+					r.NeedsBackEndUpdate = true;
+				}
+			}
+
+			var viewport = Content as Viewport;
+			(Control Control, string Name, Action<Control> SetUp) view = viewport.Views[viewport.View];
+			view.SetUp.Invoke(view.Control);
+		}
+		private void CmdShowInstancesTinted_Executed(object sender, EventArgs e)
+		{
+			IEnumerable<MapObject> instances =
+				from mo in Map.AllObjects
+				where mo.Definition.ClassName is "func_instance"
+				select mo;
+
+			foreach (MapObject mo in instances)
+			{
+				TintInstanceObject(mo, Color4.Yellow);
+			}
+
+			var viewport = Content as Viewport;
+			(Control Control, string Name, Action<Control> SetUp) view = viewport.Views[viewport.View];
+			view.SetUp.Invoke(view.Control);
+		}
+		private void CmdShowInstancesNormal_Executed(object sender, EventArgs e)
+		{
+			IEnumerable<MapObject> instances =
+				from mo in Map.AllObjects
+				where mo.Definition.ClassName is "func_instance"
+				select mo;
+
+			foreach (MapObject mo in instances)
+			{
+				foreach (Renderable r in mo.GetAllRenderables())
+				{
+					r.Tint = null;
+					r.NeedsBackEndUpdate = true;
+				}
+			}
+
+			var viewport = Content as Viewport;
+			(Control Control, string Name, Action<Control> SetUp) view = viewport.Views[viewport.View];
+			view.SetUp.Invoke(view.Control);
+		}
+
+		private void TintInstanceObject(MapObject mo, Color4 color)
+		{
+			foreach (MapObject child in mo.Children)
+			{
+				TintInstanceObject(child, color);
+			}
+
+			Color4 tint;
+			// Tint the base placeholder box differently from the other content.
+			if (mo.Definition.ClassName == "func_instance")
+			{
+				tint = Color4.Orange;
+			}
+			else
+			{
+				tint = color;
+			}
+
+			foreach (Renderable r in mo.Renderables)
+			{
+				r.Tint = tint;
+				r.NeedsBackEndUpdate = true;
+			}
 		}
 	}
 }

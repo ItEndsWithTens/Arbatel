@@ -1,4 +1,5 @@
-﻿using OpenTK.Graphics;
+﻿using Arbatel.Controls;
+using OpenTK.Graphics;
 
 namespace Arbatel.Graphics
 {
@@ -18,7 +19,12 @@ namespace Arbatel.Graphics
 
 		public virtual Renderable Generate()
 		{
-			return new Renderable();
+			var r = new Renderable();
+			r.Colors[ShadingStyle.Wireframe] = (Color, r.Colors[ShadingStyle.Wireframe].selected);
+			r.Colors[ShadingStyle.Flat] = (Color, r.Colors[ShadingStyle.Flat].selected);
+			r.Colors[ShadingStyle.Textured] = (Color, r.Colors[ShadingStyle.Textured].selected);
+
+			return r;
 		}
 	}
 }
