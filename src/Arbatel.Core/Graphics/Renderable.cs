@@ -171,22 +171,6 @@ namespace Arbatel.Graphics
 		/// <remarks>Used to set the ModelMatrix for this Renderable.</remarks>
 		public CoordinateSpace CoordinateSpace { get; set; }
 
-		private bool _needsBackEndUpdate = true;
-		public bool NeedsBackEndUpdate
-		{
-			get { return _needsBackEndUpdate; }
-			set
-			{
-				_needsBackEndUpdate = value;
-
-				if (NeedsBackEndUpdate)
-				{
-					OnUpdated();
-					_needsBackEndUpdate = false;
-				}
-			}
-		}
-
 		/// <summary>
 		/// The vertex indices of this object, relative to the Vertices list.
 		/// </summary>
@@ -394,6 +378,12 @@ namespace Arbatel.Graphics
 			TranslateRelative(new Vector3(diffX, diffY, diffZ));
 		}
 
+		// TODO: Add a boolean to avoid updating the buffers? Add an overload
+		// for it so it defaults to true, but allow people to avoid the update
+		// so they can do a run of renderable color changes at once.
+		//
+		// TODO: Have SetColor return the object's previous color? To allow
+		// callers to set the old color back, if they want.
 		/// <summary>
 		/// Give this renderable's vertices an arbitrary color, ignoring the
 		/// values in its Colors dictionary.
@@ -408,7 +398,7 @@ namespace Arbatel.Graphics
 				Vertices[i] = v;
 			}
 
-			NeedsBackEndUpdate = true;
+			OnUpdated();
 		}
 
 		public Aabb UpdateBounds()

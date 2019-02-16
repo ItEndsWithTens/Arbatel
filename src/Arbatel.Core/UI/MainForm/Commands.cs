@@ -251,7 +251,6 @@ namespace Arbatel.UI
 				foreach (Renderable r in mo.GetAllRenderables())
 				{
 					r.Tint = new Color4(1.0f, 1.0f, 1.0f, 0.0f);
-					r.NeedsBackEndUpdate = true;
 				}
 			}
 
@@ -287,7 +286,6 @@ namespace Arbatel.UI
 				foreach (Renderable r in mo.GetAllRenderables())
 				{
 					r.Tint = null;
-					r.NeedsBackEndUpdate = true;
 				}
 			}
 
@@ -317,7 +315,6 @@ namespace Arbatel.UI
 			foreach (Renderable r in mo.Renderables)
 			{
 				r.Tint = tint;
-				r.NeedsBackEndUpdate = true;
 			}
 		}
 	}

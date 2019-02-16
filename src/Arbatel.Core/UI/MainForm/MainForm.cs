@@ -88,6 +88,19 @@ namespace Arbatel.UI
 
 			BackEnd.InitMap(Map, views.Distinct().ToList());
 
+			if (rdoInstanceHidden.Checked)
+			{
+				rdoInstanceHidden.Command.Execute(null);
+			}
+			else if (rdoInstanceTinted.Checked)
+			{
+				rdoInstanceTinted.Command.Execute(null);
+			}
+			else if (rdoInstanceNormal.Checked)
+			{
+				rdoInstanceNormal.Command.Execute(null);
+			}
+
 			var tree = viewport.Views[1].Control as TreeGridView;
 			tree.Columns.Add(new GridColumn() { HeaderText = "Column 1", DataCell = new TextBoxCell(0) });
 			tree.Columns.Add(new GridColumn() { HeaderText = "Column 2", DataCell = new TextBoxCell(1) });

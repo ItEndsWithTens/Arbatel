@@ -1,26 +1,26 @@
-using Arbatel.UI.Preferences;
 using Eto.Drawing;
 using Eto.Forms;
-using System.Reflection;
 
 namespace Arbatel.UI
 {
 	public partial class MainForm : Form
 	{
+		private RadioMenuItem rdoInstanceHidden;
+		private RadioMenuItem rdoInstanceTinted;
+		private RadioMenuItem rdoInstanceNormal;
+
 		void InitializeComponent()
 		{
-			Assembly assembly = Assembly.GetAssembly(typeof(MainForm));
-			var attribute = (AssemblyProductAttribute)assembly.GetCustomAttribute(typeof(AssemblyProductAttribute));
-			Title = attribute.Product;
+			Title = Core.Name;
 
 			Screen screen = Screen.PrimaryScreen;
 
 			Size = (Size)(screen.Bounds.Size / 1.5f);
 			Location = (Point)(screen.WorkingArea.Center - (Size / 2));
 
-			var instanceHidden = new RadioMenuItem { Text = "Hidden", Command = CmdShowInstancesHidden };
-			var instanceTinted = new RadioMenuItem(instanceHidden) { Text = "Tinted", Command = CmdShowInstancesTinted, Checked = true };
-			var instanceNormal = new RadioMenuItem(instanceHidden) { Text = "Normal", Command = CmdShowInstancesNormal };
+			rdoInstanceHidden = new RadioMenuItem { Text = "Hidden", Command = CmdShowInstancesHidden };
+			rdoInstanceTinted = new RadioMenuItem(rdoInstanceHidden) { Text = "Tinted", Command = CmdShowInstancesTinted, Checked = true };
+			rdoInstanceNormal = new RadioMenuItem(rdoInstanceHidden) { Text = "Normal", Command = CmdShowInstancesNormal };
 
 			Menu = new MenuBar
 			{
@@ -39,9 +39,9 @@ namespace Arbatel.UI
 								Text = "View",
 								Items =
 								{
-									instanceHidden,
-									instanceTinted,
-									instanceNormal
+									rdoInstanceHidden,
+									rdoInstanceTinted,
+									rdoInstanceNormal
 								}
 							},
 							new SeparatorMenuItem { },

@@ -1,4 +1,5 @@
-﻿using Arbatel.Graphics;
+﻿using Arbatel.Controls;
+using Arbatel.Graphics;
 using OpenTK;
 using System;
 using System.Collections.Generic;
@@ -98,6 +99,29 @@ namespace Arbatel.Formats
 		public virtual Map Collapse()
 		{
 			return this;
+		}
+
+		public virtual void UpdateColors(ShadingStyle style)
+		{
+			IEnumerable<Renderable> renderables = MapObjects.GetAllRenderables();
+			foreach (Renderable r in renderables)
+			{
+				if (r.Selected)
+				{
+					r.SetColor(r.Colors[style].selected);
+				}
+				else
+				{
+					if (r.Tint != null)
+					{
+						r.SetColor(r.Tint.Value);
+					}
+					else
+					{
+						r.SetColor(r.Colors[style].deselected);
+					}
+				}
+			}
 		}
 
 		public virtual void UpdateTextures(TextureDictionary textures)

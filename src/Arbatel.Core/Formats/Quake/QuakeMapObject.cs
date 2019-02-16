@@ -161,24 +161,6 @@ namespace Arbatel.Formats
 								modified.Saveability = Saveability.Solids;
 							}
 
-							if (mo.Definition.ClassName == "func_instance")
-							{
-								// Top level point entity renderables for an
-								// instance should stay orange...
-								foreach (Renderable r in mo.Renderables)
-								{
-									r.Tint = Color4.Orange;
-								}
-							}
-							else
-							{
-								// ...but any children should be tinted yellow.
-								foreach (Renderable r in mo.GetAllRenderables())
-								{
-									r.Tint = Color4.Yellow;
-								}
-							}
-
 							Children.Add(modified);
 						}
 
