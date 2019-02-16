@@ -125,10 +125,6 @@ namespace Arbatel.Formats
 			// Known point entity.
 			else if (Definition?.ClassType == ClassType.Point)
 			{
-				float x = Position.X;
-				float y = Position.Y;
-				float z = Position.Z;
-
 				if (KeyVals.ContainsKey("origin"))
 				{
 					Position = KeyVals["origin"].Value.ToVector3();
@@ -166,7 +162,7 @@ namespace Arbatel.Formats
 
 						// Create a simple box to mark this instance's origin.
 						Renderable box = new BoxGenerator(Color4.Orange).Generate();
-						box.Position = new Vector3(x, y, z);
+						box.Position = Position;
 						box.Transformability = Definition.RenderableTransformability;
 
 						Renderables.Add(box);
@@ -191,7 +187,7 @@ namespace Arbatel.Formats
 				{
 					Renderable gem = new GemGenerator(Color4.Lime).Generate();
 
-					gem.Position = new Vector3(x, y, z);
+					gem.Position = Position;
 					gem.Transformability = Definition.RenderableTransformability;
 
 					Renderables.Add(gem);

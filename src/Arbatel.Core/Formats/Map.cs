@@ -14,7 +14,7 @@ namespace Arbatel.Formats
 		public string AbsolutePath { get; protected set; }
 
 		/// <summary>
-		/// The flat stack of all objects in this map.
+		/// A flat list of all objects in this map.
 		/// </summary>
 		public List<MapObject> AllObjects
 		{

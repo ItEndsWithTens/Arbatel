@@ -241,52 +241,35 @@ namespace Arbatel.UI
 
 		private void CmdShowInstancesHidden_Executed(object sender, EventArgs e)
 		{
-			IEnumerable<MapObject> instances =
-				from mo in Map.AllObjects
-				where mo.Definition.ClassName is "func_instance"
-				select mo;
-
-			foreach (MapObject mo in instances)
-			{
-				foreach (Renderable r in mo.GetAllRenderables())
-				{
-					r.Tint = new Color4(1.0f, 1.0f, 1.0f, 0.0f);
-				}
-			}
-
-			var viewport = Content as Viewport;
-			(Control Control, string Name, Action<Control> SetUp) view = viewport.Views[viewport.View];
-			view.SetUp.Invoke(view.Control);
+			TintInstanceObjects(false, false);
 		}
 		private void CmdShowInstancesTinted_Executed(object sender, EventArgs e)
 		{
-			IEnumerable<MapObject> instances =
-				from mo in Map.AllObjects
-				where mo.Definition.ClassName is "func_instance"
-				select mo;
-
-			foreach (MapObject mo in instances)
-			{
-				TintInstanceObject(mo, Color4.Yellow);
-			}
-
-			var viewport = Content as Viewport;
-			(Control Control, string Name, Action<Control> SetUp) view = viewport.Views[viewport.View];
-			view.SetUp.Invoke(view.Control);
+			TintInstanceObjects(true, true);
 		}
 		private void CmdShowInstancesNormal_Executed(object sender, EventArgs e)
 		{
+			TintInstanceObjects(true, false);
+		}
+
+		private void TintInstanceObjects(bool visible, bool tinted)
+		{
+			string[] names = { "func_instance", "func_placeholder" };
+
 			IEnumerable<MapObject> instances =
-				from mo in Map.AllObjects
-				where mo.Definition.ClassName is "func_instance"
+				from mo in Map.MapObjects
+				where names.Contains(mo.Definition.ClassName)
 				select mo;
 
+			Color4? tint = visible ? null : tint = new Color4(1.0f, 1.0f, 1.0f, 0.0f);
 			foreach (MapObject mo in instances)
 			{
-				foreach (Renderable r in mo.GetAllRenderables())
+				if (visible && tinted)
 				{
-					r.Tint = null;
+					tint = mo.Definition.Color;
 				}
+
+				TintInstanceObject(mo, tint);
 			}
 
 			var viewport = Content as Viewport;
@@ -294,20 +277,20 @@ namespace Arbatel.UI
 			view.SetUp.Invoke(view.Control);
 		}
 
-		private void TintInstanceObject(MapObject mo, Color4 color)
+		private void TintInstanceObject(MapObject mo, Color4? color)
+		{
+			TintInstanceObject(mo, color, 0);
+		}
+		private void TintInstanceObject(MapObject mo, Color4? color, int depth)
 		{
 			foreach (MapObject child in mo.Children)
 			{
-				TintInstanceObject(child, color);
+				TintInstanceObject(child, color, depth + 1);
 			}
 
-			Color4 tint;
-			// Tint the base placeholder box differently from the other content.
-			if (mo.Definition.ClassName == "func_instance")
-			{
-				tint = Color4.Orange;
-			}
-			else
+			Color4? tint = null;
+			// Leave the root instance renderable alone, tint everything else.
+			if (depth > 0 || mo.Definition.ClassName != "func_instance")
 			{
 				tint = color;
 			}

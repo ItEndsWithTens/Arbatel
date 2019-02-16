@@ -1,4 +1,4 @@
-@PointClass size( -8 -8 -8, 8 8 8 ) flags(Angle) instance(file) = func_instance : "An automatically updated prefab. " +
+@PointClass size( -8 -8 -8, 8 8 8 ) flags(Angle) color(255 255 0) instance(file) = func_instance : "An automatically updated prefab. " +
   "Set Filename to the name of a .map containing geometry and/or entities you'd like to duplicate at " +
   "various locations in this map. Position and orient this func_instance in any way you like, and on " +
   "compile the map referenced herein will be collapsed into this map. Use for common architectural " +
@@ -26,7 +26,7 @@
 	replace10(string) : "Replace" : : "If you need more than ten replacements, don't forget you can turn off SmartEdit (if applicable) and add keys manually: replace11, replace12, etc."
 ]
 
-@SolidClass = func_placeholder : "Placeholder geometry, to be removed with the --remove_entities option " +
+@SolidClass color(255 20 147) = func_placeholder : "Placeholder geometry, to be removed with the --remove_entities option " +
   "of Quinstance 0.3.0 and later."
 [
 ]
