@@ -1,4 +1,9 @@
 ﻿#version 120
+
+#ifdef GL_ARB_uniform_buffer_object
+#extension GL_ARB_uniform_buffer_object : require
+#endif
+
 attribute vec3 position;
 attribute vec3 normal;
 attribute vec4 color;

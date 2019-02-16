@@ -218,7 +218,7 @@ namespace Arbatel.Controls
 
 				if (missing.Count > 0)
 				{
-					string message = $"{Core.Name} needs at least OpenGL 3.0, or these missing extensions:\n\n";
+					string message = $"{Core.Name} needs at least OpenGL 3.1, or these missing extensions:\n\n";
 					message += String.Join("\n", missing.ToArray());
 
 					throw new GraphicsException(message);
