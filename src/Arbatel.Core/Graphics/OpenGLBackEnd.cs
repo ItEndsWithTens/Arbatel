@@ -10,17 +10,24 @@ namespace Arbatel.Graphics
 {
 	public class OpenGLBuffers : Buffers
 	{
-		public int Vao;
-		public int Vbo;
-		public int Ebo;
-		public int UboMatrices;
+		private readonly int _vao;
+		public int Vao => _vao;
+
+		private readonly int _vbo;
+		public int Vbo => _vbo;
+
+		private readonly int _ebo;
+		public int Ebo => _ebo;
+
+		private readonly int _uboMatrices;
+		public int UboMatrices => _uboMatrices;
 
 		public OpenGLBuffers()
 		{
-			GL.GenVertexArrays(1, out Vao);
-			GL.GenBuffers(1, out Vbo);
-			GL.GenBuffers(1, out Ebo);
-			GL.GenBuffers(1, out UboMatrices);
+			GL.GenVertexArrays(1, out _vao);
+			GL.GenBuffers(1, out _vbo);
+			GL.GenBuffers(1, out _ebo);
+			GL.GenBuffers(1, out _uboMatrices);
 		}
 
 		public override void CleanUp()
@@ -178,7 +185,7 @@ namespace Arbatel.Graphics
 
 			IEnumerable<Renderable> renderables = map.AllObjects.GetAllRenderables();
 
-			InitRenderables(buffers, renderables, map, view);
+			InitRenderables(buffers, renderables);
 
 			GL.BindVertexArray(0);
 			GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
@@ -197,11 +204,11 @@ namespace Arbatel.Graphics
 			Buffers.Remove((map, view));
 		}
 
-		public override void InitRenderables(Buffers buffers, IEnumerable<Renderable> renderables, Map map, View view)
+		public override void InitRenderables(Buffers buffers, IEnumerable<Renderable> renderables)
 		{
-			InitRenderables(buffers as OpenGLBuffers, renderables, map, view);
+			InitRenderables(buffers as OpenGLBuffers, renderables);
 		}
-		protected void InitRenderables(OpenGLBuffers buffers, IEnumerable<Renderable> renderables, Map map, View view)
+		protected void InitRenderables(OpenGLBuffers buffers, IEnumerable<Renderable> renderables)
 		{
 			int totalVertexBytes = 0;
 			int totalIndexBytes = 0;
@@ -293,16 +300,6 @@ namespace Arbatel.Graphics
 			GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.NearestMipmapLinear);
 			GL.GenerateMipmap(GenerateMipmapTarget.Texture2D);
 			GL.BindTexture(TextureTarget.Texture2D, 0);
-		}
-		public override void DeleteTexture(Texture t)
-		{
-			DeleteTexture(t.Name);
-		}
-		public override void DeleteTexture(string name)
-		{
-			DeleteTexture(Textures[name]);
-
-			Textures.Remove(name);
 		}
 		public override void DeleteTexture(int id)
 		{

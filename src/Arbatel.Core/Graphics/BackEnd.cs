@@ -5,6 +5,9 @@ using System.Collections.Generic;
 
 namespace Arbatel.Graphics
 {
+	/// <summary>
+	/// The backing data stores of a given graphics API.
+	/// </summary>
 	public class Buffers
 	{
 		public Buffers()
@@ -63,7 +66,7 @@ namespace Arbatel.Graphics
 			view.Camera.Clear();
 		}
 
-		public virtual void InitRenderables(Buffers buffers, IEnumerable<Renderable> renderables, Map map, View view)
+		public virtual void InitRenderables(Buffers buffers, IEnumerable<Renderable> renderables)
 		{
 		}
 		public virtual void UpdateRenderables(Buffers buffers, IEnumerable<Renderable> renderables)
@@ -114,6 +117,9 @@ namespace Arbatel.Graphics
 		}
 		public virtual void DeleteTexture(string name)
 		{
+			DeleteTexture(Textures[name]);
+
+			Textures.Remove(name);
 		}
 		public virtual void DeleteTexture(int id)
 		{
