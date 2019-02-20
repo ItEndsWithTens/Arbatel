@@ -30,6 +30,8 @@
       <Uglies Remove="$(NeatenizePath)$(AssemblyName).exe.config" />
       <Uglies Remove="$(NeatenizePath)$(AssemblyName).pdb" />
       <Uglies Remove="$(NeatenizePath)shaders" />
+      <Uglies Remove="$(NeatenizePath)Xamarin.Mac.dll" />
+      <Uglies Remove="$(NeatenizePath)Xamarin.Mac.pdb" />
     </ItemGroup>
     <Move SourceFiles="@(Uglies)" DestinationFolder="$(NeatenizePath)lib" />
   </Target>

@@ -83,6 +83,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Info.plist" />
+    <None Include="App.config">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Program.cs" />
@@ -105,8 +108,8 @@
   <Target Name="ReplaceOpenTK" AfterTargets="Build">
     <!-- Swap out the busted old version of OpenTK that Xamarin insists on. -->
     <ItemGroup>
-      <OpenTK Include="$(TargetDir)\lib\OpenTK.*" />
+      <OpenTK Include="$(TargetDir)\OpenTK.*" />
     </ItemGroup>
-    <Copy SourceFiles="@(OpenTK)" DestinationFolder="$(OutputAppPath)\Contents\MonoBundle" />
+    <Copy SourceFiles="@(OpenTK)" DestinationFolder="$(OutputAppPath)\Contents\MonoBundle\lib" />
   </Target>
 </Project>
