@@ -82,8 +82,8 @@ namespace Arbatel.Graphics
 
 			GL.LinkProgram(Program);
 
-			GL.GetShader(Program, ShaderParameter.CompileStatus, out compileSuccess);
-			if (compileSuccess == 0)
+			GL.GetProgram(Program, GetProgramParameterName.LinkStatus, out int linkSuccess);
+			if (linkSuccess == 0)
 			{
 				string log = GL.GetProgramInfoLog(Program);
 
