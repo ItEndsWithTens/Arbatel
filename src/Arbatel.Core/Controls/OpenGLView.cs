@@ -1,5 +1,4 @@
-﻿using Arbatel.Formats;
-using Arbatel.Graphics;
+﻿using Arbatel.Graphics;
 using Eto;
 using Eto.Forms;
 using Eto.Gl;
@@ -78,6 +77,30 @@ namespace Arbatel.Controls
 				"ARB_uniform_buffer_object"
 			}.AsReadOnly();
 
+		private bool _controlReady = false;
+		public bool ControlReady
+		{
+			get { return _controlReady; }
+			private set
+			{
+				_controlReady = value;
+
+				SetUpGL();
+			}
+		}
+
+		private bool _openGLContextReady = false;
+		public bool OpenGLContextReady
+		{
+			get { return _openGLContextReady; }
+			private set
+			{
+				_openGLContextReady = value;
+
+				SetUpGL();
+			}
+		}
+
 		private bool _openGLReady = false;
 		public bool OpenGLReady
 		{
@@ -155,6 +178,8 @@ namespace Arbatel.Controls
 			surface.Draw += GLSurface_Draw;
 
 			Content = surface;
+
+			LoadComplete += (sender, e) => ControlReady = true;
 		}
 
 		public void Clear()
@@ -178,18 +203,15 @@ namespace Arbatel.Controls
 			(Content as GLSurface).SwapBuffers();
 		}
 
-		private void GLSurface_Draw(object sender, EventArgs e)
+		private void SetUpGL()
 		{
-			// The Draw event of this control's GLSurface child will clear the
-			// OpenGL viewport with its clear color. That event might be raised
-			// in situations like a window resize, and may very well supersede
-			// the call to Refresh by the GraphicsClock.Elapsed handler of this
-			// class's base. Calling Refresh manually here prevents flickering.
-			Refresh();
-		}
+			if (!(ControlReady && OpenGLContextReady))
+			{
+				return;
+			}
 
-		private void GLSurface_GLInitialized(object sender, EventArgs e)
-		{
+			(Content as GLSurface).MakeCurrent();
+
 			string version = GL.GetString(StringName.Version);
 
 			string[] split = version.Split('.', ' ');
@@ -239,6 +261,21 @@ namespace Arbatel.Controls
 			OpenGLReady = true;
 
 			SetUpTextured(this);
+		}
+
+		private void GLSurface_Draw(object sender, EventArgs e)
+		{
+			// The Draw event of this control's GLSurface child will clear the
+			// OpenGL viewport with its clear color. That event might be raised
+			// in situations like a window resize, and may very well supersede
+			// the call to Refresh by the GraphicsClock.Elapsed handler of this
+			// class's base. Calling Refresh manually here prevents flickering.
+			Refresh();
+		}
+
+		private void GLSurface_GLInitialized(object sender, EventArgs e)
+		{
+			OpenGLContextReady = true;
 		}
 	}
 }

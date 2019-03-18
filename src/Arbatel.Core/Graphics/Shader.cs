@@ -174,54 +174,26 @@ namespace Arbatel.Graphics
 				Ubos["Matrices"].name);
 
 			IntPtr pointer = IntPtr.Zero;
-			GL.BufferSubData(
-				BufferTarget.UniformBuffer,
-				pointer + 0,
-				Vector4.SizeInBytes,
-				(IntPtr)camera.ProjectionMatrix.Row0);
+			for (int row = 0; row < 4; row++)
+			{
+				for (int col = 0; col < 4; col++)
+				{
+					float value = camera.ProjectionMatrix[row, col];
+					GL.BufferSubData(BufferTarget.UniformBuffer, pointer, sizeof(float), ref value);
 
-			GL.BufferSubData(
-				BufferTarget.UniformBuffer,
-				pointer + 16,
-				Vector4.SizeInBytes,
-				(IntPtr)camera.ProjectionMatrix.Row1);
+					pointer += sizeof(float);
+				}
+			}
+			for (int row = 0; row < 4; row++)
+			{
+				for (int col = 0; col < 4; col++)
+				{
+					float value = camera.ViewMatrix[row, col];
+					GL.BufferSubData(BufferTarget.UniformBuffer, pointer, sizeof(float), ref value);
 
-			GL.BufferSubData(
-				BufferTarget.UniformBuffer,
-				pointer + 32,
-				Vector4.SizeInBytes,
-				(IntPtr)camera.ProjectionMatrix.Row2);
-
-			GL.BufferSubData(
-				BufferTarget.UniformBuffer,
-				pointer + 48,
-				Vector4.SizeInBytes,
-				(IntPtr)camera.ProjectionMatrix.Row3);
-
-			pointer += 64;
-			GL.BufferSubData(
-				BufferTarget.UniformBuffer,
-				pointer + 0,
-				Vector4.SizeInBytes,
-				(IntPtr)camera.ViewMatrix.Row0);
-
-			GL.BufferSubData(
-				BufferTarget.UniformBuffer,
-				pointer + 16,
-				Vector4.SizeInBytes,
-				(IntPtr)camera.ViewMatrix.Row1);
-
-			GL.BufferSubData(
-				BufferTarget.UniformBuffer,
-				pointer + 32,
-				Vector4.SizeInBytes,
-				(IntPtr)camera.ViewMatrix.Row2);
-
-			GL.BufferSubData(
-				BufferTarget.UniformBuffer,
-				pointer + 48,
-				Vector4.SizeInBytes,
-				(IntPtr)camera.ViewMatrix.Row3);
+					pointer += sizeof(float);
+				}
+			}
 
 			GL.BindBuffer(BufferTarget.UniformBuffer, 0);
 		}

@@ -4,6 +4,7 @@ using Eto.Drawing;
 using Eto.Forms;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Arbatel.Controls
 {
@@ -107,7 +108,10 @@ namespace Arbatel.Controls
 
 			foreach (KeyValuePair<int, (Control Control, string Name, Action<Control> SetUp)> view in Views)
 			{
-				Add(view.Value.Control, 0, 0);
+				if (!Controls.Contains(view.Value.Control))
+				{
+					Add(view.Value.Control, 0, 0);
+				}
 
 				var command = new Command { MenuText = view.Value.Name };
 				command.Executed += (sender, e) => { View = view.Key; };

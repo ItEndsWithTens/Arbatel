@@ -58,8 +58,6 @@ namespace Arbatel.Graphics
 						_indexCounts.Count);
 				}
 			}
-
-			GL.BindBuffer(BufferTarget.UniformBuffer, 0);
 		}
 
 		public override void DrawWorld(IEnumerable<Renderable> renderables, Camera camera)
