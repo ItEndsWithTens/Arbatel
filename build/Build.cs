@@ -18,6 +18,7 @@ using System.IO;
 using System.Linq;
 using static Nuke.Common.IO.FileSystemTasks;
 using static Nuke.Common.IO.PathConstruction;
+using static Nuke.Common.ProjectModel.ProjectModelTasks;
 using static Nuke.Common.Tools.MSBuild.MSBuildTasks;
 using static Nuke.Common.Tools.NUnit.NUnitTasks;
 using static Nuke.Common.Tools.VSWhere.VSWhereTasks;
@@ -136,6 +137,72 @@ class Build : NukeBuild
 			EnsureCleanDirectories(GlobDirectories(TestSourceDirectory, "**/bin", "**/obj"));
 		});
 
+	Target SetCustomBuildPath => _ => _
+		.Executes(() =>
+		{
+			if (EnvironmentInfo.IsWin)
+			{
+				// Windows developers with Visual Studio installed to a directory
+				// other than System.Environment.SpecialFolder.ProgramFilesX86 need
+				// to tell Nuke the path to MSBuild.exe themselves.
+				CustomMsBuildPath = (AbsolutePath)GetMsBuildPath();
+			}
+		});
+
+	private void CompileEtoGl(params string[] projects)
+	{
+		AbsolutePath etoViewportDir = RootDirectory / "lib" / "thirdparty" / "etoViewport";
+
+		Solution solution = ParseSolution(etoViewportDir / "Eto.Gl.sln");
+
+		MSBuild(settings => settings
+			.EnableRestore()
+			.SetTargets("Build")
+			.SetConfiguration("Release")
+			.When(CustomMsBuildPath != null, s => s
+				.SetToolPath(CustomMsBuildPath))
+			.SetMaxCpuCount(Environment.ProcessorCount)
+			.SetNodeReuse(IsLocalBuild)
+			.CombineWith(projects, (s, p) => s
+				.SetProjectFile(solution.GetProject($"{p}"))));
+	}
+
+	Target CompileCoreDependencies => _ => _
+		.DependsOn(Clean, SetCustomBuildPath)
+		.Executes(() =>
+		{
+			CompileEtoGl("Eto.Gl");
+		});
+
+	Target CompileWindowsDependencies => _ => _
+		.DependsOn(CompileCoreDependencies)
+		.DependentFor(CompileWindows)
+		.Before(CompileCore)
+		.Executes(() =>
+		{
+			CompileEtoGl("Eto.Gl.WinForms", "Eto.Gl.WPF_WinformsHost");
+		});
+
+
+	Target CompileLinuxDependencies => _ => _
+		.DependsOn(CompileCoreDependencies)
+		.DependentFor(CompileLinux)
+		.Before(CompileCore)
+		.Executes(() =>
+		{
+			CompileEtoGl("Eto.Gl.Gtk2");
+		});
+
+
+	Target CompileMacDependencies => _ => _
+		.DependsOn(CompileCoreDependencies)
+		.DependentFor(CompileMac)
+		.Before(CompileCore)
+		.Executes(() =>
+		{
+			CompileEtoGl("Eto.Gl.Mac", "Eto.Gl.XamMac");
+		});
+
 	private void Compile(string[] projects)
 	{
 		MSBuild(settings => settings
@@ -157,14 +224,6 @@ class Build : NukeBuild
 		.DependsOn(Clean)
 		.Executes(() =>
 		{
-			if (EnvironmentInfo.IsWin)
-			{
-				// Windows developers with Visual Studio installed to a directory
-				// other than System.Environment.SpecialFolder.ProgramFilesX86 need
-				// to tell Nuke the path to MSBuild.exe themselves.
-				CustomMsBuildPath = (AbsolutePath)GetMsBuildPath();
-			}
-
 			Compile(new string[] { $"{ProductName}.Core" });
 		});
 

@@ -43,7 +43,7 @@
 
   <ItemGroup>
     <Reference Include="Eto.Gl">
-      <HintPath>..\..\lib\thirdparty\Eto.Gl\Eto.Gl\$(Configuration)\Eto.Gl.dll</HintPath>
+      <HintPath>$(TopLevelDirectory)\lib\thirdparty\etoViewport\Eto.Gl\bin\Release\net462\Eto.Gl.dll</HintPath>
     </Reference>
   </ItemGroup>
 

@@ -1,0 +1,10 @@
+﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+<!--
+This file intentionally left empty, to quickly exclude top level targets from any
+library projects within. MSBuild starts at the project file directory level and
+searches upward, stopping at the first .targets file that doesn't import another:
+https://docs.microsoft.com/en-us/visualstudio/msbuild/customize-your-build?view=vs-2017#use-case-multi-level-merging
+-->
+
+</Project>

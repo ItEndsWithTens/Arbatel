@@ -27,7 +27,7 @@
 
   ## Usage
 
-  Configure program settings with Edit|Preferences (Ctrl+,) and ensure appropriate FGDs and textures are loaded. WAD2 format texture collections will need to be generated or downloaded elsewhere, but sample FGDs are included in the 'extras' directory, covering vanilla Quake entities with features provided by [ericw's compiling tools](http://ericwa.github.io/ericw-tools/) (a big thank you to [DaZ](https://twitter.com/tdDaz) for curating [quake4ericwTools.fgd](https://dl.dropboxusercontent.com/u/33279452/quake4ericwTools.fgd)), and the func_instance entity.
+  Configure program settings with Edit|Preferences (Ctrl+,) and ensure appropriate FGDs and textures are loaded. WAD2 format texture collections will need to be generated or downloaded elsewhere, but sample FGDs are included in the 'extras' directory, covering vanilla Quake entities with features provided by [ericw's compiling tools](http://ericwa.github.io/ericw-tools/) (a big thank you to [DaZ](https://twitter.com/tdDaz) for curating quake4ericwTools.fgd, and the func_instance entity.
   
   With your preferences set, open a .map file with File|Open (Ctrl+O), toggle fly mode with Z, and use WASDEQ for first person mouselook controls. Save the collapsed version of a map containing instances from the Instancing menu.
 
@@ -35,7 +35,9 @@
 
   ## Development
 
-  Building and packaging this project requires some additional software:
+  To build and package the project:
+
+  ### Install prerequisites
 
   #### Windows
   - [Visual Studio 2017](https://visualstudio.microsoft.com/vs/community/)
@@ -50,9 +52,48 @@
   - [dmgbuild](https://github.com/al45tair/dmgbuild)
     - `pip install dmgbuild`
 
-  Once those are installed, open a PowerShell or Bash terminal as appropriate, and run build.ps1 or build.sh, respectively. The main solution file can of course be opened in Visual Studio, VS for Mac, or MonoDevelop to easily edit, build, and debug, but the full end-to-end compile and package process is handled by the Nuke bootstrapping scripts.
+  ### Clone
+
+  Make sure to checkout all submodule code while you're at it:
+
+  ```Shell
+  git clone --recurse-submodules https://github.com/ItEndsWithTens/Arbatel.git
+  ```
+
+  ### Build dependencies
+
+  Most of this project's dependencies are simply NuGet packages, but a couple are custom versions of third-party libraries and need to be built from source before this project will work properly from an IDE. If you know what you're doing, you're welcome to build them by hand, but I'd recommend using the Nuke script.
+
+  If you have the Nuke global tool installed, it's as easy as changing to the root solution directory and calling
+  ```Shell
+  nuke
+  ```
+
+  Alternatively, there are bootstrapping scripts included that can get you up and running.
+  
+  PowerShell
+  ```PowerShell
+  .\build.ps1
+  ```
+
+  or
+
+  Bash
+  ```Bash
+  ./build.sh
+  ```
+
+  Any of those three options, run at least once, will get the project set up for development.
+
+  ### Develop
+  
+  With the dependencies ready to go, you can easily edit, build, and debug from Visual Studio, MonoDevelop, or VS for Mac, as appropriate for a given platform.
 
   The suite of automated NUnit tests will run during a command line build with no special setup. To run them using the NUnit test adapter in Visual Studio, go to Test|Test Settings->Select Test Settings File, and choose test/src/vsadapter.runsettings.
+
+  Final packaging is also handled by the Nuke script, and is the default target. Should you want to run the script from Visual Studio, open the Task Runner Explorer and give it a moment to refresh. Running any of the listed targets is the same as using `--target X` at the command line.
+
+
 
   ## Credits
 
