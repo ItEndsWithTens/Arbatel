@@ -61,13 +61,13 @@
     <Reference Include="System.Core" />
     <Reference Include="Xamarin.Mac" />
     <Reference Include="Eto.Gl">
-      <HintPath>$(TopLevelDirectory)\lib\thirdparty\etoViewport\artifacts\Release\Eto.Gl.dll</HintPath>
+      <HintPath>$(TopLevelDirectory)\lib\thirdparty\etoViewport\artifacts\Release\Eto.Gl\Eto.Gl.dll</HintPath>
     </Reference>
     <Reference Include="Eto.Gl.XamMac">
-      <HintPath>$(TopLevelDirectory)\lib\thirdparty\etoViewport\artifacts\Release\Eto.Gl.XamMac.dll</HintPath>
+      <HintPath>$(TopLevelDirectory)\lib\thirdparty\etoViewport\artifacts\Release\Eto.Gl.XamMac\Eto.Gl.XamMac.dll</HintPath>
     </Reference>
     <Reference Include="OpenTK">
-      <HintPath>$(TopLevelDirectory)\lib\thirdparty\etoViewport\artifacts\Release\OpenTK.dll</HintPath>
+      <HintPath>$(TopLevelDirectory)\lib\thirdparty\etoViewport\artifacts\Release\Eto.Gl\OpenTK.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>

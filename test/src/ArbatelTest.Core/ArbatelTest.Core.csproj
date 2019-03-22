@@ -18,7 +18,7 @@
     <PackageReference Include="NUnit" Version="3.11.0" />
     <PackageReference Include="NUnit3TestAdapter" Version="3.12.0" />
     <Reference Include="OpenTK">
-      <HintPath>$(TopLevelDirectory)\lib\thirdparty\etoViewport\artifacts\Release\OpenTK.dll</HintPath>
+      <HintPath>$(TopLevelDirectory)\lib\thirdparty\etoViewport\artifacts\Release\Eto.Gl\OpenTK.dll</HintPath>
     </Reference>
   </ItemGroup>
 
