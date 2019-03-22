@@ -1,3 +1,4 @@
 [submodule "lib/thirdparty/etoViewport"]
 	path = lib/thirdparty/etoViewport
 	url = https://github.com/ItEndsWithTens/etoViewport.git
+	branch = arbatel
