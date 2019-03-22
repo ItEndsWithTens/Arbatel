@@ -11,9 +11,11 @@
 
   <ItemGroup>
     <PackageReference Include="Eto.Forms" Version="2.5.0-ci-10088" />
-    <PackageReference Include="OpenTK" Version="3.0.1" />
+    <Reference Include="OpenTK">
+      <HintPath>$(TopLevelDirectory)\lib\thirdparty\etoViewport\artifacts\Release\OpenTK.dll</HintPath>
+    </Reference>
     <Reference Include="Eto.Gl">
-      <HintPath>$(TopLevelDirectory)\lib\thirdparty\etoViewport\Eto.Gl\bin\Release\net462\Eto.Gl.dll</HintPath>
+      <HintPath>$(TopLevelDirectory)\lib\thirdparty\etoViewport\artifacts\Release\Eto.Gl.dll</HintPath>
     </Reference>
   </ItemGroup>
   
@@ -22,7 +24,7 @@
       <ItemGroup>
         <PackageReference Include="Eto.Platform.Windows" Version="2.5.0-ci-10088" /> 
         <Reference Include="Eto.Gl.Windows">
-          <HintPath>$(TopLevelDirectory)\lib\thirdparty\etoViewport\Eto.Gl.WinForms\bin\Release\net462\Eto.Gl.Windows.dll</HintPath>
+          <HintPath>$(TopLevelDirectory)\lib\thirdparty\etoViewport\artifacts\Release\Eto.Gl.Windows.dll</HintPath>
         </Reference>
       </ItemGroup>
     </When>
@@ -30,7 +32,7 @@
       <ItemGroup>
         <PackageReference Include="Eto.Platform.Gtk2" Version="2.5.0-ci-10088" />
         <Reference Include="Eto.Gl.Gtk2">
-          <HintPath>$(TopLevelDirectory)\lib\thirdparty\etoViewport\Eto.Gl.Gtk2\bin\Release\net462\Eto.Gl.Gtk2.dll</HintPath>
+          <HintPath>$(TopLevelDirectory)\lib\thirdparty\etoViewport\artifacts\Release\Eto.Gl.Gtk2.dll</HintPath>
         </Reference>
       </ItemGroup>
     </When>
@@ -42,7 +44,7 @@
       <ItemGroup>
         <PackageReference Include="Eto.Platform.Mac64" Version="2.5.0-ci-10088" />
         <Reference Include="Eto.Gl.Mac">
-          <HintPath>$(TopLevelDirectory)\lib\thirdparty\etoViewport\Eto.Gl.Mac\bin\Release\net462\Eto.Gl.Mac.dll</HintPath>
+          <HintPath>$(TopLevelDirectory)\lib\thirdparty\etoViewport\artifacts\Release\Eto.Gl.Mac.dll</HintPath>
         </Reference>
       </ItemGroup>
     </When>

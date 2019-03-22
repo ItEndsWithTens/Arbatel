@@ -35,7 +35,7 @@
 
   ## Development
 
-  To build and package the project:
+  With the repository cloned, to work on the project you'll need to:
 
   ### Install prerequisites
 
@@ -52,14 +52,6 @@
   - [dmgbuild](https://github.com/al45tair/dmgbuild)
     - `pip install dmgbuild`
 
-  ### Clone
-
-  Make sure to checkout all submodule code while you're at it:
-
-  ```Shell
-  git clone --recurse-submodules https://github.com/ItEndsWithTens/Arbatel.git
-  ```
-
   ### Build dependencies
 
   Most of this project's dependencies are simply NuGet packages, but a couple are custom versions of third-party libraries and need to be built from source before this project will work properly from an IDE. If you know what you're doing, you're welcome to build them by hand, but I'd recommend using the Nuke script.
@@ -69,21 +61,7 @@
   nuke
   ```
 
-  Alternatively, there are bootstrapping scripts included that can get you up and running.
-  
-  PowerShell
-  ```PowerShell
-  .\build.ps1
-  ```
-
-  or
-
-  Bash
-  ```Bash
-  ./build.sh
-  ```
-
-  Any of those three options, run at least once, will get the project set up for development.
+  Alternatively, there are bootstrapping scripts included that can get you up and running; in PowerShell run `.\build.ps1`, or in Bash run `./build.sh`. Any of those three options, run at least once, will get the project set up for development.
 
   ### Develop
   

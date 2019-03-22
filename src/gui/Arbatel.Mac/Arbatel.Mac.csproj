@@ -14,10 +14,13 @@
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Eto.Gl.Mac">
-      <HintPath>$(TopLevelDirectory)\lib\thirdparty\etoViewport\Eto.Gl.Mac\bin\Release\net462\Eto.Gl.Mac.dll</HintPath>
+      <HintPath>$(TopLevelDirectory)\lib\thirdparty\etoViewport\artifacts\Release\Eto.Gl.Mac.dll</HintPath>
     </Reference>
     <Reference Include="Eto.Gl">
-      <HintPath>$(TopLevelDirectory)\lib\thirdparty\etoViewport\Eto.Gl\bin\Release\net462\Eto.Gl.dll</HintPath>
+      <HintPath>$(TopLevelDirectory)\lib\thirdparty\etoViewport\artifacts\Release\Eto.Gl.dll</HintPath>
+    </Reference>
+    <Reference Include="OpenTK">
+      <HintPath>$(TopLevelDirectory)\lib\thirdparty\etoViewport\artifacts\Release\OpenTK.dll</HintPath>
     </Reference>
   </ItemGroup>
 </Project>

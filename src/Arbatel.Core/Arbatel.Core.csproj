@@ -16,11 +16,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="..\..\OpenTK.dll.config" />
-    <Content Include="..\..\OpenTK.dll.config" Link="OpenTK.dll.config">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-
     <None Remove="..\res\palette-quake.lmp" />
     <EmbeddedResource Include="..\res\palette-quake.lmp" Link="res\palette-quake.lmp" />
 
@@ -38,12 +33,14 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
     <PackageReference Include="nucs.JsonSettings" Version="1.0.7" />
-    <PackageReference Include="OpenTK" Version="3.0.1" />
   </ItemGroup>
 
   <ItemGroup>
     <Reference Include="Eto.Gl">
-      <HintPath>$(TopLevelDirectory)\lib\thirdparty\etoViewport\Eto.Gl\bin\Release\net462\Eto.Gl.dll</HintPath>
+      <HintPath>$(TopLevelDirectory)\lib\thirdparty\etoViewport\artifacts\Release\Eto.Gl.dll</HintPath>
+    </Reference>
+    <Reference Include="OpenTK">
+      <HintPath>$(TopLevelDirectory)\lib\thirdparty\etoViewport\artifacts\Release\OpenTK.dll</HintPath>
     </Reference>
   </ItemGroup>
 

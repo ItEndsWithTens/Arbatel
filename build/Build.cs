@@ -2,6 +2,7 @@ using Nuke.Common;
 using Nuke.Common.Git;
 using Nuke.Common.ProjectModel;
 using Nuke.Common.Tooling;
+using Nuke.Common.Tools.DotNet;
 using Nuke.Common.Tools.GitVersion;
 using Nuke.Common.Tools.MSBuild;
 using Nuke.Common.Tools.NUnit;
@@ -18,7 +19,7 @@ using System.IO;
 using System.Linq;
 using static Nuke.Common.IO.FileSystemTasks;
 using static Nuke.Common.IO.PathConstruction;
-using static Nuke.Common.ProjectModel.ProjectModelTasks;
+using static Nuke.Common.Tools.Git.GitTasks;
 using static Nuke.Common.Tools.MSBuild.MSBuildTasks;
 using static Nuke.Common.Tools.NUnit.NUnitTasks;
 using static Nuke.Common.Tools.VSWhere.VSWhereTasks;
@@ -149,58 +150,22 @@ class Build : NukeBuild
 			}
 		});
 
-	private void CompileEtoGl(params string[] projects)
-	{
-		AbsolutePath etoViewportDir = RootDirectory / "lib" / "thirdparty" / "etoViewport";
-
-		Solution solution = ParseSolution(etoViewportDir / "Eto.Gl.sln");
-
-		MSBuild(settings => settings
-			.EnableRestore()
-			.SetTargets("Build")
-			.SetConfiguration("Release")
-			.When(CustomMsBuildPath != null, s => s
-				.SetToolPath(CustomMsBuildPath))
-			.SetMaxCpuCount(Environment.ProcessorCount)
-			.SetNodeReuse(IsLocalBuild)
-			.CombineWith(projects, (s, p) => s
-				.SetProjectFile(solution.GetProject($"{p}"))));
-	}
-
 	Target CompileCoreDependencies => _ => _
 		.DependsOn(Clean, SetCustomBuildPath)
 		.Executes(() =>
 		{
-			CompileEtoGl("Eto.Gl");
-		});
+			var etoViewportRoot = (AbsolutePath)Path.Combine(
+				   RootDirectory, "lib", "thirdparty", "etoViewport");
 
-	Target CompileWindowsDependencies => _ => _
-		.DependsOn(CompileCoreDependencies)
-		.DependentFor(CompileWindows)
-		.Before(CompileCore)
-		.Executes(() =>
-		{
-			CompileEtoGl("Eto.Gl.WinForms", "Eto.Gl.WPF_WinformsHost");
-		});
+			if (!DirectoryExists(etoViewportRoot) || !Directory.EnumerateFileSystemEntries(etoViewportRoot).Any())
+			{
+				Git("submodule update --init lib/thirdparty/etoViewport");
+			}
 
-
-	Target CompileLinuxDependencies => _ => _
-		.DependsOn(CompileCoreDependencies)
-		.DependentFor(CompileLinux)
-		.Before(CompileCore)
-		.Executes(() =>
-		{
-			CompileEtoGl("Eto.Gl.Gtk2");
-		});
-
-
-	Target CompileMacDependencies => _ => _
-		.DependsOn(CompileCoreDependencies)
-		.DependentFor(CompileMac)
-		.Before(CompileCore)
-		.Executes(() =>
-		{
-			CompileEtoGl("Eto.Gl.Mac", "Eto.Gl.XamMac");
+			DotNetTasks.DotNetRun(s => s
+				.SetWorkingDirectory(etoViewportRoot)
+				.SetProjectFile(etoViewportRoot / "build" / "_build.csproj")
+				.SetApplicationArguments("--configuration Release"));
 		});
 
 	private void Compile(string[] projects)
@@ -221,7 +186,7 @@ class Build : NukeBuild
 	}
 
 	Target CompileCore => _ => _
-		.DependsOn(Clean)
+		.DependsOn(CompileCoreDependencies)
 		.Executes(() =>
 		{
 			Compile(new string[] { $"{ProductName}.Core" });
