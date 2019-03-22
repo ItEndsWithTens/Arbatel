@@ -37,6 +37,9 @@ class Build : NukeBuild
 	AbsolutePath TestSourceDirectory => RootDirectory / "test" / "src";
 	AbsolutePath CustomMsBuildPath;
 
+	AbsolutePath EtoViewportRoot = (AbsolutePath)Path.Combine(
+		RootDirectory, "lib", "thirdparty", "etoViewport");
+
 	[Parameter("Configuration to build - Default is 'Debug' (local) or 'Release' (server)")]
 	readonly string Configuration = IsLocalBuild ? "Debug" : "Release";
 
@@ -150,22 +153,41 @@ class Build : NukeBuild
 			}
 		});
 
-	Target CompileCoreDependencies => _ => _
+	private void CompileEtoGl(params string[] targets)
+	{
+		if (!DirectoryExists(EtoViewportRoot) || !Directory.EnumerateFileSystemEntries(EtoViewportRoot).Any())
+		{
+			Git("submodule update --init lib/thirdparty/etoViewport");
+		}
+
+		DotNetTasks.DotNetRun(s => s
+			.SetWorkingDirectory(EtoViewportRoot)
+			.SetProjectFile(EtoViewportRoot / "build" / "_build.csproj")
+			.SetApplicationArguments($"--configuration Release --target CompileLibrary {String.Join(' ', targets)}"));
+	}
+
+	Target CompileWindowsDependencies => _ => _
 		.DependsOn(Clean, SetCustomBuildPath)
+		.Before(CompileCore)
 		.Executes(() =>
 		{
-			var etoViewportRoot = (AbsolutePath)Path.Combine(
-				   RootDirectory, "lib", "thirdparty", "etoViewport");
+			CompileEtoGl("CompileWindows");
+		});
 
-			if (!DirectoryExists(etoViewportRoot) || !Directory.EnumerateFileSystemEntries(etoViewportRoot).Any())
-			{
-				Git("submodule update --init lib/thirdparty/etoViewport");
-			}
+	Target CompileLinuxDependencies => _ => _
+		.DependsOn(Clean, SetCustomBuildPath)
+		.Before(CompileCore)
+		.Executes(() =>
+		{
+			CompileEtoGl("CompileLinux");
+		});
 
-			DotNetTasks.DotNetRun(s => s
-				.SetWorkingDirectory(etoViewportRoot)
-				.SetProjectFile(etoViewportRoot / "build" / "_build.csproj")
-				.SetApplicationArguments("--configuration Release"));
+	Target CompileMacDependencies => _ => _
+		.DependsOn(Clean, SetCustomBuildPath)
+		.Before(CompileCore)
+		.Executes(() =>
+		{
+			CompileEtoGl("CompileMac");
 		});
 
 	private void Compile(string[] projects)
@@ -186,28 +208,28 @@ class Build : NukeBuild
 	}
 
 	Target CompileCore => _ => _
-		.DependsOn(CompileCoreDependencies)
+		.DependsOn(Clean, SetCustomBuildPath)
 		.Executes(() =>
 		{
 			Compile(new string[] { $"{ProductName}.Core" });
 		});
 
 	Target CompileWindows => _ => _
-		.DependsOn(CompileCore)
+		.DependsOn(CompileCore, CompileWindowsDependencies)
 		.Executes(() =>
 		{
 			Compile(EtoPlatformsWin.Select(p => $"{ProductName}.{p}").ToArray());
 		});
 
 	Target CompileLinux => _ => _
-		.DependsOn(CompileCore)
+		.DependsOn(CompileCore, CompileLinuxDependencies)
 		.Executes(() =>
 		{
 			Compile(EtoPlatformsLin.Select(p => $"{ProductName}.{p}").ToArray());
 		});
 
 	Target CompileMac => _ => _
-		.DependsOn(CompileCore)
+		.DependsOn(CompileCore, CompileMacDependencies)
 		.Executes(() =>
 		{
 			Compile(EtoPlatformsMac.Select(p => $"{ProductName}.{p}").ToArray());
