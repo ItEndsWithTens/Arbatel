@@ -37,8 +37,7 @@ class Build : NukeBuild
 	AbsolutePath TestSourceDirectory => RootDirectory / "test" / "src";
 	AbsolutePath CustomMsBuildPath;
 
-	AbsolutePath EtoViewportRoot = (AbsolutePath)Path.Combine(
-		RootDirectory, "lib", "thirdparty", "etoViewport");
+	AbsolutePath EtoViewportRoot = RootDirectory / "lib" / "thirdparty" / "etoViewport";
 
 	[Parameter("Configuration to build - Default is 'Debug' (local) or 'Release' (server)")]
 	readonly string Configuration = IsLocalBuild ? "Debug" : "Release";

@@ -93,19 +93,17 @@ namespace Arbatel.Controls
 			tree.EnabledChanged += (sender, e) => { Focus(); };
 			tree.MouseLeave += (sender, e) => { Focus(); };
 
-			var oglView = new OpenGLView3d()
-			{
-				BackEnd = BackEnd,
-				Enabled = false,
-				Visible = false
-			};
-
 			Views.Add(0, (text, "Text", (v) => { }));
 			Views.Add(1, (tree, "Tree", (v) => { }));
-			Views.Add(2, (oglView, "3D Wireframe", OpenGLView.SetUpWireframe));
-			Views.Add(3, (oglView, "3D Flat", OpenGLView.SetUpFlat));
-			Views.Add(4, (oglView, "3D Textured", OpenGLView.SetUpTextured));
 
+			UpdateViews();
+
+			KeyDown += Viewport_KeyDown;
+			LoadComplete += Viewport_LoadComplete;
+		}
+
+		protected void UpdateViews()
+		{
 			foreach (KeyValuePair<int, (Control Control, string Name, Action<Control> SetUp)> view in Views)
 			{
 				if (!Controls.Contains(view.Value.Control))
@@ -116,11 +114,8 @@ namespace Arbatel.Controls
 				var command = new Command { MenuText = view.Value.Name };
 				command.Executed += (sender, e) => { View = view.Key; };
 
-				ViewCommands.Add(view.Key, command);
+				ViewCommands[view.Key] = command;
 			}
-
-			KeyDown += Viewport_KeyDown;
-			LoadComplete += Viewport_LoadComplete;
 		}
 
 		protected override void OnSizeChanged(EventArgs e)

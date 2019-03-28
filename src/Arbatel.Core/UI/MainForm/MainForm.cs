@@ -13,7 +13,7 @@ namespace Arbatel.UI
 		/// <summary>
 		/// The graphics backend used by this application.
 		/// </summary>
-		public BackEnd BackEnd { get; private set; } = new OpenGL4BackEnd();
+		public BackEnd BackEnd { get; private set; }
 
 		private Map _map;
 		/// <summary>
@@ -38,7 +38,9 @@ namespace Arbatel.UI
 
 			InitializeCommands();
 
-			var viewport = new Viewport(BackEnd) { ID = "viewport" };
+			var viewport = new OpenGLViewport { ID = "viewport" };
+
+			BackEnd = viewport.BackEnd;
 
 			foreach ((Control Control, string Name, Action<View> SetUp) view in viewport.Views.Values)
 			{
