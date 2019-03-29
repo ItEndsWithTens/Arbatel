@@ -1,9 +1,12 @@
 ﻿using Arbatel.Controls;
 using Arbatel.Formats;
+using Eto;
+using Eto.Forms;
 using OpenTK;
 using OpenTK.Graphics.OpenGL4;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 
 namespace Arbatel.Graphics
@@ -39,11 +42,126 @@ namespace Arbatel.Graphics
 		}
 	}
 
-	public class OpenGL4BackEnd : BackEnd
+	public class OpenGLBackEnd : BackEnd
 	{
+		// OpenGL 3.0 is the lowest version that has all the features this
+		// project needs built in. With the appropriate extensions 2.X is also
+		// usable; unfortunately, requesting a context of less than 3.2 in macOS
+		// will produce a 2.1 context without said extensions.
+		public static int DesiredMajorVersion { get; } = EtoEnvironment.Platform.IsMac ? 3 : 2;
+		public static int DesiredMinorVersion { get; } = EtoEnvironment.Platform.IsMac ? 2 : 0;
+
+		/// <summary>
+		/// Extensions required to run under OpenGL versions below 3.0.
+		/// </summary>
+		public static ReadOnlyCollection<string> RequiredExtensions { get; } =
+			new List<string>
+			{
+				"ARB_vertex_array_object",
+				"ARB_framebuffer_object",
+				"ARB_uniform_buffer_object"
+			}.AsReadOnly();
+
 		public new Dictionary<(Map, View), OpenGLBuffers> Buffers { get; } = new Dictionary<(Map, View), OpenGLBuffers>();
 
-		public void DrawMapWireframe(Map map, Dictionary<ShadingStyle, Shader> shaders, View view, Camera camera)
+		public Dictionary<ShadingStyle, Shader> Shaders { get; } = new Dictionary<ShadingStyle, Shader>();
+
+		public static Action<Control> SetUpWireframe { get; } = new Action<Control>(control =>
+		{
+			if (control is OpenGLView o && o.OpenGLReady)
+			{
+				o.ShadingStyle = ShadingStyle.Wireframe;
+
+				GL.Disable(EnableCap.CullFace);
+
+				GL.Disable(EnableCap.Blend);
+
+				GL.ClearColor(1.0f, 0.0f, 0.0f, 1.0f);
+			}
+		});
+
+		public static Action<Control> SetUpFlat { get; } = new Action<Control>(control =>
+		{
+			if (control is OpenGLView o && o.OpenGLReady)
+			{
+				o.ShadingStyle = ShadingStyle.Flat;
+
+				GL.Enable(EnableCap.CullFace);
+				GL.CullFace(CullFaceMode.Back);
+
+				GL.Enable(EnableCap.Blend);
+				GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
+
+				GL.ClearColor(0.0f, 1.0f, 0.0f, 1.0f);
+			}
+		});
+
+		public static Action<Control> SetUpTextured { get; } = new Action<Control>(control =>
+		{
+			if (control is OpenGLView o && o.OpenGLReady)
+			{
+				o.ShadingStyle = ShadingStyle.Textured;
+
+				GL.Enable(EnableCap.CullFace);
+				GL.CullFace(CullFaceMode.Back);
+
+				GL.Enable(EnableCap.Blend);
+				GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
+
+				GL.ClearColor(0.0f, 0.0f, 1.0f, 1.0f);
+			}
+		});
+
+		public void SetUp()
+		{
+			string version = GL.GetString(StringName.Version);
+
+			string[] split = version.Split('.', ' ');
+
+			bool gotMajor = Int32.TryParse(split[0], out int glMajor);
+			bool gotMinor = Int32.TryParse(split[1], out int glMinor);
+
+			if (!(gotMajor && gotMinor))
+			{
+				throw new GraphicsException("Couldn't parse OpenGL version string!");
+			}
+
+			if (glMajor < 3)
+			{
+				string extensions = GL.GetString(StringName.Extensions);
+
+				var missing = new List<string>();
+
+				foreach (string extension in RequiredExtensions)
+				{
+					if (!extensions.Contains(extension))
+					{
+						missing.Add(extension);
+					}
+				}
+
+				if (missing.Count > 0)
+				{
+					string message = $"{Core.Name} needs at least OpenGL 3.1, or these missing extensions:\n\n";
+					message += String.Join("\n", missing.ToArray());
+
+					throw new GraphicsException(message);
+				}
+			}
+
+			GL.Enable(EnableCap.DepthTest);
+
+			GL.FrontFace(FrontFaceDirection.Ccw);
+
+			(int glslMajor, int glslMinor) = Shader.GetGlslVersion();
+
+			Shaders.Clear();
+			Shaders.Add(ShadingStyle.Wireframe, new WireframeShader(glslMajor, glslMinor) { BackEnd = this });
+			Shaders.Add(ShadingStyle.Flat, new FlatShader(glslMajor, glslMinor) { BackEnd = this });
+			Shaders.Add(ShadingStyle.Textured, new SingleTextureShader(glslMajor, glslMinor) { BackEnd = this });
+		}
+
+		public void DrawMapWireframe(Map map, View view, Camera camera)
 		{
 			IEnumerable<MapObject> visible = camera.GetVisibleMapObjects(map.AllObjects);
 
@@ -63,11 +181,11 @@ namespace Arbatel.Graphics
 
 			GL.BindVertexArray(b.Vao);
 
-			shaders[ShadingStyle.Wireframe].Draw(wireframeWorld, wireframeModel, camera);
+			Shaders[ShadingStyle.Wireframe].Draw(wireframeWorld, wireframeModel, camera);
 
 			GL.BindVertexArray(0);
 		}
-		public void DrawMapFlat(Map map, Dictionary<ShadingStyle, Shader> shaders, View view, Camera camera)
+		public void DrawMapFlat(Map map, View view, Camera camera)
 		{
 			IEnumerable<MapObject> visible = camera.GetVisibleMapObjects(map.AllObjects);
 
@@ -87,11 +205,11 @@ namespace Arbatel.Graphics
 
 			GL.BindVertexArray(b.Vao);
 
-			shaders[ShadingStyle.Flat].Draw(flatWorld, flatModel, camera);
+			Shaders[ShadingStyle.Flat].Draw(flatWorld, flatModel, camera);
 
 			GL.BindVertexArray(0);
 		}
-		public void DrawMapTextured(Map map, Dictionary<ShadingStyle, Shader> shaders, View view, Camera camera)
+		public void DrawMapTextured(Map map, View view, Camera camera)
 		{
 			IEnumerable<MapObject> visible = camera.GetVisibleMapObjects(map.AllObjects);
 
@@ -146,9 +264,9 @@ namespace Arbatel.Graphics
 
 			GL.BindVertexArray(b.Vao);
 
-			shaders[ShadingStyle.Textured].Draw(texturedWorld, texturedModel, camera);
-			shaders[ShadingStyle.Flat].Draw(flatWorld, flatModel, camera);
-			shaders[ShadingStyle.Wireframe].Draw(wireframeWorld, wireframeModel, camera);
+			Shaders[ShadingStyle.Textured].Draw(texturedWorld, texturedModel, camera);
+			Shaders[ShadingStyle.Flat].Draw(flatWorld, flatModel, camera);
+			Shaders[ShadingStyle.Wireframe].Draw(wireframeWorld, wireframeModel, camera);
 
 			GL.BindVertexArray(0);
 		}
@@ -160,7 +278,7 @@ namespace Arbatel.Graphics
 			var buffers = new OpenGLBuffers();
 			Buffers.Add((map, view), buffers);
 
-			foreach (KeyValuePair<ShadingStyle, Shader> shader in view.Shaders)
+			foreach (KeyValuePair<ShadingStyle, Shader> shader in Shaders)
 			{
 				(int bindingPoint, int index, int name) = shader.Value.Ubos["Matrices"];
 				name = buffers.UboMatrices;
@@ -206,7 +324,7 @@ namespace Arbatel.Graphics
 
 		public override void InitRenderables(Buffers buffers, IEnumerable<Renderable> renderables)
 		{
-			InitRenderables(buffers as OpenGLBuffers, renderables);
+			InitRenderables((OpenGLBuffers)buffers, renderables);
 		}
 		protected void InitRenderables(OpenGLBuffers buffers, IEnumerable<Renderable> renderables)
 		{

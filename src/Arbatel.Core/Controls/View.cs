@@ -45,8 +45,6 @@ namespace Arbatel.Controls
 
 		public UITimer GraphicsClock { get; } = new UITimer();
 
-		public Dictionary<ShadingStyle, Shader> Shaders { get; } = new Dictionary<ShadingStyle, Shader>();
-
 		private ShadingStyle _shadingStyle = ShadingStyle.Wireframe;
 		public ShadingStyle ShadingStyle
 		{

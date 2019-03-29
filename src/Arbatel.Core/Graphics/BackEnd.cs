@@ -19,7 +19,7 @@ namespace Arbatel.Graphics
 		}
 	}
 
-	public delegate void DrawMap(Map map, Dictionary<ShadingStyle, Shader> shaders, View view, Camera camera);
+	public delegate void DrawMap(Map map, View view, Camera camera);
 
 	public class BackEnd
 	{
