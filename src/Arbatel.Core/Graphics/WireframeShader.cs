@@ -31,8 +31,8 @@ namespace Arbatel.Graphics
 				_indexOffsets.Clear();
 				foreach (Polygon p in r.Polygons)
 				{
-					_indexCounts.Add(p.Indices.Count);
-					_indexOffsets.Add(p.IndexOffset);
+					_indexCounts.Add(p.LineLoopIndices.Count);
+					_indexOffsets.Add(p.LineLoopIndexOffset);
 				}
 
 				GL.MultiDrawElements(
@@ -54,8 +54,8 @@ namespace Arbatel.Graphics
 			{
 				foreach (Polygon p in r.Polygons)
 				{
-					_indexCounts.Add(p.Indices.Count);
-					_indexOffsets.Add(p.IndexOffset);
+					_indexCounts.Add(p.LineLoopIndices.Count);
+					_indexOffsets.Add(p.LineLoopIndexOffset);
 				}
 			}
 

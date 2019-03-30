@@ -85,19 +85,24 @@ namespace Arbatel.Graphics
 
 			for (int i = 0; i < 24; i += 3)
 			{
-				var polygon = new Polygon();
+				var p = new Polygon();
 
-				polygon.Indices.Add(i + 0);
-				polygon.Indices.Add(i + 1);
-				polygon.Indices.Add(i + 2);
+				p.Indices.Add(i + 0);
+				p.Indices.Add(i + 1);
+				p.Indices.Add(i + 2);
 
-				Vector3 a = modelVerts[polygon.Indices[1]] - modelVerts[polygon.Indices[0]];
-				Vector3 b = modelVerts[polygon.Indices[2]] - modelVerts[polygon.Indices[0]];
-				polygon.Normal = Vector3.Cross(a, b);
-				polygon.Normal.Normalize();
+				// Since gems are composed only of triangles, their line loop
+				// indices serve as the triangle indices too.
+				p.LineLoopIndices.AddRange(p.Indices);
 
-				gem.Polygons.Add(polygon);
-				gem.Indices.AddRange(polygon.Indices);
+				Vector3 a = modelVerts[p.Indices[1]] - modelVerts[p.Indices[0]];
+				Vector3 b = modelVerts[p.Indices[2]] - modelVerts[p.Indices[0]];
+				p.Normal = Vector3.Cross(a, b);
+				p.Normal.Normalize();
+
+				gem.Polygons.Add(p);
+				gem.Indices.AddRange(p.Indices);
+				gem.LineLoopIndices.AddRange(p.LineLoopIndices);
 			}
 
 			gem.Transformability = Transformability;

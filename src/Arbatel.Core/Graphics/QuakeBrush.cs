@@ -58,17 +58,36 @@ namespace Arbatel.Graphics
 
 				side.Vertices = MathUtilities.SortVertices(side.Vertices, side.Plane.Normal, Winding.Ccw);
 
+				int offset = renderable.Vertices.Count;
+
 				for (int i = 0; i < side.Vertices.Count; i++)
 				{
 					Vertex v = side.Vertices[i];
 					v.Normal = p.Normal;
 
+					p.LineLoopIndices.Add(offset + i);
 					renderable.Vertices.Add(v);
-					side.Indices.Add(renderable.Vertices.Count - 1);
-
-					p.Indices.Add(side.Indices[i]);
-					renderable.Indices.Add(side.Indices[i]);
 				}
+
+				renderable.LineLoopIndices.AddRange(p.LineLoopIndices);
+
+				for (int i = 0; i < p.LineLoopIndices.Count - 2; i++)
+				{
+					// Because Quake brushes, and subsequently their constituent
+					// polygons, are assumed to be convex, triangle fans are a
+					// suitable way to represent each surface. Not all graphics
+					// backends support fans, though, so for maximum flexibility
+					// the fan will be stored as a set of triangles.
+					int indexA = 0;
+					int indexB = i + 1;
+					int indexC = i + 2;
+
+					p.Indices.Add(offset + indexA);
+					p.Indices.Add(offset + indexB);
+					p.Indices.Add(offset + indexC);
+				}
+
+				renderable.Indices.AddRange(p.Indices);
 
 				renderable.Polygons.Add(p);
 			}
@@ -130,7 +149,6 @@ namespace Arbatel.Graphics
 					Vertices[index] = v;
 				}
 			}
-			
 		}
 
 		/// <summary>

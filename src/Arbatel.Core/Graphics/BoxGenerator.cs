@@ -99,20 +99,29 @@ namespace Arbatel.Graphics
 
 			for (int i = 0; i < 24; i += 4)
 			{
-				var polygon = new Polygon();
+				var p = new Polygon();
 
-				polygon.Indices.Add(i + 0);
-				polygon.Indices.Add(i + 1);
-				polygon.Indices.Add(i + 2);
-				polygon.Indices.Add(i + 3);
+				p.LineLoopIndices.Add(i + 0);
+				p.LineLoopIndices.Add(i + 1);
+				p.LineLoopIndices.Add(i + 2);
+				p.LineLoopIndices.Add(i + 3);
 
-				Vector3 a = modelVerts[polygon.Indices[1]] - modelVerts[polygon.Indices[0]];
-				Vector3 b = modelVerts[polygon.Indices[2]] - modelVerts[polygon.Indices[0]];
-				polygon.Normal = Vector3.Cross(a, b);
-				polygon.Normal.Normalize();
+				p.Indices.Add(i + 0);
+				p.Indices.Add(i + 1);
+				p.Indices.Add(i + 2);
 
-				box.Polygons.Add(polygon);
-				box.Indices.AddRange(polygon.Indices);
+				p.Indices.Add(i + 0);
+				p.Indices.Add(i + 2);
+				p.Indices.Add(i + 3);
+
+				Vector3 a = modelVerts[p.Indices[1]] - modelVerts[p.Indices[0]];
+				Vector3 b = modelVerts[p.Indices[2]] - modelVerts[p.Indices[0]];
+				p.Normal = Vector3.Cross(a, b);
+				p.Normal.Normalize();
+
+				box.Polygons.Add(p);
+				box.Indices.AddRange(p.Indices);
+				box.LineLoopIndices.AddRange(p.LineLoopIndices);
 			}
 
 			box.Transformability = Transformability.Translate;

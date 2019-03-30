@@ -72,6 +72,7 @@ namespace Arbatel.Graphics
 		/// the Renderable containing it.
 		/// </summary>
 		public List<int> Indices;
+		public List<int> LineLoopIndices { get; } = new List<int>();
 
 		public Texture Texture { get; set; } = new Texture();
 		public Vector3 BasisS;
@@ -83,6 +84,7 @@ namespace Arbatel.Graphics
 		public Vector3 Normal;
 
 		public IntPtr IndexOffset;
+		public IntPtr LineLoopIndexOffset { get; set; } = IntPtr.Zero;
 
 		public Polygon()
 		{
@@ -91,6 +93,7 @@ namespace Arbatel.Graphics
 		public Polygon(Polygon p)
 		{
 			Indices = new List<int>(p.Indices);
+			LineLoopIndices = new List<int>(p.LineLoopIndices);
 			Texture = p.Texture;
 			BasisS = new Vector3(p.BasisS);
 			BasisT = new Vector3(p.BasisT);
@@ -175,6 +178,7 @@ namespace Arbatel.Graphics
 		/// The vertex indices of this object, relative to the Vertices list.
 		/// </summary>
 		public List<int> Indices;
+		public List<int> LineLoopIndices { get; } = new List<int>();
 
 		/// <summary>
 		/// The transformation matrix used to bring this Renderable's vertices
@@ -235,6 +239,8 @@ namespace Arbatel.Graphics
 		/// </summary>
 		public IntPtr IndexOffset { get; set; } = IntPtr.Zero;
 
+		public IntPtr LineLoopIndexOffset { get; set; } = IntPtr.Zero;
+
 		public Dictionary<ShadingStyle, (Color4 deselected, Color4 selected)> Colors { get; } = new Dictionary<ShadingStyle, (Color4, Color4)>
 		{
 			{ ShadingStyle.Wireframe, (Color4.White, Color4.Red) },
@@ -283,6 +289,7 @@ namespace Arbatel.Graphics
 			AABB = new Aabb(r.AABB);
 			CoordinateSpace = r.CoordinateSpace;
 			Indices = new List<int>(r.Indices);
+			LineLoopIndices = new List<int>(r.LineLoopIndices);
 			ModelMatrix = r.ModelMatrix;
 			Polygons = new List<Polygon>(r.Polygons);
 			_position = r.Position;

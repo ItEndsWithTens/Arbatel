@@ -51,7 +51,7 @@ namespace Arbatel.Graphics
 					}
 
 					GL.MultiDrawElements(
-						PrimitiveType.TriangleFan,
+						PrimitiveType.Triangles,
 						_indexCounts.ToArray(),
 						DrawElementsType.UnsignedInt,
 						_indexOffsets.ToArray(),
@@ -82,7 +82,7 @@ namespace Arbatel.Graphics
 				}
 
 				GL.MultiDrawElements(
-					PrimitiveType.TriangleFan,
+					PrimitiveType.Triangles,
 					_indexCounts.ToArray(),
 					DrawElementsType.UnsignedInt,
 					_indexOffsets.ToArray(),

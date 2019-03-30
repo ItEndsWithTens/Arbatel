@@ -22,6 +22,9 @@ namespace Arbatel.Graphics
 		private readonly int _ebo;
 		public int Ebo => _ebo;
 
+		private readonly int _lineLoopEbo;
+		public int LineLoopEbo => _lineLoopEbo;
+
 		private readonly int _uboMatrices;
 		public int UboMatrices => _uboMatrices;
 
@@ -30,12 +33,14 @@ namespace Arbatel.Graphics
 			GL.GenVertexArrays(1, out _vao);
 			GL.GenBuffers(1, out _vbo);
 			GL.GenBuffers(1, out _ebo);
+			GL.GenBuffers(1, out _lineLoopEbo);
 			GL.GenBuffers(1, out _uboMatrices);
 		}
 
 		public override void CleanUp()
 		{
 			GL.DeleteBuffer(UboMatrices);
+			GL.DeleteBuffer(LineLoopEbo);
 			GL.DeleteBuffer(Ebo);
 			GL.DeleteBuffer(Vbo);
 			GL.DeleteVertexArray(Vao);
@@ -112,55 +117,6 @@ namespace Arbatel.Graphics
 			}
 		});
 
-		public void SetUp()
-		{
-			string version = GL.GetString(StringName.Version);
-
-			string[] split = version.Split('.', ' ');
-
-			bool gotMajor = Int32.TryParse(split[0], out int glMajor);
-			bool gotMinor = Int32.TryParse(split[1], out int glMinor);
-
-			if (!(gotMajor && gotMinor))
-			{
-				throw new GraphicsException("Couldn't parse OpenGL version string!");
-			}
-
-			if (glMajor < 3)
-			{
-				string extensions = GL.GetString(StringName.Extensions);
-
-				var missing = new List<string>();
-
-				foreach (string extension in RequiredExtensions)
-				{
-					if (!extensions.Contains(extension))
-					{
-						missing.Add(extension);
-					}
-				}
-
-				if (missing.Count > 0)
-				{
-					string message = $"{Core.Name} needs at least OpenGL 3.1, or these missing extensions:\n\n";
-					message += String.Join("\n", missing.ToArray());
-
-					throw new GraphicsException(message);
-				}
-			}
-
-			GL.Enable(EnableCap.DepthTest);
-
-			GL.FrontFace(FrontFaceDirection.Ccw);
-
-			(int glslMajor, int glslMinor) = Shader.GetGlslVersion();
-
-			Shaders.Clear();
-			Shaders.Add(ShadingStyle.Wireframe, new WireframeShader(glslMajor, glslMinor) { BackEnd = this });
-			Shaders.Add(ShadingStyle.Flat, new FlatShader(glslMajor, glslMinor) { BackEnd = this });
-			Shaders.Add(ShadingStyle.Textured, new SingleTextureShader(glslMajor, glslMinor) { BackEnd = this });
-		}
-
 		public void DrawMapWireframe(Map map, View view, Camera camera)
 		{
 			IEnumerable<MapObject> visible = camera.GetVisibleMapObjects(map.AllObjects);
@@ -180,9 +136,11 @@ namespace Arbatel.Graphics
 			OpenGLBuffers b = Buffers[(map, view)];
 
 			GL.BindVertexArray(b.Vao);
+			GL.BindBuffer(BufferTarget.ElementArrayBuffer, b.LineLoopEbo);
 
 			Shaders[ShadingStyle.Wireframe].Draw(wireframeWorld, wireframeModel, camera);
 
+			GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);
 			GL.BindVertexArray(0);
 		}
 		public void DrawMapFlat(Map map, View view, Camera camera)
@@ -204,9 +162,11 @@ namespace Arbatel.Graphics
 			OpenGLBuffers b = Buffers[(map, view)];
 
 			GL.BindVertexArray(b.Vao);
+			GL.BindBuffer(BufferTarget.ElementArrayBuffer, b.Ebo);
 
 			Shaders[ShadingStyle.Flat].Draw(flatWorld, flatModel, camera);
 
+			GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);
 			GL.BindVertexArray(0);
 		}
 		public void DrawMapTextured(Map map, View view, Camera camera)
@@ -263,12 +223,63 @@ namespace Arbatel.Graphics
 			OpenGLBuffers b = Buffers[(map, view)];
 
 			GL.BindVertexArray(b.Vao);
+			GL.BindBuffer(BufferTarget.ElementArrayBuffer, b.Ebo);
 
 			Shaders[ShadingStyle.Textured].Draw(texturedWorld, texturedModel, camera);
 			Shaders[ShadingStyle.Flat].Draw(flatWorld, flatModel, camera);
 			Shaders[ShadingStyle.Wireframe].Draw(wireframeWorld, wireframeModel, camera);
 
+			GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);
 			GL.BindVertexArray(0);
+		}
+
+		public void SetUp()
+		{
+			string version = GL.GetString(StringName.Version);
+
+			string[] split = version.Split('.', ' ');
+
+			bool gotMajor = Int32.TryParse(split[0], out int glMajor);
+			bool gotMinor = Int32.TryParse(split[1], out int glMinor);
+
+			if (!(gotMajor && gotMinor))
+			{
+				throw new GraphicsException("Couldn't parse OpenGL version string!");
+			}
+
+			if (glMajor < 3)
+			{
+				string extensions = GL.GetString(StringName.Extensions);
+
+				var missing = new List<string>();
+
+				foreach (string extension in RequiredExtensions)
+				{
+					if (!extensions.Contains(extension))
+					{
+						missing.Add(extension);
+					}
+				}
+
+				if (missing.Count > 0)
+				{
+					string message = $"{Core.Name} needs at least OpenGL 3.1, or these missing extensions:\n\n";
+					message += String.Join("\n", missing.ToArray());
+
+					throw new GraphicsException(message);
+				}
+			}
+
+			GL.Enable(EnableCap.DepthTest);
+
+			GL.FrontFace(FrontFaceDirection.Ccw);
+
+			(int glslMajor, int glslMinor) = Shader.GetGlslVersion();
+
+			Shaders.Clear();
+			Shaders.Add(ShadingStyle.Wireframe, new WireframeShader(glslMajor, glslMinor) { BackEnd = this });
+			Shaders.Add(ShadingStyle.Flat, new FlatShader(glslMajor, glslMinor) { BackEnd = this });
+			Shaders.Add(ShadingStyle.Textured, new SingleTextureShader(glslMajor, glslMinor) { BackEnd = this });
 		}
 
 		protected override void InitMap(Map map, View view)
@@ -287,7 +298,6 @@ namespace Arbatel.Graphics
 
 			GL.BindVertexArray(buffers.Vao);
 			GL.BindBuffer(BufferTarget.ArrayBuffer, buffers.Vbo);
-			GL.BindBuffer(BufferTarget.ElementArrayBuffer, buffers.Ebo);
 
 			GL.VertexAttribPointer(Shader.Locations["position"], 3, VertexAttribPointerType.Float, false, Vertex.MemorySize, 0);
 			GL.EnableVertexAttribArray(Shader.Locations["position"]);
@@ -307,7 +317,6 @@ namespace Arbatel.Graphics
 
 			GL.BindVertexArray(0);
 			GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
-			GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);
 		}
 		protected override void DeleteMap(Map map, View view)
 		{
@@ -330,16 +339,25 @@ namespace Arbatel.Graphics
 		{
 			int totalVertexBytes = 0;
 			int totalIndexBytes = 0;
+			int totalLineLoopBytes = 0;
 			int totalMatrixBytes = Vector4.SizeInBytes * 4 * 2; // projectionMatrix, viewMatrix
 
 			foreach (Renderable r in renderables)
 			{
 				totalVertexBytes += Vertex.MemorySize * r.Vertices.Count;
 				totalIndexBytes += sizeof(int) * r.Indices.Count;
+				totalLineLoopBytes += sizeof(int) * r.LineLoopIndices.Count;
 			}
 
 			GL.BufferData(BufferTarget.ArrayBuffer, totalVertexBytes, IntPtr.Zero, BufferUsageHint.StaticDraw);
+
+			GL.BindBuffer(BufferTarget.ElementArrayBuffer, buffers.Ebo);
 			GL.BufferData(BufferTarget.ElementArrayBuffer, totalIndexBytes, IntPtr.Zero, BufferUsageHint.StaticDraw);
+			GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);
+
+			GL.BindBuffer(BufferTarget.ElementArrayBuffer, buffers.LineLoopEbo);
+			GL.BufferData(BufferTarget.ElementArrayBuffer, totalLineLoopBytes, IntPtr.Zero, BufferUsageHint.StaticDraw);
+			GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);
 
 			GL.BindBuffer(BufferTarget.UniformBuffer, buffers.UboMatrices);
 			GL.BufferData(BufferTarget.UniformBuffer, totalMatrixBytes, IntPtr.Zero, BufferUsageHint.StaticDraw);
@@ -348,41 +366,61 @@ namespace Arbatel.Graphics
 			int verticesSoFar = 0;
 			IntPtr vboOffset = IntPtr.Zero;
 
-			int indicesSoFar = 0;
 			IntPtr eboOffset = IntPtr.Zero;
+			IntPtr lineLoopEboOffset = IntPtr.Zero;
 
 			foreach (Renderable r in renderables)
 			{
 				r.VertexOffset = vboOffset;
 				r.IndexOffset = eboOffset;
+				r.LineLoopIndexOffset = lineLoopEboOffset;
 
 				IntPtr polygonIndexOffset = r.IndexOffset;
 				foreach (Polygon p in r.Polygons)
 				{
 					p.IndexOffset = polygonIndexOffset;
-					polygonIndexOffset += p.Indices.Count * sizeof(int);
+					polygonIndexOffset += sizeof(int) * p.Indices.Count;
 				}
 
-				int totalVerticesBytes = Vertex.MemorySize * r.Vertices.Count;
+				IntPtr polygonLineLoopIndexOffset = r.LineLoopIndexOffset;
+				foreach (Polygon p in r.Polygons)
+				{
+					p.LineLoopIndexOffset = polygonLineLoopIndexOffset;
+					polygonLineLoopIndexOffset += sizeof(int) * p.LineLoopIndices.Count;
+				}
+
+				int renderableVerticesBytes = Vertex.MemorySize * r.Vertices.Count;
 				GL.BufferSubData(
 					BufferTarget.ArrayBuffer,
 					vboOffset,
-					totalVerticesBytes,
+					renderableVerticesBytes,
 					r.Vertices.ToArray());
 
-				int totalIndicesBytes = sizeof(int) * r.Indices.Count;
+				GL.BindBuffer(BufferTarget.ElementArrayBuffer, buffers.Ebo);
+				int renderableIndicesBytes = sizeof(int) * r.Indices.Count;
 				IEnumerable<int> shiftedIndices = r.Indices.Select(i => verticesSoFar + i);
 				GL.BufferSubData(
 					BufferTarget.ElementArrayBuffer,
 					eboOffset,
-					totalIndicesBytes,
+					renderableIndicesBytes,
 					shiftedIndices.ToArray());
+				GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);
+
+				GL.BindBuffer(BufferTarget.ElementArrayBuffer, buffers.LineLoopEbo);
+				int renderableLineLoopIndicesBytes = sizeof(int) * r.LineLoopIndices.Count;
+				IEnumerable<int> shiftedLineLoopIndices = r.LineLoopIndices.Select(i => verticesSoFar + i);
+				GL.BufferSubData(
+					BufferTarget.ElementArrayBuffer,
+					lineLoopEboOffset,
+					renderableLineLoopIndicesBytes,
+					shiftedLineLoopIndices.ToArray());
+				GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);
 
 				verticesSoFar += r.Vertices.Count;
-				vboOffset += totalVerticesBytes;
+				vboOffset += renderableVerticesBytes;
 
-				indicesSoFar += r.Indices.Count;
-				eboOffset += totalIndicesBytes;
+				eboOffset += renderableIndicesBytes;
+				lineLoopEboOffset += renderableLineLoopIndicesBytes;
 			}
 		}
 
