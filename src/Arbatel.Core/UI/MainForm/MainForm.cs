@@ -38,7 +38,17 @@ namespace Arbatel.UI
 
 			InitializeCommands();
 
-			var viewport = new OpenGLViewport { ID = "viewport" };
+			bool veldrid = true;
+
+			Viewport viewport;
+			if (veldrid)
+			{
+				viewport = new VeldridViewport { ID = "viewport" };
+			}
+			else
+			{
+				viewport = new OpenGLViewport { ID = "viewport" };
+			}
 
 			BackEnd = viewport.BackEnd;
 

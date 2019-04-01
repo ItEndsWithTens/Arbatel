@@ -44,6 +44,12 @@ namespace Arbatel.Graphics
 
 					_indexCounts.Clear();
 					_indexOffsets.Clear();
+					// TODO: Confirm that this is correct; I don't think it is.
+					// Things were just grouped by Renderable, above, but then
+					// this loop goes through everything in t, instead of pair.
+					// I think the issue is I don't have any test maps that have
+					// textured objects with a model matrix that isn't identity.
+					// Need to get entity model loading working, I guess.
 					foreach ((Polygon p, _) in t)
 					{
 						_indexCounts.Add(p.Indices.Count);

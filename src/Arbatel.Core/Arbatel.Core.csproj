@@ -33,6 +33,7 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
     <PackageReference Include="nucs.JsonSettings" Version="1.0.7" />
+    <PackageReference Include="Veldrid" Version="4.6.1" />
   </ItemGroup>
 
   <ItemGroup>

@@ -35,6 +35,13 @@ namespace Arbatel.Graphics
 					_indexOffsets.Add(p.LineLoopIndexOffset);
 				}
 
+				// TODO: Switch to line strips! Line loops are more convenient, since
+				// they automatically close up at the end, but Veldrid doesn't support
+				// that. Line strips are easy enough, just make a line loop and close
+				// it yourself, i.e. add the first index to the end of the LineLoopIndices
+				// property. Also rename that, since it's not a line loop anymore. Maybe
+				// it should just be WireframeIndices? Although LineStripIndices would be
+				// clearer at first glance.
 				GL.MultiDrawElements(
 					PrimitiveType.LineLoop,
 					_indexCounts.ToArray(),

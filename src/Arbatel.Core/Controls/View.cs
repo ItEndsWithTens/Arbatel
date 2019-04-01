@@ -101,24 +101,12 @@ namespace Arbatel.Controls
 			{
 				if (Content != null)
 				{
-					Content.GotFocus -= Content_GotFocus;
-					Content.LostFocus -= Content_LostFocus;
-
-					Content.KeyDown -= Content_KeyDown;
-					Content.KeyUp -= Content_KeyUp;
-
-					Content.MouseEnter -= Content_MouseEnter;
+					DetachInputHandlers(Content);
 				}
 
 				base.Content = value;
 
-				Content.GotFocus += Content_GotFocus;
-				Content.LostFocus += Content_LostFocus;
-
-				Content.KeyDown += Content_KeyDown;
-				Content.KeyUp += Content_KeyUp;
-
-				Content.MouseEnter += Content_MouseEnter;
+				AttachInputHandlers(Content);
 			}
 		}
 
@@ -135,6 +123,27 @@ namespace Arbatel.Controls
 
 		public virtual void Refresh()
 		{
+		}
+
+		protected void AttachInputHandlers(Control control)
+		{
+			control.GotFocus += Content_GotFocus;
+			control.LostFocus += Content_LostFocus;
+
+			control.KeyDown += Content_KeyDown;
+			control.KeyUp += Content_KeyUp;
+
+			control.MouseEnter += Content_MouseEnter;
+		}
+		protected void DetachInputHandlers(Control control)
+		{
+			control.GotFocus -= Content_GotFocus;
+			control.LostFocus -= Content_LostFocus;
+
+			control.KeyDown -= Content_KeyDown;
+			control.KeyUp -= Content_KeyUp;
+
+			control.MouseEnter -= Content_MouseEnter;
 		}
 
 		private void Content_GotFocus(object sender, EventArgs e)
