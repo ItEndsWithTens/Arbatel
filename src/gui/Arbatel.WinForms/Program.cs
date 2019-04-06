@@ -39,6 +39,13 @@ namespace Arbatel.WinForms
 
 	public class WinFormsVeldridSurfaceHandler : VeldridSurfaceHandler
 	{
+		protected override void InitializeOpenGL()
+		{
+			Platform.Instance.Add<GLSurface.IHandler>(() => new PuppetWinGLSurfaceHandler());
+
+			base.InitializeOpenGL();
+		}
+
 		protected override void InitializeOtherApi()
 		{
 			// OpenGL initialization is technically platform-dependent, but it
@@ -88,16 +95,13 @@ namespace Arbatel.WinForms
 
 			Platform platform = Platform.Detect;
 
-			bool veldrid = true;
-			if (veldrid)
-			{
-				platform.Add<GLSurface.IHandler>(() => new PuppetWinGLSurfaceHandler());
-			}
-			else
-			{
-				platform.Add<GLSurface.IHandler>(() => new WinGLSurfaceHandler());
-			}
-
+			// If Veldrid will be used as the backend for this application, an
+			// instance of PuppetWinGLSurfaceHandler will need to be used as the
+			// handler for GLSurface. Unfortunately there's no way to determine
+			// whether Veldrid is suitable or not just yet, so add the normal
+			// handler first and update it later. Eto.Platform.Add overwrites
+			// existing control handlers, so there's no worry about duplicates.
+			platform.Add<GLSurface.IHandler>(() => new WinGLSurfaceHandler());
 			platform.Add<VeldridSurface.IHandler>(() => new WinFormsVeldridSurfaceHandler());
 
 			Style.Add<View>(

@@ -44,8 +44,6 @@ namespace Arbatel.Graphics
 		public ResourceFactory Factory { get; set; }
 
 		public CommandList CommandList { get; set; }
-		public Veldrid.Shader VertexShader { get; set; }
-		public Veldrid.Shader FragmentShader { get; set; }
 
 		public VertexLayoutDescription VertexLayout { get; private set; }
 		public ResourceLayout ProjectionMatrixLayout { get; private set; }

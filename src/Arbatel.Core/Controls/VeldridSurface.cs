@@ -164,7 +164,6 @@ namespace Arbatel.Controls
 				case false:
 					return;
 				case true:
-					(RenderTarget as GLSurface).MakeCurrent();
 					InitializeOpenGL();
 					break;
 				case null:
@@ -178,6 +177,8 @@ namespace Arbatel.Controls
 		/// </summary>
 		protected virtual void InitializeOpenGL()
 		{
+			(RenderTarget as GLSurface).MakeCurrent();
+
 			VeldridGL.Surfaces.Add(RenderTarget as GLSurface);
 
 			var platformInfo = new OpenGLPlatformInfo(
@@ -341,10 +342,12 @@ namespace Arbatel.Controls
 				int major = 3;
 				int minor = 3;
 				GraphicsContextFlags flags = GraphicsContextFlags.ForwardCompatible;
+
 				var surface = new GLSurface(mode, major, minor, flags);
 				surface.GLInitalized += (sender, e) => GLReady = true;
-				GotFocus += (sender, e) => surface.Focus();
 				surface.Draw += (sender, e) => OnDraw(EventArgs.Empty);
+
+				GotFocus += (sender, e) => surface.Focus();
 
 				Handler.RenderTarget = surface;
 			}
