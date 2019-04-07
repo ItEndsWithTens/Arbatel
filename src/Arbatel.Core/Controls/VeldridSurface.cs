@@ -175,6 +175,11 @@ namespace Arbatel.Controls
 					InitializeOtherApi();
 					break;
 			}
+
+			// Ideally Callback.OnVeldridInitialized would be called here, but
+			// WPF needs to delay raising that event until after WpfVeldridHost
+			// has been Loaded. Each platform's XVeldridSurfaceHandler therefore
+			// has to call OnVeldridInitialized itself.
 		}
 
 		/// <summary>
@@ -209,6 +214,8 @@ namespace Arbatel.Controls
 				(uint)Widget.Height);
 
 			Widget.Swapchain = Widget.GraphicsDevice.MainSwapchain;
+
+			Callback.OnVeldridInitialized(Widget, EventArgs.Empty);
 		}
 
 		/// <summary>
