@@ -180,6 +180,10 @@ namespace Arbatel.Controls
 		/// <summary>
 		/// Prepare this VeldridSurface to use OpenGL.
 		/// </summary>
+		/// <remarks>
+		/// OpenGL initialization is platform-dependent, but here it happens by
+		/// way of GLSurface, which for users of the class is cross-platform.
+		/// </remarks>
 		protected virtual void InitializeOpenGL()
 		{
 			(RenderTarget as GLSurface).MakeCurrent();
@@ -212,6 +216,32 @@ namespace Arbatel.Controls
 		/// </summary>
 		protected virtual void InitializeOtherApi()
 		{
+			if (Widget.Backend == GraphicsBackend.Metal)
+			{
+				Widget.GraphicsDevice = GraphicsDevice.CreateMetal(new GraphicsDeviceOptions());
+			}
+			else if (Widget.Backend == GraphicsBackend.Vulkan)
+			{
+				Widget.GraphicsDevice = GraphicsDevice.CreateVulkan(new GraphicsDeviceOptions());
+			}
+			else if (Widget.Backend == GraphicsBackend.Direct3D11)
+			{
+				Widget.GraphicsDevice = GraphicsDevice.CreateD3D11(new GraphicsDeviceOptions());
+			}
+			else
+			{
+				string message;
+				if (!Enum.IsDefined(typeof(GraphicsBackend), Widget.Backend))
+				{
+					message = "Unrecognized backend!";
+				}
+				else
+				{
+					message = "Specified backend not supported on this platform!";
+				}
+
+				throw new ArgumentException(message);
+			}
 		}
 	}
 

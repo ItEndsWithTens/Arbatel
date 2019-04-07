@@ -58,35 +58,7 @@ namespace Arbatel.Wpf
 
 		protected override void InitializeOtherApi()
 		{
-			// TODO: Move the various GraphicsDevice creations into the base
-			// handler class, and just call base.InitializeOtherApi up here before
-			// moving on to the 'dummy' stuff.
-
-			// OpenGL initialization is technically platform-dependent, but it
-			// happens by way of GLSurface, which for users of the class is
-			// cross platform. See VeldridSurface for initialization details.
-			if (Widget.Backend == GraphicsBackend.Vulkan)
-			{
-				Widget.GraphicsDevice = GraphicsDevice.CreateVulkan(new GraphicsDeviceOptions());
-			}
-			else if (Widget.Backend == GraphicsBackend.Direct3D11)
-			{
-				Widget.GraphicsDevice = GraphicsDevice.CreateD3D11(new GraphicsDeviceOptions());
-			}
-			else
-			{
-				string message;
-				if (!Enum.IsDefined(typeof(GraphicsBackend), Widget.Backend))
-				{
-					message = "Unrecognized backend!";
-				}
-				else
-				{
-					message = "Specified backend not supported on this platform!";
-				}
-
-				throw new ArgumentException(message);
-			}
+			base.InitializeOtherApi();
 
 			var dummy = new WpfVeldridHost();
 			dummy.Loaded += (sender, e) =>

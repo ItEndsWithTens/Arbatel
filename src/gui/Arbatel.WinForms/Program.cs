@@ -48,31 +48,7 @@ namespace Arbatel.WinForms
 
 		protected override void InitializeOtherApi()
 		{
-			// OpenGL initialization is technically platform-dependent, but it
-			// happens by way of GLSurface, which for users of the class is
-			// cross platform. See VeldridSurface for initialization details.
-			if (Widget.Backend == GraphicsBackend.Vulkan)
-			{
-				Widget.GraphicsDevice = GraphicsDevice.CreateVulkan(new GraphicsDeviceOptions());
-			}
-			else if (Widget.Backend == GraphicsBackend.Direct3D11)
-			{
-				Widget.GraphicsDevice = GraphicsDevice.CreateD3D11(new GraphicsDeviceOptions());
-			}
-			else
-			{
-				string message;
-				if (!Enum.IsDefined(typeof(GraphicsBackend), Widget.Backend))
-				{
-					message = "Unrecognized backend!";
-				}
-				else
-				{
-					message = "Specified backend not supported on this platform!";
-				}
-
-				throw new ArgumentException(message);
-			}
+			base.InitializeOtherApi();
 
 			var source = SwapchainSource.CreateWin32(
 				Control.NativeHandle, Marshal.GetHINSTANCE(typeof(VeldridSurface).Module));
@@ -83,6 +59,8 @@ namespace Arbatel.WinForms
 					(uint)Widget.Height,
 					Veldrid.PixelFormat.R32_Float,
 					false));
+
+			Callback.OnVeldridInitialized(Widget, EventArgs.Empty);
 		}
 	}
 
