@@ -32,6 +32,14 @@ namespace Arbatel.Controls
 						c.Visible = true;
 
 						view.Value.SetUp.Invoke(c);
+
+						// Eto 2.4.1's MacView class, the basis for a number of
+						// controls on the Mac platforms, doesn't support the
+						// EnabledChanged event. This is a suitable workaround.
+						if (c is View v)
+						{
+							v.Focus();
+						}
 					}
 					// Some values of View use the same Control as others, with
 					// only the SetUp Action differing, so it's important to not
@@ -81,8 +89,13 @@ namespace Arbatel.Controls
 			};
 			// To avoid interrupting Tab cycling until users actually want to edit
 			// something, defocus controls by default and focus this Viewport instead.
-			text.EnabledChanged += (sender, e) => { Focus(); };
-			text.MouseLeave += (sender, e) => { Focus(); };
+			text.MouseLeave += (sender, e) =>
+			{
+				if (text.Enabled)
+				{
+					Focus();
+				}
+			};
 
 			var tree = new TreeGridView()
 			{
@@ -90,8 +103,13 @@ namespace Arbatel.Controls
 				Enabled = false,
 				Visible = false
 			};
-			tree.EnabledChanged += (sender, e) => { Focus(); };
-			tree.MouseLeave += (sender, e) => { Focus(); };
+			tree.MouseLeave += (sender, e) =>
+			{
+				if (tree.Enabled)
+				{
+					Focus();
+				}
+			};
 
 			Views.Add(0, (text, "Text", (v) => { }));
 			Views.Add(1, (tree, "Tree", (v) => { }));

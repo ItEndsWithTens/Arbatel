@@ -34,7 +34,7 @@ namespace Arbatel.Controls
 		}
 	}
 
-	public class View : Panel, IUpdateFromSettings
+	public class View : Drawable, IUpdateFromSettings
 	{
 		/// <summary>
 		/// The graphics backend to use when rendering in this View.
@@ -94,26 +94,12 @@ namespace Arbatel.Controls
 			}
 		}
 
-		public new Control Content
-		{
-			get { return base.Content; }
-			set
-			{
-				if (Content != null)
-				{
-					DetachInputHandlers(Content);
-				}
-
-				base.Content = value;
-
-				AttachInputHandlers(Content);
-			}
-		}
-
 		public event EventHandler Updated;
 
 		public View()
 		{
+			CanFocus = true;
+
 			GraphicsClock.Elapsed += GraphicsClock_Elapsed;
 		}
 		public View(Control surface) : this()
@@ -125,52 +111,45 @@ namespace Arbatel.Controls
 		{
 		}
 
-		protected void AttachInputHandlers(Control control)
+		protected override void OnGotFocus(EventArgs e)
 		{
-			control.GotFocus += Content_GotFocus;
-			control.LostFocus += Content_LostFocus;
+			base.OnGotFocus(e);
 
-			control.KeyDown += Content_KeyDown;
-			control.KeyUp += Content_KeyUp;
-
-			control.MouseEnter += Content_MouseEnter;
-		}
-		protected void DetachInputHandlers(Control control)
-		{
-			control.GotFocus -= Content_GotFocus;
-			control.LostFocus -= Content_LostFocus;
-
-			control.KeyDown -= Content_KeyDown;
-			control.KeyUp -= Content_KeyUp;
-
-			control.MouseEnter -= Content_MouseEnter;
-		}
-
-		private void Content_GotFocus(object sender, EventArgs e)
-		{
 			GraphicsClock.Interval = 1.0 / Fps;
 			Controller.Activate();
 		}
-		private void Content_LostFocus(object sender, EventArgs e)
+		protected override void OnLostFocus(EventArgs e)
 		{
+			base.OnLostFocus(e);
+
+			// TODO: Get rid of this? I think focus may be lost when even just
+			// clicking menus, so it's not a reliable way to lower CPU impact
+			// when users make another application current.
+			//
 			// A perhaps-unnecessary performance thing; would love to allow full framerate
 			// for all visible views, so editing objects is visually smooth everywhere at once.
 			GraphicsClock.Interval = 1.0 / (Fps / 4.0);
 			Controller.Deactivate();
 		}
 
-		private void Content_KeyDown(object sender, KeyEventArgs e)
+		protected override void OnKeyDown(KeyEventArgs e)
 		{
+			base.OnKeyDown(e);
+
 			Controller.KeyDown(this, e);
 		}
-		private void Content_KeyUp(object sender, KeyEventArgs e)
+		protected override void OnKeyUp(KeyEventArgs e)
 		{
+			base.OnKeyUp(e);
+
 			Controller.KeyUp(this, e);
 		}
 
-		private void Content_MouseEnter(object sender, MouseEventArgs e)
+		protected override void OnMouseEnter(MouseEventArgs e)
 		{
-			Content.Focus();
+			base.OnMouseEnter(e);
+
+			Focus();
 		}
 
 		private void GraphicsClock_Elapsed(object sender, EventArgs e)
