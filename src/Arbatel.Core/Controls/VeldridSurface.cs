@@ -159,6 +159,11 @@ namespace Arbatel.Controls
 
 		public virtual void InitializeGraphicsApi()
 		{
+			if (!Widget.ControlReady)
+			{
+				return;
+			}
+
 			switch (Widget.GLReady)
 			{
 				case false:
@@ -228,6 +233,7 @@ namespace Arbatel.Controls
 		{
 			void OnDraw(VeldridSurface s, EventArgs e);
 			void OnResize(VeldridSurface s, ResizeEventArgs e);
+			void OnVeldridInitialized(VeldridSurface s, EventArgs e);
 		}
 
 		protected new class Callback : Control.Callback, ICallback
@@ -240,6 +246,11 @@ namespace Arbatel.Controls
 			public void OnResize(VeldridSurface s, ResizeEventArgs e)
 			{
 				s.OnResize(e);
+			}
+
+			public void OnVeldridInitialized(VeldridSurface s, EventArgs e)
+			{
+				s.OnVeldridInitialized(e);
 			}
 		}
 
@@ -287,7 +298,7 @@ namespace Arbatel.Controls
 			{
 				_glReady = value;
 
-				RaiseInitEventIfReady();
+				Handler.InitializeGraphicsApi();
 			}
 		}
 
@@ -299,7 +310,7 @@ namespace Arbatel.Controls
 			{
 				_controlReady = value;
 
-				RaiseInitEventIfReady();
+				Handler.InitializeGraphicsApi();
 			}
 		}
 
@@ -375,18 +386,6 @@ namespace Arbatel.Controls
 			base.OnSizeChanged(e);
 
 			OnResize(new ResizeEventArgs(Width, Height));
-		}
-
-		private void RaiseInitEventIfReady()
-		{
-			if (!ControlReady)
-			{
-				return;
-			}
-
-			Handler.InitializeGraphicsApi();
-
-			OnVeldridInitialized(EventArgs.Empty);
 		}
 	}
 }

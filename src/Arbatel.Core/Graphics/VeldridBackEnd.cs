@@ -568,7 +568,7 @@ namespace Arbatel.Graphics
 		public override void InitTexture(Texture texture)
 		{
 			PixelFormat format;
-			if (Eto.Platform.Instance.IsWinForms)
+			if (Platform.Instance.IsWinForms || Platform.Instance.IsWpf)
 			{
 				format = PixelFormat.B8_G8_R8_A8_UNorm;
 			}

@@ -71,12 +71,6 @@ namespace Arbatel.Controls
 			surface.Draw += (sender, e) => Refresh();
 
 			Content = surface;
-
-			if (surface.Handler.RenderTarget != null)
-			{
-				DetachInputHandlers(Content);
-				AttachInputHandlers(surface.Handler.RenderTarget);
-			}
 		}
 
 		public override void Refresh()
