@@ -10,6 +10,8 @@ namespace Arbatel.Controls
 {
 	public class Viewport : PixelLayout
 	{
+		public static int DefaultView { get; set; } = 4;
+
 		public BackEnd BackEnd { get; set; }
 
 		private int _view = 0;
@@ -39,6 +41,13 @@ namespace Arbatel.Controls
 						if (c is View v)
 						{
 							v.Focus();
+						}
+						else
+						{
+							// To avoid interrupting Tab cycling until users
+							// actually want to edit something, defocus controls
+							// by default and focus this Viewport instead.
+							Focus();
 						}
 					}
 					// Some values of View use the same Control as others, with
@@ -87,8 +96,6 @@ namespace Arbatel.Controls
 				Enabled = false,
 				Visible = false
 			};
-			// To avoid interrupting Tab cycling until users actually want to edit
-			// something, defocus controls by default and focus this Viewport instead.
 			text.MouseLeave += (sender, e) =>
 			{
 				if (text.Enabled)
@@ -116,8 +123,11 @@ namespace Arbatel.Controls
 
 			UpdateViews();
 
-			KeyDown += Viewport_KeyDown;
-			LoadComplete += Viewport_LoadComplete;
+			// Prepare the default View for graphics API initialization. This
+			// won't prepare it for input, i.e. focus it; see MainForm for that.
+			LoadComplete += (sender, e) => View = DefaultView;
+
+			SizeChanged += (sender, e) => Views[View].Control.Size = ClientSize;
 		}
 
 		protected void UpdateViews()
@@ -136,15 +146,10 @@ namespace Arbatel.Controls
 			}
 		}
 
-		protected override void OnSizeChanged(EventArgs e)
+		protected override void OnKeyDown(KeyEventArgs e)
 		{
-			base.OnSizeChanged(e);
+			base.OnKeyDown(e);
 
-			Views[View].Control.Size = ClientSize;
-		}
-
-		private void Viewport_KeyDown(object sender, KeyEventArgs e)
-		{
 			if (e.Key == Keys.Tab)
 			{
 				if (e.Modifiers == Keys.Shift)
@@ -158,11 +163,6 @@ namespace Arbatel.Controls
 
 				e.Handled = true;
 			}
-		}
-
-		private void Viewport_LoadComplete(object sender, EventArgs e)
-		{
-			View = 4;
 		}
 	}
 }

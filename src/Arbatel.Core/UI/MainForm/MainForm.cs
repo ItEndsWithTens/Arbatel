@@ -76,6 +76,8 @@ namespace Arbatel.UI
 			viewMenu.Items.Insert(viewport.ViewCommands.Count, new SeparatorMenuItem());
 
 			Content = viewport;
+
+			Shown += SetDefaultView;
 		}
 
 		private void CloseMap()
@@ -138,6 +140,22 @@ namespace Arbatel.UI
 			var collection = new TreeGridItemCollection(items);
 
 			tree.DataStore = collection;
+		}
+
+		/// <summary>
+		/// Set this form's Viewport to display its default View.
+		/// </summary>
+		/// <remarks>
+		/// This needs to happen well after the Viewport class's LoadComplete
+		/// and Shown events are raised, as well as after MainForm.LoadComplete,
+		/// but should also only happen once. A self-removing handler up here in
+		/// the MainForm class does the trick well enough.
+		/// </remarks>
+		private void SetDefaultView(object sender, EventArgs e)
+		{
+			((Viewport)Content).View = Viewport.DefaultView;
+
+			Shown -= SetDefaultView;
 		}
 	}
 }
