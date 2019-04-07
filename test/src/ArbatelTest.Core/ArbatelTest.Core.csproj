@@ -11,10 +11,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Eto.Forms" Version="2.5.0-ci-10088" />
-    <PackageReference Condition="$(BuildOS) == Windows" Include="Eto.Platform.Windows" Version="2.5.0-ci-10088" />
-    <PackageReference Condition="$(BuildOS) == Linux" Include="Eto.Platform.Gtk2" Version="2.5.0-ci-10088" />
-    <PackageReference Condition="$(BuildOS) == macOS" Include="Eto.Platform.Mac64" Version="2.5.0-ci-10088" />
+    <PackageReference Include="Eto.Forms" Version="2.5.0-ci-10178" />
+    <PackageReference Condition="$(BuildOS) == Windows" Include="Eto.Platform.Windows" Version="2.5.0-ci-10178" />
+    <PackageReference Condition="$(BuildOS) == Linux" Include="Eto.Platform.Gtk2" Version="2.5.0-ci-10178" />
+    <PackageReference Condition="$(BuildOS) == macOS" Include="Eto.Platform.Mac64" Version="2.5.0-ci-10178" />
     <PackageReference Include="NUnit" Version="3.11.0" />
     <PackageReference Include="NUnit3TestAdapter" Version="3.12.0" />
     <Reference Include="OpenTK">

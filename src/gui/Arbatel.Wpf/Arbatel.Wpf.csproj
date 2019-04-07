@@ -12,10 +12,10 @@
 
   <ItemGroup>
     <PackageReference Include="Eto.Forms">
-      <Version>2.5.0-ci-10088</Version>
+      <Version>2.5.0-ci-10178</Version>
     </PackageReference>
     <PackageReference Include="Eto.Platform.Wpf">
-      <Version>2.5.0-ci-10088</Version>
+      <Version>2.5.0-ci-10178</Version>
     </PackageReference>
   </ItemGroup>
 
