@@ -40,7 +40,8 @@
   ### Install prerequisites
 
   #### Windows
-  - [Visual Studio 2017](https://visualstudio.microsoft.com/vs/community/)
+  - [Visual Studio](https://visualstudio.microsoft.com/vs/community/) 2017 or newer
+    - The "F# language support" component must be also installed in order to build the custom OpenTK codebase.
   - Up to date PowerShell (part of the [Windows Management Framework](https://docs.microsoft.com/en-us/powershell/wmf/overview))
     - WMF 5.1 is included with Windows 10, and works as-is, but earlier versions of the OS may have outdated framework installations, preventing the Nuke build script from properly passing some arguments down into MSBuild.
 

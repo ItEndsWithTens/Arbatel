@@ -46,7 +46,7 @@
   </Target>
 
   <PropertyGroup>
-    <NoCopyVeldridSpirvNative>$(Product).Core</NoCopyVeldridSpirvNative>
+    <NoCopyVeldridSpirvNative>_build;$(Product).Core;$(Product)Test.Core</NoCopyVeldridSpirvNative>
   </PropertyGroup>
 
   <Target Name="CopyVeldridSpirvNative" AfterTargets="SetNeatenizePath" BeforeTargets="NeatenizeLibraries" Condition="!$(NoCopyVeldridSpirvNative.Contains($(MSBuildProjectName)))">

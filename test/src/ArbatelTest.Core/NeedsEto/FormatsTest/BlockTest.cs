@@ -97,7 +97,7 @@ namespace ArbatelTest.Core.NeedsEto.Formats
 					indexCount += polygon.Indices.Count;
 				}
 
-				Assert.That(indexCount, Is.EqualTo(24));
+				Assert.That(indexCount, Is.EqualTo(36));
 			}
 
 			public class OpenBraceInTextureName

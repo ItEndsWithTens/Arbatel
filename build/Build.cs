@@ -28,6 +28,9 @@ class Build : NukeBuild
 {
 	const string ProductName = "Arbatel";
 
+	// Required when building the custom copy of OpenTK.
+	const string FSharpComponent = "Microsoft.VisualStudio.Component.FSharp";
+
 	string[] EtoPlatformsWin = new string[] { "WinForms", "Wpf" };
 	string[] EtoPlatformsLin = new string[] { "Gtk" };
 	string[] EtoPlatformsMac = new string[] { "Mac", "XamMac" };
@@ -76,35 +79,6 @@ class Build : NukeBuild
 	}
 
 	/// <summary>
-	/// Find the full path of a copy of MSBuild on a Windows system.
-	/// </summary>
-	/// <returns>The full path to MSBuild.exe</returns>
-	public static string GetMsBuildPath()
-	{
-		if (!EnvironmentInfo.IsWin)
-		{
-			throw new PlatformNotSupportedException("GetMsBuildPath only works in Windows!");
-		}
-
-		VSWhereSettings vswhereSettings = new VSWhereSettings()
-			.EnableLatest()
-			.AddRequires(MsBuildComponent);
-
-		IReadOnlyCollection<Output> output = VSWhere(s => vswhereSettings).Output;
-
-		string vsPath = output.FirstOrDefault(o => o.Text.StartsWith("installationPath")).Text.Replace("installationPath: ", "");
-		string vsVersion = output.FirstOrDefault(o => o.Text.StartsWith("installationVersion")).Text.Replace("installationVersion: ", "");
-		Int32.TryParse(vsVersion.Split('.')[0], out int vsMajor);
-
-		if (vsMajor < 15)
-		{
-			throw new Exception("Can't build with less than VS 2017!");
-		}
-
-		return Path.Combine(vsPath, "MSBuild", vsMajor.ToString() + ".0", "Bin", "MSBuild.exe");
-	}
-
-	/// <summary>
 	/// Get the absolute path to a given project's compile output directory.
 	/// </summary>
 	/// <param name="name">The name of the project.</param>
@@ -140,15 +114,54 @@ class Build : NukeBuild
 			EnsureCleanDirectories(GlobDirectories(TestSourceDirectory, "**/bin", "**/obj"));
 		});
 
-	Target SetCustomBuildPath => _ => _
+	Target SetVisualStudioPaths => _ => _
 		.Executes(() =>
 		{
 			if (EnvironmentInfo.IsWin)
 			{
+				Logger.Info("Windows build; setting Visual Studio paths.");
+
+				VSWhereSettings vswhereSettings = new VSWhereSettings()
+					.EnableLatest()
+					.AddRequires(MsBuildComponent)
+					.AddRequires(FSharpComponent);
+
+				IReadOnlyCollection<Output> output = VSWhere(s => vswhereSettings).Output;
+
+				Output outputPath = output.FirstOrDefault(o => o.Text.StartsWith("installationPath"));
+				Output outputVersion = output.FirstOrDefault(o => o.Text.StartsWith("installationVersion"));
+
+				// A list of component IDs and friendly names can be found at
+				// https://docs.microsoft.com/en-us/visualstudio/install/workload-and-component-ids
+				if (String.IsNullOrEmpty(outputPath.Text) || String.IsNullOrEmpty(outputVersion.Text))
+				{
+					throw new Exception(
+						"Couldn't find a suitable Visual Studio installation! " +
+						"Either VS is not installed, or no available version " +
+						"has all of the following components installed:" +
+						"\n" +
+						"\n" +
+						$"MSBuild ({MsBuildComponent})\n" +
+						$"F# language support ({FSharpComponent})");
+				}
+
+				string vsPath = outputPath.Text.Replace("installationPath: ", "");
+				string vsVersion = outputVersion.Text.Replace("installationVersion: ", "");
+				Int32.TryParse(vsVersion.Split('.')[0], out int vsMajor);
+
+				if (vsMajor < 15)
+				{
+					throw new Exception("Can't build with less than VS 2017!");
+				}
+
 				// Windows developers with Visual Studio installed to a directory
 				// other than System.Environment.SpecialFolder.ProgramFilesX86 need
 				// to tell Nuke the path to MSBuild.exe themselves.
-				CustomMsBuildPath = (AbsolutePath)GetMsBuildPath();
+				CustomMsBuildPath = (AbsolutePath)GlobFiles(Path.Combine(vsPath, "MSBuild"), "**/Bin/MSBuild.exe").First();
+			}
+			else
+			{
+				Logger.Info("Mono build; no Visual Studio paths to set.");
 			}
 		});
 
@@ -166,7 +179,7 @@ class Build : NukeBuild
 	}
 
 	Target CompileWindowsDependencies => _ => _
-		.DependsOn(Clean, SetCustomBuildPath)
+		.DependsOn(Clean, SetVisualStudioPaths)
 		.Before(CompileCore)
 		.Executes(() =>
 		{
@@ -174,7 +187,7 @@ class Build : NukeBuild
 		});
 
 	Target CompileLinuxDependencies => _ => _
-		.DependsOn(Clean, SetCustomBuildPath)
+		.DependsOn(Clean, SetVisualStudioPaths)
 		.Before(CompileCore)
 		.Executes(() =>
 		{
@@ -182,7 +195,7 @@ class Build : NukeBuild
 		});
 
 	Target CompileMacDependencies => _ => _
-		.DependsOn(Clean, SetCustomBuildPath)
+		.DependsOn(Clean, SetVisualStudioPaths)
 		.Before(CompileCore)
 		.Executes(() =>
 		{
@@ -207,7 +220,7 @@ class Build : NukeBuild
 	}
 
 	Target CompileCore => _ => _
-		.DependsOn(Clean, SetCustomBuildPath)
+		.DependsOn(Clean, SetVisualStudioPaths)
 		.Executes(() =>
 		{
 			Compile(new string[] { $"{ProductName}.Core" });
