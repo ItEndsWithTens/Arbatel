@@ -27,7 +27,7 @@
 
   ## Usage
 
-  Configure program settings with Edit|Preferences (Ctrl+,) and ensure appropriate FGDs and textures are loaded. WAD2 format texture collections will need to be generated or downloaded elsewhere, but sample FGDs are included in the 'extras' directory, covering vanilla Quake entities with features provided by [ericw's compiling tools](http://ericwa.github.io/ericw-tools/) (a big thank you to [DaZ](https://twitter.com/tdDaz) for curating quake4ericwTools.fgd, and the func_instance entity.
+  Configure program settings with Edit|Preferences (Ctrl+,) and ensure appropriate FGDs and textures are loaded. WAD2 format texture collections will need to be generated or downloaded elsewhere, but sample FGDs are included in the 'extras' directory, covering vanilla Quake entities with features provided by [ericw's compiling tools](http://ericwa.github.io/ericw-tools/) (a big thank you to [DaZ](https://twitter.com/tdDaz) for curating quake4ericwTools.fgd), and the func_instance entity.
   
   With your preferences set, open a .map file with File|Open (Ctrl+O), toggle fly mode with Z, and use WASDEQ for first person mouselook controls. Save the collapsed version of a map containing instances from the Instancing menu.
 
@@ -81,6 +81,7 @@
   - [etoViewport](https://github.com/philstopford/etoViewport) - OpenGL in Eto.Forms by way of OpenTK
   - [JsonSettings](https://github.com/Nucs/JsonSettings) - Simple, lightweight app settings
   - [Nuke](https://nuke.build) - Cross platform build automation with a C# DSL
+  - [Veldrid](https://veldrid.dev) - Metal, Vulkan, Direct3D and OpenGL support in one library
 
 
 
