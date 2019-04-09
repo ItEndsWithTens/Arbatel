@@ -28,6 +28,13 @@ namespace Arbatel.Graphics
 
 		public override void CleanUp()
 		{
+			VertexBuffer.Dispose();
+			IndexBuffer.Dispose();
+			LineLoopIndexBuffer.Dispose();
+
+			ProjectionMatrixBuffer.Dispose();
+			ViewMatrixBuffer.Dispose();
+			ModelMatrixBuffer.Dispose();
 		}
 	}
 
@@ -416,6 +423,18 @@ namespace Arbatel.Graphics
 
 			InitRenderables(buffers, map.AllObjects.GetAllRenderables());
 		}
+		protected override void DeleteMap(Map map, View view)
+		{
+			base.DeleteMap(map, view);
+
+			if (!Buffers.ContainsKey((map, view)))
+			{
+				return;
+			}
+
+			Buffers[(map, view)].CleanUp();
+			Buffers.Remove((map, view));
+		}
 
 		private Pipeline CreatePipeline(ShadingStyle shadingStyle, VertexLayoutDescription vertexLayout)
 		{
@@ -611,6 +630,11 @@ namespace Arbatel.Graphics
 				TextureLayout, view));
 
 			Textures.Add(texture.Name, set);
+		}
+		public override void DeleteTexture(string name)
+		{
+			Textures[name].Dispose();
+			Textures.Remove(name);
 		}
 
 		protected override void Renderable_Updated(object sender, EventArgs e)

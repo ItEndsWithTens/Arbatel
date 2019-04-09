@@ -123,23 +123,27 @@ namespace Arbatel.UI
 				rdoInstanceNormal.Command.Execute(null);
 			}
 
-			var tree = viewport.Views[1].Control as TreeGridView;
-			tree.Columns.Add(new GridColumn() { HeaderText = "Column 1", DataCell = new TextBoxCell(0) });
-			tree.Columns.Add(new GridColumn() { HeaderText = "Column 2", DataCell = new TextBoxCell(1) });
-			tree.Columns.Add(new GridColumn() { HeaderText = "Column 3", DataCell = new TextBoxCell(2) });
-			tree.Columns.Add(new GridColumn() { HeaderText = "Column 4", DataCell = new TextBoxCell(3) });
+			// TODO: Reenable this once I actually understand data binding in
+			// Eto! Currently it's just wasting memory every time users close
+			// a map and open a new one. Eventually I want a hierarchical view
+			// of the level contents, but we'll get there when we get there.
+			//var tree = viewport.Views[1].Control as TreeGridView;
+			//tree.Columns.Add(new GridColumn() { HeaderText = "Column 1", DataCell = new TextBoxCell(0) });
+			//tree.Columns.Add(new GridColumn() { HeaderText = "Column 2", DataCell = new TextBoxCell(1) });
+			//tree.Columns.Add(new GridColumn() { HeaderText = "Column 3", DataCell = new TextBoxCell(2) });
+			//tree.Columns.Add(new GridColumn() { HeaderText = "Column 4", DataCell = new TextBoxCell(3) });
 
-			var items = new List<TreeGridItem>
-			{
-				new TreeGridItem(new object[] { "first", "second", "third" }),
-				new TreeGridItem(new object[] { "morpb", "kwang", "wump" }),
-				new TreeGridItem(new object[] { "dlooob", "oorf", "dimples" }),
-				new TreeGridItem(new object[] { "wort", "hey", "karen" })
-			};
+			//var items = new List<TreeGridItem>
+			//{
+			//	new TreeGridItem(new object[] { "first", "second", "third" }),
+			//	new TreeGridItem(new object[] { "morpb", "kwang", "wump" }),
+			//	new TreeGridItem(new object[] { "dlooob", "oorf", "dimples" }),
+			//	new TreeGridItem(new object[] { "wort", "hey", "karen" })
+			//};
 
-			var collection = new TreeGridItemCollection(items);
+			//var collection = new TreeGridItemCollection(items);
 
-			tree.DataStore = collection;
+			//tree.DataStore = collection;
 		}
 
 		/// <summary>
