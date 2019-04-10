@@ -299,6 +299,11 @@ namespace Arbatel.Graphics
 				}
 			}
 
+			if (!flatWorld.Any() && !flatModel.Any())
+			{
+				return;
+			}
+
 			CommandList.SetPipeline(Pipelines[ShadingStyle.Flat]);
 			CommandList.SetGraphicsResourceSet(0, ProjectionMatrixSet);
 			CommandList.SetGraphicsResourceSet(1, ViewMatrixSet);
