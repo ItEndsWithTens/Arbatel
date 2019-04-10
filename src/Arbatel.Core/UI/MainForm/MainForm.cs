@@ -38,18 +38,8 @@ namespace Arbatel.UI
 
 			InitializeCommands();
 
-			// In the long term, the goal is to use Veldrid's implementation of
-			// all its supported graphics APIs. For now, though, Arbatel's code
-			// doesn't run as well (or as correctly) in Veldrid's OpenGL as it
-			// does in straight OpenTK, so skip Veldrid in the case of OpenGL.
-			//
-			// VeldridSurface does have provisions for OpenGL support, mind you,
-			// and an option for users to manually specify what API they want is
-			// coming to the settings dialog box sooner or later.
-			bool veldrid = VeldridSurface.PreferredBackend != Veldrid.GraphicsBackend.OpenGL;
-
 			Viewport viewport;
-			if (veldrid)
+			if (Core.UseVeldrid)
 			{
 				viewport = new VeldridViewport { ID = "viewport" };
 			}

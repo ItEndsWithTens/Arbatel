@@ -1,4 +1,5 @@
-﻿using Eto;
+﻿using Arbatel.Controls;
+using Eto;
 using Eto.Forms;
 using OpenTK;
 
@@ -6,6 +7,16 @@ namespace Arbatel
 {
 	public static partial class Core
 	{
+		// In the long term, the goal is to use Veldrid's implementation of
+		// all its supported graphics APIs. For now, though, Arbatel's code
+		// doesn't run as well (or as correctly) in Veldrid's OpenGL as it
+		// does in straight OpenTK, so skip Veldrid in the case of OpenGL.
+		//
+		// VeldridSurface does have provisions for OpenGL support, mind you,
+		// and an option for users to manually specify what API they want is
+		// coming to the settings dialog box sooner or later.
+		public static bool UseVeldrid { get; } = VeldridSurface.PreferredBackend != Veldrid.GraphicsBackend.OpenGL;
+
 		public static Toolkit InitOpenTK()
 		{
 			// Prevent OpenTK from using SDL2 when it's available. The toolkit
@@ -30,10 +41,10 @@ namespace Arbatel
 				MessageBox.Show(ge.Message);
 			}
 
-			if (sender is Application a && a.QuitIsSupported)
-			{
-				a.Quit();
-			}
+			//if (sender is Application a && a.QuitIsSupported)
+			//{
+			//	a.Quit();
+			//}
 		}
 	}
 }

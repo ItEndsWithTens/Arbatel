@@ -49,13 +49,6 @@ namespace Arbatel.Wpf
 
 	public class WpfVeldridSurfaceHandler : VeldridSurfaceHandler
 	{
-		protected override void InitializeOpenGL()
-		{
-			Platform.Instance.Add<GLSurface.IHandler>(() => new PuppetWPFWFGLSurfaceHandler());
-
-			base.InitializeOpenGL();
-		}
-
 		protected override void InitializeOtherApi()
 		{
 			base.InitializeOtherApi();
@@ -92,7 +85,14 @@ namespace Arbatel.Wpf
 			Platform platform = Platform.Detect;
 
 			platform.Add<PixelLayout.IHandler>(() => new FocusablePixelLayoutHandler());
-			platform.Add<GLSurface.IHandler>(() => new WPFWFGLSurfaceHandler());
+			if (Core.UseVeldrid)
+			{
+				platform.Add<GLSurface.IHandler>(() => new PuppetWPFWFGLSurfaceHandler());
+			}
+			else
+			{
+				platform.Add<GLSurface.IHandler>(() => new WPFWFGLSurfaceHandler());
+			}
 			platform.Add<VeldridSurface.IHandler>(() => new WpfVeldridSurfaceHandler());
 
 			var application = new Application(platform);
