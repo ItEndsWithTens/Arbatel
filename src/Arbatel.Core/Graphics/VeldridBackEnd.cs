@@ -44,7 +44,7 @@ namespace Arbatel.Graphics
 
 		public new Dictionary<(Map, View), VeldridBuffers> Buffers { get; } = new Dictionary<(Map, View), VeldridBuffers>();
 
-		public new Dictionary<string, ResourceSet> Textures { get; } = new Dictionary<string, ResourceSet>();
+		public new Dictionary<string, (Veldrid.Texture t, TextureView v, ResourceSet s)> Textures { get; } = new Dictionary<string, (Veldrid.Texture t, TextureView v, ResourceSet s)>();
 
 		public Dictionary<ShadingStyle, Pipeline> Pipelines { get; } = new Dictionary<ShadingStyle, Pipeline>();
 
@@ -259,7 +259,7 @@ namespace Arbatel.Graphics
 			CommandList.UpdateBuffer(b.ModelMatrixBuffer, 0, Matrix4.Identity);
 			foreach (IGrouping<Texture, (Polygon, Renderable)> t in worldByTexture)
 			{
-				CommandList.SetGraphicsResourceSet(4, Textures[t.Key.Name.ToLower()]);
+				CommandList.SetGraphicsResourceSet(4, Textures[t.Key.Name.ToLower()].s);
 
 				foreach ((Polygon p, Renderable r) in t)
 				{
@@ -277,7 +277,7 @@ namespace Arbatel.Graphics
 
 			foreach (IGrouping<Texture, (Polygon, Renderable)> t in modelByTexture)
 			{
-				CommandList.SetGraphicsResourceSet(4, Textures[t.Key.Name.ToLower()]);
+				CommandList.SetGraphicsResourceSet(4, Textures[t.Key.Name.ToLower()].s);
 
 				IEnumerable<IGrouping<Renderable, (Polygon, Renderable)>> byRenderable =
 					t
@@ -634,11 +634,13 @@ namespace Arbatel.Graphics
 			ResourceSet set = Factory.CreateResourceSet(new ResourceSetDescription(
 				TextureLayout, view));
 
-			Textures.Add(texture.Name, set);
+			Textures.Add(texture.Name, (created, view, set));
 		}
 		public override void DeleteTexture(string name)
 		{
-			Textures[name].Dispose();
+			Textures[name].s.Dispose();
+			Textures[name].v.Dispose();
+			Textures[name].t.Dispose();
 			Textures.Remove(name);
 		}
 
