@@ -1,12 +1,21 @@
 ﻿using Arbatel.Controls;
 using Arbatel.Graphics;
+using Arbatel.Utilities;
 using OpenTK;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace Arbatel.Formats
 {
+	public enum FixUpStyle
+	{
+		Prefix,
+		Postfix,
+		None
+	}
+
 	public class Map : IUpdateFromSettings
 	{
 		public Aabb Aabb { get; protected set; } = new Aabb();
@@ -134,6 +143,55 @@ namespace Arbatel.Formats
 			SortTranslucents();
 		}
 
+		public virtual void FixUp()
+		{
+			string defaultFixUpText = "AutoInstance";
+			int defaultFixUpNumber = 0;
+
+			foreach (MapObject mo in MapObjects)
+			{
+				FixUpStyle fixUpStyle = FixUpStyle.None;
+				string fixUpName = null;
+				var replacements = new Dictionary<string, string>();
+
+				if (mo.Definition.ClassName == "func_instance")
+				{	
+					if (Int32.TryParse(mo.KeyVals["fixup_style"].Value, out int rawStyle))
+					{
+						fixUpStyle = (FixUpStyle)rawStyle;
+					}
+
+					if (mo.KeyVals.ContainsKey("targetname"))
+					{
+						fixUpName = mo.KeyVals["targetname"].Value;
+					}
+
+					// There are only 10 predefined "replaceXY" keys in the sample
+					// FGD included with an Arbatel distribution, but as explained
+					// there, users should be able to add an arbitrary number of
+					// them. Checking only for "replace" lets people go crazy.
+					IEnumerable<KeyValuePair<string, Option>> pairs =
+						from kv in mo.KeyVals
+						where kv.Key.StartsWith("replace", StringComparison.InvariantCultureIgnoreCase)
+						select kv;
+
+					foreach (KeyValuePair<string, Option> pair in pairs)
+					{
+						string[] split = pair.Value.Value.Split(' ');
+
+						replacements.Add(split[0].ToLower(), split[1].ToLower());
+					}
+				}
+
+				if (fixUpStyle == FixUpStyle.None)
+				{
+					continue;
+				}
+
+				mo.FixUp(fixUpStyle, fixUpName, replacements, defaultFixUpText, ref defaultFixUpNumber);
+			}
+		}
+
 		/// <summary>
 		/// Translate, rotate, and/or scale a map, relative to a MapObject.
 		/// </summary>
@@ -141,26 +199,12 @@ namespace Arbatel.Formats
 		/// <param name="basis">The MapObject serving as the basis of the transform.</param>
 		public void Transform(MapObject basis)
 		{
-			//var translation = new Vector3();
-			//if (basis.KeyVals.ContainsKey("origin"))
-			//{
-			//	string[] origin = basis.KeyVals["origin"].Value.Split(' ');
-
-			//	float.TryParse(origin[0], out translation.X);
-			//	float.TryParse(origin[1], out translation.Y);
-			//	float.TryParse(origin[2], out translation.Z);
-			//}
-
 			var rotation = new Vector3();
 			if (basis.KeyVals.ContainsKey("angles"))
 			{
-				string[] angles = basis.KeyVals["angles"].Value.Split(' ');
-
 				// Remember the orientation of instance objects, pointing toward
 				// +X in a Z-up, left-handed coordinate space.
-				Single.TryParse(angles[0], out rotation.Y); // Pitch
-				Single.TryParse(angles[1], out rotation.Z); // Yaw
-				Single.TryParse(angles[2], out rotation.X); // Roll
+				rotation = basis.KeyVals["angles"].Value.ToVector3().Zxy;
 			}
 
 			// TODO: Implement scale.

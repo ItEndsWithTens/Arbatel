@@ -163,6 +163,69 @@ namespace Arbatel.Formats
 			UserData = mo.UserData;
 		}
 
+		public virtual void FixUp(
+			FixUpStyle fixUpStyle, string fixUpName, Dictionary<string, string> replacements,
+			string defaultFixUpText, ref int defaultFixUpNumber)
+		{
+			foreach (MapObject child in Children)
+			{
+				child.FixUp(fixUpStyle, fixUpName, replacements, defaultFixUpText, ref defaultFixUpNumber);
+			}
+
+			var fixedUpKeyVals = new Dictionary<string, Option>();
+			foreach (KeyValuePair<string, Option> pair in KeyVals)
+			{
+				if (pair.Value.Value.StartsWith("$", StringComparison.OrdinalIgnoreCase))
+				{
+					var newOption = new Option(pair.Value);
+
+					if (replacements.ContainsKey(pair.Value.Value))
+					{
+						newOption.Value = replacements[pair.Value.Value];
+					}
+
+					fixedUpKeyVals.Add(pair.Key, newOption);
+				}
+				else if (pair.Value.TransformType == TransformType.Name)
+				{
+					var newOption = new Option(pair.Value);
+
+					if (fixUpStyle != FixUpStyle.None && String.IsNullOrEmpty(fixUpName))
+					{
+						fixUpName = $"{defaultFixUpText}{defaultFixUpNumber++}";
+					}
+					string targetname = pair.Value.Value;
+
+					if (fixUpStyle == FixUpStyle.Prefix)
+					{
+						newOption.Value = $"{fixUpName}{targetname}";
+					}
+					else if (fixUpStyle == FixUpStyle.Postfix)
+					{
+						newOption.Value = $"{targetname}{fixUpName}";
+					}
+
+					fixedUpKeyVals.Add(pair.Key, newOption);
+				}
+				else
+				{
+					fixedUpKeyVals.Add(pair.Key, pair.Value);
+				}
+			}
+			KeyVals = fixedUpKeyVals;
+
+			foreach (Renderable r in Renderables)
+			{
+				foreach (Polygon p in r.Polygons)
+				{
+					if (replacements.ContainsKey($"#{p.Texture.Name}"))
+					{
+						p.Texture.Name = replacements[$"#{p.Texture.Name}"];
+					}
+				}
+			}
+		}
+
 		/// <summary>
 		/// Get a list of all Renderables contained by the tree of MapObjects
 		/// rooted at this one.

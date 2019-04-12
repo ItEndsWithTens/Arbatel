@@ -204,6 +204,8 @@ namespace Arbatel.Formats.Quake
 				Aabb += mo.Aabb;
 			}
 
+			FixUp();
+
 			Directory.SetCurrentDirectory(oldCwd);
 		}
 

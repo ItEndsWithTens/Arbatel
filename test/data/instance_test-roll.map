@@ -30,7 +30,7 @@
 }
 {
 "classname" "func_instance"
-"fixup_style" "0"
+"fixup_style" "2"
 "angles" "0 0 -20"
 "file" "instance/rotation_instance.map"
 "origin" "0 0 0"

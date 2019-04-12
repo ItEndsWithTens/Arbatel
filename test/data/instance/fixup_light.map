@@ -25,13 +25,17 @@
 "worldtype" "0"
 "origin" "0 0 0"
 "mapversion" "220"
-"wad" "D:\Projects\Games\Maps\Quake\common\wads\quake.wad"
+"wad" "D:\Development\Arbatel\test\data\test.wad"
 "_generator" "J.A.C.K. 1.1.1064 (vpQuake)"
 }
 {
-"classname" "func_instance"
-"fixup_style" "2"
-"angles" "-30 0 0"
-"file" "instance/rotation_instance.map"
+"classname" "light"
+"_anglescale" "0.5"
+"_softangle" "0"
+"delay" "0"
+"wait" "1"
+"_color" "255 255 255"
+"light" "$brightness"
+"targetname" "MyFunnyTargetname"
 "origin" "0 0 0"
 }
