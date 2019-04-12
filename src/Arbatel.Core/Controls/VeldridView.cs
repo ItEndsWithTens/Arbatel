@@ -77,6 +77,8 @@ namespace Arbatel.Controls
 		{
 			var s = (VeldridSurface)Content;
 
+			BackEnd.CommandList = BackEnd.Factory.CreateCommandList();
+
 			BackEnd.CommandList.Begin();
 
 			BackEnd.CommandList.SetFramebuffer(s.Swapchain.Framebuffer);
@@ -94,6 +96,8 @@ namespace Arbatel.Controls
 
 			s.GraphicsDevice.SubmitCommands(BackEnd.CommandList);
 			s.GraphicsDevice.SwapBuffers(s.Swapchain);
+
+			BackEnd.CommandList.Dispose();
 		}
 
 		private void SetUpVeldrid()

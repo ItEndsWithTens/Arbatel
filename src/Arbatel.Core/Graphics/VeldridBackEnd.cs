@@ -291,7 +291,7 @@ namespace Arbatel.Graphics
 					CommandList.SetVertexBuffer(0, b.VertexBuffer, (uint)r.VertexOffset);
 
 					foreach ((Polygon p, _) in pair)
-					{	
+					{
 						CommandList.SetIndexBuffer(b.IndexBuffer, IndexFormat.UInt32, (uint)p.IndexOffset);
 
 						CommandList.DrawIndexed((uint)p.Indices.Count);
@@ -299,7 +299,7 @@ namespace Arbatel.Graphics
 				}
 			}
 
-			if (!flatWorld.Any() && !flatModel.Any())
+			if (!flat.Any())
 			{
 				return;
 			}
