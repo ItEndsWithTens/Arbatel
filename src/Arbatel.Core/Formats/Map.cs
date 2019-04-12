@@ -146,7 +146,7 @@ namespace Arbatel.Formats
 		public virtual void FixUp()
 		{
 			string defaultFixUpText = "AutoInstance";
-			int defaultFixUpNumber = 0;
+			int defaultFixUpNumber = -1;
 
 			foreach (MapObject mo in MapObjects)
 			{
@@ -155,7 +155,7 @@ namespace Arbatel.Formats
 				var replacements = new Dictionary<string, string>();
 
 				if (mo.Definition.ClassName == "func_instance")
-				{	
+				{
 					if (Int32.TryParse(mo.KeyVals["fixup_style"].Value, out int rawStyle))
 					{
 						fixUpStyle = (FixUpStyle)rawStyle;

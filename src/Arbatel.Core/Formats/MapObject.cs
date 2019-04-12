@@ -167,6 +167,15 @@ namespace Arbatel.Formats
 			FixUpStyle fixUpStyle, string fixUpName, Dictionary<string, string> replacements,
 			string defaultFixUpText, ref int defaultFixUpNumber)
 		{
+			// If a func_instance is set to Prefix and has no fixup name, but
+			// contains no entities with a name to fix, this approach will still
+			// increment the number. Unnecessary, but the code is simpler, and
+			// the resulting names are correctly unique, so no big deal.
+			if (Definition.ClassName == "func_instance" && String.IsNullOrEmpty(fixUpName))
+			{
+				defaultFixUpNumber++;
+			}
+
 			foreach (MapObject child in Children)
 			{
 				child.FixUp(fixUpStyle, fixUpName, replacements, defaultFixUpText, ref defaultFixUpNumber);
@@ -192,7 +201,7 @@ namespace Arbatel.Formats
 
 					if (fixUpStyle != FixUpStyle.None && String.IsNullOrEmpty(fixUpName))
 					{
-						fixUpName = $"{defaultFixUpText}{defaultFixUpNumber++}";
+						fixUpName = $"{defaultFixUpText}{defaultFixUpNumber}";
 					}
 					string targetname = pair.Value.Value;
 

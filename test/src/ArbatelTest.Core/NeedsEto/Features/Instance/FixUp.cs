@@ -71,13 +71,10 @@ namespace ArbatelTest.Core.NeedsEto.Features.Instance
 			{
 				Map collapsed = Map.Collapse();
 
-				// The positions of these lights are precisely defined in their
-				// map file, and the coordinates are simply loaded, not produced
-				// as the result of any calculation. A simple Vector3 equality
-				// check is therefore reliable, as well as easy to read.
 				MapObject light = collapsed.MapObjects.Find(o =>
 					o.Definition.ClassName == "light" &&
-					o.Position == new Vector3(64, -64, 64));
+					MathUtilities.ApproximatelyEquivalent(
+						o.Position, new Vector3(64, -64, 64), Tolerance));
 
 				string actualName = light.KeyVals["targetname"].Value;
 				Assert.That(actualName, Is.EqualTo("APrefixFor-MyFunnyTargetname"));
@@ -90,7 +87,8 @@ namespace ArbatelTest.Core.NeedsEto.Features.Instance
 
 				MapObject light = collapsed.MapObjects.Find(o =>
 					o.Definition.ClassName == "light" &&
-					o.Position == new Vector3(64, 64, 64));
+					MathUtilities.ApproximatelyEquivalent(
+						o.Position, new Vector3(64, 64, 64), Tolerance));
 
 				string actualName = light.KeyVals["targetname"].Value;
 				Assert.That(actualName, Is.EqualTo("MyFunnyTargetname-HasAPostfix"));
@@ -103,7 +101,8 @@ namespace ArbatelTest.Core.NeedsEto.Features.Instance
 
 				MapObject light = collapsed.MapObjects.Find(o =>
 					o.Definition.ClassName == "light" &&
-					o.Position == new Vector3(-32, 0, 64));
+					MathUtilities.ApproximatelyEquivalent(
+						o.Position, new Vector3(-32, 0, 64), Tolerance));
 
 				string actualName = light.KeyVals["targetname"].Value;
 				Assert.That(actualName, Is.EqualTo("MyFunnyTargetname"));
@@ -116,7 +115,8 @@ namespace ArbatelTest.Core.NeedsEto.Features.Instance
 
 				MapObject light = collapsed.MapObjects.Find(o =>
 					o.Definition.ClassName == "light" &&
-					o.Position == new Vector3(32, 0, 64));
+					MathUtilities.ApproximatelyEquivalent(
+						o.Position, new Vector3(32, 0, 64), Tolerance));
 
 				string actualName = light.KeyVals["targetname"].Value;
 				Assert.That(actualName, Is.EqualTo("AutoInstance0MyFunnyTargetname"));
@@ -129,10 +129,43 @@ namespace ArbatelTest.Core.NeedsEto.Features.Instance
 
 				MapObject light = collapsed.MapObjects.Find(o =>
 					o.Definition.ClassName == "light" &&
-					o.Position == new Vector3(96, 0, 64));
+					MathUtilities.ApproximatelyEquivalent(
+						o.Position, new Vector3(96, 0, 64), Tolerance));
 
 				string actualName = light.KeyVals["targetname"].Value;
 				Assert.That(actualName, Is.EqualTo("MyFunnyTargetnameAutoInstance1"));
+			}
+
+			[TestCase]
+			public void MultipleEntitiesAutoDefinedGetSameNumber()
+			{
+				Map collapsed = Map.Collapse();
+
+				MapObject spikeface = collapsed.MapObjects.Find(o =>
+					o.Definition.ClassName == "monster_demon1" &&
+					MathUtilities.ApproximatelyEquivalent(
+						o.Position, new Vector3(512, 128, 0), Tolerance));
+
+				MapObject blobbie = collapsed.MapObjects.Find(o =>
+					o.Definition.ClassName == "monster_tarbaby" &&
+					MathUtilities.ApproximatelyEquivalent(
+						o.Position, new Vector3(640, 0, 0), Tolerance));
+
+				MapObject fishlips = collapsed.MapObjects.Find(o =>
+					o.Definition.ClassName == "monster_fish" &&
+					MathUtilities.ApproximatelyEquivalent(
+						o.Position, new Vector3(512, -128, 0), Tolerance));
+
+				string actualNameSpikeface = spikeface.KeyVals["targetname"].Value;
+				string actualNameBlobbie = blobbie.KeyVals["targetname"].Value;
+				string actualNameFishlips = fishlips.KeyVals["targetname"].Value;
+
+				Assert.Multiple(() =>
+				{
+					Assert.That(actualNameSpikeface, Is.EqualTo("AutoInstance3spikeface"));
+					Assert.That(actualNameBlobbie, Is.EqualTo("AutoInstance3blobbie"));
+					Assert.That(actualNameFishlips, Is.EqualTo("AutoInstance3fishlips"));
+				});
 			}
 		}
 

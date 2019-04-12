@@ -85,3 +85,9 @@
 "replace01" "#Q_WOOD ARROW_RED"
 "origin" "0 0 256"
 }
+{
+"classname" "func_instance"
+"fixup_style" "0"
+"file" "instance/fixup_many_entities.map"
+"origin" "512 0 0"
+}
