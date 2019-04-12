@@ -18,6 +18,8 @@ namespace Arbatel.UI
 	{
 		private Command CmdAbout = new Command { MenuText = "About" };
 
+		private Command CmdAutoReload = new Command { MenuText = "Auto reload" };
+
 		private Command CmdClose = new Command
 		{
 			MenuText = "&Close",
@@ -83,6 +85,8 @@ namespace Arbatel.UI
 				"build " + build + "\n" +
 				"revision " + revision);
 
+			CmdAutoReload.Executed += CmdAutoReload_Executed;
+
 			CmdClose.Executed += CmdClose_Executed;
 
 			CmdFullScreen.Executed += CmdFullScreen_Executed;
@@ -98,6 +102,21 @@ namespace Arbatel.UI
 			CmdShowInstancesNormal.Executed += CmdShowInstancesNormal_Executed;
 
 			CmdQuit.Executed += (sender, e) => { Application.Instance.Quit(); };
+		}
+
+		private void CmdAutoReload_Executed(object sender, EventArgs e)
+		{
+			if (Watcher != null)
+			{
+				if (cbxAutoReload.Checked)
+				{
+					Watcher.EnableRaisingEvents = true;
+				}
+				else
+				{
+					Watcher.EnableRaisingEvents = false;
+				}
+			}
 		}
 
 		private void CmdClose_Executed(object sender, EventArgs e)
@@ -167,31 +186,7 @@ namespace Arbatel.UI
 
 			Settings.Local.LastMapDirectory = new Uri(Path.GetDirectoryName(dlgOpenFile.FileName));
 
-			using (FileStream stream = File.OpenRead(dlgOpenFile.FileName))
-			{
-				string ext = Path.GetExtension(dlgOpenFile.FileName);
-
-				if (ext.ToLower() != ".map")
-				{
-					throw new InvalidDataException("Unrecognized map format!");
-				}
-
-				var definitions = new Dictionary<string, DefinitionDictionary>();
-
-				foreach (string path in Settings.Local.DefinitionDictionaryPaths)
-				{
-					definitions.Add(path, Loader.LoadDefinitionDictionary(path));
-				}
-
-				Map = new QuakeMap(stream, definitions.Values.ToList().Stack());
-			}
-
-			Settings.Updatables.Add(Map);
-			Settings.Save();
-
-			BackEnd.InitTextures(Map.Textures);
-
-			GetAllThisNonsenseReady();
+			OpenMap(dlgOpenFile.FileName);
 		}
 
 		private void CmdPreferences_Executed(object sender, EventArgs e)

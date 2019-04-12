@@ -1,9 +1,11 @@
 using Arbatel.Controls;
 using Arbatel.Formats;
+using Arbatel.Formats.Quake;
 using Arbatel.Graphics;
 using Eto.Forms;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 
 namespace Arbatel.UI
@@ -31,6 +33,8 @@ namespace Arbatel.UI
 		}
 
 		public Settings Settings { get; } = new Settings();
+
+		public FileSystemWatcher Watcher { get; private set; }
 
 		public MainForm()
 		{
@@ -70,12 +74,83 @@ namespace Arbatel.UI
 			Shown += SetDefaultView;
 		}
 
+		private void Watcher_Changed(object sender, FileSystemEventArgs e)
+		{
+			var viewport = Content as Viewport;
+			var v = viewport.Views[viewport.View].Control as View;
+
+			string oldTitle = Title;
+
+			// Controllers' input clock, and Views' graphics clock, are Eto
+			// UITimers, and need to be started and stopped from the UI thread.
+			Application.Instance.Invoke(() =>
+			{
+				Title = "Map file changed, reloading...";
+				v.Controller.Deactivate();
+				v.GraphicsClock.Stop();
+			});
+
+			// CloseMap includes a call to Watcher.Dispose, which will deadlock
+			// if performed on the Eto UI thread, so these need to be outside of
+			// the anonymous Invoke methods.
+			CloseMap();
+			OpenMap(e.FullPath);
+
+			Application.Instance.Invoke(() =>
+			{
+				v.GraphicsClock.Start();
+				v.Controller.Activate();
+				Title = oldTitle;
+			});
+		}
+
+		private void OpenMap(string fileName)
+		{
+			using (var stream = new FileStream(fileName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+			{
+				string ext = Path.GetExtension(fileName);
+
+				if (ext.ToLower() != ".map")
+				{
+					throw new InvalidDataException("Unrecognized map format!");
+				}
+
+				var definitions = new Dictionary<string, DefinitionDictionary>();
+
+				foreach (string path in Settings.Local.DefinitionDictionaryPaths)
+				{
+					definitions.Add(path, Loader.LoadDefinitionDictionary(path));
+				}
+
+				Map = new QuakeMap(stream, definitions.Values.ToList().Stack());
+			}
+
+			Settings.Updatables.Add(Map);
+			Settings.Save();
+
+			BackEnd.InitTextures(Map.Textures);
+
+			GetAllThisNonsenseReady();
+
+			Watcher = new FileSystemWatcher
+			{
+				Path = Path.GetDirectoryName(fileName),
+				Filter = Path.GetFileName(fileName),
+				NotifyFilter = NotifyFilters.LastWrite,
+				EnableRaisingEvents = cbxAutoReload.Checked
+			};
+			Watcher.Changed += Watcher_Changed;
+		}
 		private void CloseMap()
 		{
 			if (Map == null)
 			{
 				return;
 			}
+
+			Watcher.EnableRaisingEvents = false;
+			Watcher.Changed -= Watcher_Changed;
+			Watcher.Dispose();
 
 			IEnumerable<View> views =
 				from view in (Content as Viewport).Views
