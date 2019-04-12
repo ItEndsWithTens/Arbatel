@@ -108,7 +108,7 @@ namespace Arbatel.UI
 		{
 			if (Watcher != null)
 			{
-				if (cbxAutoReload.Checked)
+				if (cbxAutoReload.Checked && Map != null)
 				{
 					Watcher.EnableRaisingEvents = true;
 				}

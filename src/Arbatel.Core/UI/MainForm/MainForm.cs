@@ -34,7 +34,11 @@ namespace Arbatel.UI
 
 		public Settings Settings { get; } = new Settings();
 
-		public FileSystemWatcher Watcher { get; private set; }
+		public FileSystemWatcher Watcher { get; } = new FileSystemWatcher
+		{
+			EnableRaisingEvents = false,
+			NotifyFilter = NotifyFilters.LastWrite
+		};
 
 		public MainForm()
 		{
@@ -72,6 +76,8 @@ namespace Arbatel.UI
 			Content = viewport;
 
 			Shown += SetDefaultView;
+
+			Watcher.Changed += Watcher_Changed;
 		}
 
 		private void Watcher_Changed(object sender, FileSystemEventArgs e)
@@ -79,28 +85,21 @@ namespace Arbatel.UI
 			var viewport = Content as Viewport;
 			var v = viewport.Views[viewport.View].Control as View;
 
-			string oldTitle = Title;
-
-			// Controllers' input clock, and Views' graphics clock, are Eto
-			// UITimers, and need to be started and stopped from the UI thread.
+			// Starting and stopping UITimers (like Controllers' input clock,
+			// and Views' graphics clock), as well as deleting and recreating
+			// textures, are things that need to happen on the UI thread. This
+			// event handler can for some reason be called from a worker thread,
+			// so an Invoke is necessary to ensure nothing goes bonkers.
 			Application.Instance.Invoke(() =>
 			{
-				Title = "Map file changed, reloading...";
 				v.Controller.Deactivate();
 				v.GraphicsClock.Stop();
-			});
 
-			// CloseMap includes a call to Watcher.Dispose, which will deadlock
-			// if performed on the Eto UI thread, so these need to be outside of
-			// the anonymous Invoke methods.
-			CloseMap();
-			OpenMap(e.FullPath);
+				CloseMap();
+				OpenMap(e.FullPath);
 
-			Application.Instance.Invoke(() =>
-			{
 				v.GraphicsClock.Start();
 				v.Controller.Activate();
-				Title = oldTitle;
 			});
 		}
 
@@ -132,14 +131,9 @@ namespace Arbatel.UI
 
 			GetAllThisNonsenseReady();
 
-			Watcher = new FileSystemWatcher
-			{
-				Path = Path.GetDirectoryName(fileName),
-				Filter = Path.GetFileName(fileName),
-				NotifyFilter = NotifyFilters.LastWrite,
-				EnableRaisingEvents = cbxAutoReload.Checked
-			};
-			Watcher.Changed += Watcher_Changed;
+			Watcher.Path = Path.GetDirectoryName(fileName);
+			Watcher.Filter = Path.GetFileName(fileName);
+			Watcher.EnableRaisingEvents = cbxAutoReload.Checked;
 		}
 		private void CloseMap()
 		{
@@ -149,8 +143,6 @@ namespace Arbatel.UI
 			}
 
 			Watcher.EnableRaisingEvents = false;
-			Watcher.Changed -= Watcher_Changed;
-			Watcher.Dispose();
 
 			IEnumerable<View> views =
 				from view in (Content as Viewport).Views
