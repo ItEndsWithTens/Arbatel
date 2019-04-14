@@ -201,7 +201,12 @@ namespace Arbatel.UI
 		{
 			var dlgSaveCollapsedAs = new SaveFileDialog()
 			{
-				Directory = Settings.Local.LastSaveCollapsedAsDirectory
+				Directory = Settings.Local.LastSaveCollapsedAsDirectory,
+				Filters =
+				{
+					new FileFilter("Quake map", ".map"),
+					new FileFilter("All files", ".*")
+				}
 			};
 
 			dlgSaveCollapsedAs.ShowDialog(this);
