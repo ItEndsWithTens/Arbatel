@@ -135,7 +135,7 @@ namespace Arbatel.Controls
 
 			GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
-			if (Map != null)
+			if (Map != null && Map.InitializedInBackEnd)
 			{
 				Camera.AspectRatio = (float)Width / (float)Height;
 

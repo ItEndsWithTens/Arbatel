@@ -7,9 +7,37 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace Arbatel.UI
 {
+	public class ProgressEventArgs : EventArgs
+	{
+		public string Message { get; } = null;
+		public int? Value { get; } = null;
+
+		public ProgressEventArgs(int value)
+		{
+			Value = value;
+		}
+		public ProgressEventArgs(string message)
+		{
+			Message = message;
+		}
+		public ProgressEventArgs(int value, string message)
+		{
+			Value = value;
+			Message = message;
+		}
+	}
+
+	public interface IProgress
+	{
+		event EventHandler<ProgressEventArgs> ProgressUpdated;
+
+		void OnProgressUpdated(object sender, ProgressEventArgs e);
+	}
+
 	public partial class MainForm
 	{
 		/// <summary>
@@ -28,7 +56,7 @@ namespace Arbatel.UI
 			{
 				_map = value;
 
-				(Content as Viewport).Map = _map;
+				Viewport.Map = _map;
 			}
 		}
 
@@ -36,25 +64,33 @@ namespace Arbatel.UI
 
 		public AutoReloader MapReloader { get; private set; }
 
+		private ProgressBar ProgressBar { get; } = new ProgressBar();
+
+		private UITimer ProgressClearClock = new UITimer { Interval = 3 };
+
+		private Label StatusDisplay { get; } = new Label();
+
+		private Viewport Viewport { get; }
+
 		public MainForm()
 		{
 			InitializeComponent();
 
 			InitializeCommands();
 
-			Viewport viewport;
 			if (Core.UseVeldrid)
 			{
-				viewport = new VeldridViewport { ID = "viewport" };
+				Viewport = new VeldridViewport { ID = "viewport" };
 			}
 			else
 			{
-				viewport = new OpenGLViewport { ID = "viewport" };
+				Viewport = new OpenGLViewport { ID = "viewport" };
 			}
 
-			BackEnd = viewport.BackEnd;
+			BackEnd = Viewport.BackEnd;
+			BackEnd.ProgressUpdated += ProgressReported;
 
-			foreach ((Control Control, string Name, Action<View> SetUp) view in viewport.Views.Values)
+			foreach ((Control Control, string Name, Action<View> SetUp) view in Viewport.Views.Values)
 			{
 				if (view.Control is View v)
 				{
@@ -63,69 +99,79 @@ namespace Arbatel.UI
 			}
 
 			ButtonMenuItem viewMenu = Menu.Items.GetSubmenu("View");
-			foreach (KeyValuePair<int, Command> command in viewport.ViewCommands)
+			foreach (KeyValuePair<int, Command> command in Viewport.ViewCommands)
 			{
 				viewMenu.Items.Insert(command.Key, command.Value);
 			}
-			viewMenu.Items.Insert(viewport.ViewCommands.Count, new SeparatorMenuItem());
+			viewMenu.Items.Insert(Viewport.ViewCommands.Count, new SeparatorMenuItem());
 
-			Content = viewport;
+			var bottomBar = new TableLayout(2, 1);
+			bottomBar.Add(StatusDisplay, 0, 0, true, true);
+			bottomBar.Add(ProgressBar, 1, 0, true, true);
+
+			var table = new TableLayout(1, 2);
+			table.Add(Viewport, 0, 0, true, true);
+			table.Add(bottomBar, 0, 1, true, false);
+
+			Content = table;
+
+			ProgressClearClock.Elapsed += (sender, e) =>
+			{
+				ProgressClearClock.Stop();
+
+				StatusDisplay.Text = "";
+				ProgressBar.Value = 0;
+			};
 
 			Shown += SetDefaultView;
 
 			MapReloader = new AutoReloader((file) =>
 			{
-				var v = viewport.Views[viewport.View].Control as View;
-
-				// Starting and stopping UITimers (like Controllers' input clock,
-				// and Views' graphics clock), as well as deleting and recreating
-				// textures, are things that need to happen on the UI thread. This
-				// event handler can for some reason be called from a worker thread,
-				// so an Invoke is necessary to ensure nothing goes bonkers.
-				Application.Instance.Invoke(() =>
-				{
-					v.Controller.Deactivate();
-					v.GraphicsClock.Stop();
-
-					CloseMap();
-					OpenMap(file);
-
-					v.GraphicsClock.Start();
-					v.Controller.Activate();
-				});
+				CloseMap();
+				OpenMap(file);
 			});
 		}
 
 		private void OpenMap(string fileName)
 		{
+			string ext = Path.GetExtension(fileName);
+
+			if (ext.ToLower() != ".map")
+			{
+				throw new InvalidDataException("Unrecognized map format!");
+			}
+
+			var definitions = new Dictionary<string, DefinitionDictionary>();
+
+			foreach (string path in Settings.Local.DefinitionDictionaryPaths)
+			{
+				definitions.Add(path, Loader.LoadDefinitionDictionary(path));
+			}
+
 			using (var stream = new FileStream(fileName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
 			{
-				string ext = Path.GetExtension(fileName);
-
-				if (ext.ToLower() != ".map")
-				{
-					throw new InvalidDataException("Unrecognized map format!");
-				}
-
-				var definitions = new Dictionary<string, DefinitionDictionary>();
-
-				foreach (string path in Settings.Local.DefinitionDictionaryPaths)
-				{
-					definitions.Add(path, Loader.LoadDefinitionDictionary(path));
-				}
-
 				Map = new QuakeMap(stream, definitions.Values.ToList().Stack());
 			}
 
-			Settings.Updatables.Add(Map);
-			Settings.Save();
+			Map.ProgressUpdated += ProgressReported;
 
-			BackEnd.InitTextures(Map.Textures);
+			Task.Run(() =>
+			{
+				Map.Parse();
 
-			GetAllThisNonsenseReady();
+				Settings.Updatables.Add(Map);
+				Settings.Save();
 
-			MapReloader.File = fileName;
-			MapReloader.Enabled = cbxAutoReload.Checked;
+				BackEnd.InitTextures(Map.Textures);
+
+				GetAllThisNonsenseReady();
+
+				Application.Instance.Invoke(() =>
+				{
+					MapReloader.File = fileName;
+					MapReloader.Enabled = cbxAutoReload.Checked;
+				});
+			});
 		}
 		private void CloseMap()
 		{
@@ -137,40 +183,50 @@ namespace Arbatel.UI
 			MapReloader.Enabled = false;
 
 			IEnumerable<View> views =
-				from view in (Content as Viewport).Views
+				from view in Viewport.Views
 				where view.Value.Control is View
 				select view.Value.Control as View;
 
+			Application.Instance.Invoke(() => StatusDisplay.Text = "Dropping map from backend...");
+
+			Map.InitializedInBackEnd = false;
 			BackEnd.DeleteMap(Map, views);
 
 			Settings.Updatables.Remove(Map);
 
 			Map = null;
+
+			Application.Instance.Invoke(() =>
+			{
+				StatusDisplay.Text = "";
+				ProgressBar.Value = 0;
+			});
 		}
 
 		private void GetAllThisNonsenseReady()
 		{
-			var viewport = FindChild("viewport") as Viewport;
-
 			IEnumerable<View> views =
-				from view in viewport.Views
+				from view in Viewport.Views
 				where view.Value.Control is View
 				select view.Value.Control as View;
 
 			BackEnd.InitMap(Map, views.Distinct().ToList());
 
-			if (rdoInstanceHidden.Checked)
+			Application.Instance.Invoke(() =>
 			{
-				rdoInstanceHidden.Command.Execute(null);
-			}
-			else if (rdoInstanceTinted.Checked)
-			{
-				rdoInstanceTinted.Command.Execute(null);
-			}
-			else if (rdoInstanceNormal.Checked)
-			{
-				rdoInstanceNormal.Command.Execute(null);
-			}
+				if (rdoInstanceHidden.Checked)
+				{
+					rdoInstanceHidden.Command.Execute(null);
+				}
+				else if (rdoInstanceTinted.Checked)
+				{
+					rdoInstanceTinted.Command.Execute(null);
+				}
+				else if (rdoInstanceNormal.Checked)
+				{
+					rdoInstanceNormal.Command.Execute(null);
+				}
+			});
 
 			// TODO: Reenable this once I actually understand data binding in
 			// Eto! Currently it's just wasting memory every time users close
@@ -195,6 +251,27 @@ namespace Arbatel.UI
 			//tree.DataStore = collection;
 		}
 
+		private void ProgressReported(object sender, ProgressEventArgs e)
+		{
+			Application.Instance.Invoke(() =>
+			{
+				if (e.Value != null)
+				{
+					ProgressBar.Value = (int)e.Value;
+				}
+
+				if (!String.IsNullOrEmpty(e.Message))
+				{
+					StatusDisplay.Text = e.Message;
+				}
+
+				if (e.Value == 100)
+				{
+					ProgressClearClock.Start();
+				}
+			});
+		}
+
 		/// <summary>
 		/// Set this form's Viewport to display its default View.
 		/// </summary>
@@ -206,7 +283,7 @@ namespace Arbatel.UI
 		/// </remarks>
 		private void SetDefaultView(object sender, EventArgs e)
 		{
-			((Viewport)Content).View = Viewport.DefaultView;
+			Viewport.View = Viewport.DefaultView;
 
 			Shown -= SetDefaultView;
 		}

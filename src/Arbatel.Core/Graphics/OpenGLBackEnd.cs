@@ -1,5 +1,6 @@
 ﻿using Arbatel.Controls;
 using Arbatel.Formats;
+using Arbatel.UI;
 using Eto;
 using Eto.Forms;
 using OpenTK;
@@ -13,37 +14,46 @@ namespace Arbatel.Graphics
 {
 	public class OpenGLBuffers : Buffers
 	{
-		private readonly int _vao;
-		public int Vao => _vao;
-
-		private readonly int _vbo;
-		public int Vbo => _vbo;
-
-		private readonly int _ebo;
-		public int Ebo => _ebo;
-
-		private readonly int _lineLoopEbo;
-		public int LineLoopEbo => _lineLoopEbo;
-
-		private readonly int _uboMatrices;
-		public int UboMatrices => _uboMatrices;
+		public int Vao { get; }
+		public int Vbo { get; }
+		public int Ebo { get; }
+		public int LineLoopEbo { get; }
+		public int UboMatrices { get; }
 
 		public OpenGLBuffers()
 		{
-			GL.GenVertexArrays(1, out _vao);
-			GL.GenBuffers(1, out _vbo);
-			GL.GenBuffers(1, out _ebo);
-			GL.GenBuffers(1, out _lineLoopEbo);
-			GL.GenBuffers(1, out _uboMatrices);
+			int vao = 0;
+			int vbo = 0;
+			int ebo = 0;
+			int lineLoopEbo = 0;
+			int uboMatrices = 0;
+
+			Application.Instance.Invoke(() =>
+			{
+				GL.GenVertexArrays(1, out vao);
+				GL.GenBuffers(1, out vbo);
+				GL.GenBuffers(1, out ebo);
+				GL.GenBuffers(1, out lineLoopEbo);
+				GL.GenBuffers(1, out uboMatrices);
+			});
+
+			Vao = vao;
+			Vbo = vbo;
+			Ebo = ebo;
+			LineLoopEbo = lineLoopEbo;
+			UboMatrices = uboMatrices;
 		}
 
 		public override void CleanUp()
 		{
-			GL.DeleteBuffer(UboMatrices);
-			GL.DeleteBuffer(LineLoopEbo);
-			GL.DeleteBuffer(Ebo);
-			GL.DeleteBuffer(Vbo);
-			GL.DeleteVertexArray(Vao);
+			Application.Instance.Invoke(() =>
+			{
+				GL.DeleteBuffer(UboMatrices);
+				GL.DeleteBuffer(LineLoopEbo);
+				GL.DeleteBuffer(Ebo);
+				GL.DeleteBuffer(Vbo);
+				GL.DeleteVertexArray(Vao);
+			});
 		}
 	}
 
@@ -296,27 +306,35 @@ namespace Arbatel.Graphics
 				shader.Value.Ubos["Matrices"] = (bindingPoint, index, name);
 			}
 
-			GL.BindVertexArray(buffers.Vao);
-			GL.BindBuffer(BufferTarget.ArrayBuffer, buffers.Vbo);
+			Application.Instance.Invoke(() =>
+			{
+				GL.BindVertexArray(buffers.Vao);
+				GL.BindBuffer(BufferTarget.ArrayBuffer, buffers.Vbo);
 
-			GL.VertexAttribPointer(Shader.Locations["position"], 3, VertexAttribPointerType.Float, false, Vertex.MemorySize, 0);
-			GL.EnableVertexAttribArray(Shader.Locations["position"]);
+				GL.VertexAttribPointer(Shader.Locations["position"], 3, VertexAttribPointerType.Float, false, Vertex.MemorySize, 0);
+				GL.EnableVertexAttribArray(Shader.Locations["position"]);
 
-			GL.VertexAttribPointer(Shader.Locations["normal"], 3, VertexAttribPointerType.Float, false, Vertex.MemorySize, sizeof(float) * 3);
-			GL.EnableVertexAttribArray(Shader.Locations["normal"]);
+				GL.VertexAttribPointer(Shader.Locations["normal"], 3, VertexAttribPointerType.Float, false, Vertex.MemorySize, sizeof(float) * 3);
+				GL.EnableVertexAttribArray(Shader.Locations["normal"]);
 
-			GL.VertexAttribPointer(Shader.Locations["color"], 4, VertexAttribPointerType.Float, false, Vertex.MemorySize, sizeof(float) * 6);
-			GL.EnableVertexAttribArray(Shader.Locations["color"]);
+				GL.VertexAttribPointer(Shader.Locations["color"], 4, VertexAttribPointerType.Float, false, Vertex.MemorySize, sizeof(float) * 6);
+				GL.EnableVertexAttribArray(Shader.Locations["color"]);
 
-			GL.VertexAttribPointer(Shader.Locations["texCoords"], 2, VertexAttribPointerType.Float, false, Vertex.MemorySize, sizeof(float) * 10);
-			GL.EnableVertexAttribArray(Shader.Locations["texCoords"]);
+				GL.VertexAttribPointer(Shader.Locations["texCoords"], 2, VertexAttribPointerType.Float, false, Vertex.MemorySize, sizeof(float) * 10);
+				GL.EnableVertexAttribArray(Shader.Locations["texCoords"]);
+			});
 
 			IEnumerable<Renderable> renderables = map.AllObjects.GetAllRenderables();
 
 			InitRenderables(buffers, renderables);
 
-			GL.BindVertexArray(0);
-			GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
+			Application.Instance.Invoke(() =>
+			{
+				GL.BindVertexArray(0);
+				GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
+			});
+
+			map.InitializedInBackEnd = true;
 		}
 		protected override void DeleteMap(Map map, View view)
 		{
@@ -342,26 +360,33 @@ namespace Arbatel.Graphics
 			int totalLineLoopBytes = 0;
 			int totalMatrixBytes = Vector4.SizeInBytes * 4 * 2; // projectionMatrix, viewMatrix
 
+			int renderableCount = 0;
+
 			foreach (Renderable r in renderables)
 			{
 				totalVertexBytes += Vertex.MemorySize * r.Vertices.Count;
 				totalIndexBytes += sizeof(int) * r.Indices.Count;
 				totalLineLoopBytes += sizeof(int) * r.LineLoopIndices.Count;
+
+				renderableCount++;
 			}
 
-			GL.BufferData(BufferTarget.ArrayBuffer, totalVertexBytes, IntPtr.Zero, BufferUsageHint.StaticDraw);
+			Application.Instance.Invoke(() =>
+			{
+				GL.BufferData(BufferTarget.ArrayBuffer, totalVertexBytes, IntPtr.Zero, BufferUsageHint.StaticDraw);
 
-			GL.BindBuffer(BufferTarget.ElementArrayBuffer, buffers.Ebo);
-			GL.BufferData(BufferTarget.ElementArrayBuffer, totalIndexBytes, IntPtr.Zero, BufferUsageHint.StaticDraw);
-			GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);
+				GL.BindBuffer(BufferTarget.ElementArrayBuffer, buffers.Ebo);
+				GL.BufferData(BufferTarget.ElementArrayBuffer, totalIndexBytes, IntPtr.Zero, BufferUsageHint.StaticDraw);
+				GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);
 
-			GL.BindBuffer(BufferTarget.ElementArrayBuffer, buffers.LineLoopEbo);
-			GL.BufferData(BufferTarget.ElementArrayBuffer, totalLineLoopBytes, IntPtr.Zero, BufferUsageHint.StaticDraw);
-			GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);
+				GL.BindBuffer(BufferTarget.ElementArrayBuffer, buffers.LineLoopEbo);
+				GL.BufferData(BufferTarget.ElementArrayBuffer, totalLineLoopBytes, IntPtr.Zero, BufferUsageHint.StaticDraw);
+				GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);
 
-			GL.BindBuffer(BufferTarget.UniformBuffer, buffers.UboMatrices);
-			GL.BufferData(BufferTarget.UniformBuffer, totalMatrixBytes, IntPtr.Zero, BufferUsageHint.StaticDraw);
-			GL.BindBuffer(BufferTarget.UniformBuffer, 0);
+				GL.BindBuffer(BufferTarget.UniformBuffer, buffers.UboMatrices);
+				GL.BufferData(BufferTarget.UniformBuffer, totalMatrixBytes, IntPtr.Zero, BufferUsageHint.StaticDraw);
+				GL.BindBuffer(BufferTarget.UniformBuffer, 0);
+			});
 
 			int verticesSoFar = 0;
 			IntPtr vboOffset = IntPtr.Zero;
@@ -369,8 +394,19 @@ namespace Arbatel.Graphics
 			IntPtr eboOffset = IntPtr.Zero;
 			IntPtr lineLoopEboOffset = IntPtr.Zero;
 
-			foreach (Renderable r in renderables)
+			double progress = 50.0;
+			double progressStep = (100.0 - progress) / renderableCount;
+
+			for (int i = 0; i < renderableCount; i++)
 			{
+				progress += progressStep;
+
+				OnProgressUpdated(this, new ProgressEventArgs(
+					(int)progress,
+					$"Initializing renderable {i + 1} of {renderableCount}"));
+
+				Renderable r = renderables.ElementAt(i);
+
 				r.VertexOffset = vboOffset;
 				r.IndexOffset = eboOffset;
 				r.LineLoopIndexOffset = lineLoopEboOffset;
@@ -390,31 +426,36 @@ namespace Arbatel.Graphics
 				}
 
 				int renderableVerticesBytes = Vertex.MemorySize * r.Vertices.Count;
-				GL.BufferSubData(
-					BufferTarget.ArrayBuffer,
-					vboOffset,
-					renderableVerticesBytes,
-					r.Vertices.ToArray());
-
-				GL.BindBuffer(BufferTarget.ElementArrayBuffer, buffers.Ebo);
 				int renderableIndicesBytes = sizeof(int) * r.Indices.Count;
-				IEnumerable<int> shiftedIndices = r.Indices.Select(i => verticesSoFar + i);
-				GL.BufferSubData(
-					BufferTarget.ElementArrayBuffer,
-					eboOffset,
-					renderableIndicesBytes,
-					shiftedIndices.ToArray());
-				GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);
-
-				GL.BindBuffer(BufferTarget.ElementArrayBuffer, buffers.LineLoopEbo);
 				int renderableLineLoopIndicesBytes = sizeof(int) * r.LineLoopIndices.Count;
-				IEnumerable<int> shiftedLineLoopIndices = r.LineLoopIndices.Select(i => verticesSoFar + i);
-				GL.BufferSubData(
-					BufferTarget.ElementArrayBuffer,
-					lineLoopEboOffset,
-					renderableLineLoopIndicesBytes,
-					shiftedLineLoopIndices.ToArray());
-				GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);
+
+				IEnumerable<int> shiftedIndices = r.Indices.Select(j => verticesSoFar + j);
+				IEnumerable<int> shiftedLineLoopIndices = r.LineLoopIndices.Select(j => verticesSoFar + j);
+
+				Application.Instance.Invoke(() =>
+				{
+					GL.BufferSubData(
+						BufferTarget.ArrayBuffer,
+						vboOffset,
+						renderableVerticesBytes,
+						r.Vertices.ToArray());
+
+					GL.BindBuffer(BufferTarget.ElementArrayBuffer, buffers.Ebo);
+					GL.BufferSubData(
+						BufferTarget.ElementArrayBuffer,
+						eboOffset,
+						renderableIndicesBytes,
+						shiftedIndices.ToArray());
+					GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);
+
+					GL.BindBuffer(BufferTarget.ElementArrayBuffer, buffers.LineLoopEbo);
+					GL.BufferSubData(
+						BufferTarget.ElementArrayBuffer,
+						lineLoopEboOffset,
+						renderableLineLoopIndicesBytes,
+						shiftedLineLoopIndices.ToArray());
+					GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);
+				});
 
 				verticesSoFar += r.Vertices.Count;
 				vboOffset += renderableVerticesBytes;
@@ -422,6 +463,8 @@ namespace Arbatel.Graphics
 				eboOffset += renderableIndicesBytes;
 				lineLoopEboOffset += renderableLineLoopIndicesBytes;
 			}
+
+			OnProgressUpdated(this, new ProgressEventArgs((int)progress, "Map loaded!"));
 		}
 
 		public override void UpdateRenderable(Buffers buffers, Renderable renderable)
@@ -430,36 +473,45 @@ namespace Arbatel.Graphics
 		}
 		protected void UpdateRenderable(OpenGLBuffers buffers, Renderable renderable)
 		{
-			GL.BindBuffer(BufferTarget.ArrayBuffer, buffers.Vbo);
-
 			int totalVerticesBytes = Vertex.MemorySize * renderable.Vertices.Count;
 
-			GL.BufferSubData(
-				BufferTarget.ArrayBuffer,
-				renderable.VertexOffset,
-				totalVerticesBytes,
-				renderable.Vertices.ToArray());
+			Application.Instance.Invoke(() =>
+			{
+				GL.BindBuffer(BufferTarget.ArrayBuffer, buffers.Vbo);
 
-			GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
+				GL.BufferSubData(
+					BufferTarget.ArrayBuffer,
+					renderable.VertexOffset,
+					totalVerticesBytes,
+					renderable.Vertices.ToArray());
+
+				GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
+			});
 		}
 
 		public override void InitTexture(Texture t)
 		{
-			GL.GenTextures(1, out int id);
-			Textures.Add(t.Name, id);
+			Application.Instance.Invoke(() =>
+			{
+				GL.GenTextures(1, out int id);
+				Textures.Add(t.Name, id);
 
-			GL.BindTexture(TextureTarget.Texture2D, id);
-			GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba, t.Width, t.Height, 0, PixelFormat.Rgba, PixelType.UnsignedByte, t.ToUncompressed(Eto.Drawing.PixelFormat.Format32bppRgba, flip: true));
-			GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.Repeat);
-			GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.Repeat);
-			GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Nearest);
-			GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.NearestMipmapLinear);
-			GL.GenerateMipmap(GenerateMipmapTarget.Texture2D);
-			GL.BindTexture(TextureTarget.Texture2D, 0);
+				GL.BindTexture(TextureTarget.Texture2D, id);
+				GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba, t.Width, t.Height, 0, PixelFormat.Rgba, PixelType.UnsignedByte, t.ToUncompressed(Eto.Drawing.PixelFormat.Format32bppRgba, flip: true));
+				GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.Repeat);
+				GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.Repeat);
+				GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Nearest);
+				GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.NearestMipmapLinear);
+				GL.GenerateMipmap(GenerateMipmapTarget.Texture2D);
+				GL.BindTexture(TextureTarget.Texture2D, 0);
+			});
 		}
 		public override void DeleteTexture(int id)
 		{
-			GL.DeleteTexture(id);
+			Application.Instance.Invoke(() =>
+			{
+				GL.DeleteTexture(id);
+			});
 		}
 
 		protected override void Renderable_Updated(object sender, EventArgs e)

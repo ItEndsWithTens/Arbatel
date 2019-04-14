@@ -1,5 +1,6 @@
 ﻿using Arbatel.Controls;
 using Arbatel.Formats;
+using Arbatel.UI;
 using System;
 using System.Collections.Generic;
 
@@ -21,7 +22,7 @@ namespace Arbatel.Graphics
 
 	public delegate void DrawMap(Map map, View view, Camera camera);
 
-	public class BackEnd
+	public class BackEnd : IProgress
 	{
 		public virtual Dictionary<(Map, View), Buffers> Buffers { get; } = new Dictionary<(Map, View), Buffers>();
 
@@ -29,8 +30,12 @@ namespace Arbatel.Graphics
 
 		public DrawMap DrawMap { get; set; }
 
+		public event EventHandler<ProgressEventArgs> ProgressUpdated;
+
 		public virtual void InitMap(Map map, List<View> views)
 		{
+			OnProgressUpdated(this, new ProgressEventArgs(50, "Initializing map in backend..."));
+
 			map.Updated += Map_Updated;
 
 			foreach (View view in views)
@@ -40,6 +45,8 @@ namespace Arbatel.Graphics
 		}
 		protected virtual void InitMap(Map map, View view)
 		{
+			OnProgressUpdated(this, new ProgressEventArgs(50, "Initializing map in backend..."));
+
 			foreach (Renderable r in map.MapObjects.GetAllRenderables())
 			{
 				r.Updated += Renderable_Updated;
@@ -88,6 +95,10 @@ namespace Arbatel.Graphics
 				{
 					continue;
 				}
+
+				OnProgressUpdated(
+					this,
+					new ProgressEventArgs($"Initializing texture {t.Name}"));
 
 				InitTexture(t);
 			}
@@ -144,6 +155,11 @@ namespace Arbatel.Graphics
 					UpdateRenderable(pair.Value, r);
 				}
 			}
+		}
+
+		public virtual void OnProgressUpdated(object sender, ProgressEventArgs e)
+		{
+			ProgressUpdated?.Invoke(this, e);
 		}
 	}
 }

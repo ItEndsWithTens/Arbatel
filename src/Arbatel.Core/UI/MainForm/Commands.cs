@@ -267,8 +267,7 @@ namespace Arbatel.UI
 				TintInstanceObject(mo, tint);
 			}
 
-			var viewport = Content as Viewport;
-			(Control Control, string Name, Action<Control> SetUp) view = viewport.Views[viewport.View];
+			(Control Control, string Name, Action<Control> SetUp) view = Viewport.Views[Viewport.View];
 			view.SetUp.Invoke(view.Control);
 		}
 

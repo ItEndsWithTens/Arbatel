@@ -1,5 +1,6 @@
 ﻿using Arbatel.Controls;
 using Arbatel.Graphics;
+using Arbatel.UI;
 using Arbatel.Utilities;
 using OpenTK;
 using System;
@@ -16,8 +17,10 @@ namespace Arbatel.Formats
 		None
 	}
 
-	public class Map : IUpdateFromSettings
+	public class Map : IUpdateFromSettings, IProgress
 	{
+		public string Raw { get; set; }
+
 		public Aabb Aabb { get; protected set; } = new Aabb();
 
 		public string AbsolutePath { get; protected set; }
@@ -46,6 +49,8 @@ namespace Arbatel.Formats
 		public DefinitionDictionary Definitions { get; }
 
 		public List<MapObject> MapObjects { get; } = new List<MapObject>();
+
+		public bool InitializedInBackEnd { get; set; } = false;
 
 		/// <summary>
 		/// The texture dictionaries used to produce this map's working texture set.
@@ -108,6 +113,10 @@ namespace Arbatel.Formats
 		public virtual Map Collapse()
 		{
 			return this;
+		}
+
+		public virtual void Parse()
+		{
 		}
 
 		public virtual void UpdateColors(ShadingStyle style)
@@ -256,6 +265,13 @@ namespace Arbatel.Formats
 		public virtual void UpdateFromSettings(Settings settings)
 		{
 			OnUpdated();
+		}
+
+		public event EventHandler<ProgressEventArgs> ProgressUpdated;
+
+		public virtual void OnProgressUpdated(object sender, ProgressEventArgs e)
+		{
+			ProgressUpdated?.Invoke(this, e);
 		}
 
 		protected virtual void OnUpdated()

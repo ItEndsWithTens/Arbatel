@@ -146,6 +146,7 @@ namespace Arbatel.Formats
 						{
 							map = new QuakeMap(stream, Definition.DefinitionCollection);
 						}
+						map.Parse();
 
 						// For now just tweak the instance map's renderable
 						// geometry; name fixup and variable replacement will

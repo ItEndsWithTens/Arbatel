@@ -49,7 +49,7 @@ namespace Arbatel.Formats.Quake
 				}
 			}
 
-			Parse(sb.ToString());
+			Raw = sb.ToString();
 		}
 
 		/// <summary>
@@ -137,13 +137,15 @@ namespace Arbatel.Formats.Quake
 			return sb.ToString();
 		}
 
-		private void Parse(string raw)
+		public override void Parse()
 		{
 			string oldCwd = Directory.GetCurrentDirectory();
 			Directory.SetCurrentDirectory(Path.GetDirectoryName(AbsolutePath ?? oldCwd));
 
+			OnProgressUpdated(this, new ProgressEventArgs(0, "Cleaning up raw input..."));
+
 			// FIXME: Only strip leading tabs! Or just tabs not within a key or value?
-			string stripped = raw
+			string stripped = Raw
 				.Replace("\r", String.Empty)
 				.Replace("\n", String.Empty)
 				.Replace("\t", String.Empty);
@@ -184,6 +186,8 @@ namespace Arbatel.Formats.Quake
 					item++;
 				}
 			}
+
+			OnProgressUpdated(this, new ProgressEventArgs(25, "Creating map objects..."));
 
 			int i = 0;
 			while (i < split.Count)

@@ -85,7 +85,7 @@ namespace Arbatel.Controls
 			BackEnd.CommandList.ClearColorTarget(0, ClearColor);
 			BackEnd.CommandList.ClearDepthStencil(1.0f);
 
-			if (Map != null)
+			if (Map != null && Map.InitializedInBackEnd)
 			{
 				Camera.AspectRatio = (float)Width / (float)Height;
 
