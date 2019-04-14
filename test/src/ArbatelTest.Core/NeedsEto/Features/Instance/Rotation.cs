@@ -62,7 +62,7 @@ namespace ArbatelTest.Core.NeedsEto.Features.Instance
 
 				using (var stream = new FileStream(Filename, FileMode.Open, FileAccess.Read))
 				{
-					Map = new QuakeMap(stream, Fgd);
+					Map = new QuakeMap(stream, Fgd).Parse();
 				}
 			}
 
@@ -133,7 +133,7 @@ namespace ArbatelTest.Core.NeedsEto.Features.Instance
 
 				using (var stream = new FileStream(Filename, FileMode.Open, FileAccess.Read))
 				{
-					Map = new QuakeMap(stream, Fgd);
+					Map = (QuakeMap)new QuakeMap(stream, Fgd).Parse();
 				}
 			}
 
@@ -298,7 +298,7 @@ namespace ArbatelTest.Core.NeedsEto.Features.Instance
 
 				using (var stream = new FileStream(Filename, FileMode.Open, FileAccess.Read))
 				{
-					Map = new QuakeMap(stream, Fgd);
+					Map = new QuakeMap(stream, Fgd).Parse();
 				}
 			}
 
@@ -369,7 +369,7 @@ namespace ArbatelTest.Core.NeedsEto.Features.Instance
 
 				using (var stream = new FileStream(Filename, FileMode.Open, FileAccess.Read))
 				{
-					Map = new QuakeMap(stream, Fgd);
+					Map = (QuakeMap)new QuakeMap(stream, Fgd).Parse();
 				}
 			}
 
@@ -534,7 +534,7 @@ namespace ArbatelTest.Core.NeedsEto.Features.Instance
 
 				using (var stream = new FileStream(Filename, FileMode.Open, FileAccess.Read))
 				{
-					Map = new QuakeMap(stream, Fgd);
+					Map = new QuakeMap(stream, Fgd).Parse();
 				}
 			}
 
@@ -605,7 +605,7 @@ namespace ArbatelTest.Core.NeedsEto.Features.Instance
 
 				using (var stream = new FileStream(Filename, FileMode.Open, FileAccess.Read))
 				{
-					Map = new QuakeMap(stream, Fgd);
+					Map = (QuakeMap)new QuakeMap(stream, Fgd).Parse();
 				}
 			}
 

@@ -169,7 +169,7 @@ namespace ArbatelTest.Core.NeedsEto.Formats
 				mapWriter.Flush();
 				mapStream.Position = 0;
 
-				var map = new QuakeMap(mapStream, Fgd);
+				var map = (QuakeMap)new QuakeMap(mapStream, Fgd).Parse();
 
 				Assert.That(map.MapObjects.Count, Is.EqualTo(1));
 
@@ -224,7 +224,7 @@ namespace ArbatelTest.Core.NeedsEto.Formats
 				mapWriter.Flush();
 				mapStream.Position = 0;
 
-				var map = new QuakeMap(mapStream, Fgd);
+				var map = (QuakeMap)new QuakeMap(mapStream, Fgd).Parse();
 
 				Assert.That(map.MapObjects.Count, Is.EqualTo(2));
 
@@ -282,7 +282,7 @@ namespace ArbatelTest.Core.NeedsEto.Formats
 				mapWriter.Flush();
 				mapStream.Position = 0;
 
-				var map = new QuakeMap(mapStream, Fgd);
+				var map = (QuakeMap)new QuakeMap(mapStream, Fgd).Parse();
 
 				Assert.That(map.MapObjects.Count, Is.EqualTo(2));
 

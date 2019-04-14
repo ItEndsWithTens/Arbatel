@@ -137,7 +137,7 @@ namespace Arbatel.Formats.Quake
 			return sb.ToString();
 		}
 
-		public override void Parse()
+		public override Map Parse()
 		{
 			string oldCwd = Directory.GetCurrentDirectory();
 			Directory.SetCurrentDirectory(Path.GetDirectoryName(AbsolutePath ?? oldCwd));
@@ -211,6 +211,8 @@ namespace Arbatel.Formats.Quake
 			FixUp();
 
 			Directory.SetCurrentDirectory(oldCwd);
+
+			return this;
 		}
 
 		public override void UpdateFromSettings(Settings settings)

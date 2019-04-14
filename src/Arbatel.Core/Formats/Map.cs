@@ -81,12 +81,14 @@ namespace Arbatel.Formats
 		}
 		public Map(Map map)
 		{
+			Raw = map.Raw;
 			Aabb = new Aabb(map.Aabb);
 			AbsolutePath = map.AbsolutePath;
 			OpenDelimiter = map.OpenDelimiter;
 			CloseDelimiter = map.CloseDelimiter;
 			Definitions = new DefinitionDictionary(map.Definitions);
 			MapObjects = new List<MapObject>(map.MapObjects);
+			InitializedInBackEnd = false;
 			_textures = new TextureDictionary(map.Textures);
 		}
 		public Map(Stream stream, DefinitionDictionary definitions)
@@ -115,8 +117,9 @@ namespace Arbatel.Formats
 			return this;
 		}
 
-		public virtual void Parse()
+		public virtual Map Parse()
 		{
+			return this;
 		}
 
 		public virtual void UpdateColors(ShadingStyle style)
