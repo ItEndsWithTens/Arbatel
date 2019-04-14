@@ -106,15 +106,15 @@ namespace Arbatel.UI
 
 		private void CmdAutoReload_Executed(object sender, EventArgs e)
 		{
-			if (Watcher != null)
+			if (MapReloader != null)
 			{
 				if (cbxAutoReload.Checked && Map != null)
 				{
-					Watcher.EnableRaisingEvents = true;
+					MapReloader.Enabled = true;
 				}
 				else
 				{
-					Watcher.EnableRaisingEvents = false;
+					MapReloader.Enabled = false;
 				}
 			}
 		}

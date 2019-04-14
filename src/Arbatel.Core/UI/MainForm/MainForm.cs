@@ -34,11 +34,7 @@ namespace Arbatel.UI
 
 		public Settings Settings { get; } = new Settings();
 
-		public FileSystemWatcher Watcher { get; } = new FileSystemWatcher
-		{
-			EnableRaisingEvents = false,
-			NotifyFilter = NotifyFilters.LastWrite
-		};
+		public AutoReloader MapReloader { get; private set; }
 
 		public MainForm()
 		{
@@ -77,29 +73,26 @@ namespace Arbatel.UI
 
 			Shown += SetDefaultView;
 
-			Watcher.Changed += Watcher_Changed;
-		}
-
-		private void Watcher_Changed(object sender, FileSystemEventArgs e)
-		{
-			var viewport = Content as Viewport;
-			var v = viewport.Views[viewport.View].Control as View;
-
-			// Starting and stopping UITimers (like Controllers' input clock,
-			// and Views' graphics clock), as well as deleting and recreating
-			// textures, are things that need to happen on the UI thread. This
-			// event handler can for some reason be called from a worker thread,
-			// so an Invoke is necessary to ensure nothing goes bonkers.
-			Application.Instance.Invoke(() =>
+			MapReloader = new AutoReloader((file) =>
 			{
-				v.Controller.Deactivate();
-				v.GraphicsClock.Stop();
+				var v = viewport.Views[viewport.View].Control as View;
 
-				CloseMap();
-				OpenMap(e.FullPath);
+				// Starting and stopping UITimers (like Controllers' input clock,
+				// and Views' graphics clock), as well as deleting and recreating
+				// textures, are things that need to happen on the UI thread. This
+				// event handler can for some reason be called from a worker thread,
+				// so an Invoke is necessary to ensure nothing goes bonkers.
+				Application.Instance.Invoke(() =>
+				{
+					v.Controller.Deactivate();
+					v.GraphicsClock.Stop();
 
-				v.GraphicsClock.Start();
-				v.Controller.Activate();
+					CloseMap();
+					OpenMap(file);
+
+					v.GraphicsClock.Start();
+					v.Controller.Activate();
+				});
 			});
 		}
 
@@ -131,9 +124,8 @@ namespace Arbatel.UI
 
 			GetAllThisNonsenseReady();
 
-			Watcher.Path = Path.GetDirectoryName(fileName);
-			Watcher.Filter = Path.GetFileName(fileName);
-			Watcher.EnableRaisingEvents = cbxAutoReload.Checked;
+			MapReloader.File = fileName;
+			MapReloader.Enabled = cbxAutoReload.Checked;
 		}
 		private void CloseMap()
 		{
@@ -142,7 +134,7 @@ namespace Arbatel.UI
 				return;
 			}
 
-			Watcher.EnableRaisingEvents = false;
+			MapReloader.Enabled = false;
 
 			IEnumerable<View> views =
 				from view in (Content as Viewport).Views
