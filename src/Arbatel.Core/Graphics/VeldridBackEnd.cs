@@ -598,7 +598,7 @@ namespace Arbatel.Graphics
 				lineLoopEboOffset += renderableLineLoopIndicesBytes;
 			}
 
-			OnProgressUpdated(this, new ProgressEventArgs((int)progress, "Map loaded!"));
+			OnProgressUpdated(this, new ProgressEventArgs(100, "Map loaded!"));
 		}
 
 		public override void UpdateRenderable(Buffers buffers, Renderable renderable)
