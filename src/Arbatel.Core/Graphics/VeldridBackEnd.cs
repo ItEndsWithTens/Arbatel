@@ -412,23 +412,20 @@ namespace Arbatel.Graphics
 			var buffers = new VeldridBuffers();
 			Buffers.Add((map, view), buffers);
 
-			Application.Instance.Invoke(() =>
-			{
-				buffers.ProjectionMatrixBuffer = Factory.CreateBuffer(
-					new BufferDescription(64, BufferUsage.UniformBuffer));
-				ProjectionMatrixSet = Factory.CreateResourceSet(new ResourceSetDescription(
-					ProjectionMatrixLayout, buffers.ProjectionMatrixBuffer));
+			buffers.ProjectionMatrixBuffer = Factory.CreateBuffer(
+				new BufferDescription(64, BufferUsage.UniformBuffer));
+			ProjectionMatrixSet = Factory.CreateResourceSet(new ResourceSetDescription(
+				ProjectionMatrixLayout, buffers.ProjectionMatrixBuffer));
 
-				buffers.ViewMatrixBuffer = Factory.CreateBuffer(
-					new BufferDescription(64, BufferUsage.UniformBuffer));
-				ViewMatrixSet = Factory.CreateResourceSet(new ResourceSetDescription(
-					ViewMatrixLayout, buffers.ViewMatrixBuffer));
+			buffers.ViewMatrixBuffer = Factory.CreateBuffer(
+				new BufferDescription(64, BufferUsage.UniformBuffer));
+			ViewMatrixSet = Factory.CreateResourceSet(new ResourceSetDescription(
+				ViewMatrixLayout, buffers.ViewMatrixBuffer));
 
-				buffers.ModelMatrixBuffer = Factory.CreateBuffer(
-					new BufferDescription(64, BufferUsage.UniformBuffer));
-				ModelMatrixSet = Factory.CreateResourceSet(new ResourceSetDescription(
-					ModelMatrixLayout, buffers.ModelMatrixBuffer));
-			});
+			buffers.ModelMatrixBuffer = Factory.CreateBuffer(
+				new BufferDescription(64, BufferUsage.UniformBuffer));
+			ModelMatrixSet = Factory.CreateResourceSet(new ResourceSetDescription(
+				ModelMatrixLayout, buffers.ModelMatrixBuffer));
 
 			InitRenderables(buffers, map.AllObjects.GetAllRenderables());
 
@@ -533,15 +530,12 @@ namespace Arbatel.Graphics
 				renderableCount++;
 			}
 
-			Application.Instance.Invoke(() =>
-			{
-				buffers.VertexBuffer = Factory.CreateBuffer(
-					new BufferDescription((uint)totalVertexBytes, BufferUsage.VertexBuffer));
-				buffers.IndexBuffer = Factory.CreateBuffer(
-					new BufferDescription((uint)totalIndexBytes, BufferUsage.IndexBuffer));
-				buffers.LineLoopIndexBuffer = Factory.CreateBuffer(
-					new BufferDescription((uint)totalLineLoopBytes, BufferUsage.IndexBuffer));
-			});
+			buffers.VertexBuffer = Factory.CreateBuffer(
+				new BufferDescription((uint)totalVertexBytes, BufferUsage.VertexBuffer));
+			buffers.IndexBuffer = Factory.CreateBuffer(
+				new BufferDescription((uint)totalIndexBytes, BufferUsage.IndexBuffer));
+			buffers.LineLoopIndexBuffer = Factory.CreateBuffer(
+				new BufferDescription((uint)totalLineLoopBytes, BufferUsage.IndexBuffer));
 
 			int verticesSoFar = 0;
 			IntPtr vboOffset = IntPtr.Zero;
@@ -584,12 +578,9 @@ namespace Arbatel.Graphics
 				int renderableIndicesBytes = sizeof(int) * r.Indices.Count;
 				int renderableLineLoopIndicesBytes = sizeof(int) * r.LineLoopIndices.Count;
 
-				Application.Instance.Invoke(() =>
-				{
-					Surface.GraphicsDevice.UpdateBuffer(buffers.VertexBuffer, (uint)vboOffset, r.Vertices.ToArray());
-					Surface.GraphicsDevice.UpdateBuffer(buffers.IndexBuffer, (uint)eboOffset, r.Indices.ToArray());
-					Surface.GraphicsDevice.UpdateBuffer(buffers.LineLoopIndexBuffer, (uint)lineLoopEboOffset, r.LineLoopIndices.ToArray());
-				});
+				Surface.GraphicsDevice.UpdateBuffer(buffers.VertexBuffer, (uint)vboOffset, r.Vertices.ToArray());
+				Surface.GraphicsDevice.UpdateBuffer(buffers.IndexBuffer, (uint)eboOffset, r.Indices.ToArray());
+				Surface.GraphicsDevice.UpdateBuffer(buffers.LineLoopIndexBuffer, (uint)lineLoopEboOffset, r.LineLoopIndices.ToArray());
 
 				verticesSoFar += r.Vertices.Count;
 				vboOffset += renderableVerticesBytes;
@@ -611,12 +602,9 @@ namespace Arbatel.Graphics
 			int renderableIndicesBytes = sizeof(int) * r.Indices.Count;
 			int renderableLineLoopIndicesBytes = sizeof(int) * r.LineLoopIndices.Count;
 
-			Application.Instance.Invoke(() =>
-			{
-				Surface.GraphicsDevice.UpdateBuffer(b.VertexBuffer, (uint)r.VertexOffset, r.Vertices.ToArray());
-				Surface.GraphicsDevice.UpdateBuffer(b.IndexBuffer, (uint)r.IndexOffset, r.Indices.ToArray());
-				Surface.GraphicsDevice.UpdateBuffer(b.LineLoopIndexBuffer, (uint)r.LineLoopIndexOffset, r.LineLoopIndices.ToArray());
-			});
+			Surface.GraphicsDevice.UpdateBuffer(b.VertexBuffer, (uint)r.VertexOffset, r.Vertices.ToArray());
+			Surface.GraphicsDevice.UpdateBuffer(b.IndexBuffer, (uint)r.IndexOffset, r.Indices.ToArray());
+			Surface.GraphicsDevice.UpdateBuffer(b.LineLoopIndexBuffer, (uint)r.LineLoopIndexOffset, r.LineLoopIndices.ToArray());
 		}
 
 		public override void InitTexture(Texture texture)
@@ -641,33 +629,30 @@ namespace Arbatel.Graphics
 				TextureUsage.Sampled,
 				TextureType.Texture2D);
 
-			Application.Instance.Invoke(() =>
+			Veldrid.Texture created = Factory.CreateTexture(description);
+
+			using (Eto.Drawing.BitmapData data = texture.Bitmap.Lock())
 			{
-				Veldrid.Texture created = Factory.CreateTexture(description);
+				Surface.GraphicsDevice.UpdateTexture(
+					created,
+					data.Data,
+					(uint)(data.ScanWidth * texture.Height),
+					0,
+					0,
+					0,
+					(uint)texture.Width,
+					(uint)texture.Height,
+					1,
+					0,
+					0);
+			}
 
-				using (Eto.Drawing.BitmapData data = texture.Bitmap.Lock())
-				{
-					Surface.GraphicsDevice.UpdateTexture(
-						created,
-						data.Data,
-						(uint)(data.ScanWidth * texture.Height),
-						0,
-						0,
-						0,
-						(uint)texture.Width,
-						(uint)texture.Height,
-						1,
-						0,
-						0);
-				}
+			TextureView view = Factory.CreateTextureView(created);
 
-				TextureView view = Factory.CreateTextureView(created);
+			ResourceSet set = Factory.CreateResourceSet(new ResourceSetDescription(
+				TextureLayout, view));
 
-				ResourceSet set = Factory.CreateResourceSet(new ResourceSetDescription(
-					TextureLayout, view));
-
-				Textures.Add(texture.Name, (created, view, set));
-			});
+			Textures.Add(texture.Name, (created, view, set));
 		}
 		public override void DeleteTexture(string name)
 		{
