@@ -38,6 +38,7 @@ namespace Arbatel.UI
 							CmdOpen,
 							CmdClose,
 							new SeparatorMenuItem(),
+							CmdReload,
 							cbxAutoReload
 						}
 					},

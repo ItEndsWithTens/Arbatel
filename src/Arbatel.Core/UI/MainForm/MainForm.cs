@@ -125,15 +125,16 @@ namespace Arbatel.UI
 
 			Shown += SetDefaultView;
 
-			MapReloader = new AutoReloader((file) =>
-			{
-				CloseMap();
-				OpenMap(file);
-			});
+			MapReloader = new AutoReloader((f) => ReloadMap(f));
 		}
 
 		private void OpenMap(string fileName)
 		{
+			if (String.IsNullOrEmpty(fileName))
+			{
+				return;
+			}
+
 			string ext = Path.GetExtension(fileName);
 
 			if (ext.ToLower() != ".map")
@@ -201,6 +202,16 @@ namespace Arbatel.UI
 				StatusDisplay.Text = "";
 				ProgressBar.Value = 0;
 			});
+		}
+		private void ReloadMap(string fileName)
+		{
+			if (Map == null)
+			{
+				return;
+			}
+
+			CloseMap();
+			OpenMap(fileName);
 		}
 
 		private void GetAllThisNonsenseReady()

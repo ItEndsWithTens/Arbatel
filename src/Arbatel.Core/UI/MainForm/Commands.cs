@@ -50,6 +50,12 @@ namespace Arbatel.UI
 			Shortcut = Application.Instance.CommonModifier | Keys.Q
 		};
 
+		private Command CmdReload = new Command
+		{
+			MenuText = "&Reload",
+			Shortcut = Application.Instance.CommonModifier | Keys.Shift | Keys.R
+		};
+
 		private Command CmdSaveCollapsedAs = new Command
 		{
 			MenuText = "&Save collapsed as...",
@@ -94,6 +100,8 @@ namespace Arbatel.UI
 			CmdOpen.Executed += CmdOpen_Executed;
 
 			CmdPreferences.Executed += CmdPreferences_Executed;
+
+			CmdReload.Executed += (sender, e) => ReloadMap(MapReloader.File);
 
 			CmdSaveCollapsedAs.Executed += CmdSaveCollapsedAs_Executed;
 
