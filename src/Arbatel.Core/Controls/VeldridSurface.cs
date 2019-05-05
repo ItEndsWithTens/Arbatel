@@ -133,6 +133,17 @@ namespace Arbatel.Controls
 
 	public class VeldridSurfaceHandler : ThemedControlHandler<Panel, VeldridSurface, VeldridSurface.ICallback>, VeldridSurface.IHandler
 	{
+		// The "improved" resource binding model changes how resource slots are
+		// assigned in the Metal backend, allowing it to work like the others,
+		// so the numbers used in calls to CommandList.SetGraphicsResourceSet
+		// will make more sense to developers used to e.g. OpenGL or Direct3D.
+		public GraphicsDeviceOptions GraphicsDeviceOptions { get; } =
+			new GraphicsDeviceOptions(
+				false,
+				Veldrid.PixelFormat.R32_Float,
+				false,
+				ResourceBindingModel.Improved);
+
 		public Control RenderTarget
 		{
 			get { return Control.Content; }
@@ -208,7 +219,7 @@ namespace Arbatel.Controls
 				VeldridGL.ResizeSwapchain);
 
 			Widget.GraphicsDevice = GraphicsDevice.CreateOpenGL(
-				new GraphicsDeviceOptions(false, Veldrid.PixelFormat.R32_Float, false),
+				GraphicsDeviceOptions,
 				platformInfo,
 				(uint)Widget.Width,
 				(uint)Widget.Height);
@@ -225,15 +236,15 @@ namespace Arbatel.Controls
 		{
 			if (Widget.Backend == GraphicsBackend.Metal)
 			{
-				Widget.GraphicsDevice = GraphicsDevice.CreateMetal(new GraphicsDeviceOptions());
+				Widget.GraphicsDevice = GraphicsDevice.CreateMetal(GraphicsDeviceOptions);
 			}
 			else if (Widget.Backend == GraphicsBackend.Vulkan)
 			{
-				Widget.GraphicsDevice = GraphicsDevice.CreateVulkan(new GraphicsDeviceOptions());
+				Widget.GraphicsDevice = GraphicsDevice.CreateVulkan(GraphicsDeviceOptions);
 			}
 			else if (Widget.Backend == GraphicsBackend.Direct3D11)
 			{
-				Widget.GraphicsDevice = GraphicsDevice.CreateD3D11(new GraphicsDeviceOptions());
+				Widget.GraphicsDevice = GraphicsDevice.CreateD3D11(GraphicsDeviceOptions);
 			}
 			else
 			{
