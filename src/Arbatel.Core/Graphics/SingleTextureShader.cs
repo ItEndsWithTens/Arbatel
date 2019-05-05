@@ -32,7 +32,7 @@ namespace Arbatel.Graphics
 
 			foreach (IGrouping<Texture, (Polygon, Renderable)> t in byTexture)
 			{
-				GL.BindTexture(TextureTarget.Texture2D, BackEnd.Textures[t.Key.Name.ToLower()]);
+				GL.BindTexture(TextureTarget.Texture2D, ((OpenGLBackEnd)BackEnd).Textures[t.Key.Name.ToLower()]);
 
 				IEnumerable<IGrouping<Renderable, (Polygon, Renderable)>> byRenderable =
 					t
@@ -77,7 +77,7 @@ namespace Arbatel.Graphics
 
 			foreach (IGrouping<Texture, (Polygon, Renderable)> t in byTexture)
 			{
-				GL.BindTexture(TextureTarget.Texture2D, BackEnd.Textures[t.Key.Name.ToLower()]);
+				GL.BindTexture(TextureTarget.Texture2D, ((OpenGLBackEnd)BackEnd).Textures[t.Key.Name.ToLower()]);
 
 				_indexCounts.Clear();
 				_indexOffsets.Clear();

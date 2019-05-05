@@ -79,6 +79,8 @@ namespace Arbatel.Graphics
 
 		public new Dictionary<(Map, View), OpenGLBuffers> Buffers { get; } = new Dictionary<(Map, View), OpenGLBuffers>();
 
+		public Dictionary<string, int> Textures { get; } = new Dictionary<string, int>();
+
 		public Dictionary<ShadingStyle, Shader> Shaders { get; } = new Dictionary<ShadingStyle, Shader>();
 
 		public static Action<Control> SetUpWireframe { get; } = new Action<Control>(control =>
@@ -489,6 +491,22 @@ namespace Arbatel.Graphics
 			});
 		}
 
+		public override void InitTextures(TextureDictionary dictionary)
+		{
+			foreach (Texture t in dictionary.Values)
+			{
+				if (Textures.ContainsKey(t.Name))
+				{
+					DeleteTexture(t.Name);
+				}
+
+				OnProgressUpdated(
+					this,
+					new ProgressEventArgs($"Initializing texture {t.Name}"));
+
+				InitTexture(t);
+			}
+		}
 		public override void InitTexture(Texture t)
 		{
 			Application.Instance.Invoke(() =>
@@ -506,12 +524,26 @@ namespace Arbatel.Graphics
 				GL.BindTexture(TextureTarget.Texture2D, 0);
 			});
 		}
-		public override void DeleteTexture(int id)
+		public override void DeleteTextures()
+		{
+			foreach (int id in Textures.Values)
+			{
+				Application.Instance.Invoke(() =>
+				{
+					GL.DeleteTexture(id);
+				});
+			}
+
+			Textures.Clear();
+		}
+		public override void DeleteTexture(string name)
 		{
 			Application.Instance.Invoke(() =>
 			{
-				GL.DeleteTexture(id);
+				GL.DeleteTexture(Textures[name]);
 			});
+
+			Textures.Remove(name);
 		}
 
 		protected override void Renderable_Updated(object sender, EventArgs e)

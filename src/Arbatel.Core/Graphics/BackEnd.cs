@@ -26,8 +26,6 @@ namespace Arbatel.Graphics
 	{
 		public virtual Dictionary<(Map, View), Buffers> Buffers { get; } = new Dictionary<(Map, View), Buffers>();
 
-		public Dictionary<string, int> Textures { get; } = new Dictionary<string, int>();
-
 		public DrawMap DrawMap { get; set; }
 
 		public event EventHandler<ProgressEventArgs> ProgressUpdated;
@@ -89,31 +87,12 @@ namespace Arbatel.Graphics
 
 		public virtual void InitTextures(TextureDictionary dictionary)
 		{
-			foreach (Texture t in dictionary.Values)
-			{
-				if (Textures.ContainsKey(t.Name))
-				{
-					continue;
-				}
-
-				OnProgressUpdated(
-					this,
-					new ProgressEventArgs($"Initializing texture {t.Name}"));
-
-				InitTexture(t);
-			}
 		}
 		public virtual void InitTexture(Texture texture)
 		{
 		}
 		public virtual void DeleteTextures()
 		{
-			foreach (KeyValuePair<string, int> pair in Textures)
-			{
-				DeleteTexture(pair.Value);
-			}
-
-			Textures.Clear();
 		}
 		public virtual void DeleteTextures(TextureDictionary dictionary)
 		{
@@ -127,12 +106,6 @@ namespace Arbatel.Graphics
 			DeleteTexture(texture.Name);
 		}
 		public virtual void DeleteTexture(string name)
-		{
-			DeleteTexture(Textures[name]);
-
-			Textures.Remove(name);
-		}
-		public virtual void DeleteTexture(int id)
 		{
 		}
 

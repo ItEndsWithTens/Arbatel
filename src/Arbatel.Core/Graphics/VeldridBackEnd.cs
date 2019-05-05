@@ -45,7 +45,7 @@ namespace Arbatel.Graphics
 
 		public new Dictionary<(Map, View), VeldridBuffers> Buffers { get; } = new Dictionary<(Map, View), VeldridBuffers>();
 
-		public new Dictionary<string, (Veldrid.Texture t, TextureView v, ResourceSet s)> Textures { get; } = new Dictionary<string, (Veldrid.Texture t, TextureView v, ResourceSet s)>();
+		public Dictionary<string, (Veldrid.Texture t, TextureView v, ResourceSet s)> Textures { get; } = new Dictionary<string, (Veldrid.Texture t, TextureView v, ResourceSet s)>();
 
 		public Dictionary<ShadingStyle, Pipeline> Pipelines { get; } = new Dictionary<ShadingStyle, Pipeline>();
 
@@ -607,6 +607,22 @@ namespace Arbatel.Graphics
 			Surface.GraphicsDevice.UpdateBuffer(b.LineLoopIndexBuffer, (uint)r.LineLoopIndexOffset, r.LineLoopIndices.ToArray());
 		}
 
+		public override void InitTextures(TextureDictionary dictionary)
+		{
+			foreach (Texture t in dictionary.Values)
+			{
+				if (Textures.ContainsKey(t.Name))
+				{
+					DeleteTexture(t.Name);
+				}
+
+				OnProgressUpdated(
+					this,
+					new ProgressEventArgs($"Initializing texture {t.Name}"));
+
+				InitTexture(t);
+			}
+		}
 		public override void InitTexture(Texture texture)
 		{
 			PixelFormat format;
@@ -653,6 +669,17 @@ namespace Arbatel.Graphics
 				TextureLayout, view));
 
 			Textures.Add(texture.Name, (created, view, set));
+		}
+		public override void DeleteTextures()
+		{
+			foreach ((Veldrid.Texture t, TextureView v, ResourceSet s) in Textures.Values)
+			{
+				s.Dispose();
+				v.Dispose();
+				t.Dispose();
+			}
+
+			Textures.Clear();
 		}
 		public override void DeleteTexture(string name)
 		{
