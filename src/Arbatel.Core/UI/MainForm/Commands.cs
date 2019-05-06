@@ -262,14 +262,19 @@ namespace Arbatel.UI
 
 		private void TintInstanceObjects(bool visible, bool tinted)
 		{
-			string[] names = { "func_instance", "func_placeholder" };
+			string[] names = { "func_instance", "func_placeholder", "misc_external_map" };
 
 			IEnumerable<MapObject> instances =
 				from mo in Map.MapObjects
 				where names.Contains(mo.Definition.ClassName)
 				select mo;
 
-			Color4? tint = visible ? null : tint = new Color4(1.0f, 1.0f, 1.0f, 0.0f);
+			Color4? tint = null;
+			if (!visible)
+			{
+				tint = new Color4(1.0f, 1.0f, 1.0f, 0.0f);
+			}
+
 			foreach (MapObject mo in instances)
 			{
 				if (visible && tinted)
@@ -297,7 +302,7 @@ namespace Arbatel.UI
 
 			Color4? tint = null;
 			// Leave the root instance renderable alone, tint everything else.
-			if (depth > 0 || mo.Definition.ClassName != "func_instance")
+			if ((depth > 0 || mo.Definition.ClassName != "func_instance") && mo.Definition.ClassName != "misc_external_map")
 			{
 				tint = color;
 			}
