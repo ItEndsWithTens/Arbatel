@@ -48,7 +48,7 @@ namespace Arbatel.Formats
 
 		public DefinitionDictionary Definitions { get; }
 
-		public List<MapObject> MapObjects { get; } = new List<MapObject>();
+		public List<MapObject> MapObjects { get; protected set; } = new List<MapObject>();
 
 		public bool InitializedInBackEnd { get; set; } = false;
 
@@ -120,6 +120,26 @@ namespace Arbatel.Formats
 		public virtual Map Parse()
 		{
 			return this;
+		}
+
+		public virtual void Prune(ClassType type)
+		{
+			var pruned = new List<MapObject>();
+
+			foreach (MapObject mo in MapObjects)
+			{
+				if (mo.Definition.ClassType == type)
+				{
+					continue;
+				}
+				else
+				{
+					mo.Prune(type);
+					pruned.Add(mo);
+				}
+			}
+
+			MapObjects = pruned;
 		}
 
 		public virtual void UpdateColors(ShadingStyle style)
@@ -211,16 +231,52 @@ namespace Arbatel.Formats
 		/// <param name="basis">The MapObject serving as the basis of the transform.</param>
 		public void Transform(MapObject basis)
 		{
+			// Remember the orientation of instance objects: pointing toward
+			// +X in a Z-up, left-handed coordinate space. Input objects exist
+			// in that coordinate system, but have their 'angles' and similar
+			// keys stored as Pitch Yaw Roll (rotation about YZX, respectively)
+			// and so need to be converted with particular care. Very confusing.
+			//
+			// Also beware the difference in rotation between the two types of
+			// instance entity: when looking from the negative end of an axis
+			// toward the positive end, func_instance treats positive angles as
+			// rotating clockwise, as in the Source engine and its tools, while
+			// misc_external_map treats positive angles as counter-clockwise.
+
 			var rotation = new Vector3();
-			if (basis.KeyVals.ContainsKey("angles"))
+			if (basis.KeyVals.ContainsKey("_external_map_angles"))
 			{
-				// Remember the orientation of instance objects, pointing toward
-				// +X in a Z-up, left-handed coordinate space.
+				rotation = -basis.KeyVals["_external_map_angles"].Value.ToVector3().Zxy;
+			}
+			else if (basis.KeyVals.ContainsKey("_external_map_angle"))
+			{
+				rotation.Z = -Single.Parse(basis.KeyVals["_external_map_angle"].Value);
+			}
+			else if (basis.KeyVals.ContainsKey("angles"))
+			{
 				rotation = basis.KeyVals["angles"].Value.ToVector3().Zxy;
 			}
 
-			// TODO: Implement scale.
-			var scale = new Vector3(1.0f, 1.0f, 1.0f);
+			var scale = new Vector3(1.0f);
+			if (basis.KeyVals.ContainsKey("_external_map_scale"))
+			{
+				string s = basis.KeyVals["_external_map_scale"].Value;
+
+				string[] split = s.Split(' ');
+
+				if (split.Length == 3)
+				{
+					scale = s.ToVector3();
+				}
+				else if (split.Length == 1)
+				{
+					scale = new Vector3(Single.Parse(s));
+				}
+				else
+				{
+					throw new InvalidDataException($"Invalid _external_map_scale value: {s}");
+				}
+			}
 
 			Transform(basis.Position, rotation, scale);
 		}

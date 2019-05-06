@@ -29,9 +29,46 @@ namespace Arbatel.Formats
 			{
 				collapsed.Saveability = Saveability.Children;
 			}
+			else if (mo.Definition.ClassName == "misc_external_map")
+			{
+				if (mo.KeyVals.ContainsKey("_external_map_classname"))
+				{
+					// To mimic the behavior of ericw's QBSP, any point entities
+					// within a misc_external_map should be ignored, and all
+					// brushes should be added to a new instance of the entity
+					// class specified in _external_map_classname.
+					//
+					// The former is accomplished down in ExtractRenderables,
+					// when first loading the misc_external_map's referenced map
+					// file. The latter is done here, by changing the current
+					// map object's entity definition, clearing out the baggage
+					// it's carrying, then bringing along only the renderables
+					// of its children so as to skip its placeholder cube.
+
+					string name = mo.KeyVals["_external_map_classname"].Value;
+					Definition entity = mo.Definition.DefinitionCollection[name];
+
+					collapsed.Definition = entity;
+					collapsed.Saveability = Saveability.All;
+
+					collapsed.KeyVals.Clear();
+					collapsed.Children.Clear();
+					collapsed.Renderables.Clear();
+
+					Option classname = entity.KeyValsTemplate["classname"];
+					classname.Value = name;
+					collapsed.KeyVals.Add("classname", classname);
+
+					collapsed.Renderables.AddRange(mo.Children.GetAllRenderables());
+				}
+				else
+				{
+					collapsed.Saveability = Saveability.Children;
+				}
+			}
 
 			bool onlyChildren = collapsed.Saveability == Saveability.Children;
-			return onlyChildren ? collapsed.Children : new List<MapObject>() { collapsed };
+			return onlyChildren ? collapsed.Children : new List<MapObject> { collapsed };
 		}
 	}
 
@@ -139,7 +176,16 @@ namespace Arbatel.Formats
 					if (path.EndsWith(".map", StringComparison.OrdinalIgnoreCase))
 					{
 						string oldCwd = Directory.GetCurrentDirectory();
-						string instancePath = oldCwd + Path.DirectorySeparatorChar + path;
+
+						string instancePath;
+						if (Path.IsPathRooted(path))
+						{
+							instancePath = path;
+						}
+						else
+						{
+							instancePath = Path.Combine(oldCwd, path);
+						}
 
 						QuakeMap map;
 						using (FileStream stream = File.OpenRead(instancePath))
@@ -147,6 +193,11 @@ namespace Arbatel.Formats
 							map = new QuakeMap(stream, Definition.DefinitionCollection);
 						}
 						map.Parse();
+
+						if (Definition.ClassName == "misc_external_map")
+						{
+							map.Prune(ClassType.Point);
+						}
 
 						// For now just tweak the instance map's renderable
 						// geometry; name fixup and variable replacement will

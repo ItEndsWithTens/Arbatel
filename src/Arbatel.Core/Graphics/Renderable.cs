@@ -332,7 +332,45 @@ namespace Arbatel.Graphics
 		}
 		protected void Scale(float x, float y, float z)
 		{
-			// TODO: Implement scale.
+			for (int i = 0; i < Vertices.Count; i++)
+			{
+				Vertex scaled = Vertices[i];
+
+				scaled.Position = new Vector3
+				{
+					X = scaled.Position.X * x,
+					Y = scaled.Position.Y * y,
+					Z = scaled.Position.Z * z
+				};
+
+				Vertices[i] = scaled;
+			}
+
+			for (int i = 0; i < Polygons.Count; i++)
+			{
+				Polygon scaled = Polygons[i];
+
+				// TODO: Understand, and explain in a comment, why the basis
+				// vectors need to be divided by the scale instead of multiplied
+				// like the vertex positions. I figured this out by observation,
+				// and honestly have no idea why it works.
+
+				scaled.BasisS = new Vector3
+				{
+					X = scaled.BasisS.X / x,
+					Y = scaled.BasisS.Y / y,
+					Z = scaled.BasisS.Z / z
+				};
+
+				scaled.BasisT = new Vector3
+				{
+					X = scaled.BasisT.X / x,
+					Y = scaled.BasisT.Y / y,
+					Z = scaled.BasisT.Z / z
+				};
+
+				Polygons[i] = scaled;
+			}
 		}
 
 		public void Transform(Vector3 translation, Vector3 rotation, Vector3 scale)

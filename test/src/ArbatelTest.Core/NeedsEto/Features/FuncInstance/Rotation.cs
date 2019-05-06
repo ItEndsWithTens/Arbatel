@@ -10,7 +10,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 
-namespace ArbatelTest.Core.NeedsEto.Features.Instance
+namespace ArbatelTest.Core.NeedsEto.Features.FuncInstance
 {
 	public class Pitch
 	{

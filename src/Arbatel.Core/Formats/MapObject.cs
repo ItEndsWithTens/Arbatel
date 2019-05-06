@@ -235,6 +235,26 @@ namespace Arbatel.Formats
 			}
 		}
 
+		public virtual void Prune(ClassType type)
+		{
+			var pruned = new List<MapObject>();
+
+			foreach (MapObject child in Children)
+			{
+				if (child.Definition.ClassType == type)
+				{
+					continue;
+				}
+				else
+				{
+					child.Prune(type);
+					pruned.Add(child);
+				}
+			}
+
+			Children = pruned;
+		}
+
 		/// <summary>
 		/// Get a list of all Renderables contained by the tree of MapObjects
 		/// rooted at this one.

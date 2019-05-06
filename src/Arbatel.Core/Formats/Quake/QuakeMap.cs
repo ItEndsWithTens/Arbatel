@@ -10,13 +10,6 @@ using System.Text;
 
 namespace Arbatel.Formats.Quake
 {
-	public enum CollapseType
-	{
-		Position,
-		Angle,
-		Target
-	}
-
 	public class QuakeMap : Map
 	{
 		public QuakeMap() : base()
