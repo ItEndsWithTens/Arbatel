@@ -46,7 +46,11 @@ namespace Arbatel.Graphics
 
 				var p = new Polygon
 				{
-					Texture = new Texture() { Name = side.TextureName.ToLower() },
+					// No need to make a new Texture instance yet, just set the
+					// intended name. The actual texture will be created when
+					// texture dictionaries are loaded later.
+					IntendedTextureName = side.TextureName.ToLower(),
+
 					BasisS = side.TextureBasis[0],
 					BasisT = side.TextureBasis[1],
 					Offset = new Vector2(side.TextureOffset.X, side.TextureOffset.Y),
@@ -142,8 +146,8 @@ namespace Arbatel.Graphics
 
 					v.TexCoords = new Vector2
 					{
-						X = (Vector3.Dot(v.Position, p.BasisS) + (p.Offset.X * p.Scale.X)) / (p.Texture.Width * p.Scale.X),
-						Y = (Vector3.Dot(v.Position, p.BasisT) + (p.Offset.Y * p.Scale.Y)) / (p.Texture.Height * p.Scale.Y)
+						X = (Vector3.Dot(v.Position, p.BasisS) + (p.Offset.X * p.Scale.X)) / (p.CurrentTexture.Width * p.Scale.X),
+						Y = (Vector3.Dot(v.Position, p.BasisT) + (p.Offset.Y * p.Scale.Y)) / (p.CurrentTexture.Height * p.Scale.Y)
 					};
 
 					Vertices[index] = v;

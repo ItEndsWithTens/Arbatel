@@ -27,12 +27,18 @@ namespace Arbatel.Graphics
 
 			IEnumerable<IGrouping<Texture, (Polygon, Renderable)>> byTexture =
 				camera.GetVisiblePolygons(renderables)
-				.GroupBy(pair => pair.Item1.Texture)
+				.GroupBy(pair => pair.Item1.CurrentTexture)
 				.OrderBy(t => t.Key.Translucent);
 
 			foreach (IGrouping<Texture, (Polygon, Renderable)> t in byTexture)
 			{
-				GL.BindTexture(TextureTarget.Texture2D, ((OpenGLBackEnd)BackEnd).Textures[t.Key.Name.ToLower()]);
+				string textureName = TextureGenerator.MissingTextureName;
+				if (((OpenGLBackEnd)BackEnd).Textures.ContainsKey(t.Key.Name.ToLower()))
+				{
+					textureName = t.Key.Name.ToLower();
+				}
+
+				GL.BindTexture(TextureTarget.Texture2D, ((OpenGLBackEnd)BackEnd).Textures[textureName]);
 
 				IEnumerable<IGrouping<Renderable, (Polygon, Renderable)>> byRenderable =
 					t
@@ -72,12 +78,18 @@ namespace Arbatel.Graphics
 
 			IEnumerable<IGrouping<Texture, (Polygon, Renderable)>> byTexture =
 				camera.GetVisiblePolygons(renderables)
-				.GroupBy(pair => pair.Item1.Texture)
+				.GroupBy(pair => pair.Item1.CurrentTexture)
 				.OrderBy(t => t.Key.Translucent);
 
 			foreach (IGrouping<Texture, (Polygon, Renderable)> t in byTexture)
 			{
-				GL.BindTexture(TextureTarget.Texture2D, ((OpenGLBackEnd)BackEnd).Textures[t.Key.Name.ToLower()]);
+				string textureName = TextureGenerator.MissingTextureName;
+				if (((OpenGLBackEnd)BackEnd).Textures.ContainsKey(t.Key.Name.ToLower()))
+				{
+					textureName = t.Key.Name.ToLower();
+				}
+
+				GL.BindTexture(TextureTarget.Texture2D, ((OpenGLBackEnd)BackEnd).Textures[textureName]);
 
 				_indexCounts.Clear();
 				_indexOffsets.Clear();

@@ -243,7 +243,7 @@ namespace ArbatelTest.Core.NeedsEto.Formats
 
 				var polygon = entity.Renderables[0].Polygons[0];
 
-				Assert.That(polygon.Texture.Name, Is.EqualTo("{sometransparenttexture"));
+				Assert.That(polygon.IntendedTextureName, Is.EqualTo("{sometransparenttexture"));
 			}
 
 			[TestCase]
@@ -301,7 +301,7 @@ namespace ArbatelTest.Core.NeedsEto.Formats
 
 				var polygon = entity.Renderables[0].Polygons[0];
 
-				Assert.That(polygon.Texture.Name, Is.EqualTo("{sometransparenttexture"));
+				Assert.That(polygon.IntendedTextureName, Is.EqualTo("{sometransparenttexture"));
 			}
 		}
 	}

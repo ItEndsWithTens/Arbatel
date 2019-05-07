@@ -227,9 +227,9 @@ namespace Arbatel.Formats
 			{
 				foreach (Polygon p in r.Polygons)
 				{
-					if (replacements.ContainsKey($"#{p.Texture.Name}"))
+					if (replacements.ContainsKey($"#{p.IntendedTextureName}"))
 					{
-						p.Texture.Name = replacements[$"#{p.Texture.Name}"];
+						p.IntendedTextureName = replacements[$"#{p.IntendedTextureName}"];
 					}
 				}
 			}

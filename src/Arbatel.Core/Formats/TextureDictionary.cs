@@ -48,7 +48,7 @@ namespace Arbatel.Formats
 		/// <summary>
 		/// The names of any translucent or transparent textures in this dictionary.
 		/// </summary>
-		public List<string> Translucents { get; protected set; } = new List<string>();
+		public List<string> Translucents { get; } = new List<string>();
 
 		public TextureDictionary()
 		{

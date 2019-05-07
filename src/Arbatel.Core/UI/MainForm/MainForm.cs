@@ -13,21 +13,34 @@ namespace Arbatel.UI
 {
 	public class ProgressEventArgs : EventArgs
 	{
-		public string Message { get; } = null;
-		public int? Value { get; } = null;
+		public string Message { get; private set; }
+		public int? Value { get; private set; }
+		public bool Clear { get; private set; }
 
 		public ProgressEventArgs(int value)
 		{
 			Value = value;
+
+			if (value >= 100)
+			{
+				Clear = true;
+			}
 		}
 		public ProgressEventArgs(string message)
 		{
 			Message = message;
+
+			Clear = true;
 		}
 		public ProgressEventArgs(int value, string message)
 		{
 			Value = value;
 			Message = message;
+
+			if (value >= 100)
+			{
+				Clear = true;
+			}
 		}
 	}
 
@@ -266,6 +279,8 @@ namespace Arbatel.UI
 		{
 			Application.Instance.Invoke(() =>
 			{
+				ProgressClearClock.Stop();
+
 				if (e.Value != null)
 				{
 					ProgressBar.Value = (int)e.Value;
@@ -276,7 +291,7 @@ namespace Arbatel.UI
 					StatusDisplay.Text = e.Message;
 				}
 
-				if (e.Value == 100)
+				if (e.Clear)
 				{
 					ProgressClearClock.Start();
 				}

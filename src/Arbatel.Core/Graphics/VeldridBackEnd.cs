@@ -254,13 +254,19 @@ namespace Arbatel.Graphics
 
 			IEnumerable<IGrouping<Texture, (Polygon, Renderable)>> worldByTexture =
 				camera.GetVisiblePolygons(texturedWorld)
-				.GroupBy(pair => pair.Item1.Texture)
+				.GroupBy(pair => pair.Item1.CurrentTexture)
 				.OrderBy(t => t.Key.Translucent);
 
 			CommandList.UpdateBuffer(b.ModelMatrixBuffer, 0, Matrix4.Identity);
 			foreach (IGrouping<Texture, (Polygon, Renderable)> t in worldByTexture)
 			{
-				CommandList.SetGraphicsResourceSet(4, Textures[t.Key.Name.ToLower()].s);
+				string textureName = TextureGenerator.MissingTextureName;
+				if (Textures.ContainsKey(t.Key.Name.ToLower()))
+				{
+					textureName = t.Key.Name.ToLower();
+				}
+
+				CommandList.SetGraphicsResourceSet(4, Textures[textureName].s);
 
 				foreach ((Polygon p, Renderable r) in t)
 				{
@@ -273,12 +279,18 @@ namespace Arbatel.Graphics
 
 			IEnumerable<IGrouping<Texture, (Polygon, Renderable)>> modelByTexture =
 				camera.GetVisiblePolygons(texturedModel)
-				.GroupBy(pair => pair.Item1.Texture)
+				.GroupBy(pair => pair.Item1.CurrentTexture)
 				.OrderBy(t => t.Key.Translucent);
 
 			foreach (IGrouping<Texture, (Polygon, Renderable)> t in modelByTexture)
 			{
-				CommandList.SetGraphicsResourceSet(4, Textures[t.Key.Name.ToLower()].s);
+				string textureName = TextureGenerator.MissingTextureName;
+				if (Textures.ContainsKey(t.Key.Name.ToLower()))
+				{
+					textureName = t.Key.Name.ToLower();
+				}
+
+				CommandList.SetGraphicsResourceSet(4, Textures[textureName].s);
 
 				IEnumerable<IGrouping<Renderable, (Polygon, Renderable)>> byRenderable =
 					t

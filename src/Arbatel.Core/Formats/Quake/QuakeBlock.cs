@@ -66,7 +66,7 @@ namespace Arbatel.Formats.Quake
 						{
 							Plane = new Plane(r.Vertices[p.Indices[2]], r.Vertices[p.Indices[1]], r.Vertices[p.Indices[0]], Winding.Cw),
 
-							TextureName = p.Texture.Name,
+							TextureName = p.IntendedTextureName,
 							TextureBasis = new List<Vector3>() { p.BasisS, p.BasisT },
 							TextureOffset = p.Offset,
 							TextureRotation = p.Rotation,

@@ -57,11 +57,8 @@ namespace Arbatel.Formats.Quake
 		public Wad2() : base()
 		{
 			Palette = new Palette();
-			Translucents = new List<string>()
-			{
-				"trigger",
-				"clip"
-			};
+			Translucents.Add("trigger");
+			Translucents.Add("clip");
 		}
 		public Wad2(string filename, Palette palette) : this()
 		{

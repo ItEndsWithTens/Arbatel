@@ -1,4 +1,5 @@
-﻿using Arbatel.UI;
+﻿using Arbatel.Graphics;
+using Arbatel.UI;
 using Arbatel.Utilities;
 using Eto.Drawing;
 using System;
@@ -216,7 +217,15 @@ namespace Arbatel.Formats.Quake
 
 			var textures = new Dictionary<string, TextureDictionary>();
 
-			Stream stream = null;
+			var placeholders = new TextureDictionary
+			{
+				// Cyan stands out nicely against the instance highlight yellow.
+				{ TextureGenerator.MissingTextureName, TextureGenerator.GenerateGrid(Colors.Cyan) }
+			};
+
+			textures.Add(TextureGenerator.MissingTextureName, placeholders);
+
+			Stream stream;
 			if (settings.Local.UsingCustomPalette)
 			{
 				stream = File.OpenRead(settings.Local.LastCustomPalette.LocalPath);

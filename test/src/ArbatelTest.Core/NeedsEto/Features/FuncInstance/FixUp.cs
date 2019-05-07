@@ -196,7 +196,7 @@ namespace ArbatelTest.Core.NeedsEto.Features.FuncInstance
 
 				Renderable r = worldspawn.Renderables[1];
 
-				Assert.That(r.Polygons[0].Texture.Name, Is.EqualTo("arrow_red"));
+				Assert.That(r.Polygons[0].IntendedTextureName, Is.EqualTo("arrow_red"));
 			}
 		}
 	}
