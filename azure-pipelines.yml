@@ -38,8 +38,12 @@ jobs:
 - job: macOS
   pool:
     vmImage: 'macOS-10.14'
-    
+
   steps:
+  - task: CmdLine@2
+    inputs:
+      script: 'pip install dmgbuild'
+
   - task: ShellScript@2
     inputs:
       scriptPath: ./build.sh
