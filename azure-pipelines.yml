@@ -13,3 +13,8 @@ steps:
 - task: PowerShell@2
   inputs:
     filePath: .\build.ps1
+
+- task: PublishPipelineArtifact@0
+  inputs:
+    artifactName: 'WinForms'
+    targetPath: 'artifacts/WinForms'
