@@ -9,12 +9,49 @@ trigger:
 pool:
   vmImage: 'windows-latest'
 
-steps:
-- task: PowerShell@2
-  inputs:
-    filePath: .\build.ps1
+variables:
+  releasePlatformWindows: 'WinForms'
 
-- task: PublishPipelineArtifact@0
-  inputs:
-    artifactName: 'WinForms'
-    targetPath: 'artifacts/WinForms'
+stages:
+- stage: Build
+  jobs:
+  - job: Compile
+    steps:
+    - task: PowerShell@2
+      inputs:
+        filePath: .\build.ps1
+  - job: PublishArtifacts
+    dependsOn: Compile
+    steps:
+    - task: PublishPipelineArtifact@0
+      inputs:
+        artifactName: 'WinForms'
+        targetPath: 'artifacts/WinForms'
+    - task: PublishPipelineArtifact@0
+      inputs:
+        artifactName: 'WPF'
+        targetPath: 'artifacts/Wpf'
+
+- stage: Deploy
+  dependsOn: Build
+  jobs:
+  - job: DownloadWindowsArtifacts
+    steps:
+    - task: DownloadPipelineArtifact@1
+      inputs:
+        artifactName: $(releasePlatformWindows)
+        targetPath: 'releases/Windows'
+  - job: GitHubRelease
+    dependsOn: DownloadWindowsArtifacts
+    steps:
+    - task: GitHubRelease@0
+      inputs:
+        gitHubConnection: GitHubReleases
+        repositoryName: '$(Build.Repository.Name)'
+        action: create
+        target: '%(Build.SourceVersion)'
+        tagSource: auto
+        isDraft: true
+        isPreRelease: true
+        addChangeLog: true
+        assets: 'releases/**/*.zip'
