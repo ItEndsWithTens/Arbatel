@@ -1,11 +1,6 @@
 trigger:
 - master
 
-variables:
-  releasePlatformWindows: 'WinForms' # WinForms, Wpf
-  releasePlatformLinux: 'Gtk' # Gtk
-  releasePlatformMacOS: 'XamMac' # Mac, XamMac
-
 jobs:
 - job: Windows
   pool:
@@ -16,20 +11,25 @@ jobs:
 
   - task: PublishPipelineArtifact@0
     inputs:
-      artifactName: '$(releasePlatformWindows)'
-      targetPath: 'artifacts/$(releasePlatformWindows)'
+      artifactName: 'WinForms'
+      targetPath: 'artifacts/WinForms'
 
-# - job: Linux
-#   pool:
-#     vmImage: 'ubuntu-16.04'
-#
-#   steps:
-#   - bash: ./build.sh
-#
-#   - task: PublishPipelineArtifact@0
-#     inputs:
-#       artifactName: '$(releasePlatformLinux)'
-#       targetPath: 'artifacts/$(releasePlatformLinux)'
+  - task: PublishPipelineArtifact@0
+    inputs:
+      artifactName: 'Wpf'
+      targetPath: 'artifacts/Wpf'
+
+- job: Linux
+  pool:
+    vmImage: 'ubuntu-16.04'
+
+  steps:
+  - bash: ./build.sh
+
+  - task: PublishPipelineArtifact@0
+    inputs:
+      artifactName: 'Gtk'
+      targetPath: 'artifacts/Gtk'
 
 - job: macOS
   pool:
@@ -42,5 +42,10 @@ jobs:
 
   - task: PublishPipelineArtifact@0
     inputs:
-      artifactName: 'macOSPackage'
-      targetPath: 'artifacts/$(releasePlatformMacOS)'
+      artifactName: 'Mac'
+      targetPath: 'artifacts/Mac'
+
+  - task: PublishPipelineArtifact@0
+    inputs:
+      artifactName: 'XamMac'
+      targetPath: 'artifacts/XamMac'
