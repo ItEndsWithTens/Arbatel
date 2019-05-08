@@ -12,43 +12,35 @@ jobs:
     vmImage: 'windows-latest'
 
   steps:
-  - task: PowerShell@2
-    inputs:
-      filePath: .\build.ps1
+  - powershell: .\build.ps1
 
   - task: PublishPipelineArtifact@0
     inputs:
       artifactName: '$(releasePlatformWindows)'
       targetPath: 'artifacts/$(releasePlatformWindows)'
 
-- job: Linux
-  pool:
-    vmImage: 'ubuntu-16.04'
-    
-  steps:
-  - task: ShellScript@2
-    inputs:
-      scriptPath: ./build.sh
-
-  - task: PublishPipelineArtifact@0
-    inputs:
-      artifactName: '$(releasePlatformLinux)'
-      targetPath: 'artifacts/$(releasePlatformLinux)'
+# - job: Linux
+#   pool:
+#     vmImage: 'ubuntu-16.04'
+#
+#   steps:
+#   - bash: ./build.sh
+#
+#   - task: PublishPipelineArtifact@0
+#     inputs:
+#       artifactName: '$(releasePlatformLinux)'
+#       targetPath: 'artifacts/$(releasePlatformLinux)'
 
 - job: macOS
   pool:
     vmImage: 'macOS-10.14'
 
   steps:
-  - task: CmdLine@2
-    inputs:
-      script: 'pip install dmgbuild'
+  - bash: 'pip install dmgbuild'
 
-  - task: ShellScript@2
-    inputs:
-      scriptPath: ./build.sh
+  - bash: ./build.sh
 
   - task: PublishPipelineArtifact@0
     inputs:
-      artifactName: '$(releasePlatformMacOS)'
+      artifactName: 'macOSPackage'
       targetPath: 'artifacts/$(releasePlatformMacOS)'
