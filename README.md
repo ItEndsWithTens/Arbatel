@@ -1,12 +1,15 @@
 
-  Arbatel
+  Arbatel [![Build Status](https://dev.azure.com/robertmartens0491/Arbatel/_apis/build/status/ItEndsWithTens.Arbatel?branchName=master)](https://dev.azure.com/robertmartens0491/Arbatel/_build/latest?definitionId=1&branchName=master)
   =======
 
   A Quake .map viewer with support for func_instance entities.
 
-  Not ready for end users! No releases are currently available, as this project is still in its infancy. Curious developers are welcome to clone the repository and follow the build instructions further below.
+  ## Download
+  The most recent stable builds can be found on [the releases page](https://github.com/ItEndsWithTens/Arbatel/releases).
+  
+  Bleeding edge development artifacts can be downloaded from Azure Pipelines by clicking the badge above. Among the available packages, WinForms is higher performance than Wpf in Windows (as far as this project's use of 3D rendering, anyway), Gtk is all that's available in Linux, and XamMac is preferable in macOS (no need for Mono, as opposed to the 'Mac' version).
 
-  Developers and adventurous users would do well to expect major bugs.
+  Regardless of which binaries you download, until this project reaches version 1.0 you should be prepared for silly oversights and major bugs.
 
 
 
