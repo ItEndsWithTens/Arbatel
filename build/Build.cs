@@ -333,10 +333,10 @@ class Build : NukeBuild
 			{
 				ProcessTasks.StartProcess(
 					"dmgbuild",
-					"-s " + BuildProjectDirectory / "dmgbuild-settings.py " +
-					"-D app=" + source +
+					$"-s {BuildProjectDirectory / "dmgbuild-settings.py"} " +
+					$"-D app={source} " +
 					$"{ProductName} " +
-					dest / name + ".dmg");
+					$"{dest / name}.dmg").AssertZeroExitCode();
 			});
 		});
 }
