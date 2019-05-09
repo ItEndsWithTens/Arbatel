@@ -2,28 +2,34 @@ trigger:
 - master
 
 jobs:
-- job: Windows
-  pool:
-    vmImage: 'windows-latest'
-
-  steps:
-  - powershell: .\build.ps1
-
-  - task: PublishPipelineArtifact@0
-    inputs:
-      artifactName: 'WinForms'
-      targetPath: 'artifacts/WinForms'
-
-  - task: PublishPipelineArtifact@0
-    inputs:
-      artifactName: 'Wpf'
-      targetPath: 'artifacts/Wpf'
+#- job: Windows
+#  pool:
+#    vmImage: 'windows-latest'
+#
+#  steps:
+#  - powershell: .\build.ps1
+#
+#  - task: PublishPipelineArtifact@0
+#    inputs:
+#      artifactName: 'WinForms'
+#      targetPath: 'artifacts/WinForms'
+#
+#  - task: PublishPipelineArtifact@0
+#    inputs:
+#      artifactName: 'Wpf'
+#      targetPath: 'artifacts/Wpf'
 
 - job: Linux
   pool:
     vmImage: 'ubuntu-16.04'
 
   steps:
+  - bash: sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF
+  - bash: sudo apt install apt-transport-https ca-certificates
+  - bash: echo "deb https://download.mono-project.com/repo/ubuntu stable-xenial main" | sudo tee /etc/apt/sources.list.d/mono-official-stable.list
+  - bash: sudo apt update
+  - bash: sudo apt install fsharp
+  
   - bash: ./build.sh
 
   - task: PublishPipelineArtifact@0
@@ -31,21 +37,21 @@ jobs:
       artifactName: 'Gtk'
       targetPath: 'artifacts/Gtk'
 
-- job: macOS
-  pool:
-    vmImage: 'macOS-10.14'
-
-  steps:
-  - bash: 'pip install dmgbuild'
-
-  - bash: ./build.sh
-
-  - task: PublishPipelineArtifact@0
-    inputs:
-      artifactName: 'Mac'
-      targetPath: 'artifacts/Mac'
-
-  - task: PublishPipelineArtifact@0
-    inputs:
-      artifactName: 'XamMac'
-      targetPath: 'artifacts/XamMac'
+#- job: macOS
+#  pool:
+#    vmImage: 'macOS-10.14'
+#
+#  steps:
+#  - bash: 'pip install dmgbuild'
+#
+#  - bash: ./build.sh
+#
+#  - task: PublishPipelineArtifact@0
+#    inputs:
+#      artifactName: 'Mac'
+#      targetPath: 'artifacts/Mac'
+#
+#  - task: PublishPipelineArtifact@0
+#    inputs:
+#      artifactName: 'XamMac'
+#      targetPath: 'artifacts/XamMac'
