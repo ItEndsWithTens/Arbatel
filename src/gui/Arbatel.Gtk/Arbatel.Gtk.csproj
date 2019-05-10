@@ -1,11 +1,5 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <OutputType>WinExe</OutputType>
-    <TargetFramework>net471</TargetFramework>
-    <PlatformTarget>AnyCPU</PlatformTarget>
-  </PropertyGroup>
-
   <!-- Gtk in Windows is unlikely, but under those conditions Arbatel needs to be 32-bit. -->
   <Choose>
     <When Condition=" $(BuildOS) == Windows ">

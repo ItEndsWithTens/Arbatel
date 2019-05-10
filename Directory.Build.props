@@ -1,40 +1,40 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
   <PropertyGroup>
+    <RestoreAdditionalProjectSources>https://www.myget.org/F/eto/</RestoreAdditionalProjectSources>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="$(MSBuildProjectName) != '_build'">
     <AssemblyVersion>0.1.0</AssemblyVersion>
     <Company>Rob Martens</Company>
     <Copyright>Copyright © $([System.DateTime]::Now.Year)</Copyright>
     <Product>Arbatel</Product>
-  </PropertyGroup>
 
-  <PropertyGroup>
     <BuildOS Condition="$([MSBuild]::IsOsPlatform(`Windows`)) == true">Windows</BuildOS>
     <BuildOS Condition="$([MSBuild]::IsOsPlatform(`Linux`)) == true">Linux</BuildOS>
     <BuildOS Condition="$([MSBuild]::IsOsPlatform(`OSX`)) == true">macOS</BuildOS>
 
-    <RestoreAdditionalProjectSources>https://www.myget.org/F/eto/</RestoreAdditionalProjectSources>
-
     <TopLevelDirectory>$(MSBuildThisFileDirectory)</TopLevelDirectory>
-  </PropertyGroup>
 
-  <PropertyGroup>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <Deterministic>true</Deterministic>
+    <MacBundleMono>false</MacBundleMono>
+
     <!-- See https://www.wintellect.com/do-pdb-files-affect-performance/ -->
     <!-- for an excellent article by John Robbins showing that debug symbols -->
     <!-- have no performance impact, and that full and pdbonly are the same. -->
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
-    <Deterministic>true</Deterministic>
-    <MacBundleMono>False</MacBundleMono>
   </PropertyGroup>
 
-  <ItemGroup>
+  <ItemGroup Condition="$(MSBuildProjectName) != '_build'">
     <!-- Not all projects actually need this, but it's necessary in order to
     grab the version number in every GUI project. That then facilitates copying
     the appropriate native library for each platform. -->
     <PackageReference Include="Veldrid.SPIRV" Version="1.0.7" />
   </ItemGroup>
 
-  <Target Name="GetVeldridSpirvVersion" BeforeTargets="Build">
+  <Target Name="GetVeldridSpirvVersion" BeforeTargets="Build" Condition="$(MSBuildProjectName) != '_build'">
     <CreateProperty Value="%(PackageReference.Version)" Condition="%(PackageReference.Identity) == 'Veldrid.SPIRV'">
       <Output TaskParameter="Value" PropertyName="VeldridSpirvVersion" />
     </CreateProperty>
