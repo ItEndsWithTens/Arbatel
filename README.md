@@ -44,7 +44,6 @@
 
   #### Windows
   - [Visual Studio](https://visualstudio.microsoft.com/vs/community/) 2017 or newer
-    - The "F# language support" component must be also installed in order to build the custom OpenTK codebase.
   - Up to date PowerShell (part of the [Windows Management Framework](https://docs.microsoft.com/en-us/powershell/wmf/overview))
     - WMF 5.1 is included with Windows 10, and works as-is, but earlier versions of the OS may have outdated framework installations, preventing the Nuke build script from properly passing some arguments down into MSBuild.
 
@@ -58,7 +57,7 @@
 
   ### Build dependencies
 
-  Most of this project's dependencies are simply NuGet packages, but a couple are custom versions of third-party libraries and need to be built from source before this project will work properly from an IDE. If you know what you're doing, you're welcome to build them by hand, but I'd recommend using the Nuke script.
+  Most of this project's dependencies are simply NuGet packages, but one is a custom version of a third-party library and needs to be built from source before this project will work properly from an IDE. If you know what you're doing, you're welcome to build it by hand, but I'd recommend using the Nuke script.
 
   If you have the Nuke global tool installed, it's as easy as changing to the root solution directory and calling
   ```Shell
@@ -69,7 +68,7 @@
 
   ### Develop
   
-  With the dependencies ready to go, you can easily edit, build, and debug from Visual Studio, MonoDevelop, or VS for Mac, as appropriate for a given platform.
+  With that dependency ready to go, you can easily edit, build, and debug from Visual Studio, MonoDevelop, or VS for Mac, as appropriate for a given platform.
 
   The suite of automated NUnit tests will run during a command line build with no special setup. To run them using the NUnit test adapter in Visual Studio, go to Test|Test Settings->Select Test Settings File, and choose test/src/vsadapter.runsettings.
 

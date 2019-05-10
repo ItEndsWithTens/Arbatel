@@ -27,6 +27,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Arbatel.OpenTK" Version="3.0.2" />
     <PackageReference Include="Eto.Forms" Version="2.5.0-ci-10178" />
     <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="2.6.2">
       <PrivateAssets>all</PrivateAssets>
@@ -39,9 +40,6 @@
   <ItemGroup>
     <Reference Include="Eto.Gl">
       <HintPath>$(TopLevelDirectory)\lib\thirdparty\etoViewport\artifacts\Release\Eto.Gl\Eto.Gl.dll</HintPath>
-    </Reference>
-    <Reference Include="OpenTK">
-      <HintPath>$(TopLevelDirectory)\lib\thirdparty\etoViewport\artifacts\Release\Eto.Gl\OpenTK.dll</HintPath>
     </Reference>
   </ItemGroup>
 

@@ -9,10 +9,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Arbatel.OpenTK" Version="3.0.2" />
     <PackageReference Include="Eto.Forms" Version="2.5.0-ci-10178" />
-    <Reference Include="OpenTK">
-      <HintPath>$(TopLevelDirectory)\lib\thirdparty\etoViewport\artifacts\Release\Eto.Gl\OpenTK.dll</HintPath>
-    </Reference>
     <Reference Include="Eto.Gl">
       <HintPath>$(TopLevelDirectory)\lib\thirdparty\etoViewport\artifacts\Release\Eto.Gl\Eto.Gl.dll</HintPath>
     </Reference>

@@ -55,6 +55,7 @@
     <AOTMode>None</AOTMode>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="Arbatel.OpenTK" Version="3.0.2" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="Xamarin.Mac" />
@@ -63,9 +64,6 @@
     </Reference>
     <Reference Include="Eto.Gl.XamMac">
       <HintPath>$(TopLevelDirectory)\lib\thirdparty\etoViewport\artifacts\Release\Eto.Gl.XamMac\Eto.Gl.XamMac.dll</HintPath>
-    </Reference>
-    <Reference Include="OpenTK">
-      <HintPath>$(TopLevelDirectory)\lib\thirdparty\etoViewport\artifacts\Release\Eto.Gl\OpenTK.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>

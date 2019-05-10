@@ -28,9 +28,6 @@ class Build : NukeBuild
 {
 	const string ProductName = "Arbatel";
 
-	// Required when building the custom copy of OpenTK.
-	const string FSharpComponent = "Microsoft.VisualStudio.Component.FSharp";
-
 	string[] EtoPlatformsWin = new string[] { "WinForms", "Wpf" };
 	string[] EtoPlatformsLin = new string[] { "Gtk" };
 	string[] EtoPlatformsMac = new string[] { "Mac", "XamMac" };
@@ -47,9 +44,6 @@ class Build : NukeBuild
 
 	[Solution(ProductName + ".sln")]
 	readonly Solution Solution;
-
-	[GitRepository]
-	readonly GitRepository GitRepository;
 
 	[GitVersion]
 	readonly GitVersion GitVersion;
@@ -123,8 +117,7 @@ class Build : NukeBuild
 
 				VSWhereSettings vswhereSettings = new VSWhereSettings()
 					.EnableLatest()
-					.AddRequires(MsBuildComponent)
-					.AddRequires(FSharpComponent);
+					.AddRequires(MsBuildComponent);
 
 				IReadOnlyCollection<Output> output = VSWhere(s => vswhereSettings).Output;
 
@@ -141,8 +134,7 @@ class Build : NukeBuild
 						"has all of the following components installed:" +
 						"\n" +
 						"\n" +
-						$"MSBuild ({MsBuildComponent})\n" +
-						$"F# language support ({FSharpComponent})");
+						$"MSBuild ({MsBuildComponent})");
 				}
 
 				string vsPath = outputPath.Text.Replace("installationPath: ", "");
