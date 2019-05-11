@@ -20,6 +20,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "common", "common", "{16A799F0-6BE4-430B-9D9C-2645193C7ED3}"
 	ProjectSection(SolutionItems) = preProject
 		.editorconfig = .editorconfig
+		App.config = App.config
 		Directory.Build.props = Directory.Build.props
 		Directory.Build.targets = Directory.Build.targets
 		build\dmgbuild-settings.py = build\dmgbuild-settings.py
