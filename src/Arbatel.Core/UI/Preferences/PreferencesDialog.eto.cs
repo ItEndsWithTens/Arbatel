@@ -1,36 +1,36 @@
-using System;
-using Eto;
-using Eto.Forms;
 using Eto.Drawing;
+using Eto.Forms;
 
 namespace Arbatel.UI.Preferences
 {
 	public partial class PreferencesDialog : Dialog
 	{
-		private int MasterPadding = 10;
+		const string BtnFgdCombineStackName = "btnFgdCombineStack";
+		const string BtnFgdCombineBlendName = "btnFgdCombineBlend";
+		const string BtnOKName = "btnOK";
+		const string BtnCancelName = "btnCancel";
+		const string LbxFgdName = "lbxFgd";
+		const string LbxWadName = "lbxWad";
+
+		const int DefaultPadding = 10;
+		private int MasterPadding = DefaultPadding;
+		private Size MasterSpacing = new Size(DefaultPadding, DefaultPadding);
 
 		private Command CmdAddFgd = new Command();
 		private Command CmdAddWad = new Command();
 		private Command CmdRemoveFgd = new Command();
 		private Command CmdRemoveWad = new Command();
-
-		public string BtnFgdCombineStackName = "btnFgdCombineStack";
-		public string BtnFgdCombineBlendName = "btnFgdCombineBlend";
-
-		private string LbxFgdName = "lbxFgd";
-		private string LbxWadName = "lbxWad";
-
-		public Command CmdOK = new Command();
-		public Command CmdCancel = new Command();
-
-		private string BtnOKName = "btnOK";
-		private string BtnCancelName = "btnCancel";
+		private Command CmdOK = new Command();
+		private Command CmdCancel = new Command();
 
 		void InitializeComponent()
 		{
 			Title = "Preferences";
 			Padding = MasterPadding;
 			Resizable = true;
+
+			Width = (int)(Screen.PrimaryScreen.Bounds.Width / 4.5f);
+			Height = (int)(Screen.PrimaryScreen.Bounds.Height / 2.5f);
 
 			Content = new TabControl
 			{
@@ -45,19 +45,6 @@ namespace Arbatel.UI.Preferences
 
 			PositiveButtons.Add(new Button { Text = "OK", ID = BtnOKName, Command = CmdOK });
 			NegativeButtons.Add(new Button { Text = "Cancel", ID = BtnCancelName, Command = CmdCancel });
-		}
-
-		protected override void OnLoadComplete(EventArgs e)
-		{
-			base.OnLoadComplete(e);
-
-			// Once the dialog finishes loading, its automatically defined size
-			// is only enough to hold its controls. The dialog will presently be
-			// resized for aesthetic reasons, but this makes a good minimum.
-			MinimumSize = Size;
-
-			Width = (int)(Screen.PrimaryScreen.Bounds.Width / 4.5f);
-			Height = (int)(Screen.PrimaryScreen.Bounds.Height / 2.5f);
 		}
 	}
 }

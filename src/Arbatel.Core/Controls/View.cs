@@ -165,6 +165,11 @@ namespace Arbatel.Controls
 				Controller.InvertMouseY = settings.Roaming.InvertMouseY;
 			}
 
+			// Convert an input of [0, 100] to an output of [0.0, 0.5].
+			Controller.MouseSensitivity = settings.Roaming.MouseSensitivity * 0.005f;
+
+			Controller.Speed = settings.Roaming.MovementSpeed;
+
 			OnUpdated();
 		}
 
