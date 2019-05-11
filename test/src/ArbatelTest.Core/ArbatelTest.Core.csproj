@@ -5,10 +5,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\src\Arbatel.Core\Arbatel.Core.csproj" />
-  </ItemGroup>
+    <ProjectReference Include="$(TopLevelDirectory)\src\Arbatel.Core\Arbatel.Core.csproj" />
 
-  <ItemGroup>
     <PackageReference Include="Arbatel.OpenTK" Version="3.0.2" />
     <PackageReference Include="Eto.Forms" Version="2.5.0-ci-10206" />
     <PackageReference Condition="$(BuildOS) == Windows" Include="Eto.Platform.Windows" Version="2.5.0-ci-10206" />

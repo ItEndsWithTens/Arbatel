@@ -1,15 +1,11 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Arbatel.Core\Arbatel.Core.csproj" />
-  </ItemGroup>
+    <ProjectReference Include="$(TopLevelDirectory)\src\Arbatel.Core\Arbatel.Core.csproj" />
 
-  <ItemGroup>
     <PackageReference Include="Arbatel.OpenTK" Version="3.0.2" />
     <PackageReference Include="Eto.Platform.Windows" Version="2.5.0-ci-10206" />
-  </ItemGroup>
 
-  <ItemGroup>
     <Reference Include="Eto.Gl">
       <HintPath>$(TopLevelDirectory)\lib\thirdparty\etoViewport\artifacts\Release\Eto.Gl\Eto.Gl.dll</HintPath>
     </Reference>
@@ -17,6 +13,7 @@
       <HintPath>$(TopLevelDirectory)\lib\thirdparty\etoViewport\artifacts\Release\Eto.Gl.WinForms\Eto.Gl.Windows.dll</HintPath>
     </Reference>
     <Reference Include="System.Windows.Forms" />
+
   </ItemGroup>
 
 </Project>

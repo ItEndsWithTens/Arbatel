@@ -55,7 +55,13 @@
     <AOTMode>None</AOTMode>
   </PropertyGroup>
   <ItemGroup>
+    <ProjectReference Include="$(TopLevelDirectory)\src\Arbatel.Core\Arbatel.Core.csproj">
+      <Project>{A5FFC3A4-78CA-44F2-B8A8-F18DADF1690A}</Project>
+      <Name>Arbatel.Core</Name>
+    </ProjectReference>
     <PackageReference Include="Arbatel.OpenTK" Version="3.0.2" />
+    <PackageReference Include="Eto.Platform.XamMac2" Version="2.5.0-ci-10206" />
+    <PackageReference Include="RoslynCodeTaskFactory" Version="2.0.7" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="Xamarin.Mac" />
@@ -85,19 +91,7 @@
     <None Include="App.config">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-  </ItemGroup>
-  <ItemGroup>
     <Compile Include="Program.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="Eto.Platform.XamMac2" Version="2.5.0-ci-10206" />
-    <PackageReference Include="RoslynCodeTaskFactory" Version="2.0.7" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\Arbatel.Core\Arbatel.Core.csproj">
-      <Project>{A5FFC3A4-78CA-44F2-B8A8-F18DADF1690A}</Project>
-      <Name>Arbatel.Core</Name>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Mac\Xamarin.Mac.CSharp.targets" />
 </Project>

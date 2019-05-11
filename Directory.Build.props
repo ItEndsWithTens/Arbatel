@@ -27,19 +27,8 @@
     <!-- have no performance impact, and that full and pdbonly are the same. -->
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
+
+    <VeldridSpirvVersion>1.0.9</VeldridSpirvVersion>
   </PropertyGroup>
-
-  <ItemGroup Condition="$(MSBuildProjectName) != '_build'">
-    <!-- Not all projects actually need this, but it's necessary in order to
-    grab the version number in every GUI project. That then facilitates copying
-    the appropriate native library for each platform. -->
-    <PackageReference Include="Veldrid.SPIRV" Version="1.0.7" />
-  </ItemGroup>
-
-  <Target Name="GetVeldridSpirvVersion" BeforeTargets="Build" Condition="$(MSBuildProjectName) != '_build'">
-    <CreateProperty Value="%(PackageReference.Version)" Condition="%(PackageReference.Identity) == 'Veldrid.SPIRV'">
-      <Output TaskParameter="Value" PropertyName="VeldridSpirvVersion" />
-    </CreateProperty>
-  </Target>
 
 </Project>

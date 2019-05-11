@@ -35,9 +35,8 @@
     </PackageReference>
     <PackageReference Include="nucs.JsonSettings" Version="1.0.7" />
     <PackageReference Include="Veldrid" Version="4.6.1" />
-  </ItemGroup>
+    <PackageReference Include="Veldrid.SPIRV" Version="$(VeldridSpirvVersion)" />
 
-  <ItemGroup>
     <Reference Include="Eto.Gl">
       <HintPath>$(TopLevelDirectory)\lib\thirdparty\etoViewport\artifacts\Release\Eto.Gl\Eto.Gl.dll</HintPath>
     </Reference>

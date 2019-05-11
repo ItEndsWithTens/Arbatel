@@ -1,14 +1,11 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
+    <ProjectReference Include="$(TopLevelDirectory)\src\Arbatel.Core\Arbatel.Core.csproj" />
+
     <PackageReference Include="Arbatel.OpenTK" Version="3.0.2" />
     <PackageReference Include="Eto.Platform.Mac64" Version="2.5.0-ci-10206" />
-  </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\..\Arbatel.Core\Arbatel.Core.csproj" />
-  </ItemGroup>
-  <ItemGroup>
     <Reference Include="Eto.Gl.Mac">
       <HintPath>$(TopLevelDirectory)\lib\thirdparty\etoViewport\artifacts\Release\Eto.Gl.Mac\Eto.Gl.Mac.dll</HintPath>
     </Reference>
@@ -16,4 +13,5 @@
       <HintPath>$(TopLevelDirectory)\lib\thirdparty\etoViewport\artifacts\Release\Eto.Gl\Eto.Gl.dll</HintPath>
     </Reference>
   </ItemGroup>
+
 </Project>
