@@ -67,7 +67,7 @@ jobs:
   - task: Bash@3
     displayName: "Build"
     inputs:
-      script: 'build.sh'
+      filePath: build.sh
 
   - task: PublishPipelineArtifact@0
     displayName: "Publish Mac package"
