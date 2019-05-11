@@ -1,5 +1,4 @@
 using Nuke.Common;
-using Nuke.Common.Git;
 using Nuke.Common.ProjectModel;
 using Nuke.Common.Tooling;
 using Nuke.Common.Tools.DotNet;
@@ -28,16 +27,16 @@ class Build : NukeBuild
 {
 	const string ProductName = "Arbatel";
 
-	string[] EtoPlatformsWin = new string[] { "WinForms", "Wpf" };
-	string[] EtoPlatformsLin = new string[] { "Gtk" };
-	string[] EtoPlatformsMac = new string[] { "Mac", "XamMac" };
+	readonly string[] EtoPlatformsWin = new[] { "WinForms", "Wpf" };
+	readonly string[] EtoPlatformsLin = new[] { "Gtk" };
+	readonly string[] EtoPlatformsMac = new[] { "Mac", "XamMac" };
 
 	AbsolutePath ArtifactsDirectory => RootDirectory / "artifacts";
 	AbsolutePath SourceDirectory => RootDirectory / "src";
 	AbsolutePath TestSourceDirectory => RootDirectory / "test" / "src";
 	AbsolutePath CustomMsBuildPath;
 
-	AbsolutePath EtoViewportRoot = RootDirectory / "lib" / "thirdparty" / "etoViewport";
+	AbsolutePath EtoViewportRoot => RootDirectory / "lib" / "thirdparty" / "etoViewport";
 
 	[Parameter("Configuration to build - Default is 'Debug' (local) or 'Release' (server)")]
 	readonly string Configuration = IsLocalBuild ? "Debug" : "Release";
@@ -104,8 +103,15 @@ class Build : NukeBuild
 			// to clean all bin and obj folders, then use SetTargets("Build") on
 			// each GUI project to trigger an incremental build. The core will
 			// be built anew, with no time wasted rebuilding it for every GUI.
-			EnsureCleanDirectories(GlobDirectories(SourceDirectory, "**/bin", "**/obj"));
-			EnsureCleanDirectories(GlobDirectories(TestSourceDirectory, "**/bin", "**/obj"));
+			foreach (string d in GlobDirectories(SourceDirectory, "**/bin", "**/obj"))
+			{
+				EnsureCleanDirectory(d);
+			}
+
+			foreach (string d in GlobDirectories(TestSourceDirectory, "**/bin", "**/obj"))
+			{
+				EnsureCleanDirectory(d);
+			}
 		});
 
 	Target SetVisualStudioPaths => _ => _

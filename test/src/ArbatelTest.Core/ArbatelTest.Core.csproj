@@ -13,7 +13,7 @@
     <PackageReference Condition="$(BuildOS) == Linux" Include="Eto.Platform.Gtk2" Version="2.5.0-ci-10206" />
     <PackageReference Condition="$(BuildOS) == macOS" Include="Eto.Platform.Mac64" Version="2.5.0-ci-10206" />
     <PackageReference Include="NUnit" Version="3.11.0" />
-    <PackageReference Include="NUnit3TestAdapter" Version="3.12.0" />
+    <PackageReference Include="NUnit3TestAdapter" Version="3.13.0" />
   </ItemGroup>
 
 </Project>
