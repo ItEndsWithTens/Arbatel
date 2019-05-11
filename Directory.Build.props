@@ -18,6 +18,8 @@
 
     <PlatformTarget>AnyCPU</PlatformTarget>
     <Deterministic>true</Deterministic>
+    <MacBuildBundle>true</MacBuildBundle>
+    <MacBundleName>$(Product)</MacBundleName>
     <MacBundleMono>false</MacBundleMono>
 
     <!-- See https://www.wintellect.com/do-pdb-files-affect-performance/ -->

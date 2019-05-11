@@ -8,7 +8,7 @@
     <RootNamespace>Arbatel.XamMac</RootNamespace>
     <TargetFrameworkVersion>v4.7.1</TargetFrameworkVersion>
     <MonoMacResourcePrefix>Resources</MonoMacResourcePrefix>
-    <UseXamMacFullFramework>false</UseXamMacFullFramework>
+    <UseXamMacFullFramework>true</UseXamMacFullFramework>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -43,7 +43,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <EnableCodeSigning>false</EnableCodeSigning>
-    <CreatePackage>true</CreatePackage>
+    <CreatePackage>false</CreatePackage>
     <EnablePackageSigning>false</EnablePackageSigning>
     <IncludeMonoRuntime>true</IncludeMonoRuntime>
     <UseSGen>true</UseSGen>
@@ -90,9 +90,8 @@
     <Compile Include="Program.cs" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Eto.Platform.XamMac2">
-      <Version>2.5.0-ci-10178</Version>
-    </PackageReference>
+    <PackageReference Include="Eto.Platform.XamMac2" Version="2.5.0-ci-10206" />
+    <PackageReference Include="RoslynCodeTaskFactory" Version="2.0.7" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Arbatel.Core\Arbatel.Core.csproj">
@@ -101,11 +100,4 @@
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Mac\Xamarin.Mac.CSharp.targets" />
-  <Target Name="ReplaceOpenTK" AfterTargets="Build">
-    <!-- Swap out the busted old version of OpenTK that Xamarin insists on. -->
-    <ItemGroup>
-      <OpenTK Include="$(TargetDir)\OpenTK.*" />
-    </ItemGroup>
-    <Copy SourceFiles="@(OpenTK)" DestinationFolder="$(OutputAppPath)\Contents\MonoBundle\lib" />
-  </Target>
 </Project>

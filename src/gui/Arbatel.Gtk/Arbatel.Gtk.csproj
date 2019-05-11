@@ -15,7 +15,7 @@
   </Choose>
 
   <ItemGroup>
-    <PackageReference Include="Eto.Platform.Gtk2" Version="2.5.0-ci-10178" />
+    <PackageReference Include="Eto.Platform.Gtk2" Version="2.5.0-ci-10206" />
   </ItemGroup>
 
   <!-- By design, the newer SDK-style projects don't search the GAC. It's -->

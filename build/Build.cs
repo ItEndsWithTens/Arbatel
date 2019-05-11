@@ -274,7 +274,7 @@ class Build : NukeBuild
 	{
 		foreach (string platform in etoPlatforms)
 		{
-			AbsolutePath source = GetOutputPath($"{ProductName}.{platform}") / (EnvironmentInfo.IsOsx ? $"{ProductName}.{platform}.app " : "");
+			AbsolutePath source = GetOutputPath($"{ProductName}.{platform}") / (EnvironmentInfo.IsOsx ? $"{ProductName}.app " : "");
 			AbsolutePath dest = ArtifactsDirectory / platform;
 
 			// Cleaning the entire artifacts directory is undesirable, since

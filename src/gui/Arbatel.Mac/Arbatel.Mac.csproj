@@ -2,7 +2,7 @@
 
   <ItemGroup>
     <PackageReference Include="Arbatel.OpenTK" Version="3.0.2" />
-    <PackageReference Include="Eto.Platform.Mac64" Version="2.5.0-ci-10178" />
+    <PackageReference Include="Eto.Platform.Mac64" Version="2.5.0-ci-10206" />
   </ItemGroup>
 
   <ItemGroup>
