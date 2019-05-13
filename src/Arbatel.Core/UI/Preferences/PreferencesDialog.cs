@@ -23,12 +23,12 @@ namespace Arbatel.UI.Preferences
 			DropDown drpPalette = FindChild<DropDown>("drpPalette");
 			FilePicker fpkPalette = FindChild<FilePicker>("fpkPalette");
 
-			if (Settings.Roaming.LastBuiltInPalette.Length > 0)
+			if (!String.IsNullOrEmpty(Settings.Roaming.LastBuiltInPalette))
 			{
 				drpPalette.SelectedKey = Settings.Roaming.LastBuiltInPalette;
 			}
 
-			if (Settings.Local.LastCustomPalette?.LocalPath.Length > 0)
+			if (!String.IsNullOrEmpty(Settings.Local.LastCustomPalette?.LocalPath))
 			{
 				fpkPalette.FilePath = Settings.Local.LastCustomPalette.LocalPath;
 			}
@@ -56,7 +56,7 @@ namespace Arbatel.UI.Preferences
 			FilePicker fpkPalette = FindChild<FilePicker>("fpkPalette");
 			if (fpkPalette.Enabled)
 			{
-				if (fpkPalette.FilePath.Length > 0)
+				if (!String.IsNullOrEmpty(fpkPalette.FilePath))
 				{
 					Settings.Local.LastCustomPalette = new Uri(fpkPalette.FilePath);
 				}

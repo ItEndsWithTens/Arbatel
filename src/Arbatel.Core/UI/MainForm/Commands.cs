@@ -180,12 +180,13 @@ namespace Arbatel.UI
 					new FileFilter("Quake map", ".map"),
 					new FileFilter("All files", ".*")
 				},
-				CurrentFilterIndex = 0
+				CurrentFilterIndex = 0,
+				CheckFileExists = true
 			};
 
-			dlgOpenFile.ShowDialog(this);
+			DialogResult result = dlgOpenFile.ShowDialog(this);
 
-			if (dlgOpenFile.FileName.Length == 0)
+			if (result == DialogResult.Cancel)
 			{
 				return;
 			}
@@ -217,10 +218,9 @@ namespace Arbatel.UI
 				}
 			};
 
-			dlgSaveCollapsedAs.ShowDialog(this);
+			DialogResult result = dlgSaveCollapsedAs.ShowDialog(this);
 
-			// User cancelled dialog.
-			if (dlgSaveCollapsedAs.FileName.Length == 0)
+			if (result == DialogResult.Cancel)
 			{
 				return;
 			}

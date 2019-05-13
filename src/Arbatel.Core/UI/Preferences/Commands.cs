@@ -31,12 +31,13 @@ namespace Arbatel.UI.Preferences
 					new FileFilter("Quake FGD", ".fgd"),
 					new FileFilter("All files", ".*")
 				},
-				CurrentFilterIndex = 0
+				CurrentFilterIndex = 0,
+				CheckFileExists = true
 			};
 
-			dlgAddFgd.ShowDialog(this);
+			DialogResult result = dlgAddFgd.ShowDialog(this);
 
-			if (dlgAddFgd.FileName.Length == 0)
+			if (result == DialogResult.Cancel)
 			{
 				return;
 			}
@@ -61,12 +62,13 @@ namespace Arbatel.UI.Preferences
 					new FileFilter("Quake WAD", ".wad"),
 					new FileFilter("All files", ".*")
 				},
-				CurrentFilterIndex = 0
+				CurrentFilterIndex = 0,
+				CheckFileExists = true
 			};
 
-			dlgAddWad.ShowDialog(this);
+			DialogResult result = dlgAddWad.ShowDialog(this);
 
-			if (dlgAddWad.FileName.Length == 0)
+			if (result == DialogResult.Cancel)
 			{
 				return;
 			}
