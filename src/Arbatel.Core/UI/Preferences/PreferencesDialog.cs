@@ -1,6 +1,7 @@
 using Eto.Drawing;
 using Eto.Forms;
 using System;
+using System.Collections.Generic;
 
 namespace Arbatel.UI.Preferences
 {
@@ -68,6 +69,13 @@ namespace Arbatel.UI.Preferences
 
 			RefreshStoredDefinitions();
 			RefreshStoredTextures();
+
+			Settings.Roaming.ColorSchemes.Clear();
+			foreach (KeyValuePair<string, Dictionary<string, Color>> scheme in NewColorSchemes)
+			{
+				Settings.Roaming.ColorSchemes.Add(scheme.Key, scheme.Value);
+			}
+			Settings.Roaming.CurrentColorScheme = NewCurrentColorScheme;
 
 			Settings.Save();
 

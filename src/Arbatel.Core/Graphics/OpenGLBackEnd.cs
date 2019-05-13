@@ -85,47 +85,62 @@ namespace Arbatel.Graphics
 
 		public static Action<Control> SetUpWireframe { get; } = new Action<Control>(control =>
 		{
-			if (control is OpenGLView o && o.OpenGLReady)
+			if (control is OpenGLView v && v.OpenGLReady)
 			{
-				o.ShadingStyle = ShadingStyle.Wireframe;
+				v.ShadingStyle = ShadingStyle.Wireframe;
 
-				GL.Disable(EnableCap.CullFace);
+				Application.Instance.Invoke(() =>
+				{
+					GL.Disable(EnableCap.CullFace);
 
-				GL.Disable(EnableCap.Blend);
+					GL.Disable(EnableCap.Blend);
 
-				GL.ClearColor(1.0f, 0.0f, 0.0f, 1.0f);
+					Eto.Drawing.Color color = v.ColorScheme["3D Wireframe"];
+
+					GL.ClearColor(color.R, color.G, color.B, color.A);
+				});
 			}
 		});
 
 		public static Action<Control> SetUpFlat { get; } = new Action<Control>(control =>
 		{
-			if (control is OpenGLView o && o.OpenGLReady)
+			if (control is OpenGLView v && v.OpenGLReady)
 			{
-				o.ShadingStyle = ShadingStyle.Flat;
+				v.ShadingStyle = ShadingStyle.Flat;
 
-				GL.Enable(EnableCap.CullFace);
-				GL.CullFace(CullFaceMode.Back);
+				Application.Instance.Invoke(() =>
+				{
+					GL.Enable(EnableCap.CullFace);
+					GL.CullFace(CullFaceMode.Back);
 
-				GL.Enable(EnableCap.Blend);
-				GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
+					GL.Enable(EnableCap.Blend);
+					GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
 
-				GL.ClearColor(0.0f, 1.0f, 0.0f, 1.0f);
+					Eto.Drawing.Color color = v.ColorScheme["3D Flat"];
+
+					GL.ClearColor(color.R, color.G, color.B, color.A);
+				});
 			}
 		});
 
 		public static Action<Control> SetUpTextured { get; } = new Action<Control>(control =>
 		{
-			if (control is OpenGLView o && o.OpenGLReady)
+			if (control is OpenGLView v && v.OpenGLReady)
 			{
-				o.ShadingStyle = ShadingStyle.Textured;
+				v.ShadingStyle = ShadingStyle.Textured;
 
-				GL.Enable(EnableCap.CullFace);
-				GL.CullFace(CullFaceMode.Back);
+				Application.Instance.Invoke(() =>
+				{
+					GL.Enable(EnableCap.CullFace);
+					GL.CullFace(CullFaceMode.Back);
 
-				GL.Enable(EnableCap.Blend);
-				GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
+					GL.Enable(EnableCap.Blend);
+					GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
 
-				GL.ClearColor(0.0f, 0.0f, 1.0f, 1.0f);
+					Eto.Drawing.Color color = v.ColorScheme["3D Textured"];
+
+					GL.ClearColor(color.R, color.G, color.B, color.A);
+				});
 			}
 		});
 

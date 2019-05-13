@@ -1,6 +1,7 @@
 ﻿using Arbatel.Controllers;
 using Arbatel.Formats;
 using Arbatel.Graphics;
+using Eto.Drawing;
 using Eto.Forms;
 using System;
 using System.Collections.Generic;
@@ -41,6 +42,9 @@ namespace Arbatel.Controls
 		/// </summary>
 		public BackEnd BackEnd { get; set; }
 		public Camera Camera { get; } = new Camera();
+
+		public Dictionary<string, Color> ColorScheme { get; private set; } = new Dictionary<string, Color>();
+
 		public Controller Controller { get; set; } = new Controller();
 
 		public UITimer GraphicsClock { get; } = new UITimer();
@@ -170,13 +174,11 @@ namespace Arbatel.Controls
 
 			Controller.Speed = settings.Roaming.MovementSpeed;
 
-			OnUpdated();
+			ColorScheme = settings.Roaming.ColorSchemes[settings.Roaming.CurrentColorScheme];
+
+			OnUpdated(EventArgs.Empty);
 		}
 
-		protected virtual void OnUpdated()
-		{
-			OnUpdated(new EventArgs());
-		}
 		protected virtual void OnUpdated(EventArgs e)
 		{
 			Updated?.Invoke(this, e);

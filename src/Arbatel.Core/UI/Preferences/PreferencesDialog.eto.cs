@@ -29,7 +29,7 @@ namespace Arbatel.UI.Preferences
 			Padding = MasterPadding;
 			Resizable = true;
 
-			Width = (int)(Screen.PrimaryScreen.Bounds.Width / 4.5f);
+			Width = (int)(Screen.PrimaryScreen.Bounds.Width / 3.25f);
 			Height = (int)(Screen.PrimaryScreen.Bounds.Height / 2.5f);
 
 			Content = new TabControl
@@ -39,7 +39,8 @@ namespace Arbatel.UI.Preferences
 				{
 					BuildControlsTab(),
 					BuildDefinitionsTab(),
-					BuildTexturesTab()
+					BuildTexturesTab(),
+					BuildColorsTab()
 				}
 			};
 

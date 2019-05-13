@@ -71,7 +71,9 @@ namespace Arbatel.Graphics
 			{
 				v.ShadingStyle = ShadingStyle.Wireframe;
 
-				v.ClearColor = RgbaFloat.Red;
+				Eto.Drawing.Color color = v.ColorScheme["3D Wireframe"];
+
+				v.ClearColor = new RgbaFloat(color.R, color.G, color.B, color.A);
 			}
 		}
 		public void SetUpFlat(Control control)
@@ -80,7 +82,9 @@ namespace Arbatel.Graphics
 			{
 				v.ShadingStyle = ShadingStyle.Flat;
 
-				v.ClearColor = RgbaFloat.Green;
+				Eto.Drawing.Color color = v.ColorScheme["3D Flat"];
+
+				v.ClearColor = new RgbaFloat(color.R, color.G, color.B, color.A);
 			}
 		}
 		public void SetUpTextured(Control control)
@@ -89,7 +93,9 @@ namespace Arbatel.Graphics
 			{
 				v.ShadingStyle = ShadingStyle.Textured;
 
-				v.ClearColor = RgbaFloat.Blue;
+				Eto.Drawing.Color color = v.ColorScheme["3D Textured"];
+
+				v.ClearColor = new RgbaFloat(color.R, color.G, color.B, color.A);
 			}
 		}
 

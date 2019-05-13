@@ -108,6 +108,7 @@ namespace Arbatel.UI
 				if (view.Control is View v)
 				{
 					Settings.Updatables.Add(v);
+					v.UpdateFromSettings(Settings);
 				}
 			}
 
