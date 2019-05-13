@@ -24,6 +24,16 @@ namespace Arbatel
 		public Uri LastWadDirectory { get; set; }
 		public Uri LastSaveCollapsedAsDirectory { get; set; }
 
+		/// <summary>
+		/// Mouse sensitivity, as an arbitrary integer.
+		/// </summary>
+		/// <remarks>
+		/// Look input sensitivity depends on input hardware, driver settings,
+		/// and similar variables that likely differ from one system to another,
+		/// so this needs to be a per-machine setting.
+		/// </remarks>
+		public int MouseSensitivity { get; set; } = 50;
+
 		public LocalSettings()
 		{
 			var assembly = Assembly.GetAssembly(typeof(MainForm));

@@ -10,7 +10,7 @@ namespace Arbatel.UI.Preferences
 
 		private Slider SldSensitivity = new Slider
 		{
-			MinValue = 0,
+			MinValue = 1,
 			MaxValue = 100,
 			Orientation = Orientation.Horizontal
 		};
@@ -27,10 +27,10 @@ namespace Arbatel.UI.Preferences
 
 		private TabPage BuildControlsTab()
 		{
-			SldSensitivity.Bind<int>("Value", Settings.Roaming, "MouseSensitivity");
+			SldSensitivity.Bind(s => s.Value, Settings.Local, l => l.MouseSensitivity);
 			TxtSensitivity.Bind<int>("Text", SldSensitivity, "Value");
 
-			SldMovementSpeed.Bind<int>("Value", Settings.Roaming, "MovementSpeed");
+			SldMovementSpeed.Bind(s => s.Value, Settings.Roaming, r => r.MovementSpeed);
 			TxtMovementSpeed.Bind<int>("Text", SldMovementSpeed, "Value");
 
 			var tblAxes = new TableLayout(1, 2) { Spacing = MasterSpacing / 2 };

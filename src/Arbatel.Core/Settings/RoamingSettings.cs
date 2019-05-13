@@ -14,8 +14,6 @@ namespace Arbatel
 		public bool InvertMouseX { get; set; } = false;
 		public bool InvertMouseY { get; set; } = false;
 
-		public int MouseSensitivity { get; set; } = 50;
-
 		/// <summary>
 		/// The camera's movement speed, in units per frame.
 		/// </summary>
