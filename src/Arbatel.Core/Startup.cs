@@ -1,6 +1,6 @@
-﻿using Arbatel.Controls;
-using Eto;
+﻿using Eto;
 using Eto.Forms;
+using Eto.Veldrid;
 using OpenTK;
 
 namespace Arbatel
@@ -40,11 +40,6 @@ namespace Arbatel
 			{
 				MessageBox.Show(ge.Message);
 			}
-
-			//if (sender is Application a && a.QuitIsSupported)
-			//{
-			//	a.Quit();
-			//}
 		}
 	}
 }

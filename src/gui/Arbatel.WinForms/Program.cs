@@ -3,60 +3,11 @@ using Arbatel.UI;
 using Eto;
 using Eto.Drawing;
 using Eto.Forms;
-using Eto.Gl;
-using Eto.Gl.Windows;
 using OpenTK;
 using System;
-using System.Runtime.InteropServices;
-using Veldrid;
 
 namespace Arbatel.WinForms
 {
-	public class PuppetWinGLSurfaceHandler : WinGLSurfaceHandler
-	{
-		public override void AttachEvent(string id)
-		{
-			switch (id)
-			{
-				// Prevent the base surface handler class from attaching its own
-				// internal event handler to these events; said handler calls
-				// MakeCurrent, uses GL.Viewport, and swaps buffers. That's
-				// undesirable here, so just attach the appropriate callback.
-				case GLSurface.ShownEvent:
-					break;
-				case GLSurface.GLDrawEvent:
-					Control.Paint += (sender, e) => Callback.OnDraw(Widget, EventArgs.Empty);
-					break;
-				case GLSurface.SizeChangedEvent:
-					Control.SizeChanged += (sender, e) => Callback.OnSizeChanged(Widget, EventArgs.Empty);
-					break;
-				default:
-					base.AttachEvent(id);
-					break;
-			}
-		}
-	}
-
-	public class WinFormsVeldridSurfaceHandler : VeldridSurfaceHandler
-	{
-		protected override void InitializeOtherApi()
-		{
-			base.InitializeOtherApi();
-
-			var source = SwapchainSource.CreateWin32(
-				Control.NativeHandle, Marshal.GetHINSTANCE(typeof(VeldridSurface).Module));
-			Widget.Swapchain = Widget.GraphicsDevice.ResourceFactory.CreateSwapchain(
-				new SwapchainDescription(
-					source,
-					(uint)Widget.Width,
-					(uint)Widget.Height,
-					Veldrid.PixelFormat.R32_Float,
-					false));
-
-			Callback.OnVeldridInitialized(Widget, EventArgs.Empty);
-		}
-	}
-
 	public static class Program
 	{
 		[STAThread]
@@ -65,16 +16,6 @@ namespace Arbatel.WinForms
 			Toolkit opentk = Core.InitOpenTK();
 
 			Platform platform = Platform.Detect;
-
-			if (Core.UseVeldrid)
-			{
-				platform.Add<GLSurface.IHandler>(() => new PuppetWinGLSurfaceHandler());
-			}
-			else
-			{
-				platform.Add<GLSurface.IHandler>(() => new WinGLSurfaceHandler());
-			}
-			platform.Add<VeldridSurface.IHandler>(() => new WinFormsVeldridSurfaceHandler());
 
 			Style.Add<View>(
 				"hidecursor",

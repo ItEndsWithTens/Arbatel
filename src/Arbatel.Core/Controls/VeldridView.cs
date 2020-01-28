@@ -1,4 +1,5 @@
 ﻿using Arbatel.Graphics;
+using Eto.Veldrid;
 using System;
 using Veldrid;
 
@@ -66,7 +67,16 @@ namespace Arbatel.Controls
 		{
 			Shown += VeldridView_Shown;
 
-			var surface = new VeldridSurface();
+			var gdOptions = new GraphicsDeviceOptions(
+				false,
+				PixelFormat.R32_Float,
+				false,
+				ResourceBindingModel.Improved);
+
+			var tkOptions = new OpenTKOptions(
+				new OpenTK.Graphics.GraphicsMode(new OpenTK.Graphics.ColorFormat(32), 8));
+
+			var surface = new VeldridSurface(VeldridSurface.PreferredBackend, gdOptions, tkOptions);
 			surface.VeldridInitialized += (sender, e) => VeldridReady = true;
 			surface.Draw += (sender, e) => Refresh();
 

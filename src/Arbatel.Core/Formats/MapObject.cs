@@ -1,6 +1,6 @@
 ﻿using Arbatel.Controls;
 using Arbatel.Graphics;
-using Eto.Gl;
+using Eto.OpenTK;
 using OpenTK;
 using OpenTK.Graphics;
 using System;

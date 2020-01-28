@@ -19,28 +19,39 @@
     <None Remove="..\res\palette-quake.lmp" />
     <EmbeddedResource Include="..\res\palette-quake.lmp" Link="res\palette-quake.lmp" />
 
-    <!-- This is just an editing convenience, to show the files in Visual -->
-    <!-- Studio's Solution Explorer for easy access. CopyToOutputDirectory -->
-    <!-- doesn't seem to ever reliably copy these; check the top level -->
-    <!-- Directory.Build.targets for a custom build target that does. -->
+    <!-- This is just an editing convenience, to show the files in Visual Studio
+    for easy access. CopyToOutputDirectory doesn't seem to ever reliably copy
+    these; check the top level Directory.Build.targets for a custom build target
+    that does. -->
     <None Include="..\shaders\**\*" Link="shaders\%(RecursiveDir)%(Filename)%(Extension)" />
+
+    <None Include="$(VeldridSpirvNativeDir)libveldrid-spirv.dll" Link="libveldrid-spirv.dll" Condition="$(BuildOS) == 'Windows'">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="$(VeldridSpirvNativeDir)libveldrid-spirv.so" Link="libveldrid-spirv.so" Condition="$(BuildOS) == 'Linux'">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="$(VeldridSpirvNativeDir)libveldrid-spirv.dylib" Link="libveldrid-spirv.dylib" Condition="$(BuildOS) == 'macOS'">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Arbatel.OpenTK" Version="3.0.2">
-      <ExcludeAssets>*.xml</ExcludeAssets>
-    </PackageReference>
-    <PackageReference Include="Eto.Forms" Version="2.5.0-ci-10206" />
-    <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="2.6.2">
+    <PackageReference Include="Eto.Forms" Version="2.5.0-rc.5" />
+    <PackageReference Include="Eto.OpenTK" Version="0.1.2" />
+    <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="2.9.8">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
     <PackageReference Include="nucs.JsonSettings" Version="1.0.7" />
-    <PackageReference Include="Veldrid" Version="4.6.1" />
-    <PackageReference Include="Veldrid.SPIRV" Version="$(VeldridSpirvVersion)" />
+    <PackageReference Include="OpenTK" Version="3.1.0" />
+    <PackageReference Include="Veldrid" Version="4.7.0" />
+    <PackageReference Include="Veldrid.SPIRV" Version="1.0.13" />
+  </ItemGroup>
 
-    <Reference Include="Eto.Gl">
-      <HintPath>$(TopLevelDirectory)\lib\thirdparty\etoViewport\artifacts\Release\Eto.Gl\Eto.Gl.dll</HintPath>
+  <ItemGroup>
+    <Reference Include="Eto.Veldrid">
+      <HintPath>$(TopLevelDirectory)\lib\Eto.Veldrid\artifacts\bin\Eto.Veldrid\Release\netstandard2.0\Eto.Veldrid.dll</HintPath>
     </Reference>
   </ItemGroup>
 

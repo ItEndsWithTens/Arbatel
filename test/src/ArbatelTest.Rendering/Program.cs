@@ -3,7 +3,7 @@ using Arbatel.UI;
 using Arbatel.Utilities;
 using Eto;
 using Eto.Forms;
-using Eto.Gl;
+using Eto.OpenTK;
 using OpenTK;
 using System;
 using System.Reflection;
@@ -32,20 +32,20 @@ namespace ArbatelTest.Rendering
 			// assembly loading acrobatics routine.
 			if (platform.IsMac)
 			{
-				Assembly.Load("Eto.Gl.Mac");
-				Type type = AssemblyUtilities.GetTypeFromName("Eto.Gl.Mac.MacGLSurfaceHandler");
+				Assembly.Load("Eto.OpenTK.Mac64");
+				Type type = AssemblyUtilities.GetTypeFromName("Eto.OpenTK.Mac.MacGLSurfaceHandler");
 				platform.Add(() => (GLSurface.IHandler)Activator.CreateInstance(type));
 			}
 			else if (platform.IsGtk)
 			{
-				Assembly.Load("Eto.Gl.Gtk2");
-				Type type = AssemblyUtilities.GetTypeFromName("Eto.Gl.Gtk.GtkGlSurfaceHandler");
+				Assembly.Load("Eto.OpenTK.Gtk2");
+				Type type = AssemblyUtilities.GetTypeFromName("Eto.OpenTK.Gtk.GtkGlSurfaceHandler");
 				platform.Add(() => (GLSurface.IHandler)Activator.CreateInstance(type));
 			}
 			else
 			{
-				Assembly.Load("Eto.Gl.Windows");
-				Type type = AssemblyUtilities.GetTypeFromName("Eto.Gl.Windows.WinGLSurfaceHandler");
+				Assembly.Load("Eto.OpenTK.WinForms");
+				Type type = AssemblyUtilities.GetTypeFromName("Eto.OpenTK.WinForms.WinGLSurfaceHandler");
 				platform.Add(() => (GLSurface.IHandler)Activator.CreateInstance(type));
 			}
 

@@ -2,18 +2,15 @@
 
   <ItemGroup>
     <ProjectReference Include="$(TopLevelDirectory)\src\Arbatel.Core\Arbatel.Core.csproj" />
-
-    <PackageReference Include="Arbatel.OpenTK" Version="3.0.2" />
-    <PackageReference Include="Arbatel.OpenTK.GLControl" Version="3.0.2" />
-    <PackageReference Include="Eto.Forms" Version="2.5.0-ci-10206" />
-    <PackageReference Include="Eto.Platform.Wpf" Version="2.5.0-ci-10206" />
-
-    <Reference Include="Eto.Gl">
-      <HintPath>$(TopLevelDirectory)\lib\thirdparty\etoViewport\artifacts\Release\Eto.Gl\Eto.Gl.dll</HintPath>
+    <PackageReference Include="Eto.Forms" Version="2.5.0-rc.5" />
+    <PackageReference Include="Eto.OpenTK" Version="0.1.2" />
+    <PackageReference Include="Eto.OpenTK.Wpf" Version="0.1.2" />
+    <PackageReference Include="Eto.Platform.Wpf" Version="2.5.0-rc.5" />
+    <PackageReference Include="OpenTK" Version="3.1.0" />
+    <Reference Include="Eto.Veldrid.Wpf">
+      <HintPath>$(TopLevelDirectory)\lib\Eto.Veldrid\artifacts\bin\Eto.Veldrid.Wpf\Release\net472\Eto.Veldrid.Wpf.dll</HintPath>
     </Reference>
-    <Reference Include="Eto.Gl.WPF_WinformsHost">
-      <HintPath>$(TopLevelDirectory)\lib\thirdparty\etoViewport\artifacts\Release\Eto.Gl.WPF_WinformsHost\Eto.Gl.WPF_WinformsHost.dll</HintPath>
-    </Reference>
+
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
     <Reference Include="System.Windows.Forms" />

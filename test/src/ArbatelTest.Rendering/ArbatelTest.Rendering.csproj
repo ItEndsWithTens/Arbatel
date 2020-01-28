@@ -6,27 +6,21 @@
 
   <ItemGroup>
     <ProjectReference Include="$(TopLevelDirectory)\src\Arbatel.Core\Arbatel.Core.csproj" />
-
-    <PackageReference Include="Arbatel.OpenTK" Version="3.0.2" />
-    <PackageReference Include="Eto.Forms" Version="2.5.0-ci-10206" />
-
-    <Reference Include="Eto.Gl">
-      <HintPath>$(TopLevelDirectory)\lib\thirdparty\etoViewport\artifacts\Release\Eto.Gl\Eto.Gl.dll</HintPath>
-    </Reference>
+    <PackageReference Include="Eto.Forms" Version="2.5.0-rc.5" />
+    <PackageReference Include="Eto.OpenTK" Version="0.1.2" />
+    <PackageReference Include="OpenTK" Version="3.1.0" />
   </ItemGroup>
 
   <Choose>
     <When Condition="$(BuildOS) == Windows">
       <ItemGroup>
-        <PackageReference Include="Eto.Platform.Windows" Version="2.5.0-ci-10206" />
-        <Reference Include="Eto.Gl.Windows">
-          <HintPath>$(TopLevelDirectory)\lib\thirdparty\etoViewport\artifacts\Release\Eto.Gl.WinForms\Eto.Gl.Windows.dll</HintPath>
-        </Reference>
+        <PackageReference Include="Eto.Platform.Windows" Version="2.5.0-rc.4" />
+        <PackageReference Include="Eto.OpenTK.WinForms" Version="0.1.2" />
       </ItemGroup>
     </When>
     <When Condition="$(BuildOS) == Linux">
       <ItemGroup>
-        <PackageReference Include="Eto.Platform.Gtk2" Version="2.5.0-ci-10206" />
+        <PackageReference Include="Eto.Platform.Gtk2" Version="2.5.0-rc.4" />
         <Reference Include="Eto.Gl.Gtk2">
           <HintPath>$(TopLevelDirectory)\lib\thirdparty\etoViewport\artifacts\Release\Eto.Gl.Gtk2\Eto.Gl.Gtk2.dll</HintPath>
         </Reference>
@@ -38,7 +32,7 @@
         <MacBundleMono>false</MacBundleMono>
       </PropertyGroup>
       <ItemGroup>
-        <PackageReference Include="Eto.Platform.Mac64" Version="2.5.0-ci-10206" />
+        <PackageReference Include="Eto.Platform.Mac64" Version="2.5.0-rc.5" />
         <Reference Include="Eto.Gl.Mac">
           <HintPath>$(TopLevelDirectory)\lib\thirdparty\etoViewport\artifacts\Release\Eto.Gl.Mac\Eto.Gl.Mac.dll</HintPath>
         </Reference>

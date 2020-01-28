@@ -25,17 +25,14 @@
 
   <PropertyGroup Condition="$(IsWindowsProject)">
     <RuntimeID>win-x64</RuntimeID>
-    <VeldridSpirvNativeName>libveldrid-spirv.dll</VeldridSpirvNativeName>
   </PropertyGroup>
 
   <PropertyGroup Condition="$(IsLinuxProject)">
     <RuntimeID>linux-x64</RuntimeID>
-    <VeldridSpirvNativeName>libveldrid-spirv.so</VeldridSpirvNativeName>
   </PropertyGroup>
 
   <PropertyGroup Condition="$(IsMacProject)">
     <RuntimeID>osx-x64</RuntimeID>
-    <VeldridSpirvNativeName>libveldrid-spirv.dylib</VeldridSpirvNativeName>
   </PropertyGroup>
 
   <Target Name="SetNeatenizePath" AfterTargets="Build" BeforeTargets="CopyVeldridSpirvNative">
@@ -45,22 +42,11 @@
     </PropertyGroup>
   </Target>
 
-  <PropertyGroup>
-    <NoCopyVeldridSpirvNative>_build;$(Product).Core;$(Product)Test.Core</NoCopyVeldridSpirvNative>
-  </PropertyGroup>
-
-  <Target Name="CopyVeldridSpirvNative" AfterTargets="SetNeatenizePath" BeforeTargets="NeatenizeLibraries" Condition="!$(NoCopyVeldridSpirvNative.Contains($(MSBuildProjectName)))">
-    <Copy
-      SourceFiles="$([MSBuild]::EnsureTrailingSlash('$(NuGetPackageRoot)'))veldrid.spirv\$(VeldridSpirvVersion)\runtimes\$(RuntimeID)\native\$(VeldridSpirvNativeName)"
-      DestinationFolder="$(NeatenizePath)" />
-  </Target>
-
-  <!-- The output GUI executables' config files are hideous enough, the -->
-  <!-- least a build process could do is keep this project's various -->
-  <!-- dependencies organized. This, in combination with the App.config -->
-  <!-- files and their 'probing' element's 'privatePath' parameter, will -->
-  <!-- make the directory structure as clean and presentable as possible. -->
-  <Target Name="NeatenizeLibraries" AfterTargets="CopyVeldridSpirvNative" Condition="!$(NoNeatenize.Contains($(MSBuildProjectName)))">
+  <!-- The output GUI executables' config files are hideous enough, the least a
+  build process can do is keep this project's various dependencies organized. In
+  concert with the App.config files and their 'probing' element's 'privatePath'
+  parameter, this makes the directory tree cleaner and more presentable. -->
+  <Target Name="NeatenizeLibraries" AfterTargets="SetNeatenizePath" Condition="!$(NoNeatenize.Contains($(MSBuildProjectName)))">
     <ItemGroup>
       <Uglies Include="$(NeatenizePath)*" />
       <Uglies Remove="$(NeatenizePath)$(AssemblyName).exe" />

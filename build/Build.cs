@@ -1,4 +1,5 @@
 using Nuke.Common;
+using Nuke.Common.IO;
 using Nuke.Common.ProjectModel;
 using Nuke.Common.Tooling;
 using Nuke.Common.Tools.DotNet;
@@ -29,14 +30,14 @@ class Build : NukeBuild
 
 	readonly string[] EtoPlatformsWin = new[] { "WinForms", "Wpf" };
 	readonly string[] EtoPlatformsLin = new[] { "Gtk" };
-	readonly string[] EtoPlatformsMac = new[] { "Mac", "XamMac" };
+	readonly string[] EtoPlatformsMac = new[] { "Mac" }; //, "XamMac" };
 
 	AbsolutePath ArtifactsDirectory => RootDirectory / "artifacts";
 	AbsolutePath SourceDirectory => RootDirectory / "src";
 	AbsolutePath TestSourceDirectory => RootDirectory / "test" / "src";
 	AbsolutePath CustomMsBuildPath;
 
-	AbsolutePath EtoViewportRoot => RootDirectory / "lib" / "thirdparty" / "etoViewport";
+	AbsolutePath EtoVeldridRoot => RootDirectory / "lib" / "Eto.Veldrid";
 
 	[Parameter("Configuration to build - Default is 'Debug' (local) or 'Release' (server)")]
 	readonly string Configuration = IsLocalBuild ? "Debug" : "Release";
@@ -83,12 +84,9 @@ class Build : NukeBuild
 
 		// The OutputPath property has a different value depending on the active
 		// build configuration, so it's necessary to take that into account.
-		MSBuildProject parsed = MSBuildParseProject(n, settings => settings
-			.SetConfiguration(Configuration)
-			.When(CustomMsBuildPath != null, s => s
-				.SetToolPath(CustomMsBuildPath)));
+		Microsoft.Build.Evaluation.Project parsed = ProjectModelTasks.ParseProject(n, Configuration);
 
-		return n.Directory / parsed.Properties["OutputPath"];
+		return n.Directory / parsed.GetPropertyValue("OutputPath");
 	}
 
 	Target Clean => _ => _
@@ -163,17 +161,22 @@ class Build : NukeBuild
 			}
 		});
 
-	private void CompileEtoGl(params string[] targets)
+	private void CompileEtoVeldrid(params RelativePath[] projects)
 	{
-		if (!DirectoryExists(EtoViewportRoot) || !Directory.EnumerateFileSystemEntries(EtoViewportRoot).Any())
+		if (!DirectoryExists(EtoVeldridRoot) || !Directory.EnumerateFileSystemEntries(EtoVeldridRoot).Any())
 		{
-			Git("submodule update --init lib/thirdparty/etoViewport");
+			Git("submodule update --init lib/Eto.Veldrid");
 		}
 
-		DotNetTasks.DotNetRun(s => s
-			.SetWorkingDirectory(EtoViewportRoot)
-			.SetProjectFile(EtoViewportRoot / "build" / "_build.csproj")
-			.SetApplicationArguments($"--configuration Release --target CompileLibrary {String.Join(' ', targets)}"));
+		MSBuild(settings => settings
+			.SetWorkingDirectory(EtoVeldridRoot)
+			.EnableRestore()
+			.SetTargets("Build")
+			.SetConfiguration("Release")
+			.When(CustomMsBuildPath != null, s => s
+				.SetToolPath(CustomMsBuildPath))
+			.CombineWith(projects, (s, p) => s
+				.SetProjectFile(EtoVeldridRoot / p)));
 	}
 
 	Target CompileWindowsDependencies => _ => _
@@ -181,7 +184,9 @@ class Build : NukeBuild
 		.Before(CompileCore)
 		.Executes(() =>
 		{
-			CompileEtoGl("CompileWindows");
+			CompileEtoVeldrid(
+				(RelativePath)"src" / "Eto.Veldrid.WinForms" / "Eto.Veldrid.WinForms.csproj",
+				(RelativePath)"src" / "Eto.Veldrid.Wpf" / "Eto.Veldrid.Wpf.csproj");
 		});
 
 	Target CompileLinuxDependencies => _ => _
@@ -189,7 +194,9 @@ class Build : NukeBuild
 		.Before(CompileCore)
 		.Executes(() =>
 		{
-			CompileEtoGl("CompileLinux");
+			CompileEtoVeldrid(
+				(RelativePath)"src" / "Eto.Veldrid.Gtk" / "Eto.Veldrid.Gtk2.csproj",
+				(RelativePath)"src" / "Eto.Veldrid.Gtk" / "Eto.Veldrid.Gtk.csproj");
 		});
 
 	Target CompileMacDependencies => _ => _
@@ -197,7 +204,8 @@ class Build : NukeBuild
 		.Before(CompileCore)
 		.Executes(() =>
 		{
-			CompileEtoGl("CompileMac");
+			CompileEtoVeldrid(
+				(RelativePath)"src" / "Eto.Veldrid.Mac" / "Eto.Veldrid.Mac64.csproj");
 		});
 
 	private void Compile(string[] projects)
@@ -208,8 +216,8 @@ class Build : NukeBuild
 			.SetConfiguration(Configuration)
 			.When(CustomMsBuildPath != null, s => s
 				.SetToolPath(CustomMsBuildPath))
-			.SetAssemblyVersion(GitVersion.GetNormalizedAssemblyVersion())
-			.SetFileVersion(GitVersion.GetNormalizedFileVersion())
+			.SetAssemblyVersion(GitVersion.AssemblySemVer)
+			.SetFileVersion(GitVersion.AssemblySemFileVer)
 			.SetInformationalVersion(GitVersion.InformationalVersion)
 			.SetMaxCpuCount(Environment.ProcessorCount)
 			.SetNodeReuse(IsLocalBuild)

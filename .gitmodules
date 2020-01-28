@@ -1,4 +1,3 @@
-[submodule "lib/thirdparty/etoViewport"]
-	path = lib/thirdparty/etoViewport
-	url = https://github.com/ItEndsWithTens/etoViewport.git
-	branch = arbatel
+[submodule "lib/Eto.Veldrid"]
+	path = lib/Eto.Veldrid
+	url = https://github.com/ItEndsWithTens/Eto.Veldrid

@@ -4,7 +4,7 @@
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>net471</TargetFramework>
+    <TargetFramework>net472</TargetFramework>
     <AssemblyName>$(Product)</AssemblyName>
   </PropertyGroup>
 

@@ -1,5 +1,5 @@
 ﻿using Arbatel.Graphics;
-using Eto.Gl;
+using Eto.OpenTK;
 using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL4;
 using System;

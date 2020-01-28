@@ -2,36 +2,13 @@
 using Arbatel.UI;
 using Eto;
 using Eto.Forms;
-using Eto.Gl;
-using Eto.Gl.Gtk;
+using Eto.OpenTK;
+using Eto.OpenTK.Gtk;
 using OpenTK;
 using System;
-using Veldrid;
 
 namespace Arbatel.Gtk
 {
-	public class GtkVeldridSurfaceHandler : VeldridSurfaceHandler
-	{
-		protected override void InitializeOtherApi()
-		{
-			base.InitializeOtherApi();
-
-			global::Gtk.Widget native = Control.ToNative();
-
-			var source = SwapchainSource.CreateXlib(
-				native.Display.Handle, native.GdkWindow.Handle);
-			Widget.Swapchain = Widget.GraphicsDevice.ResourceFactory.CreateSwapchain(
-				new SwapchainDescription(
-					source,
-					(uint)Widget.Width,
-					(uint)Widget.Height,
-					PixelFormat.R32_Float,
-					false));
-
-			Callback.OnVeldridInitialized(Widget, EventArgs.Empty);
-		}
-	}
-
 	public static class MainClass
 	{
 		[STAThread]
@@ -42,7 +19,6 @@ namespace Arbatel.Gtk
 			var platform = new Eto.GtkSharp.Platform();
 
 			platform.Add<GLSurface.IHandler>(() => new GtkGlSurfaceHandler());
-			platform.Add<VeldridSurface.IHandler>(() => new GtkVeldridSurfaceHandler());
 
 			Style.Add<View>(
 				"hidecursor",

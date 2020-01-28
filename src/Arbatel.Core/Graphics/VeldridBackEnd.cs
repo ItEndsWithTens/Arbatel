@@ -3,6 +3,7 @@ using Arbatel.Formats;
 using Arbatel.UI;
 using Eto;
 using Eto.Forms;
+using Eto.Veldrid;
 using OpenTK;
 using System;
 using System.Collections.Generic;
@@ -726,7 +727,7 @@ namespace Arbatel.Graphics
 			var vertex = new ShaderDescription(ShaderStages.Vertex, vertexShaderSpirvBytes, "main", true);
 			var fragment = new ShaderDescription(ShaderStages.Fragment, fragmentShaderSpirvBytes, "main", true);
 
-			var options = new CrossCompileOptions(false, false, specializations);
+			var options = new CrossCompileOptions(false, false, false, specializations);
 
 			return Factory.CreateFromSpirv(vertex, fragment, options);
 		}

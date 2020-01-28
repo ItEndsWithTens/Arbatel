@@ -2,12 +2,11 @@
 using Arbatel.UI;
 using Eto;
 using Eto.Forms;
-using Eto.Gl;
-using Eto.Gl.Mac;
+using Eto.OpenTK;
+using Eto.OpenTK.Mac;
 using OpenTK;
 using System;
 using System.Runtime.InteropServices;
-using Veldrid;
 
 namespace Arbatel.Mac
 {
@@ -64,25 +63,6 @@ namespace Arbatel.Mac
 		public static extern CGError DisplayShowCursor(CGDirectDisplayID display);
 	}
 
-	public class MacVeldridSurfaceHandler : VeldridSurfaceHandler
-	{
-		protected override void InitializeOtherApi()
-		{
-			base.InitializeOtherApi();
-
-			var source = SwapchainSource.CreateNSView(Control.NativeHandle);
-			Widget.Swapchain = Widget.GraphicsDevice.ResourceFactory.CreateSwapchain(
-				new SwapchainDescription(
-					source,
-					(uint)Widget.Width,
-					(uint)Widget.Height,
-					PixelFormat.R32_Float,
-					false));
-
-			Callback.OnVeldridInitialized(Widget, EventArgs.Empty);
-		}
-	}
-
 	public static class MainClass
 	{
 		[STAThread]
@@ -93,7 +73,6 @@ namespace Arbatel.Mac
 			Platform platform = Platform.Detect;
 
 			platform.Add<GLSurface.IHandler>(() => new MacGLSurfaceHandler());
-			platform.Add<VeldridSurface.IHandler>(() => new MacVeldridSurfaceHandler());
 
 			Style.Add<View>(
 				"hidecursor",
