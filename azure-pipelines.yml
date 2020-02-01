@@ -7,6 +7,12 @@ jobs:
     vmImage: 'windows-latest'
 
   steps:
+  - task: UseDotNet@2
+    displayName: "Get .NET Core 3.1 SDK"
+    inputs:
+      packageType: sdk
+      version: 3.1.x
+
   - task: PowerShell@2
     displayName: "Build"
     inputs:
@@ -26,9 +32,15 @@ jobs:
 
 - job: Linux
   pool:
-    vmImage: 'ubuntu-16.04'
+    vmImage: 'ubuntu-latest'
 
   steps:
+  - task: UseDotNet@2
+    displayName: "Get .NET Core 3.1 SDK"
+    inputs:
+      packageType: sdk
+      version: 3.1.x
+
   - task: Bash@3
     displayName: "Build"
     inputs:
@@ -42,9 +54,15 @@ jobs:
 
 - job: macOS
   pool:
-    vmImage: 'macOS-10.14'
+    vmImage: 'macOS-latest'
 
   steps:
+  - task: UseDotNet@2
+    displayName: "Get .NET Core 3.1 SDK"
+    inputs:
+      packageType: sdk
+      version: 3.1.x
+
   - task: Bash@3
     displayName: "Install dmgbuild"
     inputs:
