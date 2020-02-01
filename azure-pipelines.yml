@@ -87,8 +87,8 @@ jobs:
       artifactName: 'Mac'
       targetPath: 'artifacts/Mac'
 
-  - task: PublishPipelineArtifact@0
-    displayName: "Publish XamMac package"
-    inputs:
-      artifactName: 'XamMac'
-      targetPath: 'artifacts/XamMac'
+  #- task: PublishPipelineArtifact@0
+  #  displayName: "Publish XamMac package"
+  #  inputs:
+  #    artifactName: 'XamMac'
+  #    targetPath: 'artifacts/XamMac'
