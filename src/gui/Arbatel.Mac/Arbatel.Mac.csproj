@@ -4,14 +4,9 @@
     <ProjectReference Include="$(TopLevelDirectory)\src\Arbatel.Core\Arbatel.Core.csproj" />
     <PackageReference Include="Eto.OpenTK" Version="0.1.2" />
     <PackageReference Include="Eto.OpenTK.Mac64" Version="0.1.2" />
-    <PackageReference Include="Eto.Platform.Mac64" Version="2.5.0-rc.5" />
-    <PackageReference Include="OpenTK" Version="3.1.0" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Reference Include="Eto.Veldrid.Mac64">
-      <HintPath>$(TopLevelDirectory)\lib\Eto.Veldrid\artifacts\bin\Eto.Veldrid.Mac64\Release\net472\Eto.Veldrid.Mac64.dll</HintPath>
-    </Reference>
+    <PackageReference Include="Eto.Platform.Mac64" Version="2.5.2" />
+    <PackageReference Include="Eto.Veldrid.Mac64" Version="0.1.0" />
+    <PackageReference Include="OpenTK" Version="3.2.0" />
   </ItemGroup>
 
 </Project>

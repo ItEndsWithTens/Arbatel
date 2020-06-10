@@ -1,21 +1,40 @@
-﻿using Eto;
-using Eto.Forms;
+﻿using Eto.Forms;
 using Eto.Veldrid;
 using OpenTK;
+using System;
+using Veldrid;
 
 namespace Arbatel
 {
 	public static partial class Core
 	{
-		// In the long term, the goal is to use Veldrid's implementation of
-		// all its supported graphics APIs. For now, though, Arbatel's code
-		// doesn't run as well (or as correctly) in Veldrid's OpenGL as it
-		// does in straight OpenTK, so skip Veldrid in the case of OpenGL.
-		//
-		// VeldridSurface does have provisions for OpenGL support, mind you,
-		// and an option for users to manually specify what API they want is
-		// coming to the settings dialog box sooner or later.
-		public static bool UseVeldrid { get; } = VeldridSurface.PreferredBackend != Veldrid.GraphicsBackend.OpenGL;
+		public static bool UseVeldrid { get; } = GetPreferredVeldridBackend();
+
+		private static bool GetPreferredVeldridBackend()
+		{
+			bool useVeldrid;
+
+			try
+			{
+				// Arbatel doesn't yet run as well in Veldrid's OpenGL backend
+				// as it does in straight OpenTK, so skip Veldrid in that case.
+				useVeldrid = VeldridSurface.PreferredBackend != GraphicsBackend.OpenGL;
+			}
+			catch (TypeInitializationException e)
+			{
+				// VeldridSurface throws when no supported backend is found.
+				if (e.InnerException.GetType() == typeof(VeldridException))
+				{
+					useVeldrid = false;
+				}
+				else
+				{
+					throw;
+				}
+			}
+
+			return useVeldrid;
+		}
 
 		public static Toolkit InitOpenTK()
 		{
@@ -34,9 +53,9 @@ namespace Arbatel
 			return Toolkit.Init(options);
 		}
 
-		public static void UnhandledExceptionHandler(object sender, UnhandledExceptionEventArgs e)
+		public static void UnhandledExceptionHandler(object sender, Eto.UnhandledExceptionEventArgs e)
 		{
-			if (e.ExceptionObject is GraphicsException ge)
+			if (e?.ExceptionObject is GraphicsException ge)
 			{
 				MessageBox.Show(ge.Message);
 			}

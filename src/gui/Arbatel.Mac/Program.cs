@@ -2,8 +2,6 @@
 using Arbatel.UI;
 using Eto;
 using Eto.Forms;
-using Eto.OpenTK;
-using Eto.OpenTK.Mac;
 using OpenTK;
 using System;
 using System.Runtime.InteropServices;
@@ -71,8 +69,6 @@ namespace Arbatel.Mac
 			Toolkit opentk = Core.InitOpenTK();
 
 			Platform platform = Platform.Detect;
-
-			platform.Add<GLSurface.IHandler>(() => new MacGLSurfaceHandler());
 
 			Style.Add<View>(
 				"hidecursor",

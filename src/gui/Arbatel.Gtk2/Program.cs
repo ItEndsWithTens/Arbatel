@@ -7,7 +7,7 @@ using Eto.OpenTK.Gtk;
 using OpenTK;
 using System;
 
-namespace Arbatel.Gtk
+namespace Arbatel.Gtk2
 {
 	public static class MainClass
 	{

@@ -5,12 +5,10 @@
     
     <PackageReference Include="Eto.OpenTK" Version="0.1.2" />
     <PackageReference Include="Eto.OpenTK.WinForms" Version="0.1.2" />
-    <PackageReference Include="Eto.Platform.Windows" Version="2.5.0-rc.5" />
-    <PackageReference Include="OpenTK" Version="3.1.0" />
-    
-    <Reference Include="Eto.Veldrid.WinForms">
-      <HintPath>$(TopLevelDirectory)\lib\Eto.Veldrid\artifacts\bin\Eto.Veldrid.WinForms\Release\net472\Eto.Veldrid.WinForms.dll</HintPath>
-    </Reference>
+    <PackageReference Include="Eto.Platform.Windows" Version="2.5.2" />
+    <PackageReference Include="Eto.Veldrid.WinForms" Version="0.1.0" />
+    <PackageReference Include="OpenTK" Version="3.2.0" />
+
     <Reference Include="System.Windows.Forms" />
   </ItemGroup>
 

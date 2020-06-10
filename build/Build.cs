@@ -19,7 +19,6 @@ using System.IO;
 using System.Linq;
 using static Nuke.Common.IO.FileSystemTasks;
 using static Nuke.Common.IO.PathConstruction;
-using static Nuke.Common.Tools.Git.GitTasks;
 using static Nuke.Common.Tools.MSBuild.MSBuildTasks;
 using static Nuke.Common.Tools.NUnit.NUnitTasks;
 using static Nuke.Common.Tools.VSWhere.VSWhereTasks;
@@ -29,15 +28,13 @@ class Build : NukeBuild
 	const string ProductName = "Arbatel";
 
 	readonly string[] EtoPlatformsWin = new[] { "WinForms", "Wpf" };
-	readonly string[] EtoPlatformsLin = new[] { "Gtk" };
+	readonly string[] EtoPlatformsLin = new[] { "Gtk2" };
 	readonly string[] EtoPlatformsMac = new[] { "Mac" }; //, "XamMac" };
 
 	AbsolutePath ArtifactsDirectory => RootDirectory / "artifacts";
 	AbsolutePath SourceDirectory => RootDirectory / "src";
 	AbsolutePath TestSourceDirectory => RootDirectory / "test" / "src";
 	AbsolutePath CustomMsBuildPath;
-
-	AbsolutePath EtoVeldridRoot => RootDirectory / "lib" / "Eto.Veldrid";
 
 	[Parameter("Configuration to build - Default is 'Debug' (local) or 'Release' (server)")]
 	readonly string Configuration = IsLocalBuild ? "Debug" : "Release";
@@ -161,53 +158,6 @@ class Build : NukeBuild
 			}
 		});
 
-	private void CompileEtoVeldrid(params RelativePath[] projects)
-	{
-		if (!DirectoryExists(EtoVeldridRoot) || !Directory.EnumerateFileSystemEntries(EtoVeldridRoot).Any())
-		{
-			Git("submodule update --init lib/Eto.Veldrid");
-		}
-
-		MSBuild(settings => settings
-			.SetWorkingDirectory(EtoVeldridRoot)
-			.EnableRestore()
-			.SetTargets("Build")
-			.SetConfiguration("Release")
-			.When(CustomMsBuildPath != null, s => s
-				.SetToolPath(CustomMsBuildPath))
-			.CombineWith(projects, (s, p) => s
-				.SetProjectFile(EtoVeldridRoot / p)));
-	}
-
-	Target CompileWindowsDependencies => _ => _
-		.DependsOn(Clean, SetVisualStudioPaths)
-		.Before(CompileCore)
-		.Executes(() =>
-		{
-			CompileEtoVeldrid(
-				(RelativePath)"src" / "Eto.Veldrid.WinForms" / "Eto.Veldrid.WinForms.csproj",
-				(RelativePath)"src" / "Eto.Veldrid.Wpf" / "Eto.Veldrid.Wpf.csproj");
-		});
-
-	Target CompileLinuxDependencies => _ => _
-		.DependsOn(Clean, SetVisualStudioPaths)
-		.Before(CompileCore)
-		.Executes(() =>
-		{
-			CompileEtoVeldrid(
-				(RelativePath)"src" / "Eto.Veldrid.Gtk" / "Eto.Veldrid.Gtk2.csproj",
-				(RelativePath)"src" / "Eto.Veldrid.Gtk" / "Eto.Veldrid.Gtk.csproj");
-		});
-
-	Target CompileMacDependencies => _ => _
-		.DependsOn(Clean, SetVisualStudioPaths)
-		.Before(CompileCore)
-		.Executes(() =>
-		{
-			CompileEtoVeldrid(
-				(RelativePath)"src" / "Eto.Veldrid.Mac" / "Eto.Veldrid.Mac64.csproj");
-		});
-
 	private void Compile(string[] projects)
 	{
 		MSBuild(settings => settings
@@ -233,21 +183,21 @@ class Build : NukeBuild
 		});
 
 	Target CompileWindows => _ => _
-		.DependsOn(CompileCore, CompileWindowsDependencies)
+		.DependsOn(CompileCore)
 		.Executes(() =>
 		{
 			Compile(EtoPlatformsWin.Select(p => $"{ProductName}.{p}").ToArray());
 		});
 
 	Target CompileLinux => _ => _
-		.DependsOn(CompileCore, CompileLinuxDependencies)
+		.DependsOn(CompileCore)
 		.Executes(() =>
 		{
 			Compile(EtoPlatformsLin.Select(p => $"{ProductName}.{p}").ToArray());
 		});
 
 	Target CompileMac => _ => _
-		.DependsOn(CompileCore, CompileMacDependencies)
+		.DependsOn(CompileCore)
 		.Executes(() =>
 		{
 			Compile(EtoPlatformsMac.Select(p => $"{ProductName}.{p}").ToArray());

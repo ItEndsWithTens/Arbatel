@@ -59,18 +59,14 @@
       <Project>{A5FFC3A4-78CA-44F2-B8A8-F18DADF1690A}</Project>
       <Name>Arbatel.Core</Name>
     </ProjectReference>
-    <PackageReference Include="Arbatel.OpenTK" Version="3.0.2" />
-    <PackageReference Include="Eto.Platform.XamMac2" Version="2.5.0-ci-10206" />
+    <PackageReference Include="Eto.OpenTK" Version="0.1.2" />
+    <PackageReference Include="Eto.OpenTK.XamMac2" Version="0.1.2" />
+    <PackageReference Include="Eto.Platform.XamMac2" Version="2.5.2" />
+    <PackageReference Include="OpenTK" Version="3.2.0" />
     <PackageReference Include="RoslynCodeTaskFactory" Version="2.0.7" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="Xamarin.Mac" />
-    <Reference Include="Eto.Gl">
-      <HintPath>$(TopLevelDirectory)\lib\thirdparty\etoViewport\artifacts\Release\Eto.Gl\Eto.Gl.dll</HintPath>
-    </Reference>
-    <Reference Include="Eto.Gl.XamMac">
-      <HintPath>$(TopLevelDirectory)\lib\thirdparty\etoViewport\artifacts\Release\Eto.Gl.XamMac\Eto.Gl.XamMac.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\Contents.json" />

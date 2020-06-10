@@ -73,10 +73,7 @@ namespace Arbatel.Controls
 				false,
 				ResourceBindingModel.Improved);
 
-			var tkOptions = new OpenTKOptions(
-				new OpenTK.Graphics.GraphicsMode(new OpenTK.Graphics.ColorFormat(32), 8));
-
-			var surface = new VeldridSurface(VeldridSurface.PreferredBackend, gdOptions, tkOptions);
+			var surface = new VeldridSurface(VeldridSurface.PreferredBackend, gdOptions);
 			surface.VeldridInitialized += (sender, e) => VeldridReady = true;
 			surface.Draw += (sender, e) => Refresh();
 

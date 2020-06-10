@@ -6,16 +6,16 @@
 
   <ItemGroup>
     <ProjectReference Include="$(TopLevelDirectory)\src\Arbatel.Core\Arbatel.Core.csproj" />
-    <PackageReference Include="Eto.Forms" Version="2.5.0-rc.5" />
-    <PackageReference Condition="$(BuildOS) == Windows" Include="Eto.Platform.Windows" Version="2.5.0-rc.5" />
-    <PackageReference Condition="$(BuildOS) == Linux" Include="Eto.Platform.Gtk2" Version="2.5.0-rc.5" />
-    <PackageReference Condition="$(BuildOS) == macOS" Include="Eto.Platform.Mac64" Version="2.5.0-rc.5" />
+    <PackageReference Include="Eto.Forms" Version="2.5.2" />
+    <PackageReference Condition="$(BuildOS) == Windows" Include="Eto.Platform.Windows" Version="2.5.2" />
+    <PackageReference Condition="$(BuildOS) == Linux" Include="Eto.Platform.Gtk2" Version="2.5.2" />
+    <PackageReference Condition="$(BuildOS) == macOS" Include="Eto.Platform.Mac64" Version="2.5.2" />
     <PackageReference Include="NUnit" Version="3.12.0" />
     <PackageReference Include="NUnit3TestAdapter" Version="3.16.1">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="OpenTK" Version="3.1.0" />
+    <PackageReference Include="OpenTK" Version="3.2.0" />
   </ItemGroup>
 
 </Project>

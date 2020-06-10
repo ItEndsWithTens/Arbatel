@@ -24,18 +24,19 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="$(IsWindowsProject)">
-    <RuntimeID>win-x64</RuntimeID>
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
   </PropertyGroup>
 
   <PropertyGroup Condition="$(IsLinuxProject)">
-    <RuntimeID>linux-x64</RuntimeID>
+    <RuntimeIdentifier>linux-x64</RuntimeIdentifier>
   </PropertyGroup>
 
   <PropertyGroup Condition="$(IsMacProject)">
-    <RuntimeID>osx-x64</RuntimeID>
-  </PropertyGroup>
+    <RuntimeIdentifier>osx-x64</RuntimeIdentifier>
+  
+</PropertyGroup>
 
-  <Target Name="SetNeatenizePath" AfterTargets="Build" BeforeTargets="CopyVeldridSpirvNative">
+  <Target Name="SetNeatenizePath" AfterTargets="Build" BeforeTargets="NeatenizeLibraries">
     <PropertyGroup>
       <NeatenizePath Condition="$(IsMacProject) AND $(OutputAppPath) != ''">$(OutputAppPath)\Contents\MonoBundle\</NeatenizePath>
       <NeatenizePath Condition="!$(IsMacProject) OR $(OutputAppPath) == ''">$(OutputPath)</NeatenizePath>

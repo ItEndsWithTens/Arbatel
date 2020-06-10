@@ -13,7 +13,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Arbatel.Wpf", "src\gui\Arba
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Arbatel.Mac", "src\gui\Arbatel.Mac\Arbatel.Mac.csproj", "{82126DF9-6E7A-4DB4-8C78-7406786CC70C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Arbatel.Gtk", "src\gui\Arbatel.Gtk\Arbatel.Gtk.csproj", "{94AE77B4-896E-4184-B351-A2E35F98535E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Arbatel.Gtk2", "src\gui\Arbatel.Gtk2\Arbatel.Gtk2.csproj", "{94AE77B4-896E-4184-B351-A2E35F98535E}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Arbatel.XamMac", "src\gui\Arbatel.XamMac\Arbatel.XamMac.csproj", "{73F11BF1-A18D-4091-B451-C884FDDD922F}"
 EndProject
