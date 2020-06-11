@@ -7,12 +7,6 @@ jobs:
     vmImage: 'windows-latest'
 
   steps:
-  - task: UseDotNet@2
-    displayName: "Get .NET Core 3.1 SDK"
-    inputs:
-      packageType: sdk
-      version: 3.1.x
-
   - task: PowerShell@2
     displayName: "Build"
     inputs:
@@ -35,11 +29,6 @@ jobs:
     vmImage: 'ubuntu-latest'
 
   steps:
-  - task: UseDotNet@2
-    displayName: "Get .NET Core 3.1 SDK"
-    inputs:
-      packageType: sdk
-      version: 3.1.x
 
   - task: Bash@3
     displayName: "Build"
@@ -47,34 +36,22 @@ jobs:
       filePath: build.sh
 
   - task: PublishPipelineArtifact@0
-    displayName: "Publish Gtk package"
+    displayName: "Publish Gtk2 package"
     inputs:
-      artifactName: 'Gtk'
-      targetPath: 'artifacts/Gtk'
+      artifactName: 'Gtk2'
+      targetPath: 'artifacts/Gtk2'
 
 - job: macOS
   pool:
     vmImage: 'macOS-latest'
 
   steps:
-  - task: UseDotNet@2
-    displayName: "Get .NET Core 3.1 SDK"
-    inputs:
-      packageType: sdk
-      version: 3.1.x
 
   - task: Bash@3
     displayName: "Install dmgbuild"
     inputs:
       targetType: inline
       script: 'pip install dmgbuild'
-
-  # https://docs.microsoft.com/en-us/azure/devops/pipelines/agents/hosted?view=azure-devops
-  - task: Bash@3
-    displayName: "Select Xamarin SDK"
-    inputs:
-      targetType: inline
-      script: 'sudo $AGENT_HOMEDIRECTORY/scripts/select-xamarin-sdk.sh 5_18_1'
 
   - task: Bash@3
     displayName: "Build"
