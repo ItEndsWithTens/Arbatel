@@ -15,13 +15,11 @@
     <BuildOS Condition="$([MSBuild]::IsOsPlatform(`OSX`)) == true">macOS</BuildOS>
 
     <TopLevelDirectory>$(MSBuildThisFileDirectory)</TopLevelDirectory>
-    <VeldridSpirvNativeDir>$(TopLevelDirectory)\lib\Eto.Veldrid\artifacts\bin\Eto.Veldrid\Release\netstandard2.0\</VeldridSpirvNativeDir>
 
     <PlatformTarget>AnyCPU</PlatformTarget>
     <Deterministic>true</Deterministic>
     <MacBuildBundle>true</MacBuildBundle>
     <MacBundleName>$(Product)</MacBundleName>
-    <MacBundleMono>false</MacBundleMono>
 
     <!-- See https://www.wintellect.com/do-pdb-files-affect-performance/ for an
     excellent article by John Robbins showing that debug symbols don't impact
@@ -31,7 +29,7 @@
   </PropertyGroup>
 
   <ItemGroup Condition="$(MSBuildProjectName) != '_build'">
-    <Content Include="$(TopLevelDirectory)\App.config" Condition="$(OutputType) != 'Library'" />
+    <None Include="$(TopLevelDirectory)\App.config" Condition="$(OutputType) != 'Library'" />
   </ItemGroup>
 
 </Project>

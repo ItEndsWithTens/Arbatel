@@ -29,7 +29,7 @@ class Build : NukeBuild
 
 	readonly string[] EtoPlatformsWin = new[] { "WinForms", "Wpf" };
 	readonly string[] EtoPlatformsLin = new[] { "Gtk2" };
-	readonly string[] EtoPlatformsMac = new[] { "Mac" }; //, "XamMac" };
+	readonly string[] EtoPlatformsMac = new[] { "Mac" , "XamMac" };
 
 	AbsolutePath ArtifactsDirectory => RootDirectory / "artifacts";
 	AbsolutePath SourceDirectory => RootDirectory / "src";

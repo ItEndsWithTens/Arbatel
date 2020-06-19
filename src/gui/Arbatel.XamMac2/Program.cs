@@ -2,13 +2,11 @@
 using Arbatel.UI;
 using Eto;
 using Eto.Forms;
-using Eto.OpenTK;
-using Eto.OpenTK.Mac;
 using OpenTK;
 using System;
 using System.Runtime.InteropServices;
 
-namespace Arbatel.XamMac
+namespace Arbatel.XamMac2
 {
 	// This, like the other Quartz display stuff further below, was lifted from
 	// OpenTK. See OpenTK/Platform/MacOS/Quartz/DisplayServices.cs for the
@@ -71,8 +69,6 @@ namespace Arbatel.XamMac
 			Toolkit opentk = Core.InitOpenTK();
 
 			Platform platform = new Eto.Mac.Platform();
-
-			platform.Add<GLSurface.IHandler>(() => new MacGLSurfaceHandler());
 
 			Style.Add<View>(
 				"hidecursor",

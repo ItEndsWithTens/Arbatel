@@ -15,7 +15,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Arbatel.Mac", "src\gui\Arba
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Arbatel.Gtk2", "src\gui\Arbatel.Gtk2\Arbatel.Gtk2.csproj", "{94AE77B4-896E-4184-B351-A2E35F98535E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Arbatel.XamMac", "src\gui\Arbatel.XamMac\Arbatel.XamMac.csproj", "{73F11BF1-A18D-4091-B451-C884FDDD922F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Arbatel.XamMac2", "src\gui\Arbatel.XamMac2\Arbatel.XamMac2.csproj", "{73F11BF1-A18D-4091-B451-C884FDDD922F}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "common", "common", "{16A799F0-6BE4-430B-9D9C-2645193C7ED3}"
 	ProjectSection(SolutionItems) = preProject
