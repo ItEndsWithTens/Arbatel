@@ -9,30 +9,23 @@
     <NoNeatenize>_build;$(Product).Core;$(Product)Test.Core</NoNeatenize>
 
     <IsWindowsProject>false</IsWindowsProject>
-    <IsWindowsProject Condition="$(MSBuildProjectName) == '$(Product).WinForms'">true</IsWindowsProject>
-    <IsWindowsProject Condition="$(MSBuildProjectName) == '$(Product).Wpf'">true</IsWindowsProject>
-    <IsWindowsProject Condition="$(MSBuildProjectName) == '$(Product)Test.Rendering' AND $(BuildOS) == 'Windows'">true</IsWindowsProject>
+    <IsWindowsProject Condition="$(MSBuildProjectName.Contains('WinForms'))">true</IsWindowsProject>
+    <IsWindowsProject Condition="$(MSBuildProjectName.Contains('Wpf'))">true</IsWindowsProject>
+    <IsWindowsProject Condition="$(MSBuildProjectName.Contains('Test.Rendering')) AND $(BuildOS) == 'Windows'">true</IsWindowsProject>
 
     <IsLinuxProject>false</IsLinuxProject>
-    <IsLinuxProject Condition="$(MSBuildProjectName) == '$(Product).Gtk2'">true</IsLinuxProject>
-    <IsLinuxProject Condition="$(MSBuildProjectName) == '$(Product)Test.Rendering' AND $(BuildOS) == 'Linux'">true</IsLinuxProject>
+    <IsLinuxProject Condition="$(MSBuildProjectName.Contains('Gtk'))">true</IsLinuxProject>
+    <IsLinuxProject Condition="$(MSBuildProjectName.Contains('Test.Rendering')) AND $(BuildOS) == 'Linux'">true</IsLinuxProject>
 
     <IsMacProject>false</IsMacProject>
-    <IsMacProject Condition="$(MSBuildProjectName) == '$(Product).Mac64'">true</IsMacProject>
-    <IsMacProject Condition="$(MSBuildProjectName) == '$(Product).XamMac2'">true</IsMacProject>
-    <IsMacProject Condition="$(MSBuildProjectName) == '$(Product)Test.Rendering' AND $(BuildOS) == 'macOS'">true</IsMacProject>
+    <IsMacProject Condition="$(MSBuildProjectName.Contains('Mac'))">true</IsMacProject>
+    <IsMacProject Condition="$(MSBuildProjectName.Contains('Test.Rendering')) AND $(BuildOS) == 'macOS'">true</IsMacProject>
   </PropertyGroup>
 
-  <PropertyGroup Condition="$(IsWindowsProject)">
-    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="$(IsLinuxProject)">
-    <RuntimeIdentifier>linux-x64</RuntimeIdentifier>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="$(IsMacProject)">
-    <RuntimeIdentifier>osx-x64</RuntimeIdentifier>
+  <PropertyGroup>
+    <RuntimeIdentifier Condition="$(IsWindowsProject)">win-x64</RuntimeIdentifier>
+    <RuntimeIdentifier Condition="$(IsLinuxProject)">linux-x64</RuntimeIdentifier>
+    <RuntimeIdentifier Condition="$(IsMacProject)">osx-x64</RuntimeIdentifier>
   </PropertyGroup>
 
   <Target Name="SetNeatenizePath" AfterTargets="Build" BeforeTargets="NeatenizeLibraries">
