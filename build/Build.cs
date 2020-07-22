@@ -29,7 +29,7 @@ class Build : NukeBuild
 
 	readonly string[] EtoPlatformsWin = new[] { "WinForms", "Wpf" };
 	readonly string[] EtoPlatformsLin = new[] { "Gtk2" };
-	readonly string[] EtoPlatformsMac = new[] { "Mac64" , "XamMac2" };
+	readonly string[] EtoPlatformsMac = new[] { "Mac64" };
 
 	AbsolutePath ArtifactsDirectory => RootDirectory / "artifacts";
 	AbsolutePath SourceDirectory => RootDirectory / "src";
@@ -172,7 +172,8 @@ class Build : NukeBuild
 			.SetMaxCpuCount(Environment.ProcessorCount)
 			.SetNodeReuse(IsLocalBuild)
 			.CombineWith(projects, (s, p) => s
-				.SetProjectFile(Solution.GetProject($"{p}"))));
+				.SetProjectFile(Solution.GetProject($"{p}"))
+				.SetArgumentConfigurator((arg) => arg.Add($"/bl:{p}.binlog"))));
 	}
 
 	Target CompileCore => _ => _

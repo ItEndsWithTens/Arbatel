@@ -20,6 +20,7 @@
     <Deterministic>true</Deterministic>
     <MacBuildBundle>true</MacBuildBundle>
     <MacBundleName>$(Product)</MacBundleName>
+    <MacBundleMono>false</MacBundleMono>
 
     <!-- See https://www.wintellect.com/do-pdb-files-affect-performance/ for an
     excellent article by John Robbins showing that debug symbols don't impact
