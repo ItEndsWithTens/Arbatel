@@ -15,7 +15,6 @@
     <BuildOS Condition="$([MSBuild]::IsOsPlatform(`OSX`)) == true">macOS</BuildOS>
 
     <TopLevelDirectory>$(MSBuildThisFileDirectory)</TopLevelDirectory>
-    <VeldridSpirvNativeDir>$(TopLevelDirectory)\lib\Eto.Veldrid\artifacts\bin\Eto.Veldrid\Release\netstandard2.0\</VeldridSpirvNativeDir>
 
     <PlatformTarget>AnyCPU</PlatformTarget>
     <Deterministic>true</Deterministic>
@@ -31,7 +30,7 @@
   </PropertyGroup>
 
   <ItemGroup Condition="$(MSBuildProjectName) != '_build'">
-    <Content Include="$(TopLevelDirectory)\App.config" Condition="$(OutputType) != 'Library'" />
+    <None Include="$(TopLevelDirectory)\App.config" Condition="$(OutputType) != 'Library'" />
   </ItemGroup>
 
 </Project>
