@@ -59,13 +59,7 @@ jobs:
       filePath: build.sh
 
   - task: PublishPipelineArtifact@0
-    displayName: "Publish Mac package"
+    displayName: "Publish Mac64 package"
     inputs:
-      artifactName: 'Mac'
-      targetPath: 'artifacts/Mac'
-
-  #- task: PublishPipelineArtifact@0
-  #  displayName: "Publish XamMac package"
-  #  inputs:
-  #    artifactName: 'XamMac'
-  #    targetPath: 'artifacts/XamMac'
+      artifactName: 'Mac64'
+      targetPath: 'artifacts/Mac64'
