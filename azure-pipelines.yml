@@ -51,7 +51,10 @@ jobs:
     displayName: "Install dmgbuild"
     inputs:
       targetType: inline
-      script: 'pip install dmgbuild'
+      script: |
+        python3 -m venv .venv
+        source .venv/bin/activate
+        pip install dmgbuild
 
   - task: Bash@3
     displayName: "Build"

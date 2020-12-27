@@ -53,7 +53,12 @@
 
   #### macOS
   - [dmgbuild](https://github.com/al45tair/dmgbuild)
-    - `pip install dmgbuild`
+  
+    ```
+    python3 -m venv .venv
+    source .venv/bin/activate
+    pip install dmgbuild
+    ```
 
   ### Build dependencies
 
