@@ -57,7 +57,7 @@
     ```
     python3 -m venv .venv
     source .venv/bin/activate
-    pip install dmgbuild
+    pip3 install dmgbuild
     ```
 
   ### Build dependencies

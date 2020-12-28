@@ -49,7 +49,7 @@ jobs:
     displayName: "Install dmgbuild"
     inputs:
       targetType: inline
-      script: 'pip install dmgbuild'
+      script: 'pip3 install dmgbuild'
 
   - task: Bash@3
     displayName: "Build"
