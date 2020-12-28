@@ -1,4 +1,5 @@
 using Nuke.Common;
+using Nuke.Common.Execution;
 using Nuke.Common.IO;
 using Nuke.Common.ProjectModel;
 using Nuke.Common.Tooling;
@@ -23,6 +24,8 @@ using static Nuke.Common.Tools.MSBuild.MSBuildTasks;
 using static Nuke.Common.Tools.NUnit.NUnitTasks;
 using static Nuke.Common.Tools.VSWhere.VSWhereTasks;
 
+[CheckBuildProjectConfigurations]
+[UnsetVisualStudioEnvironmentVariables]
 class Build : NukeBuild
 {
 	const string ProductName = "Arbatel";
@@ -165,7 +168,7 @@ class Build : NukeBuild
 			.SetTargets("Build")
 			.SetConfiguration(Configuration)
 			.When(CustomMsBuildPath != null, s => s
-				.SetToolPath(CustomMsBuildPath))
+				.SetProcessToolPath(CustomMsBuildPath))
 			.SetAssemblyVersion(GitVersion.AssemblySemVer)
 			.SetFileVersion(GitVersion.AssemblySemFileVer)
 			.SetInformationalVersion(GitVersion.InformationalVersion)
@@ -173,7 +176,7 @@ class Build : NukeBuild
 			.SetNodeReuse(IsLocalBuild)
 			.CombineWith(projects, (s, p) => s
 				.SetProjectFile(Solution.GetProject($"{p}"))
-				.SetArgumentConfigurator((arg) => arg.Add($"/bl:{p}.binlog"))));
+				.SetProcessArgumentConfigurator((arg) => arg.Add($"/bl:{p}.binlog"))));
 	}
 
 	Target CompileCore => _ => _
