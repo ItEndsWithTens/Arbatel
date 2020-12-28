@@ -29,7 +29,6 @@ jobs:
     vmImage: 'ubuntu-latest'
 
   steps:
-
   - task: Bash@3
     displayName: "Build"
     inputs:
@@ -46,15 +45,11 @@ jobs:
     vmImage: 'macOS-latest'
 
   steps:
-
   - task: Bash@3
     displayName: "Install dmgbuild"
     inputs:
       targetType: inline
-      script: |
-        python3 -m venv .venv
-        source .venv/bin/activate
-        pip install dmgbuild
+      script: 'pip install dmgbuild'
 
   - task: Bash@3
     displayName: "Build"
