@@ -7,10 +7,11 @@
     <RootNamespace></RootNamespace>
     <IsPackable>False</IsPackable>
     <NoWarn>CS0649;CS0169</NoWarn>
+    <NukeTelemetryVersion>1</NukeTelemetryVersion>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Nuke.Common" Version="5.0.2" />
+    <PackageReference Include="Nuke.Common" Version="5.3.0" />
     <PackageReference Include="NUnit.ConsoleRunner" Version="3.11.1" />
     <PackageReference Include="SharpCompress" Version="0.25.1" />
     <PackageReference Include="vswhere" Version="2.8.4">
@@ -18,29 +19,17 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
 
-    <PackageDownload Include="GitVersion.Tool" Version="[5.1.1]" />
+    <PackageDownload Include="GitVersion.Tool" Version="[5.7.0]" />
   </ItemGroup>
 
   <ItemGroup>
     <NukeSpecificationFiles Include="**\*.json" Exclude="bin\**;obj\**" />
     <NukeExternalFiles Include="**\*.*.ext" Exclude="bin\**;obj\**" />
-    <None Remove="*.csproj.DotSettings;*.ref.*.txt" />
 
     <!-- Common build related files -->
-    <None Include="..\build.ps1" />
-    <None Include="..\build.sh" />
-
-    <None Include="..\.nuke" LinkBase="config" />
-    <None Include="..\global.json" LinkBase="config" Condition="Exists('..\global.json')" />
-    <None Include="..\nuget.config" LinkBase="config" Condition="Exists('..\nuget.config')" />
-    <None Include="..\GitVersion.yml" LinkBase="config" Condition="Exists('..\GitVersion.yml')" />
 
     <None Include="..\.teamcity\settings.kts" LinkBase="ci" Condition="Exists('..\.teamcity\settings.kts')" />
     <None Include="..\.github\workflows\*.yml" LinkBase="ci" />
-    <None Include="..\azure-pipelines.yml" LinkBase="ci" Condition="Exists('..\azure-pipelines.yml')" />
-    <None Include="..\Jenkinsfile" LinkBase="ci" Condition="Exists('..\Jenkinsfile')" />
-    <None Include="..\appveyor.yml" LinkBase="ci" Condition="Exists('..\appveyor.yml')" />
-    <None Include="..\.travis.yml" LinkBase="ci" Condition="Exists('..\.travis.yml')" />
   </ItemGroup>
 
 </Project>
