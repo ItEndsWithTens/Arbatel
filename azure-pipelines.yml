@@ -30,6 +30,11 @@ jobs:
 
   steps:
   - task: Bash@3
+    displayName: "Install gtk-sharp2"
+    inputs:
+      script: 'sudo apt-get install gtk-sharp2'
+
+  - task: Bash@3
     displayName: "Build"
     inputs:
       filePath: build.sh
