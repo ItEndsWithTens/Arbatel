@@ -27,6 +27,10 @@
     performance, and that full and pdbonly are the same. -->
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
+
+    <EnableNETAnalyzers>true</EnableNETAnalyzers>
+    <AnalysisLevel>latest-all</AnalysisLevel>
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
   </PropertyGroup>
 
   <ItemGroup Condition="$(MSBuildProjectName) != '_build'">
